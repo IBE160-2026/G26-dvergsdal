@@ -38,6 +38,7 @@ Detail the user gave that belongs in the PRD or UX work, not in the brief itself
 - Deadline: mid-December 2026. Solo project. Must be full-stack with a database.
 - A reflection report (3000–5000 words) is also required. It covers the AI-assisted process phase by phase and requires **all prompts to be saved**. It also covers tools and technology, technical and AI-specific challenges, a critical assessment of AI's impact, ethics (responsibility, transparency, learning), and data security and privacy (what data was shared with AI tools).
 - Implication: the planning artifacts from this BMad run are evidence for report section 2.4 (Phase 1: planning).
+- Confirmed 2026-09-26: an AI feature inside the app is not a course requirement. AI use is covered through the development process (prompt log, BMad).
 
 ## Payments
 - Payment happens outside the app: guests pay the couple by bank transfer or Vipps, and the couple pays Hardingasete.
@@ -61,7 +62,7 @@ Detail the user gave that belongs in the PRD or UX work, not in the brief itself
 ## Later decisions
 - Guest questions are forwarded to the couple's email (must-have for V1). Open question: whether sending email costs anything.
 - Admin access: full access for all admin users. Guests consent via a checkbox that names who can see their information.
-- AI assistant: public site content only; no personal guest data goes to the AI provider.
-- Language: Norwegian UI in V1; the assistant answers in the guest's language; a full English version is a stretch goal.
+- AI in the site (2026-09-26): removed. The guest Q&A assistant and AI cabin/bed placement were dropped because running AI costs money and is not a course requirement. Guest questions go through the "ask us" form only.
+- Language: Norwegian UI in V1. An English version, switched with a language button at the top, is a stretch goal. Until then, non-Norwegian guests ask the couple directly.
 - Gift list: form undecided (static list, external link, or reservable gifts).
 - Possible post-wedding keepsake (photo sharing, thank-you message) if time allows.
