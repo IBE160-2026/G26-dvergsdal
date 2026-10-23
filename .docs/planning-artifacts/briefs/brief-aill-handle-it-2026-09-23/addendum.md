@@ -60,9 +60,17 @@ Detail the user gave that belongs in the PRD or UX work, not in the brief itself
 - Additional RSVP fields: expected arrival time; joining the Friday hike (yes/no/maybe).
 
 ## Later decisions
-- Guest questions are forwarded to the couple's email (must-have for V1). Open question: whether sending email costs anything.
+- Guest questions are stored and shown in admin (must-have for V1). Email forwarding to the couple is optional: sent only when an email key is set, otherwise logged to the console (changed 2026-10-23 after teacher feedback). Open question: whether sending email costs anything in production.
 - Admin access: full access for all admin users. Guests consent via a checkbox that names who can see their information.
 - AI in the site (2026-09-26): removed. The guest Q&A assistant and AI cabin/bed placement were dropped because running AI costs money and is not a course requirement. Guest questions go through the "ask us" form only.
 - Language: Norwegian UI in V1. An English version, switched with a language button at the top, is a stretch goal. Until then, non-Norwegian guests ask the couple directly.
 - Gift list: form undecided (static list, external link, or reservable gifts).
 - Possible post-wedding keepsake (photo sharing, thank-you message) if time allows.
+
+## Changes after teacher feedback (2026-10-23)
+Source: `tilbakemelding-product-brief.md` in this folder.
+- Course v1 (December 2026) is separated from the real wedding. Real-wedding success criteria are long-term goals, and hosting and production move to 2027.
+- Core for v1: personal link, household RSVP with price, lock at deadline, admin overview with counts and overrides, guest questions in admin, letter animation (kept simple), simple information pages.
+- Second step: speech sign-ups, gift list, link tracking.
+- Local setup: seed data with fictional guests and households, test links, test admin user, email logged to the console without a key.
+- Privacy: only fictional data in the repo and in AI tools; real data only in the production database; keys in `.env`; real data deleted by 31 August 2028 (three months after the wedding).
