@@ -57,7 +57,7 @@ Free services like Joy, Zola and The Knot already handle a basic RSVP. Their sha
 
 - **Households answer together.** Each guest has a personal link, but a family or couple can answer as one.
 - **A three-day weekend with paid add-ons.** Guests tick the meals and accommodation they want, see the price of each, and the household pays the couple by bank transfer or Vipps, which is common in Norway.
-- **An invitation that feels like one.** A letter can unfold the first time a guest opens their link.
+- **An invitation that feels like one.** A letter can unfold the first time a guest opens their link (if time and capacity allow).
 - **Norwegian first, with the couple's own look.** Sage green, soft white and dark wood, not a template.
 
 The honest advantage isn't technology. It's fit. This is built for exactly one wedding, by someone who knows every guest. It avoids paying for, or compromising with, a generic product. It's also a learning project that ends in something that will actually be used.
@@ -92,7 +92,7 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 - Consent: a guest who doesn't tick the consent box is told that the answer can't be sent without it. They can then tick the box, or send the couple a private email instead.
 - Admin for the couple and helpers (full access for all): login; overview of attendance, meal counts, beds, allergies, and what each household owes; marking households as paid; editing and overrides; guest questions.
 - Guest questions are always stored and shown in admin. Email forwarding to the couple is optional: sent only when an email key is set, otherwise logged to the console.
-- Easy to use on a phone for guests of all ages (see Who This Serves).
+- Easy to use on a phone for guests of all ages (see Who This Serves). Also works and is easy to read on a PC, using the phone layout.
 - Local setup for development and assessment: seed data with fictional guests and households, test links and a test admin user.
 
 **If time and capacity allow: by December 2026 if possible, otherwise before invitations go out in about December 2027**
@@ -102,7 +102,7 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 - Link tracking: which households have opened their link.
 - An English version of the site, switched with a language button at the top. Until then, guests who don't read Norwegian ask the couple directly.
 - Email or SMS notifications to guests when information changes.
-- A layout adapted for PC as well as phone.
+- A layout that makes use of the larger PC screen.
 - A printer-friendly page in admin with the numbers the couple passes on to Hardingasete.
 
 **Out**
@@ -142,4 +142,4 @@ If time allows after the wedding, the site could become a keepsake: guests share
 
 - **2026-09-26:** AI features removed from the site (cost, not a course requirement).
 - **2026-10-23:** Updated after the course teacher's feedback (`tilbakemelding-product-brief.md`): separated the course delivery from the real wedding; moved real-wedding success criteria to long-term goals and production/hosting to the vision; made email forwarding optional with console logging; added local setup with seed data and test admin; added the Data and Privacy section; household answers use last-save-wins and show who last updated; usability test set to the first week of December.
-- **2026-10-23 (review):** Scope split into "Must" and "If time and capacity allow" (the latter by December if possible, otherwise before invitations go out). Letter animation, speech sign-ups, gift list, link tracking, English version and change notifications moved to the second group. Added: admin creates guests and households; paid options listed with prices and ticked per guest; accommodation is the whole weekend or nothing; Saturday lunch and dinner paid by the couple; payment per household; prices not known yet; consent required to send the answer; usability requirements; EU/EEA storage; fictional test admin; sending answers to Hardingasete is out. Removed the week count from constraints. Added to "If time and capacity allow": a layout for PC and a printer-friendly admin page with the numbers for Hardingasete.
+- **2026-10-23 (review):** Scope split into "Must" and "If time and capacity allow" (the latter by December if possible, otherwise before invitations go out). Letter animation, speech sign-ups, gift list, link tracking, English version and change notifications moved to the second group. Added: admin creates guests and households; paid options listed with prices and ticked per guest; accommodation is the whole weekend or nothing; Saturday lunch and dinner paid by the couple; payment per household; prices not known yet; consent required to send the answer; usability requirements; EU/EEA storage; fictional test admin; sending answers to Hardingasete is out. Removed the week count from constraints. Added to "If time and capacity allow": a layout for PC and a printer-friendly admin page with the numbers for Hardingasete. Second review: the site must also work on a PC (using the phone layout), since the examiner runs it on a PC; only a layout tailored to the larger screen is "if time". Letter animation marked "if time" under What Makes This Different.
