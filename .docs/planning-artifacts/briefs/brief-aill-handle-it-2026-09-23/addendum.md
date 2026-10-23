@@ -71,7 +71,7 @@ Detail the user gave that belongs in the PRD or UX work, not in the brief itself
 Source: `tilbakemelding-product-brief.md` in this folder.
 - Course v1 (December 2026) is separated from the real wedding. Real-wedding success criteria are long-term goals, and hosting and production move to 2027.
 - Must for December 2026: admin creates guests and households, personal link, household RSVP with price, lock at deadline, consent, admin overview with counts, payments and overrides, guest questions in admin, simple information pages, easy to use on a phone.
-- If time and capacity allow (by December if possible, otherwise before invitations go out): letter animation, speech sign-ups, gift list, link tracking, English version, change notifications. Revised in the brief review the same day; the first version kept the letter animation in the core and had a separate "second step".
+- If time and capacity allow (by December if possible, otherwise before invitations go out): letter animation, speech sign-ups, gift list, link tracking, English version, change notifications, PC layout, printer-friendly admin page with numbers for Hardingasete. Revised in the brief review the same day; the first version kept the letter animation in the core and had a separate "second step".
 - Local setup: seed data with fictional guests and households, test links, test admin user, email logged to the console without a key.
 - Privacy: only fictional data in the repo and in AI tools; real data only in the production database; keys in `.env`; real data deleted by 31 August 2028 (three months after the wedding).
 
