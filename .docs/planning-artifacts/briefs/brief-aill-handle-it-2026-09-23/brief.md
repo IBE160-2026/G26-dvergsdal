@@ -2,22 +2,24 @@
 title: "Product Brief: AI'll handle it"
 status: final
 created: 2026-09-23
-updated: 2026-09-26
+updated: 2026-10-23
 ---
 
 # Product Brief: AI'll handle it
 
 ## Executive Summary
 
-AI'll handle it is a wedding website that is also the invitation, for Rikke's wedding weekend at Hardingasete in Hardanger on 27 May 2028. Each of about 70 guests gets a personal link. The first time they open it, a letter unfolds like a paper invitation and leads into a site with everything about the weekend: the programme from Friday's mountain hike to Sunday breakfast, practical details, and house rules. Households answer together in one simple form covering attendance, meals, cabin beds, allergies and arrival. Guests see exactly what their choices cost and how to pay, and can send any remaining question straight to the couple.
+AI'll handle it is a wedding website that is also the invitation, for Rikke's wedding weekend at Hardingasete in Hardanger on 27 May 2028. Each of about 70 guests gets a personal link that leads into a site with everything about the weekend: the programme from Friday's mountain hike to Sunday breakfast, practical details, and house rules. Households answer together in one simple form covering attendance, meals, cabin beds, allergies and arrival. Guests see what each option costs, tick the ones they want, see what their household owes and how to pay, and can send any remaining question straight to the couple.
 
-It replaces the usual approach: a photo invitation sent over Messenger, free-text replies, and an Excel sheet. That approach loses allergies and bed counts, costs the couple hours of chasing and checking, and can't keep 70 people up to date when plans change. Here, the couple gets one admin overview to take to the venue, with attendance, meal counts, beds, allergies, payments and who hasn't opened their invitation yet.
+It replaces the usual approach: a photo invitation sent over Messenger, free-text replies, and an Excel sheet. That approach loses allergies and bed counts, costs the couple hours of chasing and checking, and can't keep 70 people up to date when plans change. Here, the couple gets one admin overview with attendance, meal counts, beds, allergies, payments and guest questions.
 
-The project is also Rikke's solo full-stack project for IBE160 Programmering med KI at Høgskolen i Molde, due mid-December 2026. The name refers to how it is built, with AI as a development partner. The site itself has no AI features. The course version is meant to be the real product, with a year of testing before invitations go out in about December 2027.
+The project is also Rikke's solo full-stack project for IBE160 Programmering med KI at Høgskolen i Molde, due mid-December 2026. The name refers to how it is built, with AI as a development partner. The site itself has no AI features.
+
+The goal is a finished website at the course delivery in December 2026. The scope is split in two: what must be finished by December, and what is added if time and capacity allow. Anything in the second group that isn't done by December is added before invitations go out in about December 2027. For the course, the site runs locally with fictional test guests; hosting and real guest data come in 2027.
 
 ## The Problem
 
-A three-day wedding weekend with about 70 guests means many details per guest: whether they are coming, which meals they want across three days (Friday dinner, Saturday and Sunday breakfast), whether they need a cabin bed, allergies and dietary needs, and what they owe. Guests belong to households and couples, and one person often answers for several people.
+A three-day wedding weekend with about 70 guests means many details per guest: whether they are coming, which meals they want (Friday dinner, Saturday and Sunday breakfast), whether they need a cabin bed, allergies and dietary needs, and what they owe. Guests belong to households, and one person often answers for several people.
 
 The default way to handle this is a photo of an invitation sent by Messenger, email and text, with guests replying in free text and the couple copying answers into Excel. This breaks down in predictable ways:
 
@@ -28,25 +30,34 @@ The default way to handle this is a photo of an invitation sent by Messenger, em
 
 ## The Solution
 
-Each guest gets a personal link. The first visit opens with the letter animation, and later visits go straight to the site. Guests are grouped into households, so one person can answer for the whole family.
+The couple creates guests and households in the admin area and sends each guest their personal link. A household is a couple or a family, so one person can answer for everyone in it.
 
-**For guests**, the site is the one place for everything about the weekend: the programme from Friday's hike to Sunday breakfast, practical information, house rules (child-free, as little phone use as possible), an introduction to the couple, and a no-pressure gift list. Guests answer in one simple form: whether they're coming, meals, cabin bed, allergies, expected arrival and the Friday hike. They see exactly what their choices cost and how to pay by bank transfer or Vipps. If something isn't clear, they can send a question to the couple from the site.
+**For guests**, the site is the one place for everything about the weekend: the programme from Friday's hike to Sunday breakfast, practical information, house rules (child-free, as little phone use as possible) and an introduction to the couple. Guests answer in one simple form: whether they're coming, the paid options they want, allergies, expected arrival and the Friday hike. The paid options are listed with their price next to each one, and guests tick the ones they want for each person:
 
-**For the couple**, an admin area replaces the Excel sheet. It shows who is coming and who hasn't answered or even opened their link, meal counts for every meal, beds needed, allergies by name, who owes what and who has paid, guest questions, and speech sign-ups for the toastmaster. Answers lock at the RSVP deadline so the numbers stay fixed. The couple can always override: edit answers, move people between households, or remove a guest.
+- Cabin accommodation at Hardingasete for the whole weekend (the whole weekend or nothing).
+- Friday dinner.
+- Saturday breakfast.
+- Sunday breakfast.
+
+Saturday lunch and dinner are paid by the couple. The form adds up what the household owes and shows how to pay by bank transfer or Vipps. If something isn't clear, guests can send a question to the couple from the site.
+
+**For the couple**, an admin area replaces the Excel sheet. It shows who is coming and who hasn't answered, meal counts for every meal, beds needed, allergies by name, what each household owes and whether it has paid, and guest questions. Answers lock at the RSVP deadline so the numbers stay fixed. The couple can always override: edit answers, move people between households, or remove a guest. The couple passes the numbers on to Hardingasete themselves.
 
 ## Who This Serves
 
 - **Guests (about 70, all ages).** Some are confident on their phones, some are not. A few may not speak Norwegian. They need to understand the weekend, answer once, and know what they owe. Success means they never have to ask the couple something the site already answers.
 - **The couple (Rikke and partner).** They need numbers they can trust when talking to Hardingasete, and to stop chasing replies. Success means one screen replaces Excel, the message threads and the double-checking.
-- **Helpers (toastmaster, maid of honour, best man).** They share the admin view, so they can follow what concerns them, such as speech sign-ups for the toastmaster, without going through the couple.
+- **Helpers (toastmaster, maid of honour, best man).** They share the admin view, so they can follow what concerns them without going through the couple.
+
+**Easy to use for everyone.** Many guests are older and not used to technology, so the site must be easy to use on a phone: large, readable text, good contrast, clear labels on every form field, clear messages when something is missing or goes wrong, and full keyboard navigation.
 
 ## What Makes This Different
 
 Free services like Joy, Zola and The Knot already handle a basic RSVP. Their shape doesn't fit this wedding:
 
 - **Households answer together.** Each guest has a personal link, but a family or couple can answer as one.
-- **A three-day weekend with paid add-ons.** Guests pick individual meals and cabin nights, see the exact price, and pay the couple by bank transfer or Vipps, which is common in Norway.
-- **An invitation that feels like one.** A letter unfolds the first time a guest opens their link.
+- **A three-day weekend with paid add-ons.** Guests tick the meals and accommodation they want, see the price of each, and the household pays the couple by bank transfer or Vipps, which is common in Norway.
+- **An invitation that feels like one.** A letter can unfold the first time a guest opens their link (if time and capacity allow).
 - **Norwegian first, with the couple's own look.** Sage green, soft white and dark wood, not a template.
 
 The honest advantage isn't technology. It's fit. This is built for exactly one wedding, by someone who knows every guest. It avoids paying for, or compromising with, a generic product. It's also a learning project that ends in something that will actually be used.
@@ -54,16 +65,18 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 ## Success Criteria
 
 **Course delivery (mid-December 2026)**
-- The full guest flow works end to end on a phone: open personal link, see the letter, RSVP for the household, see the price and how to pay.
-- The admin overview shows correct counts (attendance, meals, beds, allergies, payments) for a test guest list.
-- A guest question sent from the site shows up in the admin view and in the couple's email.
+- The full guest flow works end to end on a phone: open personal link, RSVP for the household, tick paid options, see the total and how to pay.
+- The admin overview shows correct counts (attendance, meals, beds, allergies, payments) for a fictional test guest list. The list has expected numbers worked out by hand, and automated tests check the app against them.
+- Answers lock at the RSVP deadline, and the admin can still override them.
+- A guest question sent from the site shows up in the admin view. It is also sent by email when an email key is set; without a key it is written to the console.
+- Someone who doesn't know the project can run the app locally by following the README, with seeded test guests and households, test links and a test admin user, without any of Rikke's accounts or keys.
 - A complete prompt log backs the reflection report.
 
-**Easy to use for everyone**
-- An older relative who is not comfortable with technology completes the RSVP for their household on their own phone without help, in under 10 minutes.
+**Easy to use for everyone (usability test in the first week of December 2026)**
+- An older relative who is not comfortable with technology completes the RSVP for their household on Rikke's phone or PC without help, in under 10 minutes. The course version runs locally, so the test uses Rikke's device and fictional guest data.
 - The couple can find any number Hardingasete asks for in under a minute.
 
-**The real wedding (invitations about December 2027, wedding 27 May 2028)**
+**Long-term goals for the real wedding (not measured in the course)**
 - 90% of households answer through the site before the RSVP deadline, without being chased.
 - Zero allergy or bed mistakes at Hardingasete.
 - The couple never opens Excel for guest logistics.
@@ -71,32 +84,62 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 
 ## Scope
 
-**In: delivered mid-December 2026 as the real, production-ready product**
-- Personal link per guest; households and couples, with one person answering for all.
-- Letter-opening invitation on the first visit; straight to the site on later visits.
-- Information pages: weekend programme, practical info (address, times, dress codes, transport), about the couple, house rules, gifts.
-- RSVP for each guest in the household, filled in by any one member: attendance, meals, cabin bed, allergies, expected arrival, Friday hike, and consent to share with the admin team. Shows price and bank/Vipps payment details. Locks at the RSVP deadline.
-- Admin for the couple and helpers (full access for all): login; overview of attendance, meal counts, beds, allergies, payments and opened links; editing and overrides; guest questions, also forwarded to the couple's email; speech sign-ups.
+**Must: finished, stable and tested by mid-December 2026**
+- Admin creates guests and households and gets each guest's personal link.
+- Personal link per guest; households (a couple or a family), with one person answering for all.
+- Information pages: weekend programme, practical info (address, times, dress codes, transport), about the couple, house rules. Kept simple.
+- RSVP for each guest in the household, filled in by any one member: attendance, paid options (accommodation for the whole weekend, Friday dinner, Saturday breakfast, Sunday breakfast) with the price shown next to each, allergies, expected arrival, Friday hike, and consent to share with the admin team. Shows the household total and bank/Vipps payment details. Locks at the RSVP deadline. If two household members answer, the last save wins, and the form shows who last updated it and when.
+- Consent: a guest who doesn't tick the consent box is told that the answer can't be sent without it. They can then tick the box, or send the couple a private email instead.
+- Admin for the couple and helpers (full access for all): login; overview of attendance, meal counts, beds, allergies, and what each household owes; marking households as paid; editing and overrides; guest questions.
+- Guest questions are always stored and shown in admin. Email forwarding to the couple is optional: sent only when an email key is set, otherwise logged to the console.
+- Easy to use on a phone for guests of all ages (see Who This Serves). Also works and is easy to read on a PC, using the phone layout.
+- Local setup for development and assessment: seed data with fictional guests and households, test links and a test admin user.
 
-**Stretch: if time allows, or during 2027 before invitations go out**
-- Email or SMS notifications to guests when information changes.
+**If time and capacity allow: by December 2026 if possible, otherwise before invitations go out in about December 2027**
+- Letter-opening invitation on the first visit; straight to the site on later visits.
+- Speech sign-ups that reach the toastmaster.
+- Gift list page.
+- Link tracking: which households have opened their link.
 - An English version of the site, switched with a language button at the top. Until then, guests who don't read Norwegian ask the couple directly.
+- Email or SMS notifications to guests when information changes.
+- A layout that makes use of the larger PC screen.
+- A printer-friendly page in admin with the numbers the couple passes on to Hardingasete.
 
 **Out**
-- Online payment. Guests pay the couple by bank transfer or Vipps outside the site.
+- Online payment. Households pay the couple by bank transfer or Vipps outside the site.
 - The site sending invitations. The couple sends each link by Messenger, SMS or email.
+- The site sending answers or numbers to Hardingasete. The couple does that themselves.
 - Guest accounts and passwords. The personal link is the login.
+- Hosting for the course delivery. The course version runs locally.
 
 **Constraints and open questions**
-- Solo developer, early in learning to code, about 12 weeks to the deadline.
-- Must be full-stack with a database (course requirement). An AI feature in the site is not required. AI is used in the development process and documented in the prompt log.
-- Allergies are health data under GDPR. Handled by explicit guest consent.
-- The site must stay online and maintained until mid-2028. The couple owns hosting and cost.
+- Solo developer, early in learning to code. Delivery mid-December 2026.
+- Must be full-stack with a database (course requirement). A simple full-stack solution with one database, chosen and justified in the architecture document. An AI feature in the site is not required. AI is used in the development process and documented in the prompt log.
+- Open: prices from Hardingasete are not known yet, so they must be easy to change.
 - Open: the form of the gift list (static list, external link, or gifts guests can reserve).
-- Open: whether sending email costs anything. If it does, decide later how to handle it.
+- Open: whether sending email costs anything in production. The course version does not depend on it.
+
+## Data and Privacy
+
+The repository is public, and allergies are health data under GDPR.
+
+- **Only fictional data in the repository.** All development, testing, seed data, screenshots and the usability test use fictional guests. Real names, guest lists, allergies and payment details are never committed and never pasted into AI tools.
+- **Real data only in production.** Real guest data lives only in the production database, which is set up in 2027 and hosted in the EU/EEA.
+- **Secrets outside Git.** Keys and real passwords live in a `.env` file that Git ignores. The repository has a `.env.example` without real values. The test admin user is fictional, exists only in local seed data, and its login is documented in the README.
+- **Consent.** Guests tick a consent checkbox in the RSVP form that names who can see their information (the couple, toastmaster, maid of honour and best man). Without consent, the answer can't be sent (see Scope).
+- **Access.** Only logged-in admin users can see guest answers. Each personal link shows only that guest's household, and links are long random tokens that are hard to guess.
+- **Deletion.** Real guest data is deleted no later than three months after the wedding, by 31 August 2028.
 
 ## Vision
 
 The goal is a great weekend and a stress-free run-up to it. Guests arrive knowing what to expect, having answered once. The couple spends the last months planning the celebration, not chasing replies.
 
+After the course, the site goes into production during 2027 and stays online until the wedding in May 2028. The couple owns hosting and its cost.
+
 If time allows after the wedding, the site could become a keepsake: guests share photos and the couple posts a thank-you.
+
+## Change Log
+
+- **2026-09-26:** AI features removed from the site (cost, not a course requirement).
+- **2026-10-23:** Updated after the course teacher's feedback (`tilbakemelding-product-brief.md`): separated the course delivery from the real wedding; moved real-wedding success criteria to long-term goals and production/hosting to the vision; made email forwarding optional with console logging; added local setup with seed data and test admin; added the Data and Privacy section; household answers use last-save-wins and show who last updated; usability test set to the first week of December.
+- **2026-10-23 (review):** Scope split into "Must" and "If time and capacity allow" (the latter by December if possible, otherwise before invitations go out). Letter animation, speech sign-ups, gift list, link tracking, English version and change notifications moved to the second group. Added: admin creates guests and households; paid options listed with prices and ticked per guest; accommodation is the whole weekend or nothing; Saturday lunch and dinner paid by the couple; payment per household; prices not known yet; consent required to send the answer; usability requirements; EU/EEA storage; fictional test admin; sending answers to Hardingasete is out. Removed the week count from constraints. Added to "If time and capacity allow": a layout for PC and a printer-friendly admin page with the numbers for Hardingasete. Second review: the site must also work on a PC (using the phone layout), since the examiner runs it on a PC; only a layout tailored to the larger screen is "if time". Letter animation marked "if time" under What Makes This Different. Usability test done on Rikke's phone or PC, since the course version only runs locally.
