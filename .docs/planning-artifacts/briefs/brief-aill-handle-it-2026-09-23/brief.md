@@ -61,7 +61,7 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 - Someone who doesn't know the project can run the app locally by following the README, with seeded test guests and households, test links and a test admin user, without any of Rikke's accounts or keys.
 - A complete prompt log backs the reflection report.
 
-**Easy to use for everyone (tested before the course delivery)**
+**Easy to use for everyone (usability test in the first week of December 2026)**
 - An older relative who is not comfortable with technology completes the RSVP for their household on their own phone without help, in under 10 minutes. The test uses fictional guest data.
 - The couple can find any number Hardingasete asks for in under a minute.
 
@@ -77,12 +77,12 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 - Personal link per guest; households and couples, with one person answering for all.
 - Letter-opening invitation on the first visit; straight to the site on later visits. Kept simple (CSS animation).
 - Information pages: weekend programme, practical info (address, times, dress codes, transport), about the couple, house rules. Kept simple.
-- RSVP for each guest in the household, filled in by any one member: attendance, meals, cabin bed, allergies, expected arrival, Friday hike, and consent to share with the admin team. Shows price and bank/Vipps payment details. Locks at the RSVP deadline.
+- RSVP for each guest in the household, filled in by any one member: attendance, meals, cabin bed, allergies, expected arrival, Friday hike, and consent to share with the admin team. Shows price and bank/Vipps payment details. Locks at the RSVP deadline. If two household members answer, the last save wins, and the form shows who last updated it and when.
 - Admin for the couple and helpers (full access for all): login; overview of attendance, meal counts, beds, allergies and payments; editing and overrides; guest questions.
 - Guest questions are always stored and shown in admin. Email forwarding to the couple is optional: sent only when an email key is set, otherwise logged to the console.
 - Local setup for development and assessment: seed data with fictional guests and households, test links and a test admin user.
 
-**Second step: after the core is stable, before December 2026 if time allows**
+**Second step: also planned for mid-December 2026, built after the core is stable. If time runs short, these are cut before anything in the core.**
 - Speech sign-ups that reach the toastmaster.
 - Gift list page.
 - Link tracking: which households have opened their link.
@@ -125,4 +125,4 @@ If time allows after the wedding, the site could become a keepsake: guests share
 ## Change Log
 
 - **2026-09-26:** AI features removed from the site (cost, not a course requirement).
-- **2026-10-23:** Updated after the course teacher's feedback (`tilbakemelding-product-brief.md`): split course v1 from the real wedding; moved real-wedding success criteria to long-term goals and production/hosting to the vision; split scope into core and second step (speech sign-ups, gift list and link tracking moved to second step; letter animation stays in core); made email forwarding optional with console logging; added local setup with seed data and test admin; added the Data and Privacy section.
+- **2026-10-23:** Updated after the course teacher's feedback (`tilbakemelding-product-brief.md`): split course v1 from the real wedding; moved real-wedding success criteria to long-term goals and production/hosting to the vision; split scope into core and second step (speech sign-ups, gift list and link tracking moved to second step; letter animation stays in core); made email forwarding optional with console logging; added local setup with seed data and test admin; added the Data and Privacy section. Same day: second step planned for December too (cut first if time runs short); household answers use last-save-wins and show who last updated; usability test set to the first week of December.
