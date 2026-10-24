@@ -9,6 +9,7 @@ Repoet inneholder gruppens applikasjon og dokumentasjon av utvikling, testing og
 - [Sensorveiledning del 1](docs/sensorveiledning/sensorveiledning-del1.md): vurderingskriteriene arbeidet styres etter
 - [Instruksjoner for KI-agenter](AGENTS.md)
 - [Planleggingsdokumenter](.docs/planning-artifacts/)
+- [KI-logg](.docs/ki-logg/): prompts, KI-økter og beslutninger, koblet til commits
 
 ## Medlemmer
 
