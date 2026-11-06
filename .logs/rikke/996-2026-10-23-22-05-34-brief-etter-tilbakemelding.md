@@ -1,17 +1,18 @@
-# 2026-10-23 – Brief etter tilbakemelding
+# Brief etter tilbakemelding
 
-| | |
-|---|---|
-| **Verktøy** | Claude Code, BMad-skill: `bmad-product-brief` (oppdatering) |
-| **Økt-ID** | `fa141904-b89e-43f0-b8ea-e7496946ae81` |
-| **Branch / PR** | `docs/brief-etter-tilbakemelding`, PR #2 |
-| **Commits** | `97b70ca`, `2e4b519`, `9aa86df`, `3128bcd`, `a32fd37`, `f4d638e`, `6292a01`, merge `bee4f72` |
+## 2026-10-23 kl. 22:05 — Rikke
 
-## Mål
+### Oppgave
 
-Tilpasse briefen etter [tilbakemeldingen fra faglærer](../planning-artifacts/briefs/brief-aill-handle-it-2026-09-23/tilbakemelding-product-brief.md) (`1477330`).
+Tilpasse briefen etter [tilbakemeldingen fra faglærer](../../.docs/planning-artifacts/briefs/brief-aill-handle-it-2026-09-23/tilbakemelding-product-brief.md) (`1477330`).
 
-## Viktige prompts
+### Plan
+
+- BMad-skill `bmad-product-brief` i oppdateringsmodus, i Claude Code. Økt-ID `fa141904-b89e-43f0-b8ea-e7496946ae81`.
+- Branch `docs/brief-etter-tilbakemelding`, PR #2.
+- Loggen er etterregistrert 2026-10-24 fra den lokale transkripsjonen og git-historikken.
+
+Viktige prompts, ordrett:
 
 > Jeg har fått tilbakemelding på prosjektet av professoren min. La oss se på det og tilpasse oss.
 
@@ -21,7 +22,9 @@ Tilpasse briefen etter [tilbakemeldingen fra faglærer](../planning-artifacts/br
 
 > 1. god ide 2. kan vi droppe brukertesten? 3. okey
 
-## Hva KI foreslo, og hva jeg gjorde
+### Resultat
+
+Commits: `97b70ca`, `2e4b519`, `9aa86df`, `3128bcd`, `a32fd37`, `f4d638e`, `6292a01`, merge `bee4f72`.
 
 | Forslag fra KI | Min vurdering | Resultat |
 |---|---|---|
@@ -35,11 +38,12 @@ Tilpasse briefen etter [tilbakemeldingen fra faglærer](../planning-artifacts/br
 | – | Mitt eget tillegg: PC-tilpasning og utskriftsside for admin under «hvis tid» | `a32fd37` |
 | Beholde brukertesten i en enklere form | Jeg spurte om den kunne droppes. Valgte KI-ens alternativ A: testen gjøres på min telefon eller PC | `6292a01` |
 
-## Feil eller svakheter i KI-ens arbeid
+Feil eller svakheter i KI-ens arbeid:
 
 - Etter første runde mente KI at briefen var ferdig. Jeg var ikke enig og ba om en grundig gjennomgang. Den fant motsigelser (emneomfang mot ønsket om å bli ferdig i desember, «hytteneter» mot hele helgen, et utdatert antall uker) og hull (hvordan admin oppretter gjester, prismodell, hva som skjer uten samtykke, tilgjengelighet, hvor dataene lagres). Alt ble rettet i `3128bcd`.
 - Først var all PC-tilpasning lagt under «hvis tid». Ved gjennomgangen ble det tydelig at sensor kjører siden på PC, så den må også fungere der med mobiloppsettet. Bare et eget PC-oppsett er nå «hvis tid» (`f4d638e`).
 
-## Neste steg
+### Åpne punkter
 
-Starte en KI-logg (denne mappen), og deretter PRD med `bmad-prd`.
+- Starte en KI-logg. Løst 2026-10-24 i [ki-logg](995-2026-10-24-11-17-37-ki-logg.md).
+- Lage PRD med `bmad-prd`. Ført i [issues.md](issues.md).
