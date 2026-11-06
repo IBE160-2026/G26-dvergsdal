@@ -81,5 +81,14 @@ Source: `tilbakemelding-product-brief.md` in this folder.
 - Payment is per household: the form sums the household's total.
 - Prices from Hardingasete are not known yet, so they must be easy to change.
 
-## Consent (decided 2026-10-23)
-- Without the consent box ticked, the answer can't be sent. The guest is told why and can either tick the box or send the couple a private email instead.
+## Consent (decided 2026-10-23, replaced 2026-11-06)
+- ~~Without the consent box ticked, the answer can't be sent. The guest is told why and can either tick the box or send the couple a private email instead.~~
+- Replaced 2026-11-06 after the research before the PRD: GDPR Art. 7(4) says consent that a service depends on is presumed not freely given. The RSVP can now always be sent, and consent covers only the optional allergy information. See the brief's change log and decisions C1–C7 in `../../research/user-voice-wedding-website-pre-prd-2026-11-06/pre-prd-discovery.md`.
+
+## Decisions after research (2026-11-06)
+- The person answering chooses who they are from the household's names (C6).
+- The person answering enters allergies for each person and confirms that the others agree. Only allergy categories plus a short note are collected (C2).
+- Prices are shown before guests choose, with a short explanation of why guests pay (C3).
+- Link tracking counts a household only once it has started on the site, not when the page loads (C4).
+- Last save wins, and "last updated by X at Y" is shown before anyone starts editing (C5).
+- Page titles and link previews contain no names (C7).
