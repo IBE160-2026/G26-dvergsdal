@@ -15,3 +15,4 @@ En samlet liste over tilfeller der jeg har presisert, avvist eller rettet KI. De
 - **Krevde ny gjennomgang** (2026-10-23): KI mente briefen var ferdig. Jeg ba om en grundig gjennomgang, som fant motsigelser og hull. [Logg](996-2026-10-23-22-05-34-brief-etter-tilbakemelding.md)
 - **Gikk imot faglæreren, og snudde selv** (2026-10-23): Jeg beholdt brevanimasjonen i kjernen, men flyttet den senere til «hvis tid» fordi tiden er en risiko. [Logg](996-2026-10-23-22-05-34-brief-etter-tilbakemelding.md)
 - **Vurderte KI-ens anbefaling om brukertesten** (2026-10-23): Jeg ville droppe den, KI anbefalte å beholde en enklere variant, og jeg valgte det. [Logg](996-2026-10-23-22-05-34-brief-etter-tilbakemelding.md)
+- **Pekte KI til riktig sted** (2026-11-06): KI lette etter faglærers loggopplegg i alle repoene i kursorganisasjonen. Jeg rettet den til mitt eget repo, der opplegget lå. [Logg](994-2026-11-06-18-09-28-sesjonslogg.md)
