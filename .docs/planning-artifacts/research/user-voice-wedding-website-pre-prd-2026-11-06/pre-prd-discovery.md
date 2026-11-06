@@ -68,6 +68,23 @@ All seven proposals were accepted. The brief was updated the same day (see its c
 | D15 | Database and stack | SQLite / Postgres; Django / Laravel / JS stack | SQLite gives clone-and-run without setup. Stack is decided in architecture. | Architecture |
 | D16 | Email in production (2027) | Resend / Postmark / Brevo / … | Check where data is **stored**, not just the send region (Resend stores in the US). | Later (2027) |
 
+### Decided 2026-11-06 (Rikke)
+
+| # | Decision |
+|---|---|
+| D1 | Per person, the form asks: are they coming, which days (Fri/Sat/Sun), which meals, and are they staying overnight. Hardingasete confirmed that accommodation is the whole weekend or nothing, so overnight is a single yes/no. |
+| D2 | Yes. A guest can come without accommodation, for example only for the wedding day, and chooses meals independently of accommodation. |
+| D3 | Decided as C1 and C2. |
+| D4 | Accepted. The RSVP deadline is configurable and set about two weeks before Hardingasete's deadline, and it's shown next to the button and on the receipt page. |
+| D5 | Accepted. Locked for guests after the deadline, with a clear message and contact info. No grace period; the admin can override. |
+| D6 | Accepted. Paid / not paid with undo. Amounts are stored as whole numbers, and totals are always calculated. The "I have paid" self-report remains optional. |
+| D7 | Accepted. If the total changes after payment, the admin sees "paid X, now owes Y". |
+| D8 | **Changed.** No household code. The payment message only needs to show that it's for the wedding (for example "Bryllup" + name), because the couple won't receive many Vipps payments. |
+| D9 | Accepted. Step by step with a check page before sending and a receipt page after. |
+| D10 | Accepted. Predefined allergy categories + short free text. |
+| D11 | Accepted with an addition. Fixed choices for arrival time, but optional and with a "Don't know" option. |
+| D12, D13 | Not decided yet. Taken into the PRD. |
+
 ## 3. Information we must get from outside
 
 These can't be answered with web research. They have to be asked.
@@ -78,7 +95,7 @@ These can't be answered with web research. They have to be asked.
 | Q2 | Hardingasete | When do they need final numbers for meals, beds and allergies? In what format? | Sets the RSVP deadline (D4) and what the admin overview/print should look like |
 | Q3 | Hardingasete | Prices per meal and accommodation (or when they'll come)? Prices for children are irrelevant (child-free) | Price model, configurable prices |
 | Q4 | Hardingasete | Should guests pay the couple, or can they pay Hardingasete directly? | Etiquette (R 2.2: paying a third party feels better), payment flow |
-| Q5 | The couple | Can someone come only Saturday? Only Friday? | D1, D2 |
+| Q5 | The couple | Can someone come only Saturday? Only Friday? | D1, D2 — answered 2026-11-06: yes, guests choose days and meals independently of accommodation |
 | Q6 | The couple | Should Friday activities (treasure hunt, sauna) and Saturday yoga have sign-up, or just be information? | Scope of the form |
 | Q7 | 2–3 guests (incl. an older one) | How does "pay for meals" come across? What would you look for on the site? | C3, information architecture |
 | Q8 | The course teacher | Is it OK that the consent model differs from the brief, if it's justified? Does the "fasit" test list need to be in the PRD or only in tests? | C1, criterion 3 |
@@ -155,7 +172,7 @@ Sorted by how strongly the research supports them. "Scope" proposes where they b
 ## 8. "Fit for fight": checklist before the PRD
 
 - [x] C1–C7 discussed and decided (section 1) — 2026-11-06
-- [ ] D1–D13 decided or explicitly moved into the PRD (section 2)
+- [x] D1–D13 decided or explicitly moved into the PRD (section 2) — D1–D11 decided 2026-11-06; D12–D13 moved into the PRD
 - [x] Questions Q1–Q4 sent to Hardingasete (the answers can come during the PRD; prices and deadlines are configurable) — sent 2026-11-06, awaiting reply
 - [ ] Q5–Q6 answered by the couple
 - [x] Brief updated with what changes (C1, C2, C3, C4, C6, C7), with a change log entry — 2026-11-06

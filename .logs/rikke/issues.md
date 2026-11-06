@@ -8,4 +8,4 @@
 - [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — spørre Hardingasete om sengeplasser, priser, frister for endelige tall og direkte betaling (løst 2026-11-06, spørsmålene er sendt)
 - [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — oppdatere briefen (samtykke, lenkesporing) med endringslogg (løst 2026-11-06)
 - [ ] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — vente på svar fra Hardingasete, og legge svarene inn i briefen eller PRD-en
-- [ ] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — bestemme D1–D13 i pre-prd-discovery.md, eller ta dem med inn i PRD-en
+- [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — bestemme D1–D13 i pre-prd-discovery.md, eller ta dem med inn i PRD-en (løst 2026-11-06: D1–D11 bestemt, D12–D13 tas med inn i PRD-en)
