@@ -158,5 +158,5 @@ Sorted by how strongly the research supports them. "Scope" proposes where they b
 - [ ] D1–D13 decided or explicitly moved into the PRD (section 2)
 - [x] Questions Q1–Q4 sent to Hardingasete (the answers can come during the PRD; prices and deadlines are configurable) — sent 2026-11-06, awaiting reply
 - [ ] Q5–Q6 answered by the couple
-- [ ] Brief updated with what changes (C1, C2, C3, C4, C6, C7), with a change log entry
+- [x] Brief updated with what changes (C1, C2, C3, C4, C6, C7), with a change log entry — 2026-11-06
 - [ ] Start `bmad-prd` with the brief, the addendum, research.md and this note as input

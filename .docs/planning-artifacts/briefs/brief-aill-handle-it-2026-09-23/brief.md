@@ -2,7 +2,7 @@
 title: "Product Brief: AI'll handle it"
 status: final
 created: 2026-09-23
-updated: 2026-10-23
+updated: 2026-11-06
 ---
 
 # Product Brief: AI'll handle it
@@ -32,7 +32,7 @@ The default way to handle this is a photo of an invitation sent by Messenger, em
 
 The couple creates guests and households in the admin area and sends each guest their personal link. A household is a couple or a family, so one person can answer for everyone in it.
 
-**For guests**, the site is the one place for everything about the weekend: the programme from Friday's hike to Sunday breakfast, practical information, house rules (child-free, as little phone use as possible) and an introduction to the couple. Guests answer in one simple form: whether they're coming, the paid options they want, allergies, expected arrival and the Friday hike. The paid options are listed with their price next to each one, and guests tick the ones they want for each person:
+**For guests**, the site is the one place for everything about the weekend: the programme from Friday's hike to Sunday breakfast, practical information, house rules (child-free, as little phone use as possible) and an introduction to the couple. Guests answer in one simple form: whether they're coming, the paid options they want, allergies, expected arrival and the Friday hike. The person answering first chooses who they are from the household's names. Before guests choose anything, they see the paid options with the price next to each one and a short note on why guests pay for these (Hardingasete's prices; the couple pays for Saturday lunch and dinner). Guests tick the options they want for each person:
 
 - Cabin accommodation at Hardingasete for the whole weekend (the whole weekend or nothing).
 - Friday dinner.
@@ -88,8 +88,8 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 - Admin creates guests and households and gets each guest's personal link.
 - Personal link per guest; households (a couple or a family), with one person answering for all.
 - Information pages: weekend programme, practical info (address, times, dress codes, transport), about the couple, house rules. Kept simple.
-- RSVP for each guest in the household, filled in by any one member: attendance, paid options (accommodation for the whole weekend, Friday dinner, Saturday breakfast, Sunday breakfast) with the price shown next to each, allergies, expected arrival, Friday hike, and consent to share with the admin team. Shows the household total and bank/Vipps payment details. Locks at the RSVP deadline. If two household members answer, the last save wins, and the form shows who last updated it and when.
-- Consent: a guest who doesn't tick the consent box is told that the answer can't be sent without it. They can then tick the box, or send the couple a private email instead.
+- RSVP for each guest in the household, filled in by any one member, who first chooses who they are from the household's names: attendance, paid options (accommodation for the whole weekend, Friday dinner, Saturday breakfast, Sunday breakfast) with the price shown next to each before guests choose, allergies (optional, see Consent), expected arrival and Friday hike. Shows the household total and bank/Vipps payment details, and the total doesn't change unexpectedly between the form and the summary. Locks at the RSVP deadline. If two household members answer, the last save wins; the form shows who last updated it and when before anyone starts editing.
+- Consent: the RSVP can always be sent. Allergies and dietary needs are optional and are saved only with a separate, unticked consent ("I consent to …") that names the purpose (passing them on to Hardingasete's kitchen) and who can see them. The person answering enters allergies for each person and confirms that the others in the household know about it and agree. Before consenting, guests are told they can withdraw the consent through the same link, which deletes the allergy information. Without consent, guests can tell the couple directly instead.
 - Admin for the couple and helpers (full access for all): login; overview of attendance, meal counts, beds, allergies, and what each household owes; marking households as paid; editing and overrides; guest questions.
 - Guest questions are always stored and shown in admin. Email forwarding to the couple is optional: sent only when an email key is set, otherwise logged to the console.
 - Easy to use on a phone for guests of all ages (see Who This Serves). Also works and is easy to read on a PC, using the phone layout.
@@ -99,7 +99,7 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 - Letter-opening invitation on the first visit; straight to the site on later visits.
 - Speech sign-ups that reach the toastmaster.
 - Gift list page.
-- Link tracking: which households have opened their link.
+- Link tracking: which households have started on the site (for example clicked "Start" or saved an answer). Loading the page doesn't count, because chat apps and email scanners open links by themselves.
 - An English version of the site, switched with a language button at the top. Until then, guests who don't read Norwegian ask the couple directly.
 - Email or SMS notifications to guests when information changes.
 - A layout that makes use of the larger PC screen.
@@ -118,16 +118,18 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 - Open: prices from Hardingasete are not known yet, so they must be easy to change.
 - Open: the form of the gift list (static list, external link, or gifts guests can reserve).
 - Open: whether sending email costs anything in production. The course version does not depend on it.
+- Open: Hardingasete's answers on beds and cabins, prices, the deadline for final numbers, and whether guests can pay the venue directly (asked 2026-11-06). The RSVP deadline is set about two weeks before Hardingasete's deadline.
 
 ## Data and Privacy
 
-The repository is public, and allergies are health data under GDPR.
+The repository is public, and allergies are health data under GDPR. GDPR is assumed to apply: the site is online and uses outside hosting, and the exemption for purely private use is narrow (see the [research](../../research/user-voice-wedding-website-pre-prd-2026-11-06/research.md), section 3).
 
 - **Only fictional data in the repository.** All development, testing, seed data, screenshots and the usability test use fictional guests. Real names, guest lists, allergies and payment details are never committed and never pasted into AI tools.
 - **Real data only in production.** Real guest data lives only in the production database, which is set up in 2027 and hosted in the EU/EEA.
 - **Secrets outside Git.** Keys and real passwords live in a `.env` file that Git ignores. The repository has a `.env.example` without real values. The test admin user is fictional, exists only in local seed data, and its login is documented in the README.
-- **Consent.** Guests tick a consent checkbox in the RSVP form that names who can see their information (the couple, toastmaster, maid of honour and best man). Without consent, the answer can't be sent (see Scope).
-- **Access.** Only logged-in admin users can see guest answers. Each personal link shows only that guest's household, and links are long random tokens that are hard to guess.
+- **Consent.** Consent covers only allergies and dietary needs and is not a condition for sending the RSVP (GDPR Art. 7(4)). The consent box names who can see the information (the couple, toastmaster, maid of honour and best man) and the purpose. The site stores when consent was given and which text was shown, and consent can be withdrawn through the same link (see Scope).
+- **Answering for others.** Consent is normally each person's own, and no source supports one adult consenting for another. The site therefore asks the person answering to confirm that the others know about it and agree, and collects only what the kitchen needs (allergy categories plus a short note, no diagnoses). This remaining risk is accepted and documented.
+- **Access.** Only logged-in admin users can see guest answers. Each personal link shows only that guest's household, and links are long random tokens that are hard to guess. Page titles and link previews contain no names, because chat apps fetch and store the preview when a link is sent.
 - **Deletion.** Real guest data is deleted no later than three months after the wedding, by 31 August 2028.
 
 ## Vision
@@ -143,3 +145,4 @@ If time allows after the wedding, the site could become a keepsake: guests share
 - **2026-09-26:** AI features removed from the site (cost, not a course requirement).
 - **2026-10-23:** Updated after the course teacher's feedback (`tilbakemelding-product-brief.md`): separated the course delivery from the real wedding; moved real-wedding success criteria to long-term goals and production/hosting to the vision; made email forwarding optional with console logging; added local setup with seed data and test admin; added the Data and Privacy section; household answers use last-save-wins and show who last updated; usability test set to the first week of December.
 - **2026-10-23 (review):** Scope split into "Must" and "If time and capacity allow" (the latter by December if possible, otherwise before invitations go out). Letter animation, speech sign-ups, gift list, link tracking, English version and change notifications moved to the second group. Added: admin creates guests and households; paid options listed with prices and ticked per guest; accommodation is the whole weekend or nothing; Saturday lunch and dinner paid by the couple; payment per household; prices not known yet; consent required to send the answer; usability requirements; EU/EEA storage; fictional test admin; sending answers to Hardingasete is out. Removed the week count from constraints. Added to "If time and capacity allow": a layout for PC and a printer-friendly admin page with the numbers for Hardingasete. Second review: the site must also work on a PC (using the phone layout), since the examiner runs it on a PC; only a layout tailored to the larger screen is "if time". Letter animation marked "if time" under What Makes This Different. Usability test done on Rikke's phone or PC, since the course version only runs locally.
+- **2026-11-06:** Updated after research before the PRD ([research.md](../../research/user-voice-wedding-website-pre-prd-2026-11-06/research.md), decisions C1–C7 in [pre-prd-discovery.md](../../research/user-voice-wedding-website-pre-prd-2026-11-06/pre-prd-discovery.md)). Consent separated from the RSVP: the answer can always be sent, and consent covers only the optional allergy information, can be withdrawn and is recorded (GDPR Art. 7(4) and EDPB guidelines). The person answering confirms that the others in the household agree, and only what the kitchen needs is collected; the remaining risk is documented. Prices are shown before guests choose, with a short explanation, and the total stays stable. Link tracking now means that a household has started on the site, since chat apps open links by themselves. The person answering chooses who they are, and "last updated by" is shown before editing. Page titles and previews contain no names. GDPR is assumed to apply. Hardingasete's answers are listed as open.
