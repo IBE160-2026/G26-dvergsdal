@@ -31,6 +31,20 @@ These should be discussed first, because they change something the brief already
 | C6 | Who answered is shown by name ("who last updated it"). | The guest is identified only by the household link, not as an individual person. | Decide how "who" is captured: the respondent chooses "I am …" from the household's names at the start. | Analysis |
 | C7 | The personal link is the login. | The link's title and preview image are shown in the chat and cached by Meta. | The page title and `og:` tags must be generic, with no names. | [R 4.1] |
 
+### Decided 2026-11-06 (Rikke)
+
+All seven proposals were accepted. The brief was updated the same day (see its change log).
+
+| # | Decision |
+|---|---|
+| C1 | Accepted. The consent is separated from the RSVP: the answer can always be sent; the allergy field is optional with its own consent. |
+| C2 | Accepted. The respondent fills in allergies per person and confirms that the others know about it and agree. Categories + short text. The residual risk is documented in the brief. |
+| C3 | Accepted. Prices are shown before the choices, with a short explanation and a total that doesn't change unexpectedly. |
+| C4 | Accepted. "Opened" means that the guest has done something on the site, not that the page was loaded. |
+| C5 | Option (a): last save wins, and "last updated by X at Y" is shown before anyone starts editing. |
+| C6 | Accepted. The respondent chooses "I am …" from the household's names at the start. |
+| C7 | Accepted. Page title and preview are generic, with no names. |
+
 ## 2. Decisions that must be made (and when)
 
 **Before the PRD** = affects scope or requirements. **In the PRD** = can be decided while writing. **Architecture** = belongs in the architecture document.
@@ -140,9 +154,9 @@ Sorted by how strongly the research supports them. "Scope" proposes where they b
 
 ## 8. "Fit for fight": checklist before the PRD
 
-- [ ] C1–C7 discussed and decided (section 1)
+- [x] C1–C7 discussed and decided (section 1) — 2026-11-06
 - [ ] D1–D13 decided or explicitly moved into the PRD (section 2)
-- [ ] Questions Q1–Q4 sent to Hardingasete (the answers can come during the PRD; prices and deadlines are configurable)
+- [x] Questions Q1–Q4 sent to Hardingasete (the answers can come during the PRD; prices and deadlines are configurable) — sent 2026-11-06, awaiting reply
 - [ ] Q5–Q6 answered by the couple
-- [ ] Brief updated with what changes (at least C1 consent, and C4 if link tracking is defined differently), with a change log entry
+- [ ] Brief updated with what changes (C1, C2, C3, C4, C6, C7), with a change log entry
 - [ ] Start `bmad-prd` with the brief, the addendum, research.md and this note as input
