@@ -22,7 +22,7 @@ Sensor vurderer sporene av prosessen like mye som sluttproduktet. Det betyr i pr
 - **Hold planleggingsdokumentene levende.** Product brief, PRD, arkitektur og stories skal oppdateres når beslutninger endres, ikke genereres én gang og glemmes.
 - **Små commits underveis.** Én avgrenset endring per commit, med beskrivende melding. Aldri samle mye arbeid i én stor commit.
 - **Dokumenter beslutninger.** Valg av teknologi, arkitektur og løsninger skrives ned med begrunnelse.
-- **Gjør KI-bruken sporbar.** Prompts, KI-økter og tilfeller der gruppen har presisert, avvist eller rettet KI-forslag skal kunne kobles til konkrete endringer i repoet. Før hver økt i [.docs/ki-logg/](.docs/ki-logg/) etter malen der, og oppdater oversikten i mappens README.
+- **Gjør KI-bruken sporbar.** Prompts, KI-økter og tilfeller der gruppen har presisert, avvist eller rettet KI-forslag skal kunne kobles til konkrete endringer i repoet. Logg hver økt med `sesjonslogg`-skillen i [.logs/](.logs/) (se `CLAUDE.md`). Siter de viktigste promptene ordrett, og før under Resultat hva KI foreslo og om det ble godtatt, endret eller avvist. Nye eksempler på styring av KI legges også i lista i [.logs/rikke/README.md](.logs/rikke/README.md).
 - **Test og kvalitetssikre.** Skriv automatiske tester for meningsfull logikk, dokumenter manuelle tester der automatiske ikke passer, og skriv ned feil som ble funnet i KI-generert kode og hvordan de ble rettet.
 - **Design og tilgjengelighet.** Konsistent visuelt uttrykk, tydelige tilbakemeldinger og tomtilstander, god kontrast, tastaturnavigasjon, alternativtekst, skjemaetiketter og responsivt oppsett.
 - **Ren kode.** Ingen død kode, duplisering eller utkommenterte rester fra forkastede KI-forsøk. Bruk linter og formatterer.
