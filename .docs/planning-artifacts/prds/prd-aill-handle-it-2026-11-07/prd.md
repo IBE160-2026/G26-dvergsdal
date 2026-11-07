@@ -116,26 +116,52 @@ Anything in tier 3 that isn't done by 10 December moves to [2027], and the chang
 
 ### 3.2 Before invitations go out (2027)
 
-- **Hosting.** Production hosting in the EU/EEA, on a domain that is fixed before any invitation is sent.
+**Ready date: 1 November 2027.** By then, every requirement marked [2027] is done and the pilot below has passed. After that, only fixes are made until the wedding. If-time items that aren't finished by then wait or are dropped. [review]
+
+**Setup**
+
+- **Hosting and domain.** Production hosting in the EU/EEA. The domain is fixed, and the site is live on it with HTTPS, at least a month before invitations. The domain and the hosting are paid until at least 1 September 2028.
 - **Prices.** Invitations are not sent until Hardingasete's 2028 prices are confirmed.
 - **Real settings.** Real prices, deadline, contact details and payment details entered as settings.
-- **Backups.** Daily backups, with a restore tested before invitations are sent.
 - **Email.** An email provider for guest questions that stores data in the EU (D16).
 - **Agreements.** Data processing agreements with the hosting and email providers.
 - **Vipps.** A fresh check of Vipps terms and prices.
-- **Deferred requirements.** The requirements marked [2027] in section 5, and any If-time items not done in v1.
+- **Deferred requirements.** The requirements marked [2027] in section 5.
+
+**Keeping the site alive** [review: pre-mortem]
+
+- **Backups.**
+  - The database is backed up daily, encrypted, and stored outside both the server and the hosting account.
+  - Rikke and Valdemar are both alerted if there has been no successful backup for 24 hours.
+  - A backup is taken right before every update to the site.
+  - Restoring a backup is rehearsed before invitations, after any server change and right after the RSVP deadline. A rehearsal passes only if a known guest link opens the right household with its answers.
+  - Backups are kept for at most 30 days, so deleted allergy information disappears from them too.
+- **Monitoring.** An outside check alerts both Rikke and Valdemar on their phones within 15 minutes if the site is down. They are also warned three weeks before the domain, the certificate or the hosting expires.
+- **Access.** Both Rikke and Valdemar can log in to the domain, the hosting, the backups and the server, even if a laptop is lost. A one-page guide says what to do if the site goes down.
+- **Updates.** An update goes out only after all tests pass. A backup is taken first, and a check afterwards confirms that a real guest link still opens the right household and that the admin counts are unchanged. There are no updates in the last two weeks before the deadline, except fixes for a broken guest flow.
+
+**Going live**
+
+- **Device floor.** A few older guests are asked which phones and tablets they use. The invitation and the whole RSVP must work on those devices, including inside Messenger's and Facebook's built-in browsers, checked on a real old device. The invitation text and the RSVP button appear even if scripts or the animation fail.
+- **Pilot.** Guests are told in advance, through a channel they trust, that a personal link is coming from Rikke or Valdemar. Then three to five friendly households, including the oldest guest and someone with an old device, get their invitations first. Each completes a full RSVP, reports "I have paid" and asks a question. At least one Vipps payment and one bank payment use exactly the details shown. The couple checks the counts, and writes down a go or no-go before the rest are sent in batches.
+
+**Privacy in operation**
+
+- A short record of what personal data is processed, why, and where it is stored.
+- A plan for a data leak: who does what, and reporting to Datatilsynet within 72 hours when required.
+- The privacy page lists the companies that process data for the couple (hosting, email).
+- Guest pages load nothing from other companies, such as fonts or scripts, so guests' visits are not shared with them.
 
 ### 3.3 If time and capacity allow
 
+These are built only if they can be finished before the ready date (1 November 2027).
+
 - **Envelope animation.** A green envelope opens into the invitation the first time a guest visits. It can be skipped and respects the phone's "reduce motion" setting.
-- **Unfinished answers.** The guest can save an unfinished answer and continue later.
 - **Vipps QR code.** Shown next to the Vipps number.
 - **Print page.** A printer-friendly page with the numbers Hardingasete needs.
 - **Speech sign-up.** Sign-ups for speeches that reach the toastmaster.
 - **Gift list.** A simple text page, possibly with links, for example to an external wish list.
-- **Link tracking.** Shows which households have started: pressed Start or saved an answer. Loading the page does not count (C4).
 - **English.** An English version with a language button.
-- **Change notices to guests.** An email or SMS when information changes.
 - **PC layout.** A layout that uses the larger screen on a PC.
 
 ### 3.4 Out of scope
@@ -152,6 +178,7 @@ Anything in tier 3 that isn't done by 10 December moves to [2027], and the chang
 - **Answering for oneself only.** The respondent answers for everyone in the household; there is no "answers for themselves" choice.
 - **Lost links.** Self-service link recovery; the couple resends links by hand.
 - **Change emails.** Email to the couple when a guest changes an answer.
+- **Change notices to guests.** The site sending email or SMS to guests when information changes; the couple sends a message themselves if something important changes.
 - **Deadline rules.** A grace period after the deadline (D5).
 - **Guest list for guests.** A "who's coming" list that guests can see; it would show guests who else is coming.
 - **Children.** Children and child prices; the wedding is child-free.
@@ -303,6 +330,7 @@ Some Vipps payments and bank transfers have come in.
 - **FR-23** After sending, a receipt confirms the answer with a message that fits it: one for those who are coming and one for those who can't. "You can now safely close the invitation" appears after the payment choice (FR-34), or straight away when there is nothing to pay. [UJ-1, review]
 - **FR-24** Once the household has answered, the invitation shows the household's status near the top: that the answer is sent, by whom and when, the total, what has been reported paid, and the deadline. "See or change answer" (FR-37) opens the answers. [D9, UJ-2, review]
 - **FR-70** Each day is shown with its date and what happens that day. The form stops answers that contradict each other, such as staying overnight while being present only one day, and explains why. [review]
+- **FR-78** An unsent answer is kept on the guest's own device if they leave, switch apps or the page reloads, and it is offered back when they return through their link. [review] **[2027]**
 
 ### 5.4 Allergies and consent
 
@@ -362,6 +390,7 @@ Some Vipps payments and bank transfers have come in.
 - **FR-51** The couple can search for a guest by name, copy the guest's link and see their contact details. [UJ-3]
 - **FR-52** For each guest, the couple can copy a warm, ready-to-send invitation message with the guest's name and link, so the right link goes to the right person. **[2027]**
 - **FR-53** The couple can deactivate a guest's link and create a new one. Only that guest's link changes. [UJ-3]
+- **FR-76** For each guest, the couple records that the invitation was sent, with the date and the channel (SMS, Messenger or email). Each resend is recorded with a reason, so SM-6 can be counted. [review] **[2027]**
 
 ### 5.10 Overview and "Needs attention"
 
@@ -386,6 +415,7 @@ Some Vipps payments and bank transfers have come in.
   Each item can be marked as handled or seen, and then leaves the list.
 - **FR-57** A full overview shows every household and person with their answers, contact details, total, payment status and notes. Households that haven't answered stand out. On a phone, a guest's phone number and email can be tapped to call or write. [UJ-4]
 - **FR-58** An allergy list shows names and categories for everyone who consented, ready to pass on to Hardingasete. [UJ-4]
+- **FR-77** The site records when a household has started: pressed Start or saved an answer, never just loaded the page. "Needs attention" also lists guests not yet marked as sent (FR-76), and households that haven't started a few weeks after their invitation was sent. The exact number of weeks is set in the UX phase. [C4, review] **[2027]**
 
 ### 5.11 Payments
 
@@ -457,8 +487,8 @@ The text on the information pages lives in the code in v1, so changing it means 
 - A guest's link keeps working from the day it is sent until the data is deleted. The domain and the link format are fixed before invitations go out and never change afterwards.
 - Links work when sent by SMS, Messenger and email: they are short enough and use only characters that are safe in links. Before invitations go out, a test link is sent through all three channels and opened on both Android and iPhone.
 - Saving either succeeds and says so, or fails with a clear message and keeps what the guest entered. Nothing is lost without the guest knowing.
-- In production, the database is backed up daily, and restoring a backup is tested before invitations are sent.
-- In production, the site is available from the invitations until the wedding, with no planned downtime in the last week before the deadline.
+- In production, the site is available from the invitations until the wedding, with no planned downtime in the last two weeks before the deadline.
+- In production, the backups, monitoring, access, update rules and pilot in section 3.2 apply.
 
 ### NFR-2 Correct numbers
 
@@ -566,6 +596,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 | Q2–Q4 | Hardingasete's answers (section 7) | Rikke | No | Hardingasete replies |
 | Q7 | How do two or three guests, including older ones, feel about paying for meals? Affects the wording in FR-32. | Rikke | No | Before the UX text is written |
 | Q8 | Is the teacher fine with the consent model differing from the first brief? (The teacher's feedback already asks for an expected-results list checked by automated tests, which FR-69 covers.) | Rikke | No | Next supervision |
+| D12 | In production, should the programme and the practical information be editable in the admin area? Rikke's rule: yes, if the architecture shows it isn't much harder than keeping the text in the code with the update rules in section 3.2. | Architecture | No | bmad-architecture |
 | D14 | Store link codes hashed or in plain form? | Architecture | No | bmad-architecture |
 | D15 | Database and technology stack | Architecture | No | bmad-architecture |
 | D16 | Email provider in production; it must store data in the EU | Rikke | No | 2027 |
@@ -589,6 +620,10 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | Guest contact details | Not specified | Optional phone and email per guest, entered by the couple (FR-49) | Makes follow-up easier for the couple. Claude proposed storing names only (data minimisation); Rikke chose otherwise, and the privacy page explains it (FR-66) |
 | Prices | Not known yet | Invitations are not sent until the 2028 prices are known (section 3.2) | Avoids totals that change after guests have answered |
 | Priority | Must and If time | Three tiers within v1 (section 3.1a) | The teacher's warning about time and scope |
+| Link tracking | If time | Required before invitations, with an "invitation sent" record (FR-76, FR-77) | Without it, a link that never arrived looks like a slow guest |
+| Unfinished answers | If time | Required before invitations, kept on the guest's device (FR-78) | A phone call or a closed page must not lose an older guest's answer |
+| Change notices to guests | If time | Out | The site would send messages itself, which the couple doesn't want |
+| Running the site | Hosting in 2027 | Backups, monitoring, access, update rules, a pilot and a ready date of 1 November 2027 (section 3.2) | The pre-mortem review found that nothing kept the real site alive |
 | New in v1 | — | "Needs attention" (FR-56), counts that open the people behind them (FR-55), the "Changed" marker (FR-39), settings in admin (FR-64, FR-65), the privacy page (FR-66), verbal consent recorded by the couple (FR-31), rules for counts (FR-73 to FR-75) | Came out of the user journeys and the reviews |
 | Dropped | — | Email to the couple when an answer changes | Rikke: the overview is enough |
 
@@ -600,3 +635,4 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-07 | Round 2: FR-5, FR-6, FR-9, FR-17, FR-42, FR-47, FR-49, FR-51, FR-57, FR-66 and FR-68 clarified; guest contact details added. |
 | 2026-11-07 | Round 3: NFR-1, NFR-5 and NFR-7 confirmed; helpers see contact details (FR-66). |
 | 2026-11-07 | After five input reconciliations and five reviews: priority tiers (section 3.1a); first question restructured (FR-14, FR-70); no silent overwrite (FR-38); payment message and fuller "I have paid" (FR-35, FR-71); "No allergies" (FR-25); count rules (FR-73 to FR-75); deadline moment (FR-41, FR-64); test data never in production (FR-72); legal bases (NFR-3); larger text (NFR-5); course success criteria SM-11 to SM-13 restored from the brief; journeys mark what comes in 2027. |
+| 2026-11-07 | Production in 2027 (section 3.2): ready date 1 November 2027, backups, monitoring, access, update rules, device floor, pilot and privacy in operation. FR-76 to FR-78 added; link tracking and unfinished answers made required before invitations; change notices to guests moved to Out; D12 left to the architecture with Rikke's rule. |

@@ -106,7 +106,8 @@ The status compares the amount received, minus refunds, with the household's tot
 | A bed limit in the form | Not needed | Hardingasete has far more beds than there are guests (Rikke, 2026-11-07). |
 | Storing guest names only, without phone or email (Claude's data-minimisation proposal) | Rejected by Rikke | Contact details make follow-up easier for the couple, who are responsible. The privacy page must explain what is stored and why. |
 | Showing the couple's contact details on pages without a valid link (Claude's first proposal for UJ-3) | Rejected | Anyone typing a random address would see both phone numbers. The people who need them, friends and family, already have them. |
-| Saving an unfinished answer to continue later | Moved to If time | It is safer for the guest but more to build. A warning before leaving the form covers v1. |
+| Saving an unfinished answer in v1 | Moved to 2027 | First moved to If time; after the reviews it is required before invitations, kept on the guest's own device (FR-78). A warning before leaving the form covers v1. |
+| Change notices to guests by email or SMS | Out | The site would send messages itself. The couple sends a message if something important changes. |
 | Last save wins without any check (C5) | Replaced | With one link per person, two household members answering at the same time is likely. The later sender now sees the other answer first (FR-38). |
 | An "answers for themselves" choice for other household members (pre-mortem review) | Rejected by Rikke | The respondent answers for everyone who is coming; this keeps the form simple. |
 | Showing guests that the couple has confirmed their payment (pre-mortem review) | Rejected by Rikke | Toward guests, their own "I have paid" report is enough. The couple's registrations stay internal. |
