@@ -79,4 +79,10 @@ Warm and "koselig" throughout, including error messages. Every screen should hav
 | Importing the guest list from Excel | Not needed | The couple enters about 35 households by hand. |
 | Cabin and bed allocation on the site | Out | The couple does it outside the site. |
 | A bed limit in the form | Not needed | Hardingasete has far more beds than there are guests (Rikke, 2026-11-07). |
+| Storing guest names only, without phone or email (Claude's data-minimisation proposal) | Rejected by Rikke | Contact details make follow-up easier for the couple, who are responsible. The privacy page must explain what is stored and why. |
+| Showing the couple's contact details on pages without a valid link (Claude's first proposal for UJ-3) | Rejected | Anyone typing a random address would see both phone numbers. The people who need them, friends and family, already have them. |
+
+## Test data note (FR-68)
+
+Fictional contact details in the test data should be obviously fake: email addresses on `example.com`, which is reserved for examples, and phone numbers that cannot belong to a real person.
 | Saving an unfinished answer to continue later | Moved to If time | It is safer for the guest but more to build. A warning before leaving the form covers v1. |

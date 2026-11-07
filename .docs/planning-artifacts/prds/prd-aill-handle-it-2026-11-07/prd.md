@@ -183,7 +183,7 @@ Every functional requirement in section 5 is in v1, except those marked **[2027]
 
 1. **She sends a message** to Rikke or Valdemar.
 2. **Rikke finds Synne in the admin area on her phone**, copies Synne's link and sends it again.
-3. **If a link has gone astray**, for example forwarded to the wrong person, Rikke deactivates it and creates a new one. Only that guest's link changes; the rest of the household keeps theirs. The old link shows a friendly message and the couple's contact details, never any answers.
+3. **If a link has gone astray**, for example forwarded to the wrong person, Rikke deactivates it and creates a new one. Only that guest's link changes; the rest of the household keeps theirs. The old link only says that this is a private invitation and that the visitor should contact the couple the way they usually do. It shows no names, phone numbers or answers.
 4. **After the deadline** the button only says **"See answer"**. Synne can see her household's answers but not change them, and she is told the deadline has passed and how to reach Rikke and Valdemar. She can still see how to pay, tap "I have paid", read the information pages, ask the couple a question and withdraw her allergy consent.
 5. **Rikke fills in or changes the answer for her** from the admin area. If Synne tells Rikke about an allergy by phone, Rikke ticks that Synne consented verbally, and the site records who registered it and when.
 6. **If something goes wrong**, such as an error message or a page that won't load, Synne still sees how to reach the couple. Their phone numbers are on every page.
@@ -236,14 +236,14 @@ Some Vipps payments and bank transfers have come in.
 - **FR-2** A link opens the guest's household and nothing else: the invitation, the household's answers, its total and its payment status. [brief]
 - **FR-3** Opening a link never changes anything. Only a deliberate action by the guest, such as pressing a button, saves data. Chat apps and email scanners open links by themselves. [C4, R 4.1]
 - **FR-4** Page titles and link previews are the same for everyone and contain no names. [C7]
-- **FR-5** A deactivated or unknown link shows a friendly message and the couple's contact details, and no guest data. [UJ-3]
-- **FR-6** The couple's contact details are on every guest page, including error pages. [UJ-3]
+- **FR-5** Without a valid link, the site shows only a friendly message: this is a private invitation, and the visitor should contact the couple the way they usually do. This covers an unknown or deactivated link and the site's address on its own. The message shows no names, phone numbers, date or place. [UJ-3]
+- **FR-6** With a valid link, the couple's contact details are on every guest page, including error messages. [UJ-3]
 
 ### 5.2 Invitation and information pages
 
 - **FR-7** The front page looks like an invitation. Without scrolling on a phone, it shows the couple's names, the date and place, the names of the invited household, the RSVP deadline and the RSVP button. [UJ-1]
 - **FR-8** Below the invitation are short cards for Programme, Practical information, Hardingasete and the area, and About us. Each opens its own page through "Read more". The RSVP button is repeated at the bottom. [UJ-1]
-- **FR-9** The programme shows the weekend day by day, marks what costs money and says what to bring. The treasure hunt, the sauna and hot tub, and yoga are information only, with no sign-up. [Q6, brief]
+- **FR-9** The programme shows the weekend day by day, marks what costs money and says what to bring. Everyone sees every activity, including the Friday hike, so a guest who sees it can still decide to come on Friday. The treasure hunt, the sauna and hot tub, and yoga are information only, with no sign-up. [Q6, brief]
 - **FR-10** The practical information covers the address, times, transport and parking, dress codes, house rules (child-free, little phone use) and what to bring. [brief]
 - **FR-11** Every information page has an obvious way back to the invitation. [UJ-1]
 
@@ -254,7 +254,7 @@ Some Vipps payments and bank transfers have come in.
 - **FR-14** The first question asks whether everyone in the household is coming the whole weekend. Nothing is chosen in advance. Answering "No" lets the respondent mark who is not coming, and which days (Friday, Saturday, Sunday) each of the others comes. [UJ-2, D1]
 - **FR-15** Later steps only ask about people who are coming, and only for the days they are there. A meal is offered only on days the person is present, and Saturday breakfast only to those present from Friday. [UJ-2]
 - **FR-16** Each person who is coming answers yes or no to staying overnight. The form states clearly that a cabin is booked for the whole weekend and that both nights are paid, even if the guest sleeps there only one night. [D1, UJ-2]
-- **FR-17** Each person present on Friday is asked about the Friday mountain hike: yes, no or maybe. [brief; ASSUMPTION: asked only of those present on Friday]
+- **FR-17** Each person present on Friday is asked about the Friday mountain hike: yes, no or maybe. Others are not asked. [brief]
 - **FR-18** Expected arrival is optional and asked per person who is coming, with fixed choices including "Don't know". There are no time pickers. [D11]
 - **FR-19** "Read more" inside a step, for example about the cabins and their price, opens in place, so the respondent never leaves the form. [UJ-1]
 - **FR-20** Leaving the form before sending shows a warning that the answer is not sent yet. [UJ-1]
@@ -310,14 +310,14 @@ Some Vipps payments and bank transfers have come in.
 ### 5.8 Admin access and roles
 
 - **FR-46** Admin users log in with a username and password. There are two roles: the **couple**, with full access, and **helpers**, who see everything and change nothing. [UJ-4]
-- **FR-47** Admin accounts are created by the developer; there is no self-registration. [ASSUMPTION]
+- **FR-47** Rikke creates the admin accounts for the couple and the helpers with a command. There is no self-registration.
 - **FR-48** Quick tasks work well on a phone: finding a guest, copying their link and seeing whether they have answered. The full overview also works on a phone, but may be designed for a PC. [UJ-3]
 
 ### 5.9 Guest list and links
 
-- **FR-49** The couple adds, edits and removes households and guests one by one. [brief]
+- **FR-49** The couple adds, edits and removes households and guests one by one. Each guest has a name and, optionally, a phone number and an email address, which the couple enters. [brief]
 - **FR-50** The couple can move a guest to another household. [brief]
-- **FR-51** The couple can search for a guest by name and copy the guest's link. [UJ-3]
+- **FR-51** The couple can search for a guest by name, copy the guest's link and see their contact details. [UJ-3]
 - **FR-52** For each guest, the couple can copy a warm, ready-to-send invitation message with the guest's name and link, so the right link goes to the right person. **[2027]**
 - **FR-53** The couple can deactivate a guest's link and create a new one. Only that guest's link changes. [UJ-3]
 
@@ -339,7 +339,7 @@ Some Vipps payments and bank transfers have come in.
   - households marked "Changed".
 
   Each item can be marked as handled or seen, and then leaves the list.
-- **FR-57** A full overview shows every household and person with their answers, total, payment status and notes. Households that haven't answered stand out. [UJ-4]
+- **FR-57** A full overview shows every household and person with their answers, contact details, total, payment status and notes. Households that haven't answered stand out. On a phone, a guest's phone number and email can be tapped to call or write. [UJ-4]
 - **FR-58** An allergy list shows names and categories for everyone who consented, ready to pass on to Hardingasete. [UJ-4]
 
 ### 5.11 Payments
@@ -360,7 +360,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 ### 5.13 Privacy functions
 
 - **FR-66** A privacy page explains: [R 3.3]
-  - what is collected and why;
+  - what is collected and why, including the phone numbers and email addresses the couple enters;
   - who can see it, including Hardingasete's kitchen;
   - the legal basis;
   - when it is deleted;
@@ -375,7 +375,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 - **FR-68** One documented command fills the database with fictional test data: [UJ-6]
   - the people from UJ-1 to UJ-3;
   - extra households that cover the expected-results list: one that has paid, one that hasn't answered, and a single guest with an allergy;
-  - a test link for each guest;
+  - fictional contact details and a test link for each guest;
   - a test couple admin and a test helper.
 - **FR-69** An expected-results list, worked out by hand for the test data, is documented and checked by the automated tests. [UJ-6, brief]
 
@@ -398,7 +398,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 ### NFR-3 Privacy
 
 - GDPR is assumed to apply, and allergies are treated as health data. [R 3.1, R 3.2]
-- Only what is needed is collected: categories and a short note, no diagnoses.
+- Only what is needed is collected. Guests are stored with a name and, optionally, a phone number and email so the couple can follow up. Allergies are categories and a short note, with no diagnoses.
 - Only fictional data is used in the repository, tests, test data, screenshots, the usability test and AI tools.
 - Real data lives only in the production database, hosted in the EU/EEA. Hosting and email providers that handle it have data processing agreements.
 - Real data is deleted by 31 August 2028.
@@ -495,5 +495,6 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | Links | One per guest (brief); research assumed one per household | One per guest, with "I am …" already set to the owner (FR-1, FR-12) | Doesn't ask for what the link knows (WCAG 3.3.7), and deactivating a link affects only one person |
 | Allergy recipients | The consent names who can see the data | The consent also says that names and allergies go to Hardingasete's kitchen (FR-26) | The couple emails the allergies with names |
 | Gift list | Form open | Simple text page with links, If time | Decided by Rikke |
+| Guest contact details | Not specified | Optional phone and email per guest, entered by the couple (FR-49) | Makes follow-up easier for the couple. Claude proposed storing names only (data minimisation); Rikke chose otherwise, and the privacy page explains it (FR-66) |
 | New in v1 | — | "Needs attention" (FR-56), counts that open the people behind them (FR-55), the "Changed" marker (FR-39), settings in admin with a price warning (FR-64, FR-65), the privacy page (FR-66), verbal consent recorded by the couple (FR-31) | Came out of the user journeys |
 | Dropped | — | Email to the couple when an answer changes | Rikke: the overview is enough |
