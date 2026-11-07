@@ -1,6 +1,6 @@
 ---
 title: "PRD: AI'll handle it"
-status: draft
+status: final
 created: 2026-11-07
 updated: 2026-11-08
 inputs:
@@ -13,7 +13,7 @@ inputs:
 
 # PRD: AI'll handle it
 
-> Draft for review. Every decision behind this document is logged in `.memlog.md`. UX and technical depth is in `addendum.md`, and the reviews are in the `review-*.md` and `reconcile-*.md` files.
+> Every decision behind this document is logged in `.memlog.md`. UX and technical depth is in `addendum.md`, and the reviews are in the `review-*.md` and `reconcile-*.md` files.
 >
 > References in square brackets show where a requirement comes from:
 > - **UJ-n:** a user journey in section 4.
@@ -652,3 +652,4 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-07 | After five input reconciliations and five reviews: priority tiers (section 3.1a); first question restructured (FR-14, FR-70); no silent overwrite (FR-38); payment message and fuller "I have paid" (FR-35, FR-71); "No allergies" (FR-25); count rules (FR-73 to FR-75); deadline moment (FR-41, FR-64); test data never in production (FR-72); legal bases (NFR-3); larger text (NFR-5); course success criteria SM-11 to SM-13 restored from the brief; journeys mark what comes in 2027. |
 | 2026-11-07 | Production in 2027 (section 3.2): ready date 1 November 2027, backups, monitoring, access, update rules, device floor, pilot and privacy in operation. FR-76 to FR-78 added; link tracking and unfinished answers made required before invitations; change notices to guests moved to Out; D12 left to the architecture with Rikke's rule. |
 | 2026-11-08 | Polish after a structure and language review (bmad-review): a fuller reading key and a note that quoted interface texts are working labels; the whole timeline in section 1; tier contents as lists (section 3.1a); constraints that were scope decisions moved to section 3.4; Q2 to Q4 moved to section 8; UJ-3 renamed; FR-13 leaves the order of later form steps to the UX phase; repeats in NFR-8 removed; the palette contrast check and a possible 2027 improvement moved to the addendum; about 40 wording fixes that remove ambiguities and contradictions without changing what is decided. |
+| 2026-11-08 | Status set to final. |
