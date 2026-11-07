@@ -9,3 +9,8 @@
 - [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — oppdatere briefen (samtykke, lenkesporing) med endringslogg (løst 2026-11-06)
 - [ ] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — vente på svar fra Hardingasete, og legge svarene inn i briefen eller PRD-en
 - [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — bestemme D1–D13 i pre-prd-discovery.md, eller ta dem med inn i PRD-en (løst 2026-11-06: D1–D11 bestemt, D12–D13 tas med inn i PRD-en)
+- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — oppdatere briefens endringslogg med det PRD-en endret (hjelpere kan bare se, betaling som beløp, «Jeg har betalt», unik betalingsmelding, ingen e-post ved endring, varsel til gjester satt utenfor)
+- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — oppdatere pre-prd-discovery.md: krysse av «Start bmad-prd», merke D12/D13 som avklart, D6/D7 erstattet, Q1 besvart for kapasitet og Q9 avgjort
+- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre faglærer om samtykkemodellen er i orden (Q8)
+- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre to eller tre gjester hvordan det oppleves å betale for mat (Q7)
+- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` og `bmad-architecture` (avgjøre D12, D14, D15), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten
