@@ -2,7 +2,7 @@
 title: "Pre-PRD discovery: open questions, decisions, ideas and topics"
 project: "AI'll handle it"
 created: "2026-11-06"
-updated: "2026-11-06"
+updated: "2026-11-07"
 status: draft
 inputs:
   - "../../briefs/brief-aill-handle-it-2026-09-23/brief.md"
@@ -96,7 +96,7 @@ These can't be answered with web research. They have to be asked.
 | Q3 | Hardingasete | Prices per meal and accommodation (or when they'll come)? Prices for children are irrelevant (child-free) | Price model, configurable prices |
 | Q4 | Hardingasete | Should guests pay the couple, or can they pay Hardingasete directly? | Etiquette (R 2.2: paying a third party feels better), payment flow |
 | Q5 | The couple | Can someone come only Saturday? Only Friday? | D1, D2 — answered 2026-11-06: yes, guests choose days and meals independently of accommodation |
-| Q6 | The couple | Should Friday activities (treasure hunt, sauna) and Saturday yoga have sign-up, or just be information? | Scope of the form |
+| Q6 | The couple | Should Friday activities (treasure hunt, sauna) and Saturday yoga have sign-up, or just be information? | Scope of the form — answered 2026-11-07: information only, no sign-up. The activities are shown on the programme page and are not part of the RSVP form |
 | Q7 | 2–3 guests (incl. an older one) | How does "pay for meals" come across? What would you look for on the site? | C3, information architecture |
 | Q8 | The course teacher | Is it OK that the consent model differs from the brief, if it's justified? Does the "fasit" test list need to be in the PRD or only in tests? | C1, criterion 3 |
 | Q9 | Check your own Vipps app | The terms (v1.5) say a personal QR code exists and that private persons can receive money "for private purposes", but they say nothing about websites. Find your own QR code in the app and decide: show the phone number only, or the QR as well? | Payment info on the receipt page. Avoid "payment request" without prior agreement (the terms forbid it) |
@@ -174,6 +174,6 @@ Sorted by how strongly the research supports them. "Scope" proposes where they b
 - [x] C1–C7 discussed and decided (section 1) — 2026-11-06
 - [x] D1–D13 decided or explicitly moved into the PRD (section 2) — D1–D11 decided 2026-11-06; D12–D13 moved into the PRD
 - [x] Questions Q1–Q4 sent to Hardingasete (the answers can come during the PRD; prices and deadlines are configurable) — sent 2026-11-06, awaiting reply
-- [ ] Q5–Q6 answered by the couple
+- [x] Q5–Q6 answered by the couple — Q5 2026-11-06, Q6 2026-11-07 (activities are information only)
 - [x] Brief updated with what changes (C1, C2, C3, C4, C6, C7), with a change log entry — 2026-11-06
 - [ ] Start `bmad-prd` with the brief, the addendum, research.md and this note as input
