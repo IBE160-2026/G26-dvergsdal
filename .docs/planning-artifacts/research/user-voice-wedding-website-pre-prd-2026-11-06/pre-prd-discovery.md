@@ -85,13 +85,21 @@ All seven proposals were accepted. The brief was updated the same day (see its c
 | D11 | Accepted with an addition. Fixed choices for arrival time, but optional and with a "Don't know" option. |
 | D12, D13 | Not decided yet. Taken into the PRD. |
 
+**Followed up in the PRD (2026-11-07).** The [PRD](../../prds/prd-aill-handle-it-2026-11-07/prd.md) changed or completed some of the decisions in sections 1 and 2. Its section "Changes from the product brief" gives the reasons.
+
+- **C5 is replaced.** If two household members answer at the same time, the later sender sees the other answer before sending (FR-38).
+- **D6 and D7 are replaced.** The couple registers amounts, and the site calculates the payment status, including "part paid" and "refund owed" (FR-59, FR-60). "I have paid" is in v1, with the amount and how the guest paid (FR-35).
+- **D8 is completed.** The payment message is "Bryllup" followed by all the household's names (FR-71).
+- **D13 is decided.** Helpers can see but not change (FR-46).
+- **D12 is left to the architecture,** with Rikke's rule: in production, the programme and the practical information are editable in admin if that isn't much harder. Otherwise they stay in the code and follow the update rules (see the PRD's open questions).
+
 ## 3. Information we must get from outside
 
 These can't be answered with web research. They have to be asked.
 
 | # | Ask whom | Question | Why it matters |
 |---|---|---|---|
-| Q1 | Hardingasete | How many beds/cabins are there, and how are they allocated (per person, per cabin)? | Bed limit, price model, and whether the admin needs to allocate cabins |
+| Q1 | Hardingasete | How many beds/cabins are there, and how are they allocated (per person, per cabin)? | Bed limit, price model, and whether the admin needs to allocate cabins — capacity answered 2026-11-07 (Rikke): Hardingasete has far more beds than there are guests, so the form needs no bed limit. The couple allocates cabins outside the site |
 | Q2 | Hardingasete | When do they need final numbers for meals, beds and allergies? In what format? | Sets the RSVP deadline (D4) and what the admin overview/print should look like |
 | Q3 | Hardingasete | Prices per meal and accommodation (or when they'll come)? Prices for children are irrelevant (child-free) | Price model, configurable prices |
 | Q4 | Hardingasete | Should guests pay the couple, or can they pay Hardingasete directly? | Etiquette (R 2.2: paying a third party feels better), payment flow |
@@ -99,7 +107,7 @@ These can't be answered with web research. They have to be asked.
 | Q6 | The couple | Should Friday activities (treasure hunt, sauna) and Saturday yoga have sign-up, or just be information? | Scope of the form — answered 2026-11-07: information only, no sign-up. The activities are shown on the programme page and are not part of the RSVP form |
 | Q7 | 2–3 guests (incl. an older one) | How does "pay for meals" come across? What would you look for on the site? | C3, information architecture |
 | Q8 | The course teacher | Is it OK that the consent model differs from the brief, if it's justified? Does the "fasit" test list need to be in the PRD or only in tests? | C1, criterion 3 |
-| Q9 | Check your own Vipps app | The terms (v1.5) say a personal QR code exists and that private persons can receive money "for private purposes", but they say nothing about websites. Find your own QR code in the app and decide: show the phone number only, or the QR as well? | Payment info on the receipt page. Avoid "payment request" without prior agreement (the terms forbid it) |
+| Q9 | Check your own Vipps app | The terms (v1.5) say a personal QR code exists and that private persons can receive money "for private purposes", but they say nothing about websites. Find your own QR code in the app and decide: show the phone number only, or the QR as well? | Payment info on the receipt page. Avoid "payment request" without prior agreement (the terms forbid it) — decided 2026-11-07: the receipt page shows the Vipps number, and the QR code is added if time (see "If time and capacity allow" in the PRD) |
 
 ## 4. Users' needs (summary)
 
@@ -176,4 +184,4 @@ Sorted by how strongly the research supports them. "Scope" proposes where they b
 - [x] Questions Q1–Q4 sent to Hardingasete (the answers can come during the PRD; prices and deadlines are configurable) — sent 2026-11-06, awaiting reply
 - [x] Q5–Q6 answered by the couple — Q5 2026-11-06, Q6 2026-11-07 (activities are information only)
 - [x] Brief updated with what changes (C1, C2, C3, C4, C6, C7), with a change log entry — 2026-11-06
-- [ ] Start `bmad-prd` with the brief, the addendum, research.md and this note as input
+- [x] Start `bmad-prd` with the brief, the addendum, research.md and this note as input — 2026-11-07, see [prd.md](../../prds/prd-aill-handle-it-2026-11-07/prd.md)
