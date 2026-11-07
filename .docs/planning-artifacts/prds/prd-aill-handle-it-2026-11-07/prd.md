@@ -13,13 +13,14 @@ inputs:
 
 # PRD: AI'll handle it
 
-> Draft for review. Every decision behind this document is logged in `.memlog.md`. UX and technical depth is in `addendum.md`.
+> Draft for review. Every decision behind this document is logged in `.memlog.md`. UX and technical depth is in `addendum.md`, and the reviews are in the `review-*.md` and `reconcile-*.md` files.
 >
 > References in square brackets show where a requirement comes from:
 > - **UJ-n:** a user journey in section 4.
 > - **C, D, Q:** decisions and questions in `pre-prd-discovery.md`.
 > - **R x.y:** a section of `research.md`.
 > - **brief:** the product brief.
+> - **review:** a finding from the PRD reviews on 2026-11-07.
 
 ## 1. Overview
 
@@ -38,7 +39,7 @@ Today a wedding like this is run with a photo invitation on Messenger, answers i
 ### Who it is for
 
 - **Guests.** All ages, many of them older and not used to technology, and a few who don't read Norwegian. Most only want the practical details.
-- **Households.** A couple or a family. Each person has their own link, and any one of them can answer for everyone.
+- **Households.** A couple or a family. Each person has their own link, and any one of them answers for everyone.
 - **The couple, Rikke and Valdemar.** They can change everything, and they pass the final numbers to Hardingasete.
 - **Helpers.** The toastmaster, maid of honour and best man. They can see everything but change nothing.
 - **The examiner.** Runs the course version locally by following the README.
@@ -69,9 +70,12 @@ The site itself has no AI features.
 |---|---|---|---|
 | SM-1 | The guest flow works from start to finish on a phone (UJ-1, UJ-2). | Every step works | Automated tests and a written manual test plan |
 | SM-2 | The admin counts match an expected-results list worked out by hand. | 100 % | Automated tests (FR-69) |
-| SM-3 | An older relative completes a household RSVP without help. | Under 10 minutes | Usability test in the first week of December 2026, with fictional data |
+| SM-3 | An older relative completes a household RSVP without help, and the answers match the task they were given. | Under 10 minutes, no wrong answers | Usability test in the first week of December 2026, with fictional data |
 | SM-4 | The couple finds any number Hardingasete asks for. | Under 1 minute | Usability test |
 | SM-5 | Someone new to the project installs and runs the app and the tests by following the README. | Within 15–20 minutes, no help | A trial run on a clean machine before delivery |
+| SM-11 | Answers lock for guests at the deadline, while the couple can still change them. | Works at the boundary | Automated tests (FR-41, FR-42, FR-63) |
+| SM-12 | A guest's question shows in the admin area, and is printed in the console when no email key is set. | Every question | Automated test (FR-44, FR-45) |
+| SM-13 | Every working session with AI is logged, with the key prompts and what was accepted, changed or rejected. | Every session | Session logs in `.logs/`, used in the reflection report [brief] |
 
 ### The real wedding (2027–2028, not measured in the course)
 
@@ -98,9 +102,22 @@ These guard against reaching the targets above in the wrong way:
 
 Every functional requirement in section 5 is in v1, except those marked **[2027]** or listed under If time.
 
+### 3.1a Priority within v1
+
+v1 is built in three tiers, so that the most important part works first and the course version is never left half-finished. [review: teacher feedback, sensorveiledning]
+
+| Tier | Done by | Contents |
+|---|---|---|
+| **1. The usability-test build** | Friday 27 November 2026 | The expected-results list and test data first (FR-68, FR-69, FR-72), the admin accounts in the test data (FR-47), one command to run the app and one to run the tests. The guest flow: FR-1 to FR-18, FR-21 to FR-28, FR-32 to FR-34, FR-41, FR-70, FR-71 and the rules in FR-73 to FR-75. A simple admin view: the couple's login (FR-46), the summary (FR-54, FR-55), a simple full overview (FR-57) and the allergy list (FR-58). |
+| **2. The complete course version** | Thursday 10 December 2026, then feature freeze | In this order: changing answers, the lock and overrides (FR-37 to FR-39, FR-42, FR-63, FR-64); questions (FR-43 to FR-45); payments (FR-35, FR-36, FR-59 to FR-61); "Needs attention", the guest list and the helper role (FR-56, FR-49, FR-51, FR-46); then FR-19, FR-20, FR-29, FR-30, FR-66 and the full text for FR-9 and FR-10. |
+| **3. Cut first** | Only if time allows | FR-50 (moving a guest), FR-53 (a new link), FR-31 (consent registered by the couple), FR-65 (price warning), FR-48 beyond basic responsive pages, and slowing down wrong links (NFR-4) if the chosen technology doesn't provide it. |
+
+Anything in tier 3 that isn't done by 10 December moves to [2027], and the change log (section 10) says why. After the feature freeze, only bug fixes, tests and documentation are added.
+
 ### 3.2 Before invitations go out (2027)
 
 - **Hosting.** Production hosting in the EU/EEA, on a domain that is fixed before any invitation is sent.
+- **Prices.** Invitations are not sent until Hardingasete's 2028 prices are confirmed.
 - **Real settings.** Real prices, deadline, contact details and payment details entered as settings.
 - **Backups.** Daily backups, with a restore tested before invitations are sent.
 - **Email.** An email provider for guest questions that stores data in the EU (D16).
@@ -114,7 +131,7 @@ Every functional requirement in section 5 is in v1, except those marked **[2027]
 - **Unfinished answers.** The guest can save an unfinished answer and continue later.
 - **Vipps QR code.** Shown next to the Vipps number.
 - **Print page.** A printer-friendly page with the numbers Hardingasete needs.
-- **Speech sign-up.** Only the toastmaster sees the sign-ups.
+- **Speech sign-up.** Sign-ups for speeches that reach the toastmaster.
 - **Gift list.** A simple text page, possibly with links, for example to an external wish list.
 - **Link tracking.** Shows which households have started: pressed Start or saved an answer. Loading the page does not count (C4).
 - **English.** An English version with a language button.
@@ -124,17 +141,18 @@ Every functional requirement in section 5 is in v1, except those marked **[2027]
 ### 3.4 Out of scope
 
 - **Payment.** Online payment, and Vipps payment requests sent to guests.
+- **Payment confirmation to guests.** Guests see what they reported paying, not the couple's registrations.
 - **Sending.** The site sending invitations or reminders; the couple does this by hand.
 - **Hardingasete.** The site sending numbers to Hardingasete; the couple emails them.
 - **Guest logins.** Guest accounts and passwords; the link is the login.
 - **AI.** AI features in the site.
 - **Activity sign-up.** Sign-up for the treasure hunt, sauna and hot tub, or yoga; these are information only (Q6).
 - **Cabin allocation.** Deciding who sleeps in which cabin; the couple does this outside the site.
-- **Payment code.** A household code in the payment message (D8).
+- **Payment code.** A numeric household code in the payment message (D8); the message uses the household's names instead (FR-71).
+- **Answering for oneself only.** The respondent answers for everyone in the household; there is no "answers for themselves" choice.
 - **Lost links.** Self-service link recovery; the couple resends links by hand.
 - **Change emails.** Email to the couple when a guest changes an answer.
 - **Deadline rules.** A grace period after the deadline (D5).
-- **Conflicts.** Conflict detection when two people save at the same time; the last save applies (C5).
 - **Guest list for guests.** A "who's coming" list that guests can see; it would show guests who else is coming.
 - **Children.** Children and child prices; the wedding is child-free.
 - **Diagnoses.** Diagnoses in allergy information.
@@ -142,40 +160,53 @@ Every functional requirement in section 5 is in v1, except those marked **[2027]
 
 ## 4. User Journeys
 
+All people in these journeys are fictional. They are reused as test data (FR-68).
+
 ### UJ-1: Bestefar Sigmund answers for himself and bestemor
 
 **Sigmund, 78**, is not used to technology. He gets a text message with a link and opens it on his phone.
 
-1. **First impression.** He sees an invitation: Rikke and Valdemar are getting married on Saturday 27 May 2028 at Hardingasete, and **he and bestemor** are invited. The RSVP deadline and a clear RSVP button are visible without scrolling. *(If time: a green envelope sealed with "R & V" opens and unfolds into the invitation the first time he visits.)*
+1. **First impression.** He sees an invitation: Rikke and Valdemar are getting married on Saturday 27 May 2028 at Hardingasete, and **he and bestemor** are invited. The RSVP deadline, a note that the weekend is child-free, and a clear RSVP button are visible without scrolling. *(If time: a green envelope sealed with "R & V" opens and unfolds into the invitation the first time he visits.)*
 2. **He scrolls.** Below the invitation he finds short cards for the programme, practical information, Hardingasete and the area, and about the couple. Each card opens its own page through "Read more", so the RSVP button never drowns. The button is repeated at the bottom.
-3. **He starts his answer.** The form already shows "I am Sigmund", because it is his link. He could change it if bestemor were using his phone. Then he answers step by step for both of them: who is coming, which days, which meals and whether they stay overnight. Prices are shown before he chooses. Where he needs more context, for example about the cabins at Hardingasete and what they cost, a "Read more" box opens inside the step, so he never leaves the form. If he tries to leave before sending, the site tells him his answer is not sent yet.
-4. **Allergies (optional).** He fills in bestemor's dietary needs and confirms that she knows about it and agrees.
-5. **Check before sending.** He sees all answers and the household total, and can change anything that is wrong.
+3. **He starts his answer.** The form already shows "I am Sigmund", because it is his link. He could change it if bestemor were using his phone.
+   - First he marks who is coming: both of them.
+   - Then he answers that both are there the whole weekend, Friday to Sunday.
+   - Next come the meals and whether they stay overnight. Prices are shown before he chooses.
+   - Where he needs more context, for example about the cabins at Hardingasete and what they cost, a "Read more" box opens inside the step, so he never leaves the form.
+   - If he tries to leave before sending, the site tells him his answer is not sent yet.
+4. **Allergies (optional).** He chooses "No allergies or dietary needs" for himself. He fills in bestemor's dietary needs, says yes to the consent, and confirms that she knows about it and agrees.
+5. **Check before sending.** The page says at the top that the answer is not sent yet. He sees all answers and the household total, changes anything that is wrong, and presses **"Send answer"**.
 6. **Thank you.** He gets a clear confirmation that matches the answer:
    - Coming: "Thank you for taking the time to answer – we look forward to celebrating the big day with you!"
    - Not coming: "We're sorry you can't make it, but we completely understand."
-   - Both end with: "You can now safely close the invitation."
 7. **Payment.** He chooses to pay now or later.
-   - **Now:** he sees the amount, the Vipps number (and a QR code, if time), the account number and the message to write ("Bryllup Sigmund"). Afterwards he can tap "I have paid".
+   - **Now:** he sees the amount, the Vipps number (and a QR code, if time), the account number and the household's own payment message: "Bryllup" followed by both their names. After paying, he taps "I have paid", checks the amount and that he used Vipps, and then sees what he reported and when.
    - **Later:** he is told that the same link always shows what he owes and how to pay.
+8. **Done.** The page now says: "You can now safely close the invitation."
 
-**Done when:** Sigmund knows the answer is received, knows what he owes, and knows the link will always show his answer again.
+**Done when:** Sigmund knows the answer is sent, knows what he owes, and knows the link will always show his answer again.
 **Biggest risk:** too much happening at once and too many things asking for his attention. Every screen must have one obvious next step.
 
 ### UJ-2: Onkel Arild answers for a household where not everyone comes
 
 **Arild** answers for himself, **tante Marie**, **Filippa** and **Leone**. Both daughters are adults who still live at home.
 
-1. **One answer for everyone.** He opens his own link, and the form shows "I am Arild". The first question asks whether all four are coming the whole weekend. Nothing is ticked in advance. He answers "No", and the form then lets him say that **Leone is not coming** and that **Filippa is only coming Saturday and Sunday**.
-2. **The form adapts.** It asks nothing more about Leone. Filippa is only offered the meals on the days she is there, and Saturday breakfast is only offered to those who arrive on Friday. When he reaches accommodation, the form says clearly that a cabin is booked for the whole weekend: Filippa can sleep there one night, but pays for both. The total matches exactly what was chosen.
+1. **One answer for everyone.** He opens his own link, and the form shows "I am Arild".
+   - First he marks who is coming: Arild, Marie and Filippa are coming, and Leone is not. Nothing is ticked in advance.
+   - Asked whether everyone who is coming is there the whole weekend, he answers "No", and chooses Saturday and Sunday for Filippa.
+2. **The form adapts.**
+   - It asks nothing more about Leone.
+   - Filippa is only offered the meals on the days she is there. Saturday breakfast is only offered to those who arrive on Friday, and Saturday lunch and dinner are on the couple, so they are not asked about.
+   - At accommodation, the form says clearly that a cabin is booked for the whole weekend: Filippa can sleep there one night, but pays for both.
+   - The total matches exactly what was chosen.
 3. **He checks, sends and pays**, as in UJ-1.
 4. **A change of plans.** Two weeks later, before the deadline, the RSVP button has become **"See or change answer"**. The top of the form shows what was answered, by whom and when. He changes the answer.
    - If the total goes up, he sees what remains to pay.
    - If it goes down, he is told the couple has been notified and will refund the difference.
-5. **Marie opens her own link.** She sees that Arild has already answered and when, instead of an empty form, so the household never sends two answers.
+5. **Marie opens her own link.** She sees that Arild has already answered and when, instead of an empty form. If she had opened the form before Arild sent his answer, the site would have shown her his answer before she could send hers. No answer is overwritten without anyone seeing it.
 6. **After the deadline** the form is locked, and the page tells them to contact the couple directly.
 
-**The couple** sees the household marked "Changed" in the overview and can open a history of who changed what and when. When they have paid Arild back, they register the refund and the household's balance is zero again.
+**The couple** sees the household marked "Changed" in the overview. *(2027: they can also open a full history of who changed what and when.)* When they have paid Arild back, they register the refund, and the household's balance is zero again.
 
 ### UJ-3: Synne has lost her link
 
@@ -185,7 +216,7 @@ Every functional requirement in section 5 is in v1, except those marked **[2027]
 2. **Rikke finds Synne in the admin area on her phone**, copies Synne's link and sends it again.
 3. **If a link has gone astray**, for example forwarded to the wrong person, Rikke deactivates it and creates a new one. Only that guest's link changes; the rest of the household keeps theirs. The old link only says that this is a private invitation and that the visitor should contact the couple the way they usually do. It shows no names, phone numbers or answers.
 4. **After the deadline** the button only says **"See answer"**. Synne can see her household's answers but not change them, and she is told the deadline has passed and how to reach Rikke and Valdemar. She can still see how to pay, tap "I have paid", read the information pages, ask the couple a question and withdraw her allergy consent.
-5. **Rikke fills in or changes the answer for her** from the admin area. If Synne tells Rikke about an allergy by phone, Rikke ticks that Synne consented verbally, and the site records who registered it and when.
+5. **Rikke fills in or changes the answer for her** from the admin area, in the same form the guests use. If Synne mentions an allergy on the phone, Rikke sends her the consent text by message and registers the consent when Synne replies yes. The site records who registered it, how, and when.
 6. **If something goes wrong**, such as an error message or a page that won't load, Synne still sees how to reach the couple. Their phone numbers are on every page.
 
 ### UJ-4: Rikke checks the numbers and sends them to Hardingasete
@@ -193,13 +224,22 @@ Every functional requirement in section 5 is in v1, except those marked **[2027]
 The RSVP deadline has passed, and Hardingasete needs the final numbers soon.
 
 1. **Rikke logs in** and first sees a **summary**:
-   - how many have answered yes, no, or not answered
+   - how many people and households are coming, not coming, or haven't answered
    - guests per day and how many stay overnight (beds)
-   - count per meal and per allergy type
+   - the count per meal and per allergy type, and how many guests who are coming have nothing registered for allergies
+   - how many households have paid, part paid, not paid, have nothing to pay, or are owed a refund
    - interest in the Friday hike, and when people expect to arrive
-2. **Directly below is "Needs attention"**: a clear list of what Rikke or Valdemar must handle. It shows households that haven't answered, unanswered guest questions, "I have paid" reports that don't match a registered payment, refunds owed, and households that have changed their answer. She marks each item as handled or seen, and it leaves the list.
+2. **Directly below is "Needs attention"**: a clear list of what Rikke or Valdemar must handle. It shows:
+   - households that haven't answered;
+   - guests with nothing registered for allergies;
+   - unanswered guest questions;
+   - "I have paid" reports that don't match a registered payment;
+   - refunds owed;
+   - households that have changed their answer.
+
+   She marks each item as handled or seen, and it leaves the list.
 3. **She trusts the numbers** because every count opens the people behind it. When she taps "12 for Friday dinner", she sees who the 12 are. She can also open the full overview of every household, person and answer, and count for herself.
-4. **"Not answered" is clear**, with names. Rikke contacts them herself and adds a dated note to the household, for example "Contacted 12.01".
+4. **"Not answered" is clear**, with names and contact details. Rikke contacts them herself. *(2027: she adds a dated note to the household, for example "Contacted 12.01".)*
 5. **She types the numbers into an email to Hardingasete**: meals, guests, beds, and allergies with names and counts. *(If time: a printer-friendly page with exactly what Hardingasete needs.)* The couple decides who sleeps in which cabin outside the site.
 
 **The helpers** (toastmaster, maid of honour, best man) log in and see the same overview, but cannot change anything.
@@ -208,10 +248,10 @@ The RSVP deadline has passed, and Hardingasete needs the final numbers soon.
 
 Some Vipps payments and bank transfers have come in.
 
-1. **Rikke checks Vipps and her online bank**, then registers each amount received on the site, for example "Received 900 kr".
-2. **The site works out each household's status** from the amount: not paid, part paid (X missing), paid, or refund owed (X).
-3. **If a guest has tapped "I have paid" but no matching payment is registered**, the household is **marked red** in the overview and listed under "Needs attention".
-4. **Rikke sends reminders herself** by message, and adds a dated note that the household has been contacted. The same note shows in the not-answered list and the payment overview.
+1. **Rikke checks Vipps and her online bank.** Each household's own payment message makes it easy to see who paid. She registers each amount received on the site, for example "Received 900 kr".
+2. **The site works out each household's status** from the amounts: nothing to pay, not paid, part paid (X missing), paid, or refund owed (X). Only the couple and the helpers see this status.
+3. **If a guest has reported "I have paid", but the amount registered as received is lower**, the household is **marked red** in the overview and listed under "Needs attention".
+4. **Rikke sends reminders herself** by message. *(2027: she adds a dated note that the household has been contacted, shown in both the not-answered list and the payment overview.)*
 
 ### UJ-6: Ingrid, the examiner, runs the app
 
@@ -219,7 +259,7 @@ Some Vipps payments and bank transfers have come in.
 
 1. **She clones the repo and reads the README.** It says what the app does and which tools and versions she needs, with commands she can copy.
 2. **She installs and starts the app** with a few commands. She needs none of Rikke's accounts or keys; the example settings file (`.env.example`) works as it is.
-3. **She fills the database with fictional guests.** They are the people from these journeys: Sigmund and bestemor, Arild's household, Synne, plus a few more households that cover the rest of the expected-results list. The README lists a test link per guest and logins for a test admin and a test helper.
+3. **She fills the database with fictional guests.** They are the people from these journeys, plus households that cover the rest of the expected-results list. The README lists a test link per guest and logins for a test admin and a test helper. These exist only in the test data.
 4. **She opens a guest link** in a narrow window, like a phone, and goes through the whole RSVP flow. She tries wrong input and checks the receipt.
 5. **She logs in as admin** and sees that the summary matches the expected-results list in the documentation.
 6. **She tests the deadline** by moving it to yesterday in the admin settings. The guest can no longer change the answer; the admin still can.
@@ -233,7 +273,7 @@ Some Vipps payments and bank transfers have come in.
 ### 5.1 Personal links and access
 
 - **FR-1** Each guest has their own personal link with a long random code that cannot be guessed. The link is the guest's only login; guests have no accounts or passwords. [brief, UJ-1]
-- **FR-2** A link opens the guest's household and nothing else: the invitation, the household's answers, its total and its payment status. [brief]
+- **FR-2** A link opens the guest's household and nothing else: the invitation, the household's answers, its total and its payment information. [brief]
 - **FR-3** Opening a link never changes anything. Only a deliberate action by the guest, such as pressing a button, saves data. Chat apps and email scanners open links by themselves. [C4, R 4.1]
 - **FR-4** Page titles and link previews are the same for everyone and contain no names. [C7]
 - **FR-5** Without a valid link, the site shows only a friendly message: this is a private invitation, and the visitor should contact the couple the way they usually do. This covers an unknown or deactivated link and the site's address on its own. The message shows no names, phone numbers, date or place. [UJ-3]
@@ -241,7 +281,7 @@ Some Vipps payments and bank transfers have come in.
 
 ### 5.2 Invitation and information pages
 
-- **FR-7** The front page looks like an invitation. Without scrolling on a phone, it shows the couple's names, the date and place, the names of the invited household, the RSVP deadline and the RSVP button. [UJ-1]
+- **FR-7** The front page looks like an invitation. Without scrolling on a phone, it shows the couple's names, the date and place, the names of the invited household, that the weekend is child-free, the RSVP deadline and the RSVP button. [UJ-1, review]
 - **FR-8** Below the invitation are short cards for Programme, Practical information, Hardingasete and the area, and About us. Each opens its own page through "Read more". The RSVP button is repeated at the bottom. [UJ-1]
 - **FR-9** The programme shows the weekend day by day, marks what costs money and says what to bring. Everyone sees every activity, including the Friday hike, so a guest who sees it can still decide to come on Friday. The treasure hunt, the sauna and hot tub, and yoga are information only, with no sign-up. [Q6, brief]
 - **FR-10** The practical information covers the address, times, transport and parking, dress codes, house rules (child-free, little phone use) and what to bring. [brief]
@@ -251,21 +291,22 @@ Some Vipps payments and bank transfers have come in.
 
 - **FR-12** The form shows "I am [name]", already set to the link's owner. The respondent can switch to another member of the household. The choice records who answered. [C6, UJ-1]
 - **FR-13** The form goes step by step, with one clear task per step, a visible Back link and a sign of how far the respondent has come. [D9]
-- **FR-14** The first question asks whether everyone in the household is coming the whole weekend. Nothing is chosen in advance. Answering "No" lets the respondent mark who is not coming, and which days (Friday, Saturday, Sunday) each of the others comes. [UJ-2, D1]
+- **FR-14** The first step asks who in the household is coming: each person is marked "Coming" or "Not coming", and nothing is chosen in advance. The next step asks whether everyone who is coming is there the whole weekend, Friday to Sunday. Answering "No" lets the respondent choose the days for each person. [UJ-2, D1, review]
 - **FR-15** Later steps only ask about people who are coming, and only for the days they are there. A meal is offered only on days the person is present, and Saturday breakfast only to those present from Friday. [UJ-2]
 - **FR-16** Each person who is coming answers yes or no to staying overnight. The form states clearly that a cabin is booked for the whole weekend and that both nights are paid, even if the guest sleeps there only one night. [D1, UJ-2]
 - **FR-17** Each person present on Friday is asked about the Friday mountain hike: yes, no or maybe. Others are not asked. [brief]
 - **FR-18** Expected arrival is optional and asked per person who is coming, with fixed choices including "Don't know". There are no time pickers. [D11]
 - **FR-19** "Read more" inside a step, for example about the cabins and their price, opens in place, so the respondent never leaves the form. [UJ-1]
 - **FR-20** Leaving the form before sending shows a warning that the answer is not sent yet. [UJ-1]
-- **FR-21** Before sending, a check page shows every answer per person and the household total, with a "Change" link for each part. Optional questions that were skipped show as "Not provided". [D9, R 1.7]
+- **FR-21** Before sending, a check page says at the top that the answer is not sent yet. It shows every answer per person and the household total, with a "Change" link for each part. Optional questions that were skipped show as "Not provided". The button says "Send answer". [D9, R 1.7, review]
 - **FR-22** Errors appear next to the field, with a hint on how to fix them. After a failed attempt to continue, a summary at the top lists each error and links to its field. [R 3.5]
-- **FR-23** After sending, a receipt confirms the answer with a message that fits it. There is one message for those who are coming and one for those who can't, and both end with "You can now safely close the invitation." [UJ-1]
-- **FR-24** Once the household has answered, the link always opens its status: the answers, who last updated them and when, the total, how to pay and the deadline. [D9, UJ-2]
+- **FR-23** After sending, a receipt confirms the answer with a message that fits it: one for those who are coming and one for those who can't. "You can now safely close the invitation" appears after the payment choice (FR-34), or straight away when there is nothing to pay. [UJ-1, review]
+- **FR-24** Once the household has answered, the invitation shows the household's status near the top: that the answer is sent, by whom and when, the total, what has been reported paid, and the deadline. "See or change answer" (FR-37) opens the answers. [D9, UJ-2, review]
+- **FR-70** Each day is shown with its date and what happens that day. The form stops answers that contradict each other, such as staying overnight while being present only one day, and explains why. [review]
 
 ### 5.4 Allergies and consent
 
-- **FR-25** Allergies and dietary needs are optional and given per person who is coming. They use fixed categories (gluten, lactose, nuts, shellfish, vegetarian, vegan, other) and a short note. No diagnoses. [D10, C2]
+- **FR-25** For each person who is coming, the respondent either enters allergies and dietary needs or chooses "No allergies or dietary needs". Allergies use fixed categories (gluten, lactose, nuts, shellfish, vegetarian, vegan, other) and a short note. No diagnoses. The question is optional. [D10, C2, review]
 - **FR-26** Allergy information is saved only if the respondent gives consent through a separate Yes/No choice that starts unanswered ("I consent to …"). The text says:
   - what the information is for;
   - who can see it: the couple, toastmaster, maid of honour and best man;
@@ -274,28 +315,29 @@ Some Vipps payments and bank transfers have come in.
 
   [C1, UJ-4]
 - **FR-27** When the respondent enters allergies for others, they confirm that those people know about it and agree. [C2]
-- **FR-28** The RSVP can always be sent without consent. In that case no allergy information is stored, and the guest is told they can tell the couple directly. [C1]
-- **FR-29** The site stores when consent was given, who gave it and which version of the consent text was shown. [C1]
+- **FR-28** The RSVP can always be sent without consent. If allergies are entered but consent is not given, the form says plainly, before sending, that the allergy information will not be saved and that the guest can tell the couple directly. [C1, review]
+- **FR-29** Consent is stored per person: when it was given, who gave it (the person, another household member or the couple) and which version of the consent text was shown. [C1, review]
 - **FR-30** Consent can be withdrawn through the personal link at any time, also after the deadline. Withdrawing deletes that person's allergy information and marks the household "Changed". [C1, UJ-3, GDPR Art. 7(3)]
-- **FR-31** When the couple registers allergies for a guest, they confirm that the guest consented by phone or message. The site records who registered it and when. [UJ-3]
+- **FR-31** Before the couple registers allergies for a guest, they send the guest the consent text by message, and they register the consent only when the guest replies yes. The site records who registered it, the channel, the text version and when. [UJ-3, review]
 
 ### 5.5 Prices, total and payment for guests
 
 - **FR-32** The price of each paid option is shown before the guest chooses. The paid options are the cabin for the whole weekend, Friday dinner, Saturday breakfast and Sunday breakfast. A short, friendly note explains why guests pay: these are Hardingasete's prices, and the couple pays for Saturday lunch and dinner. [C3]
 - **FR-33** The household total is visible along the way and is the same on the check page and the receipt. It is always calculated from the answers and the current prices, never typed in. [C3, D6]
-- **FR-34** After sending, the guest chooses "Pay now" or "Pay later". [UJ-1, D8]
-  - **Pay now** shows the amount, the Vipps number, the bank account number and the message to write, for example "Bryllup Sigmund".
+- **FR-34** After sending, a household with something to pay chooses "Pay now" or "Pay later". [UJ-1, D8]
+  - **Pay now** shows the amount, the Vipps number, the bank account number and the household's payment message (FR-71).
   - **Pay later** explains that the link always shows what is owed and how to pay.
-- **FR-35** The guest can report "I have paid". The report is stored with the time and shown to the couple. [UJ-1, UJ-5]
-- **FR-36** If the total changes after a payment, the guest sees what remains to pay, or that the couple has been told and will refund the difference. [UJ-2]
+- **FR-35** The guest can report "I have paid", with the amount (filled in with what is owed), the method (Vipps or bank) and, if someone else paid, who. Afterwards the guest sees what they reported and when, and can correct it. [UJ-1, UJ-5, review]
+- **FR-36** If the total changes after the guest has reported paying, the guest sees what remains to pay, or that the couple has been told and will refund the difference. [UJ-2]
+- **FR-71** Each household has its own payment message: "Bryllup" followed by the household's names. The couple can adjust it, and the site warns if two households would get the same message. [review]
 
 ### 5.6 Changing an answer, deadline and lock
 
 - **FR-37** Before the deadline, once the household has answered, the RSVP button becomes "See or change answer" and opens the form with the answers filled in. [UJ-2]
-- **FR-38** Before anyone edits, the form shows who last updated the answer and when. The last saved answer applies. [C5, UJ-2]
-- **FR-39** Every change after the first answer marks the household "Changed" for the couple. [UJ-2]
-- **FR-40** The full history of each household's changes (who changed what, and when) is kept. [UJ-2] **[2027]**
-- **FR-41** The RSVP deadline is shown next to the RSVP button and on the receipt. [D4]
+- **FR-38** Before anyone edits, the form shows who last updated the answer and when. If someone else in the household sends an answer after the respondent opened the form, the site shows that answer (who, when and what differs) before the respondent can send. No answer is overwritten without anyone seeing it. [C5 changed, UJ-2, review]
+- **FR-39** A household is marked "Changed" when a guest or the couple changes a sent answer, or when allergy consent is withdrawn. The first answer and "I have paid" reports don't count as changes. [UJ-2, review]
+- **FR-40** The full history of each household's changes (who changed what, and when) is kept. For allergies, it records only that the information changed, never the content. [UJ-2, review] **[2027]**
+- **FR-41** The RSVP deadline is a date: guests can answer until 23:59 Norwegian time that day. It is shown with weekday, date and time next to the RSVP button and in the household's status. All times on the site are Norwegian time. [D4, review]
 - **FR-42** After the deadline, guests can no longer change who is coming, days, meals, overnight stay, the hike, arrival or allergies. [D5, UJ-3]
   - The button says "See answer". The page explains that the deadline has passed and shows how to reach Rikke and Valdemar.
   - Payment information, "I have paid", the information pages, questions and consent withdrawal still work.
@@ -303,7 +345,7 @@ Some Vipps payments and bank transfers have come in.
 
 ### 5.7 Questions to the couple
 
-- **FR-43** An "Ask us" button on every guest page lets the guest send a short question. [brief]
+- **FR-43** An "Ask us" button on every guest page lets the guest send a short question. The form says that Rikke, Valdemar and the helpers can read it, and asks guests not to write health information there. [brief, review]
 - **FR-44** Questions are always stored and listed under "Needs attention". The couple answers outside the site and marks the question as answered. [brief]
 - **FR-45** If an email key is configured, each question is also emailed to the couple. Otherwise it is written to the console. [brief]
 
@@ -324,17 +366,20 @@ Some Vipps payments and bank transfers have come in.
 ### 5.10 Overview and "Needs attention"
 
 - **FR-54** The admin home page starts with a summary: [UJ-4]
-  - people and households who have answered yes, answered no, or not answered;
+  - people and households who are coming, not coming, or haven't answered (FR-74);
   - guests per day;
   - how many stay overnight (beds);
-  - the count per meal and per allergy category;
+  - the count per meal (FR-73) and per allergy category;
+  - how many guests who are coming have nothing registered for allergies;
+  - the number of households in each payment status (FR-60);
   - interest in the hike;
   - expected arrivals.
 - **FR-55** Every count opens a list of the people behind it. [UJ-4]
 - **FR-56** Below the summary, "Needs attention" lists: [UJ-4, UJ-5]
   - households that haven't answered;
+  - guests who are coming but have nothing registered for allergies, neither allergies nor "No allergies";
   - unanswered questions;
-  - "I have paid" reports without a matching payment, in red;
+  - "I have paid" reports without a matching payment (FR-61), in red;
   - refunds owed;
   - households marked "Changed".
 
@@ -345,39 +390,65 @@ Some Vipps payments and bank transfers have come in.
 ### 5.11 Payments
 
 - **FR-59** The couple registers the amounts received from each household, and refunds paid back. A registration can be corrected or undone. [UJ-5]
-- **FR-60** The site works out each household's payment status from the amounts: not paid, part paid (with the amount missing), paid, or refund owed (with the amount). [UJ-5]
-- **FR-61** A household whose "I have paid" report has no matching registration is marked red in the overview and listed under "Needs attention". [UJ-5]
+- **FR-60** The site works out each household's payment status by comparing the amount received, minus refunds, with the total: [UJ-5, review]
+  - **nothing to pay:** the total is 0 kr and nothing has been received;
+  - **not paid:** nothing has been received;
+  - **part paid:** less than the total has been received, with the amount missing;
+  - **paid:** the total has been received;
+  - **refund owed:** more than the total has been received, with the amount.
+
+  Only the couple and the helpers see these statuses.
+- **FR-61** An "I have paid" report matches when the amount registered as received, minus refunds, is at least the amount the guest reported. A household whose report doesn't match is marked red in the overview and listed under "Needs attention". [UJ-5, review]
 - **FR-62** Each household has one dated contact note, for example "Contacted 12.01: payment reminder". It shows both in the not-answered list and in the payment overview. [UJ-4, UJ-5] **[2027]**
 
 ### 5.12 Overrides and settings
 
-- **FR-63** The couple can fill in or change any household's answer, also after the deadline. Such changes record the admin as the author. [UJ-3, D5]
-- **FR-64** In the admin area, the couple can change the prices, the RSVP deadline, their contact details and the payment details (Vipps number and account number). Helpers cannot. [UJ-6]
+- **FR-63** The couple can fill in or change any household's answer, also after the deadline, using the same form as the guests. Such changes record the admin as the author. [UJ-3, D5, review]
+- **FR-64** In the admin area, the couple can change the prices, the RSVP deadline, their contact details and the payment details (Vipps number and account number). Helpers cannot. When the deadline is changed, the site repeats the new deadline in words and asks for confirmation. A deadline in the past or within two weeks also shows how many households would be locked out. [UJ-6, review]
 - **FR-65** Changing prices after households have answered shows a warning with the number of households whose total will change. [UJ-6]
 
 The text on the information pages lives in the code in v1, so changing it means changing the code (D12).
 
 ### 5.13 Privacy functions
 
-- **FR-66** A privacy page explains: [R 3.3]
+- **FR-66** A privacy page explains: [R 3.3, review]
   - what is collected and why, including the phone numbers and email addresses the couple enters;
+  - who is responsible: Rikke and Valdemar together;
+  - the legal basis for each kind of information (NFR-3);
   - who can see it: the couple and the helpers, and for allergies also Hardingasete's kitchen;
-  - the legal basis;
   - when it is deleted;
   - the guest's rights, including withdrawing consent and complaining to Datatilsynet;
   - how to contact the couple.
 
   It is linked from the bottom of every page and from the consent question.
-- **FR-67** The couple can delete all guest data in one operation, after a clear confirmation. **[2027]**
+- **FR-67** The couple can delete all guest data in one operation, after a clear confirmation. This covers answers, contact details, consent records, the change history, questions, notes and payments. [review] **[2027]**
 
 ### 5.14 Local setup and test data (course version)
 
-- **FR-68** One documented command fills the database with fictional test data: [UJ-6]
+- **FR-68** One documented command fills the database with fictional test data: [UJ-6, review]
   - the people from UJ-1 to UJ-3;
-  - extra households that cover the expected-results list: one that has paid, one that hasn't answered, and a single guest with an allergy;
+  - households that cover the expected-results list:
+    - one that declines entirely (nothing to pay);
+    - a guest who comes only on Saturday, without a cabin;
+    - one that has paid;
+    - one that has part paid;
+    - one that is owed a refund;
+    - one with an "I have paid" report and no matching payment;
+    - one that hasn't answered;
+    - a guest with an allergy and consent;
+    - a guest who entered an allergy but didn't consent;
+    - a guest who withdrew consent;
   - fictional contact details and a test link for each guest;
+  - fictional prices, a deadline, the couple's contact details and payment details that are obviously invalid;
   - a test couple admin and a test helper.
-- **FR-69** An expected-results list, worked out by hand for the test data, is documented and checked by the automated tests. [UJ-6, brief]
+- **FR-69** An expected-results list is worked out by hand for the test data before the code it checks is written, and is committed to the repository. It covers counts, totals, payment statuses and the deadline lock, and the automated tests check it. [UJ-6, brief, review]
+- **FR-72** Test data never reaches the real site. The command that fills in test data refuses to run against a production site, and test accounts and test links exist only in the test data. [review]
+
+### 5.15 Rules for counts and totals
+
+- **FR-73** **Meals.** Guests choose the paid meals: Friday dinner, Saturday breakfast and Sunday breakfast (FR-15). Saturday lunch and dinner are paid by the couple and are not asked about; everyone present on Saturday is counted for both. Meals do not depend on staying overnight. [D2, brief, review]
+- **FR-74** **People and households.** Each person is coming, not coming, or hasn't answered. A household counts as answered once an answer has been sent, and as coming when at least one person in it is coming. [brief, review]
+- **FR-75** **Removed choices.** When a person is changed to not coming, or a day is removed, the choices for that person or day are removed too, so they never count in totals or numbers. [review]
 
 ## 6. Non-functional requirements
 
@@ -391,17 +462,31 @@ The text on the information pages lives in the code in v1, so changing it means 
 
 ### NFR-2 Correct numbers
 
-- All counts, totals and payment statuses are calculated from the stored answers and payments, never stored separately.
+- All counts, totals and payment statuses are calculated from the stored answers and payments, never stored separately. The rules in section 5.15 decide every count.
 - Amounts are whole kroner.
 - Automated tests check that the admin counts and totals match the expected-results list (FR-69).
 
 ### NFR-3 Privacy
 
 - GDPR is assumed to apply, and allergies are treated as health data. [R 3.1, R 3.2]
+- Rikke and Valdemar are jointly responsible for the data (joint controllers).
+- The legal basis for each kind of information is the couple's own assessment, not legal advice: [review]
+
+  | Information | Purpose | Legal basis | Who sees it |
+  |---|---|---|---|
+  | Names, households and links | Inviting guests and collecting answers | Legitimate interest | The couple and helpers |
+  | Phone numbers and email addresses entered by the couple | Following up guests | Legitimate interest | The couple and helpers |
+  | Answers: attendance, days, meals, overnight stay, hike, arrival | Planning the weekend and giving numbers to Hardingasete | Legitimate interest | The couple and helpers; numbers go to Hardingasete |
+  | Allergies and dietary needs | Safe food from Hardingasete's kitchen | Explicit consent (GDPR Art. 9(2)(a)) | The couple and helpers; names and allergies go to Hardingasete's kitchen |
+  | Consent records | Showing that consent was given | Legal obligation to prove consent (Art. 7(1)) | The couple |
+  | Payments and "I have paid" reports | Keeping track of money | Legitimate interest | The couple and helpers |
+  | Questions from guests | Answering guests | Legitimate interest | The couple and helpers |
+
 - Only what is needed is collected. Guests are stored with a name and, optionally, a phone number and email so the couple can follow up. Allergies are categories and a short note, with no diagnoses.
-- Only fictional data is used in the repository, tests, test data, screenshots, the usability test and AI tools.
+- The repository is public. Only fictional data is used in the repository, tests, test data, screenshots, the usability test and AI tools. All people in this PRD are fictional.
 - Real data lives only in the production database, hosted in the EU/EEA. Hosting and email providers that handle it have data processing agreements.
-- Real data is deleted by 31 August 2028.
+- Real data is deleted by 31 August 2028. That includes emailed copies, such as forwarded questions and the allergy list sent to Hardingasete.
+- **Accepted risk.** When one adult enters allergies for another, the consent comes from the respondent's confirmation, not from the person themselves (C2). This risk was accepted on 2026-11-06. FR-29 records who gave each consent. A possible improvement for 2027 is that the person confirms the information in their own link; it is not planned.
 
 ### NFR-4 Security
 
@@ -417,6 +502,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 ### NFR-5 Accessibility (self-imposed target: WCAG 2.2 AA)
 
 - Text contrast is at least 4.5:1. This must be checked for sage green on soft white. [R 3.5]
+- Body text on guest pages is at least 18 px. [brief, review]
 - The site works at 200 % zoom and at 320 px width.
 - Everything can be done with a keyboard, and the keyboard focus is always visible.
 - Buttons and other touch targets on guest pages are at least 44 × 44 px. The WCAG AA minimum is 24 × 24 px; larger targets suit older guests.
@@ -429,7 +515,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 - Phone first, for all ages. A PC shows the phone layout; a wider layout is If time.
 - Every screen has one obvious next step.
 - Plain, warm Norwegian (bokmål) with a cosy tone, also in error messages.
-- An older guest can complete a household RSVP without help in under 10 minutes (SM-3).
+- An older guest can complete a household RSVP correctly and without help in under 10 minutes (SM-3).
 
 ### NFR-7 Performance and size
 
@@ -455,8 +541,9 @@ The text on the information pages lives in the code in v1, so changing it means 
 ### Constraints
 
 - **Team.** Rikke is a solo developer, early in learning to program. She builds with AI assistance, using the BMAD method.
-- **Dates.** The course delivery is due mid-December 2026, and the usability test is in the first week of December 2026.
+- **Dates.** The usability test is in the first week of December 2026, the feature freeze is on 10 December 2026, and the course delivery is due mid-December 2026 (section 3.1a).
 - **Course requirement.** The app must be full-stack with one database. The technology is chosen in the architecture document.
+- **Public repository.** Everything in the repository is public, so it holds only fictional data.
 - **No AI in the site.** It would add cost, and the course does not require it.
 - **Payment outside the site.** Guests pay by Vipps or bank transfer to the couple.
 
@@ -464,7 +551,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 
 - **Q1: Beds and cabins.** Answered for capacity: Hardingasete has far more beds than there are guests, so the form needs no bed limit (Rikke, 2026-11-07). The couple allocates the cabins outside the site.
 - **Q2: Final numbers.** When and in which format Hardingasete needs the final numbers. This sets the RSVP deadline, about two weeks earlier, and what the overview must show.
-- **Q3: Prices.** The prices per meal and for the cabin. These are entered as settings (FR-64).
+- **Q3: Prices.** The prices per meal and for the cabin. These are entered as settings (FR-64), and invitations are not sent until they are known (section 3.2).
 - **Q4: Payment.** Whether guests may pay Hardingasete directly. This may change FR-34.
 
 ### Assumptions
@@ -478,7 +565,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 |---|---|---|---|---|
 | Q2–Q4 | Hardingasete's answers (section 7) | Rikke | No | Hardingasete replies |
 | Q7 | How do two or three guests, including older ones, feel about paying for meals? Affects the wording in FR-32. | Rikke | No | Before the UX text is written |
-| Q8 | Is the teacher fine with the consent model differing from the first brief? Must the expected-results list be in the PRD, or only in the tests? | Rikke | No | Next supervision |
+| Q8 | Is the teacher fine with the consent model differing from the first brief? (The teacher's feedback already asks for an expected-results list checked by automated tests, which FR-69 covers.) | Rikke | No | Next supervision |
 | D14 | Store link codes hashed or in plain form? | Architecture | No | bmad-architecture |
 | D15 | Database and technology stack | Architecture | No | bmad-architecture |
 | D16 | Email provider in production; it must store data in the EU | Rikke | No | 2027 |
@@ -490,11 +577,26 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | Topic | Brief | PRD | Why |
 |---|---|---|---|
 | Helpers | Full access for all admin users | Helpers can see but not change (FR-46) | Rikke wants only the couple to change data |
-| Payment status | Paid or not paid, with undo (D6) | Amounts are registered, and the status is calculated: not paid, part paid, paid or refund owed (FR-59, FR-60) | Rikke needs "part paid"; a status calculated from amounts can't drift away from the money actually received |
-| "I have paid" | Optional (D6) | In v1 (FR-35, FR-61) | Catches mismatches and avoids wrong reminders |
+| Payment status | Paid or not paid, with undo (D6) | Amounts are registered, and the status is calculated: nothing to pay, not paid, part paid, paid or refund owed (FR-59, FR-60) | Rikke needs "part paid"; a status calculated from amounts can't drift away from the money actually received |
+| "I have paid" | Optional (D6) | In v1, with amount and method (FR-35, FR-61) | Catches mismatches and avoids wrong reminders. Guests don't see the couple's confirmation; their own report is enough for them |
+| Payment message | No household code; "Bryllup" + name (D8) | "Bryllup" + all the household's names, with a duplicate warning (FR-71) | A single first name isn't unique enough to match payments |
 | Links | One per guest (brief); research assumed one per household | One per guest, with "I am …" already set to the owner (FR-1, FR-12) | Doesn't ask for what the link knows (WCAG 3.3.7), and deactivating a link affects only one person |
+| First question | Not specified | "Who is coming?" first, then "the whole weekend?" (FR-14) | A review found that "Is everyone coming the whole weekend? No" feels like declining |
+| Two people answering at once | Last save wins (C5) | The later sender sees the other answer first (FR-38) | With one link per person, two household members answering at the same time is likely |
 | Allergy recipients | The consent names who can see the data | The consent also says that names and allergies go to Hardingasete's kitchen (FR-26) | The couple emails the allergies with names |
+| "No allergies" | Not specified | An explicit choice per person (FR-25) | Lets the couple see who hasn't answered the question |
 | Gift list | Form open | Simple text page with links, If time | Decided by Rikke |
 | Guest contact details | Not specified | Optional phone and email per guest, entered by the couple (FR-49) | Makes follow-up easier for the couple. Claude proposed storing names only (data minimisation); Rikke chose otherwise, and the privacy page explains it (FR-66) |
-| New in v1 | — | "Needs attention" (FR-56), counts that open the people behind them (FR-55), the "Changed" marker (FR-39), settings in admin with a price warning (FR-64, FR-65), the privacy page (FR-66), verbal consent recorded by the couple (FR-31) | Came out of the user journeys |
+| Prices | Not known yet | Invitations are not sent until the 2028 prices are known (section 3.2) | Avoids totals that change after guests have answered |
+| Priority | Must and If time | Three tiers within v1 (section 3.1a) | The teacher's warning about time and scope |
+| New in v1 | — | "Needs attention" (FR-56), counts that open the people behind them (FR-55), the "Changed" marker (FR-39), settings in admin (FR-64, FR-65), the privacy page (FR-66), verbal consent recorded by the couple (FR-31), rules for counts (FR-73 to FR-75) | Came out of the user journeys and the reviews |
 | Dropped | — | Email to the couple when an answer changes | Rikke: the overview is enough |
+
+## 10. Change log
+
+| Date | Change |
+|---|---|
+| 2026-11-07 | First draft: user journeys UJ-1 to UJ-6, FR-1 to FR-69, NFR-1 to NFR-9. Four FRs deferred to 2027. |
+| 2026-11-07 | Round 2: FR-5, FR-6, FR-9, FR-17, FR-42, FR-47, FR-49, FR-51, FR-57, FR-66 and FR-68 clarified; guest contact details added. |
+| 2026-11-07 | Round 3: NFR-1, NFR-5 and NFR-7 confirmed; helpers see contact details (FR-66). |
+| 2026-11-07 | After five input reconciliations and five reviews: priority tiers (section 3.1a); first question restructured (FR-14, FR-70); no silent overwrite (FR-38); payment message and fuller "I have paid" (FR-35, FR-71); "No allergies" (FR-25); count rules (FR-73 to FR-75); deadline moment (FR-41, FR-64); test data never in production (FR-72); legal bases (NFR-3); larger text (NFR-5); course success criteria SM-11 to SM-13 restored from the brief; journeys mark what comes in 2027. |
