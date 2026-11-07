@@ -361,7 +361,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 
 - **FR-66** A privacy page explains: [R 3.3]
   - what is collected and why, including the phone numbers and email addresses the couple enters;
-  - who can see it, including Hardingasete's kitchen;
+  - who can see it: the couple and the helpers, and for allergies also Hardingasete's kitchen;
   - the legal basis;
   - when it is deleted;
   - the guest's rights, including withdrawing consent and complaining to Datatilsynet;
@@ -384,10 +384,10 @@ The text on the information pages lives in the code in v1, so changing it means 
 ### NFR-1 Reliability (Rikke's top priority)
 
 - A guest's link keeps working from the day it is sent until the data is deleted. The domain and the link format are fixed before invitations go out and never change afterwards.
-- Links work when sent by SMS, Messenger and email: they are short enough and use only characters that are safe in links. Before invitations go out, a test link is sent through all three channels and opened on both Android and iPhone. [ASSUMPTION]
+- Links work when sent by SMS, Messenger and email: they are short enough and use only characters that are safe in links. Before invitations go out, a test link is sent through all three channels and opened on both Android and iPhone.
 - Saving either succeeds and says so, or fails with a clear message and keeps what the guest entered. Nothing is lost without the guest knowing.
-- In production, the database is backed up daily, and restoring a backup is tested before invitations are sent. [ASSUMPTION]
-- In production, the site is available from the invitations until the wedding, with no planned downtime in the last week before the deadline. [ASSUMPTION]
+- In production, the database is backed up daily, and restoring a backup is tested before invitations are sent.
+- In production, the site is available from the invitations until the wedding, with no planned downtime in the last week before the deadline.
 
 ### NFR-2 Correct numbers
 
@@ -419,7 +419,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 - Text contrast is at least 4.5:1. This must be checked for sage green on soft white. [R 3.5]
 - The site works at 200 % zoom and at 320 px width.
 - Everything can be done with a keyboard, and the keyboard focus is always visible.
-- Buttons and other touch targets on guest pages are at least 44 × 44 px. [ASSUMPTION: the WCAG AA minimum is 24 × 24 px; larger suits older guests]
+- Buttons and other touch targets on guest pages are at least 44 × 44 px. The WCAG AA minimum is 24 × 24 px; larger targets suit older guests.
 - Every field has a label, and errors follow FR-22.
 - The site does not ask for what the link already knows, such as names.
 - Any animation respects the phone's "reduce motion" setting and can be skipped.
@@ -433,7 +433,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 
 ### NFR-7 Performance and size
 
-- Pages load in under 3 seconds on an ordinary phone on 4G. [ASSUMPTION]
+- Pages load in under 3 seconds on an ordinary phone on 4G.
 - Sized for about 70 guests and 5 admin users. No further scaling is needed.
 
 ### NFR-8 Runnability (course version)
