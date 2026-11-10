@@ -14,5 +14,7 @@
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre faglærer om samtykkemodellen er i orden (Q8)
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre to eller tre gjester hvordan det oppleves å betale for mat (Q7)
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` og `bmad-architecture` (avgjøre D12, D14, D15), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten
-- [ ] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — samle inspirasjon til UX (bilder hun liker og ikke liker, stemningsord, en typisk gjest) før `/bmad-ux`
+- [x] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — samle inspirasjon til UX (bilder hun liker og ikke liker, stemningsord, en typisk gjest) før `/bmad-ux` (løst 2026-11-10)
 - [ ] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — vurdere skillen Impeccable når frontend-koden starter
+- [ ] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — avklare kilder og tillatelser for stedsbildene som skal brukes på nettsida
+- [ ] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — velge illustrasjonsstil: KI-illustrasjonen (14) eller enkle grønne strektegninger
