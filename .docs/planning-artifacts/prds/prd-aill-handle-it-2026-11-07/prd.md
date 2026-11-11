@@ -272,21 +272,22 @@ Apart from Rikke and Valdemar, all people in these journeys are fictional. The g
 
 The RSVP deadline has passed, and Hardingasete needs the final numbers soon.
 
-1. **Rikke logs in** and first sees a **summary** (FR-54):
-   - how many people and households are coming, not coming, or haven't answered
-   - guests per day and how many stay overnight (beds)
-   - the count per meal and per allergy category, and how many guests who are coming have nothing registered for allergies
-   - how many households have paid, part paid, not paid, have nothing to pay, or are owed a refund
-   - interest in the Friday hike, and when people expect to arrive
-2. **Directly below is "Needs attention"** (FR-56): a clear list of what Rikke or Valdemar must handle. It shows:
+1. **Rikke logs in** and first sees **"Needs attention"** (FR-56) at the very top, without scrolling: a clear list of what Rikke or Valdemar must handle. It shows:
    - households that haven't answered;
-   - guests with nothing registered for allergies;
+   - guests who haven't answered the allergy question;
    - unanswered guest questions;
    - "I have paid" reports that don't match a registered payment;
    - refunds owed;
    - households that have changed their answer.
 
-   She marks each item as handled or seen, and it leaves the list. *(2027: it also lists guests whose invitation isn't marked as sent, and households that haven't started a few weeks after it was sent, FR-77.)*
+   She marks each item as handled or seen, and it leaves the list. *(2027: it also lists guests whose invitation isn't marked as sent, and households that haven't started a few weeks after it was sent, FR-77.)* When nothing needs attention, it says so. *Changed 2026-11-11 in the UX work: Rikke wants to see at once if something needs following up.*
+2. **Right below is how many have answered** ("Answered: 28 of 30 households") with a link to what everyone answered (FR-57), and then the **summary** (FR-54) in small separate groups:
+   - how many people and households are coming, not coming, or haven't answered
+   - how many come the whole weekend and how many don't, and which days those come
+   - who does *not* stay overnight, and the number of beds
+   - the count per meal and per allergy category, and how many coming guests haven't answered the allergy question
+   - how many households have paid, part paid, not paid, have nothing to pay, or are owed a refund
+   - interest in the Friday hike, with "maybe" shown separately
 3. **She trusts the numbers** because every count opens the people behind it. When she taps "12 for Friday dinner", she sees who the 12 are. She can also open the full overview of every household, person and answer, and count for herself.
 4. **"Not answered" is clear**, with names and contact details. Rikke contacts them herself. *(2027: she adds a dated note to the household, for example "Contacted 12.01".)*
 5. **She types the numbers into an email to Hardingasete**: meals, guests, beds, and allergies with names and counts. *(If time: a printer-friendly page with exactly what Hardingasete needs.)* Outside the site, the couple decides who sleeps in which cabin.
@@ -414,16 +415,16 @@ Some Vipps payments and bank transfers have come in.
 
 ### 5.10 Overview and "Needs attention"
 
-- **FR-54** The admin home page starts with a summary: [UJ-4]
+- **FR-54** Below "Needs attention" (FR-56), the admin home page shows how many households have answered out of all, with a link to the full overview (FR-57), and then a summary in small separate groups: [UJ-4, UX memlog]
   - people and households who are coming, not coming, or haven't answered (FR-74);
-  - guests per day;
-  - how many stay overnight (beds);
+  - how many come the whole weekend and how many don't, broken down by which days they come;
+  - who does not stay overnight, and the number of beds;
   - the count per meal (FR-73) and per allergy category;
-  - how many guests who are coming have nothing registered for allergies;
+  - how many guests who are coming haven't answered the allergy question;
   - the number of households in each payment status (FR-60);
   - interest in the hike, with "maybe" shown separately from "coming" (UX decision 2026-11-11).
 - **FR-55** Every count opens a list of the people behind it. [UJ-4]
-- **FR-56** Below the summary, "Needs attention" lists: [UJ-4, UJ-5]
+- **FR-56** At the very top of the admin home page, visible without scrolling, "Needs attention" lists (and says so when the list is empty): [UJ-4, UJ-5, UX memlog]
   - households that haven't answered;
   - guests who are coming but have nothing registered for allergies, neither allergies nor "No allergies or dietary needs";
   - unanswered questions;
@@ -652,4 +653,4 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-07 | Production in 2027 (section 3.2): ready date 1 November 2027, backups, monitoring, access, update rules, device floor, pilot and privacy in operation. FR-76 to FR-78 added; link tracking and unfinished answers made required before invitations; change notices to guests moved to Out; D12 left to the architecture with Rikke's rule. |
 | 2026-11-08 | Polish after a structure and language review (bmad-review): a fuller reading key and a note that quoted interface texts are working labels; the whole timeline in section 1; tier contents as lists (section 3.1a); constraints that were scope decisions moved to section 3.4; Q2 to Q4 moved to section 8; UJ-3 renamed; FR-13 leaves the order of later form steps to the UX phase; repeats in NFR-8 removed; the palette contrast check and a possible 2027 improvement moved to the addendum; about 40 wording fixes that remove ambiguities and contradictions without changing what is decided. |
 | 2026-11-08 | Status set to final. |
-| 2026-11-11 | From the UX work (`bmad-ux`, see `ux-designs/ux-aill-handle-it-2026-11-10/.memlog.md`): FR-18 (expected arrival) removed because the chosen days already show arrival; FR-42, FR-54 and the data table updated to match; hike "maybe" counted separately in FR-54. FR-7, FR-8 and UJ-1 step 1 changed to the new front page: sticky menu with a "Svar" button, "Svar" link in the deadline line, RSVP button and child-free note after the information. FR-78 (unsent answer kept on the device) moved from [2027] to tier 1; FR-18 taken out of the tier 1 list. |
+| 2026-11-11 | From the UX work (`bmad-ux`, see `ux-designs/ux-aill-handle-it-2026-11-10/.memlog.md`): FR-18 (expected arrival) removed because the chosen days already show arrival; FR-42, FR-54 and the data table updated to match; hike "maybe" counted separately in FR-54. FR-7, FR-8 and UJ-1 step 1 changed to the new front page: sticky menu with a "Svar" button, "Svar" link in the deadline line, RSVP button and child-free note after the information. FR-78 (unsent answer kept on the device) moved from [2027] to tier 1; FR-18 taken out of the tier 1 list. Admin home reworked after Rikke's review of the mock-ups: "Needs attention" first (FR-56), answer progress, summary regrouped (whole weekend or not, who does not stay overnight) in FR-54 and UJ-4; UJ-4's leftover "expected arrival" removed. |
