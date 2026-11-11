@@ -348,7 +348,7 @@ The **seal** is the one organic shape: an uneven, hand-pressed wax outline (as i
 | **Check-answers list** | Rows per person/part: label left, answer right or below on narrow screens, "Endre" link per part, `divider` between rows, "Ikke oppgitt" in `ink-muted`. |
 | **Receipt panel** | Cream panel, success notice at top, Rikke's message in `{typography.body}`, summary, then payment choice. |
 | **Payment details** | Cream panel listing amount, Vipps number, account number and payment message, each on its own line with a secondary "Kopier" button **[ASSUMPTION]**. |
-| **Envelope reveal** [If time] | Green envelope with the same wax seal opening into a **plain** sheet that becomes the hero panel. No heart shape, no lace. |
+| **Envelope reveal** [If time] | `{colors.page-green}` envelope with the `{colors.green-dark}` wax seal, opening into a **plain** sheet that becomes the hero panel. No heart shape, no lace. |
 | **Admin summary row** | `{typography.admin-body}` label and count; count is a link. Compact, left-aligned, `divider` between rows. |
 | **Attention item** | Admin row: reason, household, one action ("Merk som håndtert"); mismatches carry the error icon and the word "Stemmer ikke". |
 | **Status tag** | `{components.status-tag}`: outlined text label in the state colour (payment status, "Endret"). Never colour alone. |

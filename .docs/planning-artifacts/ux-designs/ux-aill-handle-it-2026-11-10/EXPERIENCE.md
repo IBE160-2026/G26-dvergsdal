@@ -22,7 +22,7 @@ sources:
 - **Form factor:** phone-first responsive web for all ages (NFR-6). A PC shows the phone layout in a centred column; a wider PC layout is [If time]. Links arrive by SMS, Messenger and email and open in the phone's browser or an in-app browser.
 - **Two audiences, one visual system:** guests (about 70, many older, link = login) and admins (the couple with full access; helpers who see everything and change nothing, FR-46). Admin uses the same tokens, denser and undecorated (memlog, *Admin look*).
 - **UI system:** none assumed **[ASSUMPTION — stack is an architecture decision, D15]**. Components are specified here and in DESIGN.md; any library chosen later inherits these rules.
-- **Language:** Norwegian bokmål only in v1 (English is [If time]). All times Norwegian time; amounts in whole kroner (FR-41, NFR-2).
+- **Language:** Norwegian bokmål only. The couple decided against an English hint line in v1 (memlog); the PRD's English [If time] item is not planned. All times Norwegian time; amounts in whole kroner (FR-41, NFR-2).
 - **Light only;** no dark mode (memlog, decision D).
 - **Stakes:** consumer, with personal and health-adjacent data and money. Accessibility and privacy weigh heavily.
 
@@ -62,7 +62,7 @@ sources:
 | A3 | Count drill-down | Any count | The people behind the number (FR-55) |
 | A4 | Full overview | Nav "Gjester", A2 | Every household and person; unanswered stand out; mismatch and "Endret" marked (FR-57) |
 | A5 | Allergy list | A2, A4 | Consented names + categories for Hardingasete (FR-58) |
-| A6 | Guest list: search, add, edit, remove, copy link | Nav "Gjester" | FR-49, FR-51; move guest [T3], deactivate + new link [T3] |
+| A6 | Guest list: search, add, edit, remove, copy link (copy link: the couple only; helpers can neither see nor copy links) | Nav "Gjester" | FR-49, FR-51; move guest [T3], deactivate + new link [T3] |
 | A7 | Household answer via the guest form | Household in A4/A6 | Admin as author, also after deadline (FR-63) |
 | A8 | Consent registration [T3] | Household person | Who, channel, text version, when (FR-31) |
 | A9 | Payments | Nav "Betalinger", household | Register received/refund; correct/undo; computed status (FR-59–61) |
@@ -189,7 +189,7 @@ Behavioural. Visual specs: DESIGN.md › Components (same names).
 - **Tap, scroll, type.** No swipe gestures, long-press, drag, carousels, autoplay, hover-only controls or infinite scroll.
 - **One step at a time** in the form: "Fortsett" forward, "Tilbake" back, browser Back equals "Tilbake" **[ASSUMPTION]**.
 - **Fixed choices over free input** (arrival, allergies, days) — fewer errors for older guests, countable data for the couple (research §5).
-- **Form step order** after FR-14's first two: meals → overnight → Friday hike (Friday attendees) → arrival → allergies and consent → check page **[ASSUMPTION — follows UJ-1's order; see Open Questions]**.
+- **Form step order** (decided by Rikke, memlog): who is coming and which days (FR-14) → overnight → meals → allergies and consent → Friday hike (Friday attendees only) → check page. Where the arrival question goes is still open (see Open Questions).
 
 ### Admin protection tiers (decided)
 
@@ -242,8 +242,8 @@ Quality bar (memlog override): the **whole journey from link to sent answer** mu
 1. Opens the link → G2. [If time: envelope on first visit, skippable.] Sees names, date, place, "Invitert: Sigmund og bestemor", "Barnefritt bryllup", deadline and "Svar på invitasjonen" without scrolling.
 2. Scrolls past the lead-in to the four cards; may open one and return with "Tilbake til invitasjonen".
 3. Taps "Svar på invitasjonen" → G4. "Jeg er Sigmund" is preset. Marks both "Kommer"; "Hele helgen?" → Ja.
-4. Meals and overnight, prices shown before choosing; opens "Les mer om hyttene" in place. Running total updates.
-5. Allergies: "Ingen allergier eller matbehov" for himself; bestemor's categories; consent Ja; confirms she knows and agrees.
+4. Overnight, then meals, prices shown before choosing; opens "Les mer om hyttene" in place. Running total updates.
+5. Allergies: "Ingen allergier eller matbehov" for himself; bestemor's categories; consent Ja; confirms she knows and agrees. Then the Friday hike step (they come Friday).
 6. G5 says "Svaret er ikke sendt ennå"; he checks answers and total, presses "Send svaret".
 7. **Climax:** G6 confirms in Rikke's words that the answer is sent — he understood every step, answered alone, and can see what he answered and what happens next.
 8. Payment: "Betal nå" → G7 → pays → "Jeg har betalt" → G8 shows what he reported and when; or "Betal senere" → told the link always shows what he owes. Then «Du kan nå trygt lukke invitasjonen.»
@@ -326,12 +326,12 @@ Failure: logs in with wrong password → plain error, slowed retries.
 
 1. Does everything FR-7 requires, plus seal and illustration, fit above the fold at 360 × 640 and 320px? If not: cap illustration height or shrink the seal.
 2. Final bokmål for all "proposal" microcopy (Rikke).
-3. Step order after the first two (proposed above).
+3. ~~Step order after the first two~~ — decided (see Component Patterns). Still open: where the arrival question goes.
 4. Why-guests-pay wording (waits for PRD Q7).
 5. Arrival fixed choices; programme times and content placeholders.
-6. How "kanskje" for the hike counts in the summary.
-7. Can helpers copy guest links (FR-51 names the couple; D14 decides if links can be shown at all)?
+6. ~~How "kanskje" for the hike counts~~ — decided: shown separately in the admin summary ("5 kommer, 2 kanskje"), not counted as coming.
+7. ~~Can helpers copy guest links?~~ — decided: no, the couple only (D14 still decides whether links can be shown at all).
 8. Admin session expiry mid-edit: is input kept (architecture)?
-9. A one-line English hint for non-Norwegian guests in v1?
-10. Envelope colour [If time]: `page-green` or `green-dark`?
+9. ~~English hint line?~~ — decided: no, everything in Norwegian.
+10. ~~Envelope colour~~ — decided: `{colors.page-green}` envelope with the `{colors.green-dark}` seal.
 11. Texture on the green page and edge treatment of the cream panels — kept open by the couple for later (see DESIGN.md › Elevation & Depth). Non-blocking.
