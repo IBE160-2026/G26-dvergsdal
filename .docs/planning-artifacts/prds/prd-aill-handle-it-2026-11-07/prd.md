@@ -121,7 +121,7 @@ The course version is built in three tiers, so that the most important part work
 **Tier 1, the usability-test build:**
 
 - **Foundation, built first:** the expected-results list and test data (FR-68, FR-69, FR-72), the admin accounts in the test data (FR-47), and one command to run the app and one to run the tests.
-- **The guest flow:** FR-1 to FR-18, FR-21 to FR-28, FR-32 to FR-34, FR-41, FR-70, FR-71 and the rules in FR-73 to FR-75.
+- **The guest flow:** FR-1 to FR-17, FR-21 to FR-28, FR-32 to FR-34, FR-41, FR-70, FR-71, FR-78 and the rules in FR-73 to FR-75.
 - **A simple admin view:** the couple's login (FR-46), the summary (FR-54, FR-55), a simple full overview (FR-57) and the allergy list (FR-58).
 
 **Tier 2, the complete course version,** in this order:
@@ -352,7 +352,7 @@ Some Vipps payments and bank transfers have come in.
 - **FR-23** After sending, a receipt confirms the answer with a message that fits it: one for those who are coming and one for those who can't. "You can now safely close the invitation" appears after the payment choice (FR-34), or straight away when there is nothing to pay. [UJ-1, review]
 - **FR-24** Once the household has answered, the invitation shows the household's status near the top: that the answer is sent (by whom and when), the total, what has been reported paid, and the deadline. "See or change answer" (FR-37) opens the answers. [D9, UJ-2, review]
 - **FR-70** Each day is shown with its date and what happens that day. The form stops answers that contradict each other, such as staying overnight while being present only one day, and explains why. [review]
-- **FR-78** An unsent answer is kept on the guest's own device if they leave or switch apps, or if the page reloads, and it is offered back when they return through their link. [review] **[2027]**
+- **FR-78** An unsent answer is kept on the guest's own device if they leave or switch apps, or if the page reloads, and it is offered back when they return through their link. [review, UX memlog] *Moved from [2027] to tier 1 on 2026-11-11: the usability test with older guests is exactly where an interrupted answer would be lost.*
 
 ### 5.4 Allergies and consent
 
@@ -635,7 +635,7 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | Prices | Not known yet | Invitations are not sent until the 2028 prices are known (section 3.2) | Avoids totals that change after guests have answered |
 | Priority | Must and If time | Three tiers within v1 (section 3.1a) | The teacher's warning about time and scope |
 | Link tracking | If time | Required before invitations, with an "invitation sent" record (FR-76, FR-77) | Without it, a link that never arrived looks like a slow guest |
-| Unfinished answers | If time | Required before invitations, kept on the guest's device (FR-78) | A phone call or a closed page must not lose an older guest's answer |
+| Unfinished answers | If time | Tier 1, kept on the guest's device (FR-78); moved from [2027] in the UX work 2026-11-11 | A phone call or a closed page must not lose an older guest's answer |
 | Change notices to guests | If time | Out | The site would send messages itself, which the couple doesn't want |
 | Running the site | Hosting in 2027 | Backups, monitoring, access, update rules, a pilot and a ready date of 1 November 2027 (section 3.2) | The pre-mortem review found that nothing kept the real site alive |
 | New in v1 | — | "Needs attention" (FR-56), counts that open the people behind them (FR-55), the "Changed" marker (FR-39), settings in admin (FR-64, FR-65), the privacy page (FR-66), consent registered by the couple (FR-31), rules for counts (FR-73 to FR-75) | Came out of the user journeys and the reviews |
@@ -652,4 +652,4 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-07 | Production in 2027 (section 3.2): ready date 1 November 2027, backups, monitoring, access, update rules, device floor, pilot and privacy in operation. FR-76 to FR-78 added; link tracking and unfinished answers made required before invitations; change notices to guests moved to Out; D12 left to the architecture with Rikke's rule. |
 | 2026-11-08 | Polish after a structure and language review (bmad-review): a fuller reading key and a note that quoted interface texts are working labels; the whole timeline in section 1; tier contents as lists (section 3.1a); constraints that were scope decisions moved to section 3.4; Q2 to Q4 moved to section 8; UJ-3 renamed; FR-13 leaves the order of later form steps to the UX phase; repeats in NFR-8 removed; the palette contrast check and a possible 2027 improvement moved to the addendum; about 40 wording fixes that remove ambiguities and contradictions without changing what is decided. |
 | 2026-11-08 | Status set to final. |
-| 2026-11-11 | From the UX work (`bmad-ux`, see `ux-designs/ux-aill-handle-it-2026-11-10/.memlog.md`): FR-18 (expected arrival) removed because the chosen days already show arrival; FR-42, FR-54 and the data table updated to match; hike "maybe" counted separately in FR-54. FR-7, FR-8 and UJ-1 step 1 changed to the new front page: sticky menu with a "Svar" button, "Svar" link in the deadline line, RSVP button and child-free note after the information. |
+| 2026-11-11 | From the UX work (`bmad-ux`, see `ux-designs/ux-aill-handle-it-2026-11-10/.memlog.md`): FR-18 (expected arrival) removed because the chosen days already show arrival; FR-42, FR-54 and the data table updated to match; hike "maybe" counted separately in FR-54. FR-7, FR-8 and UJ-1 step 1 changed to the new front page: sticky menu with a "Svar" button, "Svar" link in the deadline line, RSVP button and child-free note after the information. FR-78 (unsent answer kept on the device) moved from [2027] to tier 1; FR-18 taken out of the tier 1 list. |
