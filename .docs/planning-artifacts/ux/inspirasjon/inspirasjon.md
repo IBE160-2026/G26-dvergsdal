@@ -82,7 +82,7 @@ Liker: Har ved hjelp av AI lagd denne illustrasjonen av området vi skal gifte o
 Liker ikke: KLarer ikke bestemme meg for om jeg liker den stilen best eller den som er i noen av de andre bildene med helt enkle illustrasjoner med grønne streker. Liker alle. 
 Ta med: Kanskje?
 
-## 15-Illustration.png
+## 15-Illustration.jpg
 Liker: Har ved hjelp av AI lagd denne illustrasjonen av området vi skal gifte oss. 
 Liker ikke: KLarer ikke bestemme meg for om jeg liker den stilen best eller den som er i noen av de andre bildene med mer maleripreg. Liker alle. 
 Ta med: Kanskje?
