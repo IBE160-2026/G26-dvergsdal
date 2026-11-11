@@ -243,6 +243,19 @@ components:
     typography: '{typography.admin-body}'
     border: '1.5px solid currentColor'
     radius: '{rounded.sm}'
+  attention-panel:
+    background: '{colors.panel-cream}'
+    foreground: '{colors.ink}'
+    borderTop: '5px solid {colors.green-dark}'
+    padding: '{spacing.admin-panel-padding}'
+    radius: '{rounded.sm}'
+  answer-progress:
+    typography: '{typography.label}'
+    barHeight: 12px
+    barTrack: '{colors.cream-on-green}'
+    barFill: '{colors.green-dark}'
+    barBorder: '1px solid {colors.ink-muted}'
+    radius: '{rounded.sm}'
   dialog:
     background: '{colors.panel-cream}'
     scrim: '{colors.scrim}'
@@ -276,20 +289,20 @@ The palette was chosen over six render rounds from colours sampled in the couple
 | Token | Hex | Role | Never |
 |---|---|---|---|
 | `page-green` | `#5A6C48` | The page behind everything, including the sticky nav bar: a warm, slightly less yellow olive (G4a, hue ~90°). | Text on cream; button fill (it is only 1.79:1 against `green-dark`). |
-| `green-dark` | `#344628` | Primary button fill, nav "Svar" button, footer band, focus ring on panels. | A page background (round 6 dark page rejected). |
+| `green-dark` | `#344628` | Primary button fill, nav "Svar" button, footer band, focus ring on panels, A2 attention-panel top rule and answer-progress bar fill. | A page background (round 6 dark page rejected). |
 | `green-dark-hover` | `#2C3A20` | Primary button hover/pressed; 10.49:1 with cream text. Too close to `green-dark` (1.18:1) to be the only tap feedback — see Focus ring. | Anything but the pressed button. |
 | `seal` | `#344628` | Wax seal body. Same value as `green-dark`, separate token so the seal can be tuned alone. | — |
 | `panel-cream` | `#EBE4D5` | All content panels ("havre"). | Large areas without texture. |
 | `ink` | `#3B372F` | All text inside panels, including the names and form hints (T2 warm grey, chosen over dark green and walnut). | Text on green. |
 | `ink-muted` | `#5E594F` | Only text nobody needs to act on: timestamps, "Ikke oppgitt", example-number notes. | Hints, body copy, progress line, anything the guest must read to act. |
-| `cream-on-green` | `#F5EEDF` | Text, links, focus ring and the nav "Svar" button's 1px border on `page-green` and `green-dark`. | Panel background. |
+| `cream-on-green` | `#F5EEDF` | Text, links, focus ring and the nav "Svar" button's 1px border on `page-green` and `green-dark`; also the empty track of the A2 answer-progress bar. | Panel background. |
 | `field-surface` | `#F7F2E7` | Inside text fields, so fields read as "write here" on the panel. | Panels. |
 | `field-border` | `#5E594F` | Text-field and select outline. | Decorative rules. |
 | `divider` | `#C8BFAE` | 1px hairlines between admin rows and check-answer rows; never carries meaning on its own **[ASSUMPTION — no render defined a hairline]**. | Field outlines, focus. |
 | `focus-on-panel` | `#344628` | Focus ring painted on cream. | — |
 | `focus-on-green` | `#F5EEDF` | Focus ring painted on green and in the footer band. | — |
 | `error` | `#7C3B1D` | Errors, tier-3 destructive actions, "Stemmer ikke". Sampled from the rust wax seal in inspiration 01. | Decoration; the only signal of an error. |
-| `success` | `#3D5A2A` | "Svaret er sendt", saved confirmations, "Betalt". Renderer's own value, not chosen by the couple. | Primary buttons. |
+| `success` | `#3D5A2A` | "Svaret er sendt", saved confirmations, "Betalt", A2 «Ingenting trenger oppfølging nå». Renderer's own value, not chosen by the couple. | Primary buttons. |
 | `warning` | `#765012` | "Ikke sendt ennå", unsent-draft notice, allergy-without-consent, conflict, unpaid. Renderer's own value, not chosen by the couple. | Errors. |
 | `scrim` | `#344628` | Behind dialogs, at 60 % opacity **[ASSUMPTION]**. | — |
 
@@ -334,7 +347,7 @@ Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so
 |---|---|---|
 | Names | `display-names` | Hero panel only; `h1` of the front page |
 | Seal | `monogram` | Seal and favicon |
-| Page title | `heading-page` | Info pages, form step question (`h1`), receipt heading **[ASSUMPTION — size not rendered]** |
+| Page title | `heading-page` | Info pages, form step question (`h1`), check page heading, receipt heading «Svaret er sendt» (32px, as rendered in the key-screen mockups) |
 | Card heading | `heading-card` | Card and RSVP panel headings (`h2`) |
 | Date | `date-line` | "Lørdag 27. mai 2028" in the hero |
 | Lead-in | `lead-in`, *italic* | One line on green between hero and cards |
@@ -345,7 +358,7 @@ Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so
 | Body | `body` | All guest running text, form hints (*italic*), progress line |
 | Labels | `label` | Form labels and legends |
 | Small | `small` | Only text nobody acts on: timestamps, "Ikke oppgitt", footer meta. The 18px floor; nothing on guest pages is smaller |
-| Admin | `admin-heading`, `admin-body` | Admin working screens **[ASSUMPTION — denser, 18px body]** |
+| Admin | `admin-heading`, `admin-body` | Admin working screens **[ASSUMPTION — denser, 18px body]**; the A2 answer-progress line («Svart: 28 av 30 husstander») uses `label` (20px, 600) |
 
 **Figures:** amounts, dates, times, phone and account numbers use lining figures (`font-variant-numeric: lining-nums`), tables also tabular (`tabular-nums`); EB Garamond defaults to old-style figures, which older eyes misread. Thousands use a non-breaking space ("1 450 kr") so screen readers read one number. No all-caps, no letter-spaced small caps (the small-caps card style was explicitly not decided).
 
@@ -366,11 +379,23 @@ The answered state (where the status block goes) is Open Question 1 in EXPERIENC
 
 **First-screen budget** (measured at 360px wide, fonts and image loaded; the fold is 560px, what a browser or Messenger shows on a 360 × 640 phone): nav "Svar" bottom 48px, deadline "Svar" link 525px, deadline line bottom **553px**. The margin is 7px, so the hero values below are a budget, not a starting point — any added line or larger seal pushes the deadline off the first screen. At 320px the names stack (the hero content box is 252px) and the deadline drops below the fold; the nav "Svar" stays visible (Open Question 2). Check widths for every build: 360 × 560, 320 × 568, 180 × 320.
 
-Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal margin −4px above, 6px below; illustration 8px below; 8px above the date, the invited line and the deadline line. Cards: padding 20/20/12px (the "Les mer" target supplies the bottom space). Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero, cards and RSVP panel is centred; form steps, check page, receipt and admin are left-aligned **[ASSUMPTION — renders only showed the front page]**.
+Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal margin −4px above, 6px below; illustration 8px below; 8px above the date, the invited line and the deadline line. Cards: padding 20/20/12px (the "Les mer" target supplies the bottom space). Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero, cards and RSVP panel is centred; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
 
 Sections are separated by green showing between panels, which answers inspiration 08's "not one long page on one identical background".
 
+**Form step, check page and receipt** (one cream panel per screen on the green page; no nav bar, footer band kept). Rendered at 360px in [mockups/key-form-steps.html](mockups/key-form-steps.html) (steps 1, 3 and 5, an error state and the draft offer), [mockups/key-check-page.html](mockups/key-check-page.html) and [mockups/key-receipt.html](mockups/key-receipt.html) (receipt, payment details, and the answered front page per EXPERIENCE Open Question 1):
+
+- **Form step:** step question (`h1`) → progress line → respondent line (**on every step**) → one fieldset per person or question → running total (paid steps only) → **"Fortsett" (primary) above "Tilbake" (secondary), both full width, 12px apart, 24px below the content** **[forslag — button order]**.
+- **Check page:** warning notice «Obs: Svaret er ikke sendt ennå.» first, then the `h1` «Se over svaret før du sender» **[forslag]**, the check-answers list, the running total, "Send svaret" above "Tilbake".
+- **Receipt:** success notice holding the `h1` «Svaret er sendt» and the sent-by line, Rikke's message, the summary, the total, "Betal nå" above "Betal senere", and the closing line directly below them.
+
 **Admin:** same tokens, denser. Panels use `{spacing.admin-panel-padding}` and `{spacing.admin-gap}`; lists and tables rather than cards; quick tasks (find guest, copy link, see if answered) fit one phone screen (FR-48). When density and targets collide, **44px targets win**; lists scroll.
+
+**Admin home (A2)**, as approved in [mockups/admin-rework-1.html](mockups/admin-rework-1.html) (memlog, *Admin rework approved*; PRD FR-54, FR-56, FR-57). The earlier grouping in `.working/key-admin-overview.html` (summary first, «Dager, senger og mat» in one panel, attention list last) is **superseded** and stays in `.working/` only; its helper view is still the only render of read-only admin (see EXPERIENCE Open Question 15). Order on the page, under the Admin nav:
+
+1. **Attention panel** «Trenger oppfølging (n)» — first, without scrolling. Shows as many items as fit while the answer-progress line below still sits on the first screen (two items at 360 × 560 in the render), then «Vis alle n». Empty: the panel heading becomes the check icon + «Ingenting trenger oppfølging nå», with «Vis håndterte» below.
+2. **Svar panel** — the answer-progress line «Svart: X av Y husstander», a progress bar under it, the Kommer / Kommer ikke / Ikke svart ennå rows, and «Se hva alle har svart» (to A4, FR-57).
+3. **Summary panels**, one small panel per group, in this order: *Når kommer de?* · *Overnatting* · *Mat* · *Allergier (med samtykke)* · *Fjelltur fredag* · *Betaling (husstander som kommer)*. Contents: EXPERIENCE › Component Patterns › Admin summary panel.
 
 ## Elevation & Depth
 
@@ -408,31 +433,35 @@ Frontmatter key in brackets where one exists.
 | **Lead-in** [`lead-in`] | One italic line on green, e.g. "Vi gleder oss til å feire med dere!" |
 | **RSVP panel** [`rsvp-panel`] | Cream panel after the cards: `heading-card` "Svar på invitasjonen", child-free line ("Barnefritt bryllup – …", placement and text a proposal), deadline line, primary button. When an unsent draft exists, a warning notice sits above the button. |
 | **Primary button** [`button-primary`] | Full panel width, 52px, cream text on dark green, 2px transparent border (visible outline in forced colours). Only on cream panels — the nav "Svar" is the one exception. **One distinct primary action per screen; repeats of the same action are allowed** (nav "Svar" and RSVP button). Busy: keeps its colours, label becomes "Sender …". |
-| **Secondary button** [`button-secondary`] | Outlined dark green on cream; border 3px on hover/pressed. For "Tilbake", "Betal senere", "Avbryt", "Nei, begynn på nytt". |
+| **Secondary button** [`button-secondary`] | Outlined dark green on cream; border 3px on hover/pressed. For "Tilbake", "Betal senere", "Avbryt", "Nei, begynn på nytt". In form steps, check page and receipt it sits **below** the primary button, same full width **[forslag]**. |
 | **Destructive button** [`button-destructive`] | Muted rust outline on cream, placed apart (tier 3 only); border 3px on hover/pressed. Filled rust is not used **[ASSUMPTION — "muted rust" read as outline]**. |
 | **Focus ring** [`focus-ring`] | 3px outline at 3px offset on `:focus-visible` and on `:active` (tap feedback). Colour by the surface the ring is **painted on**: `focus-on-panel` on cream, `focus-on-green` on green or the footer. Never `outline: none`. |
 | **Text link / "Les mer"** [`link-more`] | Inherits text colour, always underlined (1px, 4px offset; 2px on hover/pressed), target ≥ 44px. Never colour alone. |
 | **Footer band** [`footer-band`] | Full-bleed `{colors.green-dark}`, cream text, 20px: "Spørsmål? Send oss en melding:", then **each phone number on its own ≥ 44px row** ("Rikke 900 00 000", "Valdemar 900 00 001"), then "Spør oss" and "Personvern" as underlined cream links. |
 | **Text field** [`field`] | Field surface, 2px border, label above in `{typography.label}`, hint below in `{typography.body}` *italic* `{colors.ink}`. Error: 3px `{colors.error}` border and the error line (icon + text) between label and field. Variants: multi-line (G10 question, ≥ 4 lines), search (A6), typed confirmation (tier 3). |
-| **Choice control** [`choice-control`] | 26px box, 2px ink border; checkbox `{rounded.md}`, radio `{rounded.full}`; selected mark in `{colors.green-dark}` drawn so it survives forced colours (native input with `accent-color`, or a `currentColor` mark — never a background fill alone). Whole row ≥ 44px is the target. |
+| **Choice control** [`choice-control`] | 26px box, 2px ink border; checkbox `{rounded.md}`, radio `{rounded.full}`; selected mark in `{colors.green-dark}` drawn so it survives forced colours (native input with `accent-color`, or a `currentColor` mark — never a background fill alone). Whole row ≥ 44px is the target. Group error (a fieldset of choices): **no border on the group**; one error line under the legend, before the first choice: 22px triangle icon + «Feil: …» in `{colors.error}` (e.g. «Feil: Velg «Kommer» eller «Kommer ikke» for bestemor.» **[forslag]**), as in [mockups/key-form-steps.html](mockups/key-form-steps.html). |
 | **Notice** [`notice`] | 4px left rule, 22px icon and text in the state colour on cream. Icon shapes differ: success = check, warning = circle with "!", error = triangle with "!", info (`ink`) = "i". Error and warning also start with a word ("Feil:", "Obs:" — proposal). Variants: success, warning, error, info; last-updated header (info). |
 | **Error summary** | Error notice at the top of the step panel with a heading and linked list of errors. |
-| **Status block** | Cream panel shown once answered: sent by/when, total, reported paid, deadline, "Se eller endre svar". Position: Open Question 1 in EXPERIENCE. |
-| **Draft offer** | Cream panel at the top of the form: heading «Vil du fortsette der du slapp?», one line saying when the answer was started, primary "Ja, fortsett", secondary "Nei, begynn på nytt". |
+| **Status block** | Cream panel shown once answered, left-aligned: `heading-card` «Svaret er sendt», then «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.», «Totalt for husstanden: 3 900 kr», «Meldt betalt: 3 900 kr, 12. oktober.», «Dere kan endre svaret fram til onsdag 1. desember 2027 kl. 23:59.», and the primary button "Se eller endre svar" **[forslag — wording except the button]**. Rendered in [mockups/key-receipt.html](mockups/key-receipt.html) (second phone). Position: Open Question 1 in EXPERIENCE. |
+| **Draft offer** | Cream panel at the top of the form: heading «Vil du fortsette der du slapp?», one line saying when the answer was started, primary "Ja, fortsett", secondary "Nei, begynn på nytt". Rendered in [mockups/key-form-steps.html](mockups/key-form-steps.html). |
 | **Progress line** | "Steg 3 av 6: Overnatting" in `{typography.body}`, directly under the step question; no graphic stepper **[ASSUMPTION]**. |
-| **Respondent line** | "Jeg er **Sigmund**" with a "Bytt" button styled as an underlined link (≥ 44px), placed after the step question; switching opens a radio list of household members in the panel **[ASSUMPTION]**. |
+| **Respondent line** | "Jeg er **Sigmund** · Bytt" — "Bytt" a button styled as an underlined link (≥ 44px) — directly under the progress line **on every form step**, so the guest always sees who is answering; switching opens a radio list of household members in the panel **[ASSUMPTION]**. |
 | **Running total** | Right-aligned "Totalt for husstanden: 1 450 kr", lining figures, `divider` hairline above, at the foot of each paid step. |
 | **Read-more disclosure** | Underlined "Les mer om …" with a small chevron; expands in place with a left rule in `{colors.divider}`. |
 | **Consent block** | Section at the end of the allergies step, after a `divider`: purpose and recipients text (`body`), how to withdraw, then the Ja/Nei choice under its legend, then — when answering for others — the "Jeg bekrefter …" checkbox. No special colour; nothing pre-selected. |
-| **Check-answers list** | Rows per person/part: label left, answer right or below on narrow screens, "Endre" link per part, `divider` between rows, "Ikke oppgitt" in `ink-muted`. |
-| **Receipt panel** | Cream panel, success notice at top, Rikke's message in `{typography.body}`, summary, then payment choice. |
-| **Payment details** | Cream panel listing amount, Vipps number, account number and payment message as selectable `body` text, each with a secondary "Kopier" button **[ASSUMPTION]**. |
+| **Check-answers list** | Under the `h1` «Se over svaret før du sender» **[forslag]**: one block per part (Hvem kommer · Dager · Overnatting · Måltider · Allergier og matbehov · Fjelltur fredag) with the part name and its "Endre" link on one line, then one line per person ("Sigmund: kommer"); `divider` between parts; "Ikke oppgitt" in `ink-muted`. Rendered in [mockups/key-check-page.html](mockups/key-check-page.html). |
+| **Receipt panel** | Cream panel. Success notice at top carrying the `h1` «Svaret er sendt» and «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.» **[forslag]**; Rikke's message in `{typography.body}`; summary «Dette har dere svart» **[forslag]** and the running total; then "Betal nå" / "Betal senere" with the closing line «Du kan nå trygt lukke invitasjonen.» directly below them. Rendered in [mockups/key-receipt.html](mockups/key-receipt.html). |
+| **Payment details** | Cream panel «Slik betaler du» **[forslag]** listing amount, Vipps number, account number and payment message as selectable `body` text, each with a secondary "Kopier" button and «Kopiert» beside the last-used one; "Jeg har betalt" below **[ASSUMPTION]**. Rendered in [mockups/key-receipt.html](mockups/key-receipt.html). |
 | **Envelope reveal** [If time] | `{colors.page-green}` envelope with the `{colors.green-dark}` wax seal, opening into a **plain** sheet that becomes the hero panel. No heart shape, no lace. "Hopp over" ≥ 44 × 44 on cream or `green-dark`. |
 | **Admin nav** | Reuses Nav words on the green page (Oversikt · Gjester · Betalinger · Spørsmål · Innstillinger · Logg ut), **not sticky**, no "Svar" button **[ASSUMPTION]**. |
-| **Admin summary row** | `{typography.admin-body}` label and count; count is a link; the hike row shows "kanskje" as its own figure ("5 kommer, 2 kanskje"). `divider` between rows. |
+| **Attention panel** [`attention-panel`] | A2's first panel: cream, `admin-panel-padding`, a 5px `{colors.green-dark}` rule along the top edge so it reads as "start here" (decoration; the heading carries the meaning) **[forslag]**. `admin-heading` «Trenger oppfølging (7)», then attention items with `divider` between, then «Vis alle 7» as an underlined link (≥ 44px) after a `divider`. Rendered in [mockups/admin-rework-1.html](mockups/admin-rework-1.html). |
+| **Attention empty state** | The attention panel without the top rule: its heading becomes a 26px check icon + «Ingenting trenger oppfølging nå» in `{colors.success}` (icon and words, never colour alone), then «Vis håndterte». Rendered in [mockups/admin-rework-1.html](mockups/admin-rework-1.html) (second phone). |
+| **Attention item** | Admin row: reason in 600 weight («Betalingen stemmer ikke», «Har ikke svart ennå»), household and detail in `admin-body`, one secondary action ("Merk som håndtert"); mismatches also carry the "Stemmer ikke" status tag (error icon + word). |
+| **Answer progress** [`answer-progress`] | Top of A2's Svar panel: «Svart: 28 av 30 husstander» in `label` (20px, 600, lining figures), then a 12px bar (track `cream-on-green`, fill `green-dark`, 1px `ink-muted` border). **The text carries the number; the bar is decoration** (`aria-hidden`, fill drawn as `CanvasText` under forced colours). |
+| **Admin summary panel** | One small cream panel per group (`admin-heading` + rows). Each row: `{typography.admin-body}` label left, count right as a link (0 is plain text); ≥ 44px tall; `divider` between rows. Lead rows in 600 weight; breakdown rows indented 18px with a dotted `divider`; a secondary row («Senger totalt») in `ink-muted`; an optional italic `ink-muted` note under the rows («Én person kan ha flere allergier.»). Contents per panel: EXPERIENCE › Component Patterns. |
+| **Admin summary row** | Inside a summary panel: label and count; the Svar rows show two counts («58 personer · 25 husstander»), the hike row two linked figures («5 kommer, 2 kanskje»), "kanskje" never added to "kommer". |
 | **Overview table** | A4: on PC a table in a cream panel (`admin-body`, 600-weight header row, `divider` rows); on phone stacked rows that repeat each label as visible text ("Betalt: 900 kr"). Unanswered households sort first and carry the "Ikke svart" tag. |
-| **Attention item** | Admin row: reason, household, one action ("Merk som håndtert"); mismatches carry the error icon and "Stemmer ikke". |
-| **Undo (in place)** | After a tier-1 action the row is replaced in place by "Merket som håndtert." and an "Angre" link-button. No fixed bar. |
+| **Undo (in place)** | After a tier-1 action the row is replaced in place by "Merket som håndtert." and an "Angre" link-button. No fixed bar, no toast (kept after the key-screen render). |
 | **Status tag** [`status-tag`] | Outlined label in the state colour, icon as in Notice. Mapping **[ASSUMPTION — proposal]**: "Betalt" → success · "Ikke betalt", "Delbetalt, 300 kr mangler", "Skal ha tilbake 200 kr", "Ikke svart" → warning · "Stemmer ikke" → error · "Ingenting å betale", "Endret" → ink (info). |
 | **Dialog** [`dialog`] | Consequence sentence, then actions; on narrow screens buttons stack full-width, safe action first. |
 

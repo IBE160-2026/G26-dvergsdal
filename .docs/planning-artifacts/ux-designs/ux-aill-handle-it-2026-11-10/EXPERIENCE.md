@@ -16,7 +16,7 @@ sources:
 
 # AI'll handle it — Experience Spine
 
-> How the invitation and the admin area behave. Visual identity: [DESIGN.md](DESIGN.md); tokens are referenced by name, e.g. `{colors.page-green}`. Requirements (FR/NFR/UJ/SM) are in the [PRD](../../prds/prd-aill-handle-it-2026-11-07/prd.md) and not restated here. Decisions: [.memlog.md](.memlog.md). The approved front page is rendered in [mockups/front-page-2.html](mockups/front-page-2.html) (first screen and scrolled page at 360px, with measurements). **The spines win on conflict with any render.** `[If time]` and `[2027]` follow PRD 3.2–3.3.
+> How the invitation and the admin area behave. Visual identity: [DESIGN.md](DESIGN.md); tokens are referenced by name, e.g. `{colors.page-green}`. Requirements (FR/NFR/UJ/SM) are in the [PRD](../../prds/prd-aill-handle-it-2026-11-07/prd.md) and not restated here. Decisions: [.memlog.md](.memlog.md). The approved front page is rendered in [mockups/front-page-2.html](mockups/front-page-2.html) (first screen and scrolled page at 360px, with measurements); key screens in [mockups/key-form-steps.html](mockups/key-form-steps.html), [mockups/key-check-page.html](mockups/key-check-page.html), [mockups/key-receipt.html](mockups/key-receipt.html) and the approved admin home in [mockups/admin-rework-1.html](mockups/admin-rework-1.html). **The spines win on conflict with any render.** `[If time]` and `[2027]` follow PRD 3.2–3.3.
 
 ## Foundation
 
@@ -37,9 +37,9 @@ sources:
 | G2 | Invitation (front page) | The personal link | Sticky nav bar with "Svar"; hero with FR-7 content and a "Svar" link in the deadline line; four cards; RSVP panel; footer (FR-7, FR-8) |
 | G3 | Info pages: Programmet · Praktisk informasjon · Hardingasete og området · Om oss | Nav words, card "Les mer" | One topic each; "Tilbake til invitasjonen" at top and bottom (FR-11) |
 | G3b | Gifts [If time] | Fifth card | Text and links |
-| G4 | RSVP form, stepped | RSVP button, "Se eller endre svar", draft offer | One task per step (FR-13); last-updated header and conflict notice are states of G4 |
-| G5 | Check page | Last form step | "Not sent yet", all answers, total, "Endre" per part, "Send svaret" (FR-21) |
-| G6 | Receipt (thank-you page) | After sending | Rikke's text, summary, payment choice, closing line (FR-23, FR-34) |
+| G4 | RSVP form, stepped | RSVP button, "Se eller endre svar", draft offer | One task per step (FR-13); last-updated header and conflict notice are states of G4. Rendered: [mockups/key-form-steps.html](mockups/key-form-steps.html) |
+| G5 | Check page | Last form step | "Not sent yet", all answers, total, "Endre" per part, "Send svaret" (FR-21). Rendered: [mockups/key-check-page.html](mockups/key-check-page.html) |
+| G6 | Receipt (thank-you page) | After sending | Rikke's text, summary, payment choice, closing line (FR-23, FR-34). Rendered with G7 and the answered G2: [mockups/key-receipt.html](mockups/key-receipt.html) |
 | G7 | Payment details | "Betal nå", status block | Amount, Vipps, account, payment message (FR-34, FR-71) |
 | G8 | "Jeg har betalt" report | G7, status block | Report and later correct a payment (FR-35, FR-36) |
 | G9 | Answer view, locked | "Se svaret" after the deadline | Read-only answers; payment, report, info, questions, consent withdrawal still work (FR-42) |
@@ -49,7 +49,7 @@ sources:
 | G13 | Envelope reveal [If time] | First visit to G2 | See Interaction Primitives |
 | G14–G15 | Speech sign-up, English [If time] | — | Not specified further here |
 
-**Navigation.** A sticky nav bar at the top of G2 and G3: nav words Program · Praktisk · Stedet · Om oss on the left, a **"Svar" button** on the right; no hamburger (memlog, *Guest navigation*, *Front page redesign*). The words open the info pages, matching the cards **[ASSUMPTION — anchors vs pages not decided; FR-8 gives each card its own page]**. "Svar" — in the bar and as the link in the hero's deadline line — jumps to the RSVP panel on G2 (`#svar`); from G3 it opens G2 at `#svar`. Once answered, see Open Question 1. In the form (G4–G5) the bar is replaced by the progress line and "Tilbake" **[ASSUMPTION]**. The footer band with phone numbers, "Spør oss" and "Personvern" is on every valid-link page, including error pages (FR-6).
+**Navigation.** A sticky nav bar at the top of G2 and G3: nav words Program · Praktisk · Stedet · Om oss on the left, a **"Svar" button** on the right; no hamburger (memlog, *Guest navigation*, *Front page redesign*). The words open the info pages, matching the cards **[ASSUMPTION — anchors vs pages not decided; FR-8 gives each card its own page]**. "Svar" — in the bar and as the link in the hero's deadline line — jumps to the RSVP panel on G2 (`#svar`); from G3 it opens G2 at `#svar`. **Once the household has answered, the nav "Svar" keeps its label and goes to the household status block** (the hero's deadline-line link likewise); where the block sits on G2 is Open Question 1. In the form (G4–G5) and on the receipt (G6) there is no nav bar: the progress line and "Tilbake" do the job (as rendered in the key-screen mockups). The footer band with phone numbers, "Spør oss" and "Personvern" is on every valid-link page, including error pages (FR-6).
 
 **Receipt vs status block (decided).** After "Send svaret" the guest lands on a **separate receipt page** (G6). On later visits G2 shows the **household status block** (FR-24, FR-37); where on G2 is Open Question 1. The receipt is not a persistent page.
 
@@ -58,9 +58,9 @@ sources:
 | # | Surface | Reached from | Purpose |
 |---|---|---|---|
 | A1 | Login | Admin address | Username/password; slowed retries (NFR-4) |
-| A2 | Home: summary + Trenger oppfølging | After login, nav "Oversikt" | FR-54 counts, then FR-56 list directly below |
+| A2 | Home: Trenger oppfølging, answer progress, summary | After login, nav "Oversikt" | FR-56 list at the very top without scrolling; then «Svart: X av Y husstander» with «Se hva alle har svart» (FR-57); then the FR-54 summary in small panels. Approved render: [mockups/admin-rework-1.html](mockups/admin-rework-1.html); `.working/key-admin-overview.html` is the superseded first version (kept in `.working/`) |
 | A3 | Count drill-down | Any count | The people behind the number (FR-55) |
-| A4 | Full overview | Nav "Gjester", A2 | Every household and person; unanswered first and tagged "Ikke svart"; "Stemmer ikke" and "Endret" tagged (FR-57) |
+| A4 | Full overview | Nav "Gjester", A2 «Se hva alle har svart» | Every household and person with what they answered; unanswered first and tagged "Ikke svart"; "Stemmer ikke" and "Endret" tagged (FR-57) |
 | A5 | Allergy list | A2, A4 | Consented names + categories for Hardingasete (FR-58) |
 | A6 | Guest list: search, add, edit, remove, copy link | Nav "Gjester" | FR-49, FR-51; copy link is the couple's only (helpers can neither see nor copy links; D14 decides whether links can be shown at all); move guest [T3], deactivate + new link [T3] |
 | A7 | Household answer via the guest form | Household in A4/A6 | Admin as author, also after deadline (FR-63) |
@@ -106,11 +106,16 @@ Microcopy. "Decided" = memlog or the couple kept it in a render; all others are 
 | Draft notice on G2 | Du har et svar som ikke er sendt ennå. | proposal |
 | I am [name] | Jeg er Sigmund · Bytt (accessible name "Bytt hvem som svarer") | proposal |
 | Coming / Not coming | Kommer / Kommer ikke | proposal |
-| No allergies or dietary needs | Ingen allergier eller matbehov | proposal |
+| No allergies or dietary needs | Ingen allergier eller matbehov · Eller kryss av for det som gjelder: | proposal |
+| Field error in a choice group | e.g. «Feil: Velg «Kommer» eller «Kommer ikke» for bestemor.»; summary link «Velg om bestemor kommer» | proposal (render) |
 | Not provided / Change | Ikke oppgitt / Endre | proposal |
-| Continue / Back | Fortsett / Tilbake | proposal |
+| Continue / Back | Fortsett / Tilbake (Fortsett above Tilbake) | proposal |
 | Send answer | Send svaret | proposal |
-| Not sent yet (check page) | Svaret er ikke sendt ennå. | proposal |
+| Not sent yet (check page) | Obs: Svaret er ikke sendt ennå. | proposal |
+| Check page heading | Se over svaret før du sender | proposal (render) |
+| Receipt heading and sent line | Svaret er sendt · «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.» | proposal (render) |
+| Receipt summary / payment details | Dette har dere svart · Slik betaler du | proposal (render) |
+| Status block | Svaret er sendt · Sendt av … · Totalt for husstanden: … · «Meldt betalt: 3 900 kr, 12. oktober.» · «Dere kan endre svaret fram til onsdag 1. desember 2027 kl. 23:59.» · Se eller endre svar | button decided; rest proposal (render) |
 | Leave warning | Svaret er ikke sendt ennå. Det du har fylt ut, er tatt vare på på denne telefonen. · Bli og fullfør svaret · Gå uten å sende | proposal |
 | Pay now / Pay later | Betal nå / Betal senere | proposal |
 | I have paid | Jeg har betalt | proposal |
@@ -124,7 +129,11 @@ Microcopy. "Decided" = memlog or the couple kept it in a render; all others are 
 | Page title | «Steg 3 av 6: Overnatting – Invitasjon»; «Feil: » first when the step has errors | proposal |
 | Invalid link | Dette er en privat invitasjon. Ta kontakt med Rikke eller Valdemar slik du pleier. | proposal (FR-5 content) |
 | Needs attention / Changed / Not answered | Trenger oppfølging / Endret / Ikke svart | proposal |
-| Hike in admin summary | «Fjelltur: 5 kommer, 2 kanskje» | decided (pattern) |
+| Admin attention panel | «Trenger oppfølging (7)» · «Vis alle 7» · reasons e.g. «Betalingen stemmer ikke», «Har ikke svart ennå» · empty: «Ingenting trenger oppfølging nå» (with check icon) · «Vis håndterte» | proposal (render) |
+| Admin answer progress | «Svart: 28 av 30 husstander» · «Se hva alle har svart» · rows Kommer / Kommer ikke / Ikke svart ennå | proposal (render) |
+| Admin summary panels | Når kommer de? (Hele helgen (fre–søn) · Ikke hele helgen · Bare lørdag–søndag / Bare lørdag / Bare fredag–lørdag) · Overnatting (Overnatter ikke · Senger totalt) · Mat · Allergier (med samtykke) (Har allergier eller matbehov · Ingen allergier eller matbehov · Har ikke svart på allergier · «Én person kan ha flere allergier.») · Betaling (husstander som kommer) | proposal (render) |
+| Refund owed (admin count and attention reason) | **Skal ha penger tilbake** — replaces the render's «Tilgode», which can be read both ways | proposal |
+| Hike in admin summary | Panel «Fjelltur fredag», row «5 kommer, 2 kanskje». The render's «Fottur fredag» is replaced by the spine term «Fjelltur» | «5 kommer, 2 kanskje» decided (pattern); heading proposal |
 | Undo | Merket som håndtert. Angre | "Angre" decided |
 | Tier-2 consequence | e.g. «3 husstander mister tilgangen» | decided (example) |
 | Tier-3 typed word | the household name, or SLETT | decided |
@@ -144,32 +153,36 @@ Behavioural. Visual specs: DESIGN.md › Components (same names).
 | Info card | One link per card ("Les mer", accessible name "Les mer om programmet"); its hit area covers the whole card, so tapping the heading works. Opens the card's page (FR-8). Card headings are `h2`. |
 | Lead-in | Static text; follows du/dere rule. |
 | RSVP panel | Target of both "Svar" links (`id="svar"`, `scroll-margin-top` = bar height + 12px). Holds the child-free line, deadline and the RSVP button; shows the draft notice when an unsent draft exists on the device. |
-| Primary button | The one distinct next step on a screen (NFR-6); repeats of the same action allowed. On submit it shows "Sender …" and ignores repeat taps until the server answers **[ASSUMPTION]**. |
-| Secondary button | Back, cancel, "Betal senere", "Nei, begynn på nytt". Never visually competes with the primary. |
+| Primary button | The one distinct next step on a screen (NFR-6); repeats of the same action allowed. On submit it shows "Sender …" and ignores repeat taps until the server answers **[ASSUMPTION]**. In form steps, check page and receipt it comes **before** the secondary button, so "Fortsett" / "Send svaret" / "Betal nå" is first in reading and Tab order **[forslag]**. |
+| Secondary button | Back, cancel, "Betal senere", "Nei, begynn på nytt". Never visually competes with the primary; in the form it sits below the primary. |
 | Destructive button | Tier 3 only; never the default focus; placed apart from safe actions. |
 | Focus ring | Shown on keyboard focus and on press; never hidden under the sticky bar (scroll padding, Accessibility Floor). |
 | Text link / "Les mer" | Navigates; never submits or changes data (FR-3). |
 | Footer band | Each phone number is its own `tel:` link row; "Spør oss" opens G10; "Personvern" opens G12. On every valid-link guest page, including errors (FR-6). |
 | Text field | Label above, hint below, error between label and field. `aria-describedby` points to hint and error; `aria-invalid="true"` when in error. Forgiving input: amounts accept "900", "900 kr", "1 450" **[ASSUMPTION]**. No date or time pickers. Variants: multi-line (G10), search (A6, with "Fant ingen med det navnet."), typed confirmation (tier 3). |
-| Choice control | Every group is a `fieldset` with the question as `legend`; its error sits inside the fieldset. Whole row tappable. Attendance starts with nothing selected (FR-14); consent Ja/Nei starts unanswered (FR-26). |
+| Choice control | Every group is a `fieldset` with the question as `legend`; its error sits inside the fieldset, right under the legend, as icon + «Feil: …» (no border on the group), and the fieldset's `aria-describedby` points to it. Whole row tappable. Attendance starts with nothing selected (FR-14); consent Ja/Nei starts unanswered (FR-26). **«Ingen allergier eller matbehov» is exclusive per person:** ticking it clears that person's category ticks, and ticking any category clears it; without scripts, a person sent with both is returned with an inline error asking to choose one **[ASSUMPTION — no-JS fallback]**. |
 | Notice | Inline, never auto-dismissing on guest pages. Present at page load = not a live region; changes after load are announced (polite; errors assertive). |
 | Error summary | After a failed "Fortsett" the page reloads with the summary focused; each item links to and focuses its field (FR-22); `<title>` starts with "Feil: ". Gone when errors are fixed. |
-| Status block | Shown on G2 once the household has answered: sent by whom and when, total, reported paid, deadline; "Se eller endre svar" (before deadline) or "Se svaret" (after). Placement: Open Question 1. |
+| Status block | Shown on G2 once the household has answered, headed «Svaret er sendt»: «Sendt av <name> <weekday date> kl. <time>.», «Totalt for husstanden: …», «Meldt betalt: <amount>, <date>.» (only when a payment is reported), «Dere kan endre svaret fram til <deadline>.» (du/dere rule), then "Se eller endre svar" (before deadline) or "Se svaret" (after) **[forslag — wording except the buttons]**. **It is the target of the nav "Svar" once answered** (and of the hero link); focus lands on the block's heading. Placement on G2: Open Question 1. |
 | Draft offer | See Interaction Primitives › Unsent answer kept (FR-78). |
 | Progress line | "Steg n av m: <step name>" right under the step `h1`. m can change only when the answers that create or remove steps change (who comes, which days); it never changes while moving forward or back otherwise. |
-| Respondent line | Preset to the link owner (FR-12). "Bytt" is a button (`aria-expanded`), not a link. Switching changes only who is recorded as answering; filled answers stay **[ASSUMPTION]**. |
+| Respondent line | Shown on **every form step**, under the progress line. Preset to the link owner (FR-12). "Bytt" is a button (`aria-expanded`, accessible name "Bytt hvem som svarer"), not a link. Switching changes only who is recorded as answering; filled answers stay **[ASSUMPTION]**. |
 | Running total | Recalculated on every change, announced politely; removed choices drop out (FR-75); identical on check page and receipt (FR-33). |
 | Read-more disclosure | Expands in place; `aria-expanded`; never navigates away (FR-19). |
 | Consent block | Explanation (purpose, recipients, how to withdraw) comes **before** the Ja/Nei and is inside the fieldset, referenced from the legend. Starts unanswered, never pushed (CM-4). "Jeg bekrefter at Marie vet om dette og er enig" only when answering for others (FR-27). Sending never requires consent (FR-28). |
-| Check-answers list | "Endre" jumps to that step and returns to the check page after "Fortsett"; each has hidden context ("Endre måltider for Marie"). Skipped optional answers show "Ikke oppgitt". |
-| Receipt panel | Message by answer (coming / not coming); if something is owed, "Betal nå" / "Betal senere" before the closing line; nothing owed → closing line at once (FR-23). Coming message when anyone in the household comes **[ASSUMPTION]**. |
+| Check-answers list | Page `h1` «Se over svaret før du sender», after the «Obs: Svaret er ikke sendt ennå.» notice **[forslag]**. One "Endre" per part; it jumps to that step and returns to the check page after "Fortsett"; each has hidden context ("Endre måltider"). Skipped optional answers show "Ikke oppgitt". |
+| Receipt panel | Success notice with the `h1` «Svaret er sendt» and who sent it when; then the message by answer (coming / not coming), the summary and the total. If something is owed: "Betal nå" / "Betal senere", and the closing line is shown **at once, directly below them** (it does not wait for a choice); "Betal senere" adds that the link always shows what is left to pay. Nothing owed → no payment buttons; the closing line follows the summary (FR-23). Coming message when anyone in the household comes **[ASSUMPTION]**. |
 | Payment details | Payment message is "Bryllup" + household names (FR-71). "Kopier" buttons are shown only where the clipboard is available; "Kopiert" in a polite live region until the next copy. If a copy fails, the value is selected with «Trykk og hold for å kopiere». Values are always plain selectable text. QR is [If time]. |
 | Envelope reveal [If time] | See Interaction Primitives. |
 | Admin nav | Plain links, `aria-current`, not sticky. |
+| Attention panel | First thing on A2 under the Admin nav, `h2` «Trenger oppfølging (n)» (FR-56). Lists the FR-56 items; shows **as many as fit while the answer-progress line stays on the first screen** (two at 360 × 560 in the render) and then «Vis alle n», which shows the whole list on the same page **[ASSUMPTION — mechanism; the fixed count is set by measuring the build]**. Order of items **[ASSUMPTION]**: payment mismatches first (as rendered), then the rest. |
+| Attention empty state | When nothing needs attention the panel reads «Ingenting trenger oppfølging nå» with a check icon (as its heading, so the page outline still says what the panel is) and «Vis håndterte» below; the answer progress moves up accordingly. |
+| Answer progress | Top of A2's Svar panel: «Svart: X av Y husstander» (households that have sent, of all), a decorative bar, then the Kommer / Kommer ikke / Ikke svart ennå rows (persons · households, each a link), then «Se hva alle har svart» → A4 (FR-57). Rikke's most frequent check (memlog), so it must sit on the first screen. |
+| Admin summary panel | Below the Svar panel, one panel per FR-54 group: **Når kommer de?** — Hele helgen (fre–søn); Ikke hele helgen, broken down by day combination (Bare lørdag–søndag, Bare lørdag, Bare fredag–lørdag …). **Overnatting** — Overnatter ikke first; Senger totalt as a secondary line. **Mat** — one count per meal (FR-73). **Allergier (med samtykke)** — Har allergier eller matbehov with one row per category; Ingen allergier eller matbehov; Har ikke svart på allergier (coming guests with neither). **Fjelltur fredag** — «5 kommer, 2 kanskje». **Betaling (husstander som kommer)** — Ingenting å betale, Ikke betalt, Delbetalt, Betalt, Skal ha penger tilbake (FR-60). "Stemmer ikke" is **not** a summary count: it is an attention item (FR-61) and a tag in A4. Example figures that add up: [mockups/admin-rework-1.html](mockups/admin-rework-1.html). |
 | Admin summary row | Every count is a link to A3 (FR-55); zero counts show "0" and are not links. Hike: "kommer" and "kanskje" are separate counts, each its own link; "kanskje" is never added to "kommer" (FR-54, memlog). |
 | Overview table | Real `<table>` on PC; stacked rows on phone repeat labels as text. Unanswered sort first. |
-| Attention item | One action: "Merk som håndtert" / "Merk som sett" / "Merk som besvart" (tier 1). Leaves the list per the addendum's leave rules after the undo is gone. |
-| Undo (in place) | The row becomes "Merket som håndtert. Angre"; focus moves to "Angre"; it stays until the page is left (no timer). Handled items can be found and unmarked through a "Vis håndterte" filter. |
+| Attention item | Reason, household and detail, one action: "Merk som håndtert" / "Merk som sett" / "Merk som besvart" (tier 1), with hidden context in its accessible name ("Merk som håndtert: Synne, betalingen stemmer ikke"). Leaves the list per the addendum's leave rules after the undo is gone. |
+| Undo (in place) | The row is **replaced in place** by "Merket som håndtert. Angre" (no bar, no toast); focus moves to "Angre"; it stays until the page is left (no timer). Handled items can be found and unmarked through a "Vis håndterte" filter. |
 | Status tag | Text first: "Ingenting å betale", "Ikke betalt", "Delbetalt, 300 kr mangler", "Betalt", "Skal ha tilbake 200 kr" (FR-60), "Endret", "Ikke svart", "Stemmer ikke" **[ASSUMPTION — bokmål wording]**. |
 | Dialog | `role="alertdialog"`, labelled by its heading, described by the consequence sentence. Focus goes to the safe button (tier 2) or the heading (tier 3), is trapped, and returns to the trigger. Esc and a scrim tap = cancel. Body scrolls at 200 %. Used for tier 2 and 3, consent withdrawal and the guest leave warning. |
 
@@ -194,9 +207,9 @@ Behavioural. Visual specs: DESIGN.md › Components (same names).
 | Copy unavailable / failed | G7, A6 | Button hidden when unsupported; on failure the value is selected with «Trykk og hold for å kopiere». |
 | No valid link | G1 | Single calm panel; nothing personal. |
 | Static fallback | G2 | Invitation text and RSVP button appear if scripts or animation fail [2027]; see Open Question 4. |
-| Helper read-only | All admin | Action buttons **hidden**, not greyed (memlog). Forms show values as text. |
+| Helper read-only | All admin | Action buttons **hidden**, not greyed (memlog). Forms show values as text. How a helper is told the view is read-only: Open Question 15. |
 | Session expired | Admin | Login page with "Du ble logget ut fordi du var borte en stund."; expiry rule is Open Question 5. |
-| Empty | Admin | "Ingenting trenger oppfølging nå." · "Ingen spørsmål ennå." · "Ingen betalinger registrert ennå." · drill-down with 0: not a link **[ASSUMPTION — wording]**. |
+| Empty | Admin | A2: «Ingenting trenger oppfølging nå» with check icon + «Vis håndterte» (Component Patterns › Attention empty state). Elsewhere: "Ingen spørsmål ennå." · "Ingen betalinger registrert ennå." · drill-down with 0: not a link **[ASSUMPTION — wording]**. |
 | Empty | Guest | Nothing to pay: no payment block, total "0 kr"; allergy step without consent: nothing stored. |
 | Loading | All | Server pages under 3 s (NFR-7); no skeletons or spinners on guest pages; admin lists render whole, no infinite loading **[ASSUMPTION]**. |
 
@@ -217,7 +230,7 @@ Behavioural. Visual specs: DESIGN.md › Components (same names).
 | G11 | confirm · done · failed |
 | G12 | static |
 | A1 | error · slowed · expired |
-| A2 | normal · empty attention · undo in place |
+| A2 | attention list (first items + «Vis alle n») · empty attention · undo in place · all answered (30 av 30) · read-only (helper) |
 | A3 | list · zero |
 | A4 | normal · unanswered · mismatch · changed · read-only |
 | A5 | empty ("Ingen allergier registrert ennå.") · list |
@@ -304,12 +317,12 @@ Quality bar (memlog override): the **whole journey from link to sent answer** mu
 
 1. Opens the link → G2 (rendered in [mockups/front-page-2.html](mockups/front-page-2.html)). [If time: envelope on first visit, skippable.] On the first screen he sees the seal, the farmyard, the names, the date, the place, "Invitert: Sigmund og bestemor" and "Svar innen onsdag 1. desember 2027 kl. 23:59" — and "Svar" twice: in the bar at the top and in the deadline line.
 2. Scrolls past the lead-in to the four cards; may open one and return with "Tilbake til invitasjonen". The bar with "Svar" stays at the top while he scrolls.
-3. Taps "Svar" (or reaches the RSVP panel by scrolling), reads "Barnefritt bryllup …", taps "Svar på invitasjonen" → G4. "Jeg er Sigmund" is preset. Marks both "Kommer"; "Hele helgen?" → Ja.
+3. Taps "Svar" (or reaches the RSVP panel by scrolling), reads "Barnefritt bryllup …", taps "Svar på invitasjonen" → G4 ([mockups/key-form-steps.html](mockups/key-form-steps.html)). "Jeg er Sigmund" is preset and stays visible on every step. Marks both "Kommer"; "Hele helgen?" → Ja.
 4. Overnight, then meals, prices shown before choosing; opens "Les mer om hyttene" in place. Running total updates.
 5. Allergies: "Ingen allergier eller matbehov" for himself; bestemor's categories; consent Ja; confirms she knows and agrees. Then the Friday hike step (they come Friday).
-6. G5 says "Svaret er ikke sendt ennå"; he checks answers and total, presses "Send svaret".
-7. **Climax:** G6 confirms in Rikke's words that the answer is sent — he understood every step, answered alone, and can see what he answered and what happens next.
-8. Payment: "Betal nå" → G7 → pays → "Jeg har betalt" → G8 shows what he reported and when; or "Betal senere" → told the link always shows what he owes. Then «Du kan nå trygt lukke invitasjonen.»
+6. G5 «Se over svaret før du sender» says "Svaret er ikke sendt ennå"; he checks answers and total, presses "Send svaret" ([mockups/key-check-page.html](mockups/key-check-page.html)).
+7. **Climax:** G6 says «Svaret er sendt» with the time, then confirms in Rikke's words — he understood every step, answered alone, and can see what he answered and what happens next ([mockups/key-receipt.html](mockups/key-receipt.html)).
+8. Payment: "Betal nå" → G7 → pays → "Jeg har betalt" → G8 shows what he reported and when; or "Betal senere" → told the link always shows what he owes. «Du kan nå trygt lukke invitasjonen.» stands right under the two buttons from the start.
 
 Failure: the phone rings at step 5 and Messenger reloads the page → he opens the link again, taps "Svar" and gets «Vil du fortsette der du slapp?» → "Ja, fortsett" puts him back on the allergies step with everything filled in. Send fails → error notice, answers kept, "Prøv igjen" and phone numbers. Wrong input → inline error + focused summary.
 
@@ -322,7 +335,7 @@ Failure: the phone rings at step 5 and Messenger reloads the page → he opens t
 5. Sends and pays as UJ-1.
 6. Two weeks later: status block → "Se eller endre svar"; header shows who answered and when; he changes; total up → remaining amount, down → couple notified and will refund.
 7. Marie opens her link: status block shows Arild answered and when, not an empty form.
-8. The couple sees "Endret" and "Skal ha tilbake 200 kr" in A2, pays Arild back and registers the refund in A9; the tag becomes "Betalt" (UJ-5).
+8. The couple sees the household at the top of A2 under Trenger oppfølging (changed answer; «Skal ha penger tilbake», 200 kr), pays Arild back and registers the refund in A9; the tag becomes "Betalt" (UJ-5).
 
 Failure: Marie opened the form before Arild sent → conflict notice before she can send. After the deadline → locked view with contacts. Contradiction (overnight with one day) → blocked with reason.
 
@@ -339,13 +352,15 @@ Failure: any error page still shows the couple's phone numbers (FR-6).
 
 ### UJ-4: Rikke checks the numbers and sends them to Hardingasete
 
-1. Logs in → A2 summary (FR-54), including "Fjelltur: 5 kommer, 2 kanskje".
-2. Below: Trenger oppfølging; marks items handled → each row turns into "Merket som håndtert. Angre".
-3. **Climax:** taps "12 til fredagsmiddag" → A3 lists the 12 people; the numbers are trustworthy.
-4. "Ikke svart" lists names with tappable phone/email; she contacts them herself.
-5. Types the numbers into an email to Hardingasete (print page [If time]). Helpers see the same, without buttons.
+Rendered: [mockups/admin-rework-1.html](mockups/admin-rework-1.html) (approved; replaces `.working/key-admin-overview.html`).
 
-Failure: nothing needs attention → empty state. Helper taps around → no action controls exist to fail.
+1. Logs in → A2. **First, without scrolling: «Trenger oppfølging»** (FR-56) — households that haven't answered, coming guests who haven't answered the allergy question, unanswered questions, "Jeg har betalt" reports that don't match ("Stemmer ikke"), refunds owed, changed answers. The first items show, then «Vis alle n». She marks items handled → each row is replaced in place by "Merket som håndtert. Angre". When nothing needs attention, the panel says «Ingenting trenger oppfølging nå».
+2. **Right below: «Svart: 28 av 30 husstander»** with «Se hva alle har svart» (A4, FR-57) — her most frequent check — then the summary (FR-54) in small panels: Svar (kommer / kommer ikke / ikke svart ennå, persons and households) · Når kommer de? (hele helgen, ikke hele helgen and which days) · Overnatting (overnatter ikke, senger totalt) · Mat (per meal) · Allergier (med samtykke) (per category, ingen, har ikke svart på allergier) · Fjelltur fredag («5 kommer, 2 kanskje») · Betaling (per payment status).
+3. **Climax:** she trusts the numbers because every count opens the people behind it — taps "Fredag middag 38" → A3 lists the 38 people. She can also open the full overview and count for herself.
+4. "Ikke svart" lists names with tappable phone/email; she contacts them herself.
+5. Types the numbers into an email to Hardingasete: meals, guests, beds, and allergies with names and counts (print page [If time]). Helpers see the same, without buttons.
+
+Failure: nothing needs attention → empty state, and the answer progress moves up. Helper taps around → no action controls exist to fail.
 
 ### UJ-5: Rikke follows up payments
 
@@ -390,7 +405,7 @@ Failure: logs in with wrong password → plain error, slowed retries.
 
 ## Open Questions
 
-1. **Answered state of G2** (couple + FR-24): where does the status block go, now that nothing fits above the deadline line? Proposal: it replaces the RSVP panel's content after the cards (the jump target of both "Svar"), and the hero's deadline line becomes «Svar sendt 3. mars · Se svaret». Also settles which element carries "Se eller endre svar".
+1. **Answered state of G2** (couple + FR-24): where does the status block go, now that nothing fits above the deadline line? Proposal (rendered in [mockups/key-receipt.html](mockups/key-receipt.html), second phone): it replaces the RSVP panel's content after the cards, and the hero's deadline line becomes «Svar sendt 12. oktober · Se svaret». Already decided: the nav "Svar" keeps its label and goes to the status block, and the block carries "Se eller endre svar"; only the placement and the hero line remain open.
 2. **Small phones** (couple): at 320px the names stack and the deadline line falls below the first screen; at 360px it clears the fold by only 7px. Accept (the nav "Svar" stays visible), or narrow the hero's inline padding to 12px at ≤ 340px so the names stay on one line?
 3. **Plain-text names** (couple's taste): add the names in plain serif for low-vision guests (e.g. «Rikke og Valdemar inviterer deg til bryllup»), or keep the names in script only?
 4. **No-JS guest pages in v1** (PRD/architecture): PRD 3.2 puts the static fallback in [2027]; should all guest pages and form steps work without scripts in v1, with scripts only enhancing?
@@ -402,3 +417,6 @@ Failure: logs in with wrong password → plain error, slowed retries.
 10. **Texture on the green page** — revisit later (couple; non-blocking). Working default: weakened texture capped at `#5F7250`.
 11. **Edge treatment of the cream panels** — revisit later (couple; non-blocking). Working default: straight edges, `{rounded.sm}`.
 12. **The front page below the hero** (cards, lead-in, RSVP panel, child-free line placement and text) — the couple does not love it yet; revisit later (non-blocking).
+13. **Allergies entered without consent in the admin count** (PRD/data decision): FR-28 does not store them, so such a guest would show under «Har ikke svart på allergier» and in Trenger oppfølging although they did answer. Show them as a separate marker (e.g. «Svarte uten samtykke») instead? That needs the site to store the fact that allergies were entered without consent, but not the allergies themselves.
+14. **Child-free line in the answered state** (couple): when the status block takes the RSVP panel's place, does «Barnefritt bryllup – …» still show, and where? Belongs to the 'below the hero' revisit (12).
+15. **How helpers see they are read-only** (couple): action buttons are hidden, not greyed; should the admin pages also say so, e.g. a line under the nav «Du kan se alt, men ikke endre noe.», or is the missing buttons enough? The only render of the helper view is the superseded `.working/key-admin-overview.html`.
