@@ -34,14 +34,14 @@ Warm and "koselig" throughout, including error messages.
 
 ### Front page structure (FR-7, FR-8; agreed 2026-11-07)
 
-1. **Top:** the invitation, with everything FR-7 lists visible without scrolling.
+1. **Top:** the invitation, with everything FR-7 lists visible without scrolling, under a menu that stays visible and has a "Svar" button (changed 2026-11-11, see FR-7).
 2. **Below:** short cards (FR-8) with two or three lines each and "Read more":
    - Programme
    - Practical information
    - Hardingasete and the area
    - About us
    - Gifts (If time)
-3. **Bottom:** the RSVP button again.
+3. **After the cards:** the RSVP panel with the child-free note, the deadline and the RSVP button; both "Svar" links lead here (changed 2026-11-11, see FR-7).
 
 ### Rikke's own wording for the receipt (FR-23; Norwegian original)
 
