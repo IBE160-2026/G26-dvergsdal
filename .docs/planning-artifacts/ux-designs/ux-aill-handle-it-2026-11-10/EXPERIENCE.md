@@ -115,7 +115,6 @@ Microcopy. "Decided" = memlog or the couple saw and kept it in a render; all oth
 | Lead-in | Vi gleder oss til å feire med deg/dere! (du/dere rule) | render |
 | Error summary heading | For å gå videre må du rette opp følgende feil. | research (Designsystemet) |
 | Invalid link | Dette er en privat invitasjon. Ta kontakt med Rikke eller Valdemar slik du pleier. | proposal (FR-5 content) |
-| Don't know (arrival) | Vet ikke | proposal |
 | Needs attention / Changed | Trenger oppfølging / Endret | proposal |
 | Undo | Angre | decided |
 | Tier-2 consequence | e.g. «3 husstander mister tilgangen» | decided (example) |
@@ -139,7 +138,7 @@ Behavioural. Visual specs: DESIGN.md › Components (same names).
 | Destructive button | Tier 3 only; never the default focus; placed apart from safe actions. |
 | Text link / "Les mer" | Navigates; never submits data. Opening any link never changes anything (FR-3). |
 | Footer band | Contacts as `tel:`/`sms:` links; "Spør oss" opens G10; "Personvern" opens G12. Present on every valid-link guest page, including errors (FR-6). |
-| Text field | Label above, hint below, error between label and field. Forgiving input: amounts accept "900", "900 kr", "1 450" **[ASSUMPTION]**. No date or time pickers (FR-18). |
+| Text field | Label above, hint below, error between label and field. Forgiving input: amounts accept "900", "900 kr", "1 450" **[ASSUMPTION]**. No date or time pickers (days are fixed choices, FR-14). |
 | Choice control | Whole row tappable. Attendance starts with nothing selected (FR-14); consent Yes/No starts unanswered (FR-26). |
 | Notice | Inline, never auto-dismissing on guest pages. Success notices are announced politely; errors assertively. |
 | Error summary | Appears after a failed "Fortsett"; receives focus; each item links to and focuses its field (FR-22). Removed when errors are fixed. |
@@ -188,8 +187,9 @@ Behavioural. Visual specs: DESIGN.md › Components (same names).
 
 - **Tap, scroll, type.** No swipe gestures, long-press, drag, carousels, autoplay, hover-only controls or infinite scroll.
 - **One step at a time** in the form: "Fortsett" forward, "Tilbake" back, browser Back equals "Tilbake" **[ASSUMPTION]**.
-- **Fixed choices over free input** (arrival, allergies, days) — fewer errors for older guests, countable data for the couple (research §5).
-- **Form step order** (decided by Rikke, memlog): who is coming and which days (FR-14) → overnight → meals → allergies and consent → Friday hike (Friday attendees only) → check page. Where the arrival question goes is still open (see Open Questions).
+- **Fixed choices over free input** (allergies, days) — fewer errors for older guests, countable data for the couple (research §5).
+- **Form step order** (decided by Rikke, memlog): who is coming and which days (FR-14) → overnight → meals → allergies and consent → Friday hike (Friday attendees only) → check page.
+  There is **no arrival question**: the days chosen already show when each guest arrives (Rikke, memlog; FR-18 removed from the PRD 2026-11-11).
 
 ### Admin protection tiers (decided)
 
@@ -326,9 +326,9 @@ Failure: logs in with wrong password → plain error, slowed retries.
 
 1. Does everything FR-7 requires, plus seal and illustration, fit above the fold at 360 × 640 and 320px? If not: cap illustration height or shrink the seal.
 2. Final bokmål for all "proposal" microcopy (Rikke).
-3. ~~Step order after the first two~~ — decided (see Component Patterns). Still open: where the arrival question goes.
+3. ~~Step order after the first two~~ — decided (see Component Patterns); arrival question dropped (FR-18 removed).
 4. Why-guests-pay wording (waits for PRD Q7).
-5. Arrival fixed choices; programme times and content placeholders.
+5. Programme times and content placeholders.
 6. ~~How "kanskje" for the hike counts~~ — decided: shown separately in the admin summary ("5 kommer, 2 kanskje"), not counted as coming.
 7. ~~Can helpers copy guest links?~~ — decided: no, the couple only (D14 still decides whether links can be shown at all).
 8. Admin session expiry mid-edit: is input kept (architecture)?
