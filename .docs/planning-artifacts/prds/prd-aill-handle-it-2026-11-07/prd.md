@@ -2,7 +2,7 @@
 title: "PRD: AI'll handle it"
 status: final
 created: 2026-11-07
-updated: 2026-11-08
+updated: 2026-11-11
 inputs:
   - ../../briefs/brief-aill-handle-it-2026-09-23/brief.md
   - ../../briefs/brief-aill-handle-it-2026-09-23/addendum.md
@@ -37,7 +37,7 @@ inputs:
 *AI'll handle it* is a wedding website that is also the invitation. The site itself has no AI features.
 
 - **The wedding.** Rikke and Valdemar marry on **Saturday 27 May 2028** at **Hardingasete in Hardanger**. The weekend runs from Friday 26 to Sunday 28 May.
-- **For guests.** About **70 guests** each get a personal link. A household answers together through it: who is coming, which days, which meals, whether they stay in a cabin, allergies and arrival. Guests see what each option costs, the household total and how to pay. They can also ask the couple questions.
+- **For guests.** About **70 guests** each get a personal link. A household answers together through it: who is coming, which days, which meals, whether they stay in a cabin, and allergies. Guests see what each option costs, the household total and how to pay. They can also ask the couple questions.
 - **For the couple.** The couple and their helpers get one overview of everything.
 
 ### The problem it replaces
@@ -344,7 +344,7 @@ Some Vipps payments and bank transfers have come in.
 - **FR-15** Later steps only ask about people who are coming, and only for the days they are there. A meal is offered only on days the person is present, and Saturday breakfast only to those present from Friday. [UJ-2]
 - **FR-16** For each person who is coming, the respondent answers yes or no to staying overnight. The form states clearly that a cabin is booked for the whole weekend and that both nights are paid, even if the guest sleeps there only one night. [D1, UJ-2]
 - **FR-17** Each person present on Friday is asked about the Friday mountain hike: yes, no or maybe. Others are not asked. [brief]
-- **FR-18** Expected arrival is optional and asked per person who is coming, with fixed choices including "Don't know". There are no time pickers. [D11]
+- **FR-18** ~~Expected arrival is optional and asked per person who is coming, with fixed choices including "Don't know". There are no time pickers.~~ **Removed 2026-11-11** in the UX work: the days each guest chooses (FR-14) already tell the couple when they arrive, so a separate arrival question adds a step without new information. [D11, UX memlog]
 - **FR-19** "Read more" inside a step, for example about the cabins and their price, opens in place, so the respondent never leaves the form. [UJ-1]
 - **FR-20** Leaving the form before sending shows a warning that the answer is not sent yet. [UJ-1]
 - **FR-21** Before sending, a check page says at the top that the answer is not sent yet. It shows every answer per person and the household total, with a "Change" link for each part. Optional questions that were skipped show as "Not provided". The button says "Send answer". [D9, R 1.7, review]
@@ -386,7 +386,7 @@ Some Vipps payments and bank transfers have come in.
 - **FR-39** A household is marked "Changed" when a guest or the couple changes a sent answer, or when allergy consent is withdrawn. The first answer and "I have paid" reports don't count as changes. [UJ-2, review]
 - **FR-40** The full history of each household's changes (who changed what, and when) is kept. For allergies, it records only that the information changed, never the content. [UJ-2, review] **[2027]**
 - **FR-41** The RSVP deadline is a date: guests can answer until 23:59 Norwegian time that day. It is shown with weekday, date and time next to the RSVP button and in the household's status. All times on the site are Norwegian time. [D4, review]
-- **FR-42** After the deadline, guests can no longer change who is coming, days, meals, overnight stay, the hike, arrival or allergies. [D5, UJ-3]
+- **FR-42** After the deadline, guests can no longer change who is coming, days, meals, overnight stay, the hike or allergies. [D5, UJ-3]
   - The button says "See answer". The page explains that the deadline has passed and shows how to reach Rikke and Valdemar.
   - Payment information, "I have paid", the information pages, questions and consent withdrawal still work.
   - Households that never answered see the same message.
@@ -421,8 +421,7 @@ Some Vipps payments and bank transfers have come in.
   - the count per meal (FR-73) and per allergy category;
   - how many guests who are coming have nothing registered for allergies;
   - the number of households in each payment status (FR-60);
-  - interest in the hike;
-  - expected arrivals.
+  - interest in the hike, with "maybe" shown separately from "coming" (UX decision 2026-11-11).
 - **FR-55** Every count opens a list of the people behind it. [UJ-4]
 - **FR-56** Below the summary, "Needs attention" lists: [UJ-4, UJ-5]
   - households that haven't answered;
@@ -526,7 +525,7 @@ The text on the information pages lives in the code in v1, so changing it means 
   |---|---|---|---|
   | Names, households and links | Inviting guests and collecting answers | Legitimate interest | The couple and helpers |
   | Phone numbers and email addresses entered by the couple | Following up guests | Legitimate interest | The couple and helpers |
-  | Answers: attendance, days, meals, overnight stay, hike, arrival | Planning the weekend and giving numbers to Hardingasete | Legitimate interest | The couple and helpers; numbers go to Hardingasete |
+  | Answers: attendance, days, meals, overnight stay, hike | Planning the weekend and giving numbers to Hardingasete | Legitimate interest | The couple and helpers; numbers go to Hardingasete |
   | Allergies and dietary needs | Safe food from Hardingasete's kitchen | Explicit consent (GDPR Art. 9(2)(a)) | The couple and helpers; names and allergies go to Hardingasete's kitchen |
   | Consent records | Showing that consent was given | Legal obligation to prove consent (Art. 7(1)) | The couple |
   | Payments and "I have paid" reports | Keeping track of money | Legitimate interest | The couple and helpers |
@@ -653,3 +652,4 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-07 | Production in 2027 (section 3.2): ready date 1 November 2027, backups, monitoring, access, update rules, device floor, pilot and privacy in operation. FR-76 to FR-78 added; link tracking and unfinished answers made required before invitations; change notices to guests moved to Out; D12 left to the architecture with Rikke's rule. |
 | 2026-11-08 | Polish after a structure and language review (bmad-review): a fuller reading key and a note that quoted interface texts are working labels; the whole timeline in section 1; tier contents as lists (section 3.1a); constraints that were scope decisions moved to section 3.4; Q2 to Q4 moved to section 8; UJ-3 renamed; FR-13 leaves the order of later form steps to the UX phase; repeats in NFR-8 removed; the palette contrast check and a possible 2027 improvement moved to the addendum; about 40 wording fixes that remove ambiguities and contradictions without changing what is decided. |
 | 2026-11-08 | Status set to final. |
+| 2026-11-11 | From the UX work (`bmad-ux`, see `ux-designs/ux-aill-handle-it-2026-11-10/.memlog.md`): FR-18 (expected arrival) removed because the chosen days already show arrival; FR-42, FR-54 and the data table updated to match; hike "maybe" counted separately in FR-54. |
