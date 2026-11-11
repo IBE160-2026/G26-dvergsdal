@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fargeforslag 3</title>
+<style>
+/* ===== FARGEKODER, RUNDE 3 (finjustering av B «Konvolutten») =====
+   Bare lys utgave. Ingen gull, metallic, neon, blålig grønt eller animasjon.
+   Kontrast er regnet på fargekodene (WCAG 2.x). Den nye papirstrukturen blandes med «overlay»
+   og endrer ikke gjennomsnittsfargen (målt på skjermbilde: avvik 0 av 255).
+
+   GRØNN STIGE  side = bakgrunnen, mørk = knapp + bunnbånd + segl + navn/overskrifter, bakark = arket bak kortene
+   Alle sider har samme luminans som runde 2 (0,132), bare fargetonen flyttes mot grønt.
+   G0 varm oliven   side #6E6644 (HSL  49° 24 % 35 %)  knapp/bånd #49442E  segl #423D28  linjer #847B58   (runde 2)
+   G1 oliven        side #6B6743 (HSL  54° 23 % 34 %)  mørk #3D4323 (HSL  71° 31 % 20 %)  bakark #928F6F (HSL  55° 14 % 50 %)
+   G2 olivengrønn   side #666844 (HSL  63° 21 % 34 %)  mørk #3B4425 (HSL  77° 30 % 21 %)  bakark #8E9171 (HSL  66° 13 % 51 %)
+   G3 mosegrønn     side #616A46 (HSL  75° 20 % 35 %)  mørk #384527 (HSL  86° 28 % 21 %)  bakark #8A9273 (HSL  75° 12 % 51 %)
+   G4 salvieoliven  side #5D6B48 (HSL  84° 20 % 35 %)  mørk #364528 (HSL  91° 27 % 21 %)  bakark #879375 (HSL  84° 12 % 52 %)
+   G5 olivenblad    side #596B4C (HSL  95° 17 % 36 %)  mørk #34462A (HSL  99° 25 % 22 %)  bakark #839477 (HSL  95° 12 % 52 %)
+
+   KREMSTIGE  ark (kort og invitasjon)
+   K0 lin       #E6DFCF (HSL  42° 32 % 86 %)   (runde 2; med den gamle strukturen så den ut som ca. #DED6C5)
+   K1 havre     #EBE4D5 (HSL  41° 35 % 88 %)
+   K2 krem      #F0E9DA (HSL  41° 42 % 90 %)
+   K3 lys krem  #F5EEDF (HSL  41° 52 % 92 %)
+   K4 elfenben  #F9F2E3 (HSL  41° 65 % 93 %)
+
+   FASTE ROLLER (like i alle kombinasjoner)
+   Kremtekst på grønt og mørkt  #F5EEDF  (= K3)
+   Brødtekst                    #3B372F  mørk varm grå, som teksten på detaljkortet i bilde 01 (runde 2: #371C05)
+   Dempet tekst                 #5E594F
+   Feil                         #7C3B1D  rust fra lakkseglet i bilde 01
+   Bekreftelse                  #3D5A2A
+   Fokusring på ark             #3B372F  3 px
+   Fokusring på grønt           #F5EEDF
+   Ramme rundt (ikke design)    bakgrunn #DDDAD3, panel #E8E5DE, tekst #2B2620, dempet #4F473D, linje #A39C8E, telefon #262521
+
+   KOMBINASJONER
+   G1 + K1: side #6B6743  ark #EBE4D5  mørk #3D4323  bakark #928F6F  kremtekst #F5EEDF  brødtekst #3B372F  dempet #5E594F  feil #7C3B1D  bekreftelse #3D5A2A
+   G2 + K1: side #666844  ark #EBE4D5  mørk #3B4425  bakark #8E9171  kremtekst #F5EEDF  brødtekst #3B372F  dempet #5E594F  feil #7C3B1D  bekreftelse #3D5A2A
+   G2 + K2: side #666844  ark #F0E9DA  mørk #3B4425  bakark #8E9171  kremtekst #F5EEDF  brødtekst #3B372F  dempet #5E594F  feil #7C3B1D  bekreftelse #3D5A2A
+   G3 + K2: side #616A46  ark #F0E9DA  mørk #384527  bakark #8A9273  kremtekst #F5EEDF  brødtekst #3B372F  dempet #5E594F  feil #7C3B1D  bekreftelse #3D5A2A
+   G3 + K3: side #616A46  ark #F5EEDF  mørk #384527  bakark #8A9273  kremtekst #F5EEDF  brødtekst #3B372F  dempet #5E594F  feil #7C3B1D  bekreftelse #3D5A2A
+   G4 + K2: side #5D6B48  ark #F0E9DA  mørk #364528  bakark #879375  kremtekst #F5EEDF  brødtekst #3B372F  dempet #5E594F  feil #7C3B1D  bekreftelse #3D5A2A
+*/
+
+:root {
+  color-scheme: light;
+  --frame-bg: #DDDAD3; --frame-panel: #E8E5DE; --frame-ink: #2B2620; --frame-muted: #4F473D; --frame-line: #A39C8E;
+  --t: #F5EEDF; --ink: #3B372F; --muted: #5E594F; --err: #7C3B1D; --ok: #3D5A2A; --focus: #3B372F;
+  /* Ny papirstruktur: grå støy rundt 50 %, blandet med «overlay», så fargen i snitt er uendret. */
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.09 0 0 0 0.455  0.09 0 0 0 0.455  0.09 0 0 0 0.455  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  /* Strukturen fra runde 2 (brunlig slør som gjorde arkene mørkere). Brukes bare på G0 og K0. */
+  --old-noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.32  0 0 0 0 0.25  0 0 0 0 0.15  0 0 0 0.5 -0.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --old-fibre: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='4' seed='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.36  0 0 0 0 0.29  0 0 0 0 0.18  0 0 0 0.3 -0.1'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+  --old-plaster: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='0.02' numOctaves='3' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10  0 0 0 0 0.09  0 0 0 0 0.04  0 0 0 0.42 -0.12'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55; font-variant-numeric: lining-nums; }
+a { color: inherit; text-underline-offset: 3px; }
+a:focus-visible { outline: 3px solid var(--frame-ink); outline-offset: 3px; border-radius: 2px; }
+code { font-family: Consolas, "Courier New", monospace; font-size: 16px; }
+.intro { max-width: 900px; margin: 0 auto; padding: 40px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .6em; }
+.intro p { margin: 0 0 .8em; }
+.intro ul { margin: 0 0 1em; padding-left: 1.2em; }
+.intro li { margin: 0 0 .35em; }
+.small { color: var(--frame-muted); }
+.status { display: inline-flex; gap: .55em; align-items: flex-start; padding: .45em .8em; border: 1px solid var(--frame-line); border-radius: 6px; margin: .2em 0 0; background: var(--frame-panel); }
+.status svg { width: 22px; height: 22px; flex: none; margin-top: 3px; }
+.wide { max-width: 1240px; margin: 0 auto; padding: 8px 16px; }
+.wide > h2 { font-weight: normal; font-size: 1.6rem; line-height: 1.25; margin: 1.5em 0 .3em; }
+.lead { margin: 0 0 .8em; max-width: 880px; }
+.tex-green { background-image: var(--grain-green), var(--fibre-green); background-blend-mode: overlay, overlay; }
+.tex-sheet { background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; }
+.tex-old-green { background-image: var(--old-plaster), var(--old-noise); background-blend-mode: normal, normal; }
+.tex-old-sheet { background-image: var(--old-fibre), var(--old-noise); background-blend-mode: normal, normal; }
+.panel { background: var(--frame-panel); border: 1px solid var(--frame-line); border-radius: 8px; overflow: hidden; }
+.panel h3 { margin: 0; padding: 12px 16px 10px; font-weight: normal; font-size: 1.3rem; line-height: 1.3; }
+.panel h3 b { font-weight: bold; margin-right: .3em; }
+.panel h3 small { display: block; font-size: 16px; color: var(--frame-muted); }
+.meta { margin: 0; padding: 12px 16px 14px; display: grid; gap: 7px; font-size: 16px; line-height: 1.35; }
+.meta div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 12px; }
+.meta dt { color: var(--frame-muted); }
+.meta dd { margin: 0; text-align: right; }
+.chip { display: inline-block; width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(40,36,28,.35); vertical-align: -3px; margin-right: 6px; }
+
+/* ---------- Grønn stige ---------- */
+.ladder { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 22px; }
+.g-ladder { grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
+/* Hver rad i stigene står på linje, også når en undertittel går over to linjer */
+@supports (grid-template-rows: subgrid) {
+  .g-ladder > li { display: grid; grid-template-rows: subgrid; grid-row: span 4; row-gap: 0; }
+  .k-ladder > li { display: grid; grid-template-rows: subgrid; grid-row: span 3; row-gap: 0; }
+}
+.g-swatch { background-color: var(--g); color: var(--t); min-height: 150px; padding: 18px 16px 18px 18px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.g-swatch p { margin: 0; font-style: italic; font-size: 21px; line-height: 1.35; }
+.g-swatch p span { display: block; font-style: normal; font-size: 18px; margin-top: 6px; }
+.mini-seal { position: relative; width: 66px; height: 66px; transform: rotate(-5deg); }
+.mini-seal svg { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--seal); filter: drop-shadow(0 1px 1px rgba(15,18,10,.4)); }
+.mini-seal span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--t); font-style: italic; font-size: 16px; }
+.g-dark { background-color: var(--d); color: var(--t); padding: 12px 16px; text-align: center; }
+
+/* ---------- Kremstige ---------- */
+.k-ladder { grid-template-columns: repeat(auto-fill, minmax(min(100%, 218px), 1fr)); gap: 18px; }
+.k-stage { background-color: var(--g); padding: 18px 18px 28px 12px; }
+.det-sheet.k-sheet { padding: 16px 12px 18px; text-align: center; color: var(--ink); }
+.k-sheet .det-h { font-size: 22px; }
+.k-sheet .caps { margin-top: 8px; }
+.k-sheet p { margin: 0; }
+
+/* ---------- Telefonene ---------- */
+.combos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 44px 28px; margin: 18px 0 0; }
+.combo { margin: 0; display: flex; flex-direction: column; align-items: center; min-width: 0; }
+.combo-head { width: 100%; max-width: 380px; margin: 0 0 12px; }
+.combo-head h3 { margin: 0; font-weight: normal; font-size: 1.75rem; line-height: 1.2; }
+.combo-head h3 b { font-weight: bold; }
+.combo-head p { margin: 2px 0 0; color: var(--frame-muted); }
+.phone { width: 100%; max-width: 380px; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { font-variant-numeric: normal; border-radius: 29px; overflow: hidden; text-align: center; font-size: 18px; line-height: 1.5; color: var(--ink); background-color: var(--g); padding: 22px 16px 0; }
+.sheet { background-color: var(--k); border-radius: 2px; box-shadow: 0 1px 2px rgba(18,22,12,.30), 0 6px 16px rgba(18,22,12,.22); }
+.hero { padding: 30px 18px 28px; }
+.seal { position: relative; width: 96px; height: 96px; margin: 0 auto 14px; transform: rotate(-5deg); }
+.seal svg { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--d); filter: drop-shadow(0 1.5px 1.2px rgba(15,18,10,.42)); }
+.seal span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--t); font-style: italic; font-size: 21px; letter-spacing: .03em; }
+.names, .det-h { font-family: "Segoe Script", "Snell Roundhand", "Brush Script MT", cursive; color: var(--d); font-weight: normal; }
+.names { font-size: 31px; line-height: 1.3; margin: 0 0 6px; }
+.invites { margin: 0; font-style: italic; color: var(--muted); }
+.when { margin: 8px 0 0; }
+.orn { display: block; width: 150px; max-width: 100%; height: 16px; margin: 18px auto; color: var(--g); }
+.guest, .note { margin: 0 0 6px; }
+.guest b { font-weight: normal; color: var(--d); }
+.deadline { margin: 0 0 20px; }
+.ex { color: var(--muted); font-style: italic; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 10px 22px; border-radius: 4px; font-size: 18px; }
+.primary { background: var(--d); color: var(--t); border: 1px solid var(--d); width: 100%; }
+.secondary { background: transparent; color: var(--d); border: 1.5px solid var(--d); }
+.focused { outline: 3px solid var(--focus); outline-offset: 3px; }
+.lead-in { margin: 0; padding: 30px 8px 24px; color: var(--t); font-style: italic; font-size: 19px; line-height: 1.45; }
+/* Detaljkort som i bilde 01: kremark rett, lysere grønt bakark som stikker fram og heller litt */
+.det { position: relative; margin: 0 12px 38px 2px; }
+.det::before { content: ""; position: absolute; inset: 6px -11px -13px 5px; background-color: var(--b); background-image: var(--grain-green), var(--fibre-green); background-blend-mode: overlay, overlay; transform: rotate(1.1deg); border-radius: 2px; box-shadow: 0 1px 2px rgba(18,22,12,.28), 0 5px 12px rgba(18,22,12,.18); }
+.det-sheet { position: relative; padding: 24px 20px 24px; }
+.det-h { font-size: 30px; line-height: 1.3; margin: 0; }
+.sprig { display: block; width: 104px; height: 36px; margin: 2px auto 4px; color: var(--g); }
+.caps { margin: 12px 0 2px; font-size: 18px; line-height: 1.35; letter-spacing: .12em; text-transform: uppercase; }
+.caps, .names, .when, .lead-in, .deadline, .det-t { text-wrap: balance; }
+.det-t { margin: 0; }
+.det-sheet .orn { width: 124px; margin: 16px auto 4px; }
+.det-sheet .btn { margin-top: 18px; }
+.form, .done { padding: 20px 18px; text-align: left; }
+.form { margin: 0 0 16px; }
+.legend { margin: 0 0 10px; font-size: 21px; color: var(--d); }
+.msg { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 12px; padding: 8px 12px; border-left: 4px solid currentColor; border-radius: 3px; }
+.msg svg { width: 22px; height: 22px; flex: none; margin-top: 2px; }
+.err { color: var(--err); }
+.ok { color: var(--ok); }
+.done .msg { margin: 0; }
+.cb { display: flex; align-items: center; gap: 12px; min-height: 44px; margin: 0; }
+.cb i { width: 26px; height: 26px; flex: none; border: 2px solid var(--ink); border-radius: 4px; background: var(--k); }
+.foot { margin: 34px -16px 0; padding: 26px 20px 30px; background-color: var(--d); color: var(--t); }
+.foot p { margin: 0; font-style: italic; font-size: 21px; }
+.ratios { list-style: none; width: 100%; max-width: 380px; margin: 14px 0 0; padding: 0; display: grid; gap: 6px; font-size: 16px; line-height: 1.3; }
+.ratios li { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.num { white-space: nowrap; }
+.pair { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 30px; border: 1px solid rgba(40,36,28,.35); border-radius: 4px; font-size: 17px; }
+.pair i { display: block; width: 24px; height: 12px; border-radius: 2px; }
+.combo-note { max-width: 380px; width: 100%; margin: 10px 0 0; font-size: 16px; color: var(--frame-muted); }
+
+/* ---------- Miniatyrer ---------- */
+.strips { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 26px 28px; justify-content: center; }
+.strip-fig { margin: 0; width: 132px; text-align: center; }
+.strip-fig figcaption { margin-top: 8px; font-weight: bold; font-size: 18px; }
+.strip { width: 132px; border: 6px solid #262521; border-radius: 14px; overflow: hidden; background-color: var(--g); padding: 8px 8px 0; box-shadow: 0 6px 16px rgba(30,30,24,.25); }
+.strip span { display: block; }
+.strip .s-hero, .strip .s-sheet { background-color: var(--k); display: flex; flex-direction: column; align-items: center; }
+.s-hero { height: 100px; padding: 8px 9px 7px; gap: 4px; }
+.s-seal { width: 14px; height: 14px; flex: none; border-radius: 47% 53% 50% 50%; background: var(--d); }
+.s-name { width: 64%; height: 5px; border-radius: 3px; background: var(--d); }
+.s-line { height: 2px; border-radius: 1px; background: var(--ink); opacity: .7; }
+.s-orn { width: 40%; height: 1px; background: var(--g); margin: 2px 0; }
+.s-btn { width: 100%; height: 9px; border-radius: 2px; background: var(--d); margin-top: auto; }
+.s-lead { width: 72%; height: 2px; margin: 12px auto; background: var(--t); opacity: .9; }
+.s-det { position: relative; margin: 0 5px 13px 1px; }
+.s-det::before { content: ""; position: absolute; inset: 2px -3px -4px 1px; background: var(--b); transform: rotate(1.1deg); }
+.s-sheet { position: relative; height: 70px; padding: 6px 8px; gap: 4px; }
+.s-h { width: 50%; height: 4px; border-radius: 2px; background: var(--d); }
+.s-sprig { width: 26%; height: 3px; border-radius: 2px; background: var(--g); }
+.s-sbtn { width: 36%; height: 7px; border: 1px solid var(--d); border-radius: 1px; margin-top: auto; }
+.s-form { height: 42px; margin: 0 0 6px; background-color: var(--k); padding: 6px 7px; }
+.s-form .s-err { width: 70%; height: 3px; background: var(--err); margin: 4px 0 5px; }
+.s-done { height: 14px; background-color: var(--k); padding: 5px 7px; }
+.s-done .s-ok { width: 60%; height: 3px; background: var(--ok); }
+.s-foot { height: 24px; margin: 12px -8px 0; background: var(--d); padding: 10px 0 0; }
+.s-foot .s-line { width: 56%; margin: 0 auto; background: var(--t); }
+footer.end { max-width: 900px; margin: 0 auto; padding: 24px 16px 44px; color: var(--frame-muted); font-size: 16px; }
+footer.end p { margin: 0 0 .5em; }
+@media (max-width: 600px) { .intro h1 { font-size: 1.7rem; } }
+/* ---------- Fargesett per trinn og per kombinasjon ---------- */
+.g0 { --g: #6E6644; --d: #49442E; --seal: #423D28; --b: #847B58; }
+.g1 { --g: #6B6743; --d: #3D4323; --seal: #3D4323; --b: #928F6F; }
+.g2 { --g: #666844; --d: #3B4425; --seal: #3B4425; --b: #8E9171; }
+.g3 { --g: #616A46; --d: #384527; --seal: #384527; --b: #8A9273; }
+.g4 { --g: #5D6B48; --d: #364528; --seal: #364528; --b: #879375; }
+.g5 { --g: #596B4C; --d: #34462A; --seal: #34462A; --b: #839477; }
+.c-g1k1 { --g: #6B6743; --d: #3D4323; --b: #928F6F; --k: #EBE4D5; }  /* G1 + K1 */
+.c-g2k1 { --g: #666844; --d: #3B4425; --b: #8E9171; --k: #EBE4D5; }  /* G2 + K1 */
+.c-g2k2 { --g: #666844; --d: #3B4425; --b: #8E9171; --k: #F0E9DA; }  /* G2 + K2 */
+.c-g3k2 { --g: #616A46; --d: #384527; --b: #8A9273; --k: #F0E9DA; }  /* G3 + K2 */
+.c-g3k3 { --g: #616A46; --d: #384527; --b: #8A9273; --k: #F5EEDF; }  /* G3 + K3 */
+.c-g4k2 { --g: #5D6B48; --d: #364528; --b: #879375; --k: #F0E9DA; }  /* G4 + K2 */
+.k-stage { --g: #616A46; --d: #384527; --b: #8A9273; }  /* kremstigen ligger på G3 */
+.k0 { --k: #E6DFCF; }
+.k1 { --k: #EBE4D5; }
+.k2 { --k: #F0E9DA; }
+.k3 { --k: #F5EEDF; }
+.k4 { --k: #F9F2E3; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs><path id="leaf" d="M0 0C5-5.5 14-5.5 19 0C14 5.5 5 5.5 0 0Z" fill="currentColor"/></defs>
+  <symbol id="seal-shape" viewBox="0 0 100 100">
+    <path d="M97.3 50.0C97.6 51.4 97.5 52.8 97.4 54.1C97.2 55.5 96.9 56.9 96.4 58.2C96.0 59.5 95.5 60.8 94.8 62.0C94.1 63.2 93.2 64.3 92.4 65.4C91.5 66.5 90.4 67.4 89.7 68.5C89.0 69.6 88.4 70.7 88.0 71.9C87.5 73.2 87.5 74.6 87.0 75.9C86.5 77.2 86.0 78.5 85.2 79.5C84.3 80.5 83.0 81.2 81.8 81.8C80.6 82.4 79.1 82.8 77.9 83.3C76.7 83.8 75.6 84.4 74.5 85.0C73.4 85.6 72.4 86.4 71.3 86.9C70.2 87.5 69.1 88.0 67.9 88.5C66.8 89.0 65.6 89.3 64.5 89.7C63.3 90.2 62.2 90.8 61.1 91.3C59.9 91.8 58.8 92.4 57.5 92.8C56.3 93.2 55.1 93.4 53.8 93.7C52.6 93.9 51.3 94.1 50.0 94.5C48.7 94.9 47.4 95.5 46.0 96.1C44.6 96.6 43.0 97.5 41.6 97.7C40.1 98.0 38.6 97.9 37.3 97.4C36.0 96.9 34.8 95.7 33.7 94.7C32.7 93.6 31.8 92.2 30.8 91.2C29.8 90.1 28.9 89.1 28.0 88.2C27.0 87.2 26.0 86.4 25.1 85.5C24.2 84.7 23.3 83.7 22.4 82.9C21.5 82.0 20.6 81.2 19.6 80.4C18.6 79.6 17.5 78.9 16.5 78.1C15.6 77.2 14.7 76.3 14.0 75.2C13.4 74.1 13.1 72.8 12.7 71.6C12.3 70.3 12.1 69.1 11.5 67.9C11.0 66.8 10.2 65.8 9.5 64.8C8.7 63.7 7.7 62.7 7.1 61.5C6.6 60.3 6.2 59.0 6.1 57.7C5.9 56.5 6.2 55.1 6.2 53.8C6.3 52.5 6.4 51.3 6.3 50.0C6.2 48.7 5.8 47.4 5.6 46.1C5.4 44.8 5.1 43.4 4.9 42.1C4.8 40.7 4.8 39.3 4.8 37.9C4.8 36.5 4.8 35.0 5.0 33.6C5.2 32.2 5.4 30.7 6.1 29.5C6.7 28.3 7.8 27.2 9.0 26.3C10.2 25.5 12.0 25.0 13.4 24.4C14.8 23.8 16.3 23.4 17.5 22.7C18.6 22.0 19.4 21.2 20.3 20.3C21.2 19.4 21.8 18.4 22.7 17.5C23.6 16.7 24.7 16.0 25.7 15.3C26.7 14.6 27.9 14.2 28.9 13.5C30.0 12.9 31.0 12.2 32.0 11.4C33.1 10.7 34.0 9.8 35.1 9.2C36.2 8.5 37.4 7.9 38.6 7.4C39.8 6.9 41.0 6.5 42.2 6.0C43.5 5.4 44.7 4.8 46.0 4.4C47.3 4.0 48.7 3.5 50.0 3.4C51.3 3.4 52.7 3.8 54.0 4.3C55.3 4.7 56.5 5.7 57.7 6.2C59.0 6.7 60.1 7.2 61.4 7.4C62.7 7.6 64.1 7.3 65.5 7.3C66.9 7.3 68.5 7.2 69.8 7.5C71.1 7.8 72.4 8.5 73.6 9.2C74.7 9.9 75.7 11.0 76.6 12.0C77.6 13.0 78.5 14.0 79.2 15.2C80.0 16.3 80.6 17.6 81.1 18.9C81.6 20.2 81.9 21.7 82.3 22.9C82.7 24.1 83.1 25.3 83.7 26.4C84.4 27.4 85.3 28.2 86.1 29.2C86.9 30.1 87.9 31.0 88.6 32.0C89.2 33.1 89.6 34.3 90.0 35.4C90.4 36.6 90.5 37.9 91.0 39.0C91.5 40.2 92.1 41.3 92.9 42.4C93.6 43.6 94.8 44.8 95.5 46.0C96.3 47.3 97.0 48.6 97.3 50.0Z" fill="currentColor"/>
+    <circle cx="50.4" cy="49.6" r="33" fill="#000" fill-opacity=".10"/>
+    <circle cx="50.4" cy="49.6" r="34.6" fill="none" stroke="#000" stroke-opacity=".30" stroke-width="2.2"/>
+    <circle cx="49.6" cy="50.6" r="36.6" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="1.4"/>
+  </symbol>
+  <symbol id="sprig" viewBox="0 0 120 42"><path d="M6 31C34 30 66 24 114 11" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><use href="#leaf" transform="translate(23.4 29.8) rotate(-38)" fill-opacity="0.9"/><use href="#leaf" transform="translate(23.4 29.8) rotate(28)" fill-opacity="0.55"/><use href="#leaf" transform="translate(42.3 27.3) rotate(-43)" fill-opacity="0.6"/><use href="#leaf" transform="translate(42.3 27.3) rotate(23)" fill-opacity="0.9"/><use href="#leaf" transform="translate(63.3 23.4) rotate(-48)" fill-opacity="0.9"/><use href="#leaf" transform="translate(63.3 23.4) rotate(17)" fill-opacity="0.55"/><use href="#leaf" transform="translate(87.0 18.0) rotate(-52)" fill-opacity="0.6"/><use href="#leaf" transform="translate(87.0 18.0) rotate(11)" fill-opacity="0.85"/><use href="#leaf" transform="translate(103 14.2) rotate(-17) scale(.85)" fill-opacity=".9"/></symbol>
+  <symbol id="orn" viewBox="0 0 160 16"><path d="M4 8H63M97 8H156" fill="none" stroke="currentColor" stroke-width="1"/><path d="M65 8c3-4.5 7.5-4.5 9.5 0M85.5 8c2 4.5 6.5 4.5 9.5 0" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M80 4.4L83.6 8L80 11.6L76.4 8Z" fill="currentColor"/></symbol>
+  <symbol id="i-err" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10 5.4v5.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><circle cx="10" cy="14.3" r="1.15" fill="currentColor"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6 10.3l2.7 2.7L14.2 7.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<div class="intro">
+  <h1>Runde 3 – finjustering av B (Konvolutten)</h1>
+  <p>Dere valgte B, Konvolutten: olivengrønn bakgrunn, kremfargede ark oppå og et mørkegrønt segl. Det dere ville justere, var at <strong>den grønne er litt for gul og brun</strong>, og at <strong>kremfargen er litt for mørk</strong>. Dere likte også stemningen i de små kortene nederst til høyre i bilde 01, «the details».</p>
+  <p>Derfor justerer vi bare de to fargene her. Alt annet er som i B. Kortene har fått stilen fra bilde 01: et kremfarget ark oppå et lysere grønt ark som stikker litt fram, en håndskrevet overskrift, en liten kvist, små store bokstaver med luft mellom, sentrert tekst og en liten pyntestrek.</p>
+  <p>Underveis fant vi en forklaring på den mørke kremfargen. Papirstrukturen i runde 2 la et brunlig slør over arkene, så de ble omtrent fire hakk mørkere og gråere enn fargekoden: <code>#E6DFCF</code> så i praksis ut som <code>#DED6C5</code>. Den grønne ble nesten ikke påvirket. Nå bruker vi en papirstruktur som ikke endrer fargen, og det har vi målt på skjermbilder. G0 og K0 vises med den gamle strukturen, slik dere så dem sist.</p>
+  <p>Teksten på arkene er også byttet fra mørk valnøttbrun til mørk, varm grå, slik som på kortet i bilde 01.</p>
+  <p><strong>Svar gjerne med koder</strong>, for eksempel «G3 + K2». Dere kan også blande fritt: «G3 med kremfargen fra K1», eller «noe mellom G2 og G3».</p>
+  <ul>
+    <li><a href="#gronn">Den grønne stigen</a>: fem trinn fra runde 2 mot grønnere og mindre brunt. Alle er like mørke, så det er bare fargetonen som endrer seg.</li>
+    <li><a href="#krem">Kremstigen</a>: fire trinn fra runde 2 mot lysere krem, men aldri hvitt.</li>
+    <li><a href="#kombinasjoner">Seks kombinasjoner</a> på telefon, med koden over hver.</li>
+    <li><a href="#miniatyr">Hele sida i miniatyr</a> for de seks kombinasjonene.</li>
+  </ul>
+  <p class="small">Navnene og overskriftene på kortene står i en midlertidig håndskrift, og kvisten er bare en plassholder. Skrift og tegnestil velger vi i egne runder.</p>
+  <p class="status"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><use href="#i-ok"/></svg><span>Kontrollsjekk: all tekst på sida har minst 4,5:1 i kontrast (laveste er 4,96:1, kremtekst på grønt), og fokusringer, knappekanter og ark mot grønt har minst 3:1 (laveste er 4,32:1).</span></p>
+</div>
+
+<section class="wide" id="gronn" aria-labelledby="h-gronn">
+  <h2 id="h-gronn">Den grønne stigen</h2>
+  <p class="lead">Fra olivengrønnen i runde 2 (G0) i fem trinn mot grønnere og mindre brunt. Alle trinnene er like mørke som G0, så kremfarget tekst er like lett å lese på alle. Den mørke stripa under hver farge er den mørke partneren til knapp, bunnbånd og segl. Den er gjort litt grønnere enn bakgrunnen, slik at den ser mørkegrønn ut og ikke brun. Til sammenligning lå grønnfargene i runde 1 et godt stykke forbi G5, mot blålig salvie.</p>
+  <ol class="ladder g-ladder">
+<li class="panel g0">
+  <h3><b>G0</b>varm oliven<small>runde 2, vist med den gamle strukturen</small></h3>
+  <div class="g-swatch tex-old-green"><p>Tre dager sammen i Hardanger<span>Kremtekst på grønt</span></p><div class="mini-seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div></div>
+  <div class="g-dark tex-old-green">Svar på invitasjonen</div>
+  <dl class="meta">
+    <div><dt>Grønn bakgrunn</dt><dd><code>#6E6644</code> · HSL 49°, 24 %, 35 %</dd></div>
+    <div><dt>Kremtekst på grønt</dt><dd class="num">4,98:1</dd></div>
+    <div><dt>Mørk partner</dt><dd><code>#49442E</code> knapp og bånd · <code>#423D28</code> segl</dd></div>
+    <div><dt>Kremtekst på mørk</dt><dd class="num">8,46:1 · segl 9,42:1</dd></div>
+    <div><dt>Linjer i runde 2</dt><dd><span class="chip" style="background:#847B58"></span><code>#847B58</code></dd></div>
+  </dl>
+</li>
+<li class="panel g1">
+  <h3><b>G1</b>oliven<small>det minste steget</small></h3>
+  <div class="g-swatch tex-green"><p>Tre dager sammen i Hardanger<span>Kremtekst på grønt</span></p><div class="mini-seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div></div>
+  <div class="g-dark tex-green">Svar på invitasjonen</div>
+  <dl class="meta">
+    <div><dt>Grønn bakgrunn</dt><dd><code>#6B6743</code> · HSL 54°, 23 %, 34 %</dd></div>
+    <div><dt>Kremtekst på grønt</dt><dd class="num">4,99:1</dd></div>
+    <div><dt>Mørk partner</dt><dd><code>#3D4323</code> · HSL 71°, 31 %, 20 %</dd></div>
+    <div><dt>Kremtekst på mørk</dt><dd class="num">8,97:1</dd></div>
+    <div><dt>Bakark bak kortene</dt><dd><span class="chip" style="background:#928F6F"></span><code>#928F6F</code></dd></div>
+  </dl>
+</li>
+<li class="panel g2">
+  <h3><b>G2</b>olivengrønn<small>litt grønnere</small></h3>
+  <div class="g-swatch tex-green"><p>Tre dager sammen i Hardanger<span>Kremtekst på grønt</span></p><div class="mini-seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div></div>
+  <div class="g-dark tex-green">Svar på invitasjonen</div>
+  <dl class="meta">
+    <div><dt>Grønn bakgrunn</dt><dd><code>#666844</code> · HSL 63°, 21 %, 34 %</dd></div>
+    <div><dt>Kremtekst på grønt</dt><dd class="num">5,01:1</dd></div>
+    <div><dt>Mørk partner</dt><dd><code>#3B4425</code> · HSL 77°, 30 %, 21 %</dd></div>
+    <div><dt>Kremtekst på mørk</dt><dd class="num">8,91:1</dd></div>
+    <div><dt>Bakark bak kortene</dt><dd><span class="chip" style="background:#8E9171"></span><code>#8E9171</code></dd></div>
+  </dl>
+</li>
+<li class="panel g3">
+  <h3><b>G3</b>mosegrønn<small>midt mellom</small></h3>
+  <div class="g-swatch tex-green"><p>Tre dager sammen i Hardanger<span>Kremtekst på grønt</span></p><div class="mini-seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div></div>
+  <div class="g-dark tex-green">Svar på invitasjonen</div>
+  <dl class="meta">
+    <div><dt>Grønn bakgrunn</dt><dd><code>#616A46</code> · HSL 75°, 20 %, 35 %</dd></div>
+    <div><dt>Kremtekst på grønt</dt><dd class="num">4,97:1</dd></div>
+    <div><dt>Mørk partner</dt><dd><code>#384527</code> · HSL 86°, 28 %, 21 %</dd></div>
+    <div><dt>Kremtekst på mørk</dt><dd class="num">8,87:1</dd></div>
+    <div><dt>Bakark bak kortene</dt><dd><span class="chip" style="background:#8A9273"></span><code>#8A9273</code></dd></div>
+  </dl>
+</li>
+<li class="panel g4">
+  <h3><b>G4</b>salvieoliven<small>tydelig grønn</small></h3>
+  <div class="g-swatch tex-green"><p>Tre dager sammen i Hardanger<span>Kremtekst på grønt</span></p><div class="mini-seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div></div>
+  <div class="g-dark tex-green">Svar på invitasjonen</div>
+  <dl class="meta">
+    <div><dt>Grønn bakgrunn</dt><dd><code>#5D6B48</code> · HSL 84°, 20 %, 35 %</dd></div>
+    <div><dt>Kremtekst på grønt</dt><dd class="num">4,96:1</dd></div>
+    <div><dt>Mørk partner</dt><dd><code>#364528</code> · HSL 91°, 27 %, 21 %</dd></div>
+    <div><dt>Kremtekst på mørk</dt><dd class="num">8,92:1</dd></div>
+    <div><dt>Bakark bak kortene</dt><dd><span class="chip" style="background:#879375"></span><code>#879375</code></dd></div>
+  </dl>
+</li>
+<li class="panel g5">
+  <h3><b>G5</b>olivenblad<small>lengst mot grønt</small></h3>
+  <div class="g-swatch tex-green"><p>Tre dager sammen i Hardanger<span>Kremtekst på grønt</span></p><div class="mini-seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div></div>
+  <div class="g-dark tex-green">Svar på invitasjonen</div>
+  <dl class="meta">
+    <div><dt>Grønn bakgrunn</dt><dd><code>#596B4C</code> · HSL 95°, 17 %, 36 %</dd></div>
+    <div><dt>Kremtekst på grønt</dt><dd class="num">5,00:1</dd></div>
+    <div><dt>Mørk partner</dt><dd><code>#34462A</code> · HSL 99°, 25 %, 22 %</dd></div>
+    <div><dt>Kremtekst på mørk</dt><dd class="num">8,84:1</dd></div>
+    <div><dt>Bakark bak kortene</dt><dd><span class="chip" style="background:#839477"></span><code>#839477</code></dd></div>
+  </dl>
+</li>
+  </ol>
+</section>
+
+<section class="wide" id="krem" aria-labelledby="h-krem">
+  <h2 id="h-krem">Kremstigen</h2>
+  <p class="lead">Fra arket i runde 2 (K0) i fire trinn mot lysere, men fortsatt varm krem. Arkene ligger på G3 her, så dere ser dem mot grønt slik de vil ligge på sida. K4 er omtrent like lyst som papiret i runde 1, som dere syntes ble litt for hvitt, så lysere enn det går vi ikke. Tallene under hvert ark er kontrasten for teksten.</p>
+  <ol class="ladder k-ladder">
+<li class="panel k0">
+  <h3><b>K0</b>lin<small>runde 2, gammel struktur</small></h3>
+  <div class="k-stage tex-green"><div class="det"><div class="sheet det-sheet k-sheet tex-old-sheet"><p class="det-h">Programmet</p><p class="caps">Fredag</p><p>Vi samles på tunet til middag.</p></div></div></div>
+  <dl class="meta">
+    <div><dt>Ark</dt><dd><code>#E6DFCF</code></dd></div>
+    <div><dt>HSL</dt><dd>42°, 32 %, 86 %</dd></div>
+    <div><dt>Så ut som</dt><dd><code>#DED6C5</code></dd></div><div><dt>Brødtekst</dt><dd class="num">8,92:1</dd></div>
+    <div><dt>Overskrift</dt><dd class="num">7,72:1</dd></div>
+  </dl>
+</li>
+<li class="panel k1">
+  <h3><b>K1</b>havre<small>litt lysere</small></h3>
+  <div class="k-stage tex-green"><div class="det"><div class="sheet det-sheet k-sheet tex-sheet"><p class="det-h">Programmet</p><p class="caps">Fredag</p><p>Vi samles på tunet til middag.</p></div></div></div>
+  <dl class="meta">
+    <div><dt>Ark</dt><dd><code>#EBE4D5</code></dd></div>
+    <div><dt>HSL</dt><dd>41°, 35 %, 88 %</dd></div>
+    <div><dt>Brødtekst</dt><dd class="num">9,35:1</dd></div>
+    <div><dt>Overskrift</dt><dd class="num">8,10:1</dd></div>
+  </dl>
+</li>
+<li class="panel k2">
+  <h3><b>K2</b>krem<small>midt i stigen</small></h3>
+  <div class="k-stage tex-green"><div class="det"><div class="sheet det-sheet k-sheet tex-sheet"><p class="det-h">Programmet</p><p class="caps">Fredag</p><p>Vi samles på tunet til middag.</p></div></div></div>
+  <dl class="meta">
+    <div><dt>Ark</dt><dd><code>#F0E9DA</code></dd></div>
+    <div><dt>HSL</dt><dd>41°, 42 %, 90 %</dd></div>
+    <div><dt>Brødtekst</dt><dd class="num">9,80:1</dd></div>
+    <div><dt>Overskrift</dt><dd class="num">8,48:1</dd></div>
+  </dl>
+</li>
+<li class="panel k3">
+  <h3><b>K3</b>lys krem<small>også kremtekst på grønt</small></h3>
+  <div class="k-stage tex-green"><div class="det"><div class="sheet det-sheet k-sheet tex-sheet"><p class="det-h">Programmet</p><p class="caps">Fredag</p><p>Vi samles på tunet til middag.</p></div></div></div>
+  <dl class="meta">
+    <div><dt>Ark</dt><dd><code>#F5EEDF</code></dd></div>
+    <div><dt>HSL</dt><dd>41°, 52 %, 92 %</dd></div>
+    <div><dt>Brødtekst</dt><dd class="num">10,25:1</dd></div>
+    <div><dt>Overskrift</dt><dd class="num">8,87:1</dd></div>
+  </dl>
+</li>
+<li class="panel k4">
+  <h3><b>K4</b>elfenben<small>som papiret i runde 1</small></h3>
+  <div class="k-stage tex-green"><div class="det"><div class="sheet det-sheet k-sheet tex-sheet"><p class="det-h">Programmet</p><p class="caps">Fredag</p><p>Vi samles på tunet til middag.</p></div></div></div>
+  <dl class="meta">
+    <div><dt>Ark</dt><dd><code>#F9F2E3</code></dd></div>
+    <div><dt>HSL</dt><dd>41°, 65 %, 93 %</dd></div>
+    <div><dt>Brødtekst</dt><dd class="num">10,62:1</dd></div>
+    <div><dt>Overskrift</dt><dd class="num">9,20:1</dd></div>
+  </dl>
+</li>
+  </ol>
+</section>
+
+<section class="wide" id="kombinasjoner" aria-labelledby="h-komb">
+  <h2 id="h-komb">Seks kombinasjoner</h2>
+  <p class="lead">Hver telefon viser invitasjonen med én grønn og én krem. De er satt sammen slik at dere kan sammenligne to og to: <strong>G2 + K1</strong> og <strong>G2 + K2</strong> skiller seg bare i kremfargen, og <strong>G2 + K2</strong>, <strong>G3 + K2</strong> og <strong>G4 + K2</strong> skiller seg bare i den grønne. <strong>G1 + K1</strong> er det minste steget fra runde 2, og <strong>G3 + K3</strong> er det lyseste.</p>
+  <p class="lead">«Les mer» under Praktisk info er vist slik den ser ut når den er valgt med tastaturet. Feilmeldingen og takkemeldingen står sammen bare for å vise fargene. Under hver telefon står kontrasten for hvert tekstpar.</p>
+  <div class="combos">
+<figure class="combo c-g1k1" id="g1k1" aria-labelledby="h-g1k1">
+  <figcaption class="combo-head"><h3 id="h-g1k1"><b>G1 + K1</b></h3><p>oliven og havre</p></figcaption>
+  <div class="phone" role="img" aria-label="Invitasjonen med G1 oliven og K1 havre: segl, navn, detaljer, svarknapp, kort for programmet og praktisk info, feilmelding og takkemelding."><div class="screen tex-green"><div class="sheet hero tex-sheet"><div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div><p class="names">Rikke &amp; Valdemar</p><p class="invites">inviterer deg til bryllup</p><p class="when">Lørdag 27.&nbsp;mai&nbsp;2028 · Hardingasete i&nbsp;Hardanger</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="guest">Invitert: <b>Sigmund og bestemor</b></p><p class="note">Barnefritt bryllup</p><p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p><span class="btn primary">Svar på invitasjonen</span></div><p class="lead-in">Tre dager sammen i Hardanger, fra fredag til søndag.</p><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Programmet</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Fredag 26.&nbsp;mai</p><p class="det-t">Vi samles på tunet til middag og god stemning.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Lørdag 27.&nbsp;mai</p><p class="det-t">Vielse, lunsj og bryllupsmiddag.</p><span class="btn secondary">Les mer</span></div></div><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Praktisk info</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Reise og parkering</p><p class="det-t">Adresse, tider og parkering ved Hardingasete.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Ha med</p><p class="det-t">Gode sko til fjellturen og badetøy til badstua.</p><span class="btn secondary focused">Les mer</span></div></div><div class="sheet form tex-sheet"><p class="legend">Hvem kommer?</p><p class="msg err"><svg aria-hidden="true" focusable="false"><use href="#i-err"/></svg><span>Velg hvem som kommer</span></p><p class="cb"><i></i>Sigmund</p><p class="cb"><i></i>Bestemor</p></div><div class="sheet done tex-sheet"><p class="msg ok"><svg aria-hidden="true" focusable="false"><use href="#i-ok"/></svg><span>Takk! Svaret er sendt.</span></p></div><div class="foot tex-green"><p>Vi gleder oss til å feire med deg!</p></div></div></div>
+  <ul class="ratios" aria-label="Kontrast i G1 + K1"><li><span class="pair" style="color:#F5EEDF;background:#6B6743" aria-hidden="true">Aa</span><span>Kremtekst på grønt</span><span class="num">4,99:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#3D4323" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,97:1</span></li><li><span class="pair" style="color:#3B372F;background:#EBE4D5" aria-hidden="true">Aa</span><span>Brødtekst på ark</span><span class="num">9,35:1</span></li><li><span class="pair" style="color:#5E594F;background:#EBE4D5" aria-hidden="true">Aa</span><span>Dempet tekst på ark</span><span class="num">5,50:1</span></li><li><span class="pair" style="color:#3D4323;background:#EBE4D5" aria-hidden="true">Aa</span><span>Navn, overskrifter, «Les mer»</span><span class="num">8,19:1</span></li><li><span class="pair" style="color:#7C3B1D;background:#EBE4D5" aria-hidden="true">Aa</span><span>Feilmelding</span><span class="num">6,64:1</span></li><li><span class="pair" style="color:#3D5A2A;background:#EBE4D5" aria-hidden="true">Aa</span><span>Bekreftelse</span><span class="num">6,16:1</span></li><li><span class="pair" style="background:#EBE4D5" aria-hidden="true"><i style="background:#3B372F"></i></span><span>Fokusring mot ark (krav 3:1)</span><span class="num">9,35:1</span></li></ul>
+</figure>
+<figure class="combo c-g2k1" id="g2k1" aria-labelledby="h-g2k1">
+  <figcaption class="combo-head"><h3 id="h-g2k1"><b>G2 + K1</b></h3><p>olivengrønn og havre</p></figcaption>
+  <div class="phone" role="img" aria-label="Invitasjonen med G2 olivengrønn og K1 havre: segl, navn, detaljer, svarknapp, kort for programmet og praktisk info, feilmelding og takkemelding."><div class="screen tex-green"><div class="sheet hero tex-sheet"><div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div><p class="names">Rikke &amp; Valdemar</p><p class="invites">inviterer deg til bryllup</p><p class="when">Lørdag 27.&nbsp;mai&nbsp;2028 · Hardingasete i&nbsp;Hardanger</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="guest">Invitert: <b>Sigmund og bestemor</b></p><p class="note">Barnefritt bryllup</p><p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p><span class="btn primary">Svar på invitasjonen</span></div><p class="lead-in">Tre dager sammen i Hardanger, fra fredag til søndag.</p><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Programmet</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Fredag 26.&nbsp;mai</p><p class="det-t">Vi samles på tunet til middag og god stemning.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Lørdag 27.&nbsp;mai</p><p class="det-t">Vielse, lunsj og bryllupsmiddag.</p><span class="btn secondary">Les mer</span></div></div><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Praktisk info</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Reise og parkering</p><p class="det-t">Adresse, tider og parkering ved Hardingasete.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Ha med</p><p class="det-t">Gode sko til fjellturen og badetøy til badstua.</p><span class="btn secondary focused">Les mer</span></div></div><div class="sheet form tex-sheet"><p class="legend">Hvem kommer?</p><p class="msg err"><svg aria-hidden="true" focusable="false"><use href="#i-err"/></svg><span>Velg hvem som kommer</span></p><p class="cb"><i></i>Sigmund</p><p class="cb"><i></i>Bestemor</p></div><div class="sheet done tex-sheet"><p class="msg ok"><svg aria-hidden="true" focusable="false"><use href="#i-ok"/></svg><span>Takk! Svaret er sendt.</span></p></div><div class="foot tex-green"><p>Vi gleder oss til å feire med deg!</p></div></div></div>
+  <ul class="ratios" aria-label="Kontrast i G2 + K1"><li><span class="pair" style="color:#F5EEDF;background:#666844" aria-hidden="true">Aa</span><span>Kremtekst på grønt</span><span class="num">5,01:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#3B4425" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,91:1</span></li><li><span class="pair" style="color:#3B372F;background:#EBE4D5" aria-hidden="true">Aa</span><span>Brødtekst på ark</span><span class="num">9,35:1</span></li><li><span class="pair" style="color:#5E594F;background:#EBE4D5" aria-hidden="true">Aa</span><span>Dempet tekst på ark</span><span class="num">5,50:1</span></li><li><span class="pair" style="color:#3B4425;background:#EBE4D5" aria-hidden="true">Aa</span><span>Navn, overskrifter, «Les mer»</span><span class="num">8,13:1</span></li><li><span class="pair" style="color:#7C3B1D;background:#EBE4D5" aria-hidden="true">Aa</span><span>Feilmelding</span><span class="num">6,64:1</span></li><li><span class="pair" style="color:#3D5A2A;background:#EBE4D5" aria-hidden="true">Aa</span><span>Bekreftelse</span><span class="num">6,16:1</span></li><li><span class="pair" style="background:#EBE4D5" aria-hidden="true"><i style="background:#3B372F"></i></span><span>Fokusring mot ark (krav 3:1)</span><span class="num">9,35:1</span></li></ul>
+</figure>
+<figure class="combo c-g2k2" id="g2k2" aria-labelledby="h-g2k2">
+  <figcaption class="combo-head"><h3 id="h-g2k2"><b>G2 + K2</b></h3><p>olivengrønn og krem</p></figcaption>
+  <div class="phone" role="img" aria-label="Invitasjonen med G2 olivengrønn og K2 krem: segl, navn, detaljer, svarknapp, kort for programmet og praktisk info, feilmelding og takkemelding."><div class="screen tex-green"><div class="sheet hero tex-sheet"><div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div><p class="names">Rikke &amp; Valdemar</p><p class="invites">inviterer deg til bryllup</p><p class="when">Lørdag 27.&nbsp;mai&nbsp;2028 · Hardingasete i&nbsp;Hardanger</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="guest">Invitert: <b>Sigmund og bestemor</b></p><p class="note">Barnefritt bryllup</p><p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p><span class="btn primary">Svar på invitasjonen</span></div><p class="lead-in">Tre dager sammen i Hardanger, fra fredag til søndag.</p><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Programmet</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Fredag 26.&nbsp;mai</p><p class="det-t">Vi samles på tunet til middag og god stemning.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Lørdag 27.&nbsp;mai</p><p class="det-t">Vielse, lunsj og bryllupsmiddag.</p><span class="btn secondary">Les mer</span></div></div><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Praktisk info</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Reise og parkering</p><p class="det-t">Adresse, tider og parkering ved Hardingasete.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Ha med</p><p class="det-t">Gode sko til fjellturen og badetøy til badstua.</p><span class="btn secondary focused">Les mer</span></div></div><div class="sheet form tex-sheet"><p class="legend">Hvem kommer?</p><p class="msg err"><svg aria-hidden="true" focusable="false"><use href="#i-err"/></svg><span>Velg hvem som kommer</span></p><p class="cb"><i></i>Sigmund</p><p class="cb"><i></i>Bestemor</p></div><div class="sheet done tex-sheet"><p class="msg ok"><svg aria-hidden="true" focusable="false"><use href="#i-ok"/></svg><span>Takk! Svaret er sendt.</span></p></div><div class="foot tex-green"><p>Vi gleder oss til å feire med deg!</p></div></div></div>
+  <ul class="ratios" aria-label="Kontrast i G2 + K2"><li><span class="pair" style="color:#F5EEDF;background:#666844" aria-hidden="true">Aa</span><span>Kremtekst på grønt</span><span class="num">5,01:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#3B4425" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,91:1</span></li><li><span class="pair" style="color:#3B372F;background:#F0E9DA" aria-hidden="true">Aa</span><span>Brødtekst på ark</span><span class="num">9,80:1</span></li><li><span class="pair" style="color:#5E594F;background:#F0E9DA" aria-hidden="true">Aa</span><span>Dempet tekst på ark</span><span class="num">5,76:1</span></li><li><span class="pair" style="color:#3B4425;background:#F0E9DA" aria-hidden="true">Aa</span><span>Navn, overskrifter, «Les mer»</span><span class="num">8,52:1</span></li><li><span class="pair" style="color:#7C3B1D;background:#F0E9DA" aria-hidden="true">Aa</span><span>Feilmelding</span><span class="num">6,95:1</span></li><li><span class="pair" style="color:#3D5A2A;background:#F0E9DA" aria-hidden="true">Aa</span><span>Bekreftelse</span><span class="num">6,45:1</span></li><li><span class="pair" style="background:#F0E9DA" aria-hidden="true"><i style="background:#3B372F"></i></span><span>Fokusring mot ark (krav 3:1)</span><span class="num">9,80:1</span></li></ul>
+</figure>
+<figure class="combo c-g3k2" id="g3k2" aria-labelledby="h-g3k2">
+  <figcaption class="combo-head"><h3 id="h-g3k2"><b>G3 + K2</b></h3><p>mosegrønn og krem</p></figcaption>
+  <div class="phone" role="img" aria-label="Invitasjonen med G3 mosegrønn og K2 krem: segl, navn, detaljer, svarknapp, kort for programmet og praktisk info, feilmelding og takkemelding."><div class="screen tex-green"><div class="sheet hero tex-sheet"><div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div><p class="names">Rikke &amp; Valdemar</p><p class="invites">inviterer deg til bryllup</p><p class="when">Lørdag 27.&nbsp;mai&nbsp;2028 · Hardingasete i&nbsp;Hardanger</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="guest">Invitert: <b>Sigmund og bestemor</b></p><p class="note">Barnefritt bryllup</p><p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p><span class="btn primary">Svar på invitasjonen</span></div><p class="lead-in">Tre dager sammen i Hardanger, fra fredag til søndag.</p><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Programmet</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Fredag 26.&nbsp;mai</p><p class="det-t">Vi samles på tunet til middag og god stemning.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Lørdag 27.&nbsp;mai</p><p class="det-t">Vielse, lunsj og bryllupsmiddag.</p><span class="btn secondary">Les mer</span></div></div><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Praktisk info</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Reise og parkering</p><p class="det-t">Adresse, tider og parkering ved Hardingasete.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Ha med</p><p class="det-t">Gode sko til fjellturen og badetøy til badstua.</p><span class="btn secondary focused">Les mer</span></div></div><div class="sheet form tex-sheet"><p class="legend">Hvem kommer?</p><p class="msg err"><svg aria-hidden="true" focusable="false"><use href="#i-err"/></svg><span>Velg hvem som kommer</span></p><p class="cb"><i></i>Sigmund</p><p class="cb"><i></i>Bestemor</p></div><div class="sheet done tex-sheet"><p class="msg ok"><svg aria-hidden="true" focusable="false"><use href="#i-ok"/></svg><span>Takk! Svaret er sendt.</span></p></div><div class="foot tex-green"><p>Vi gleder oss til å feire med deg!</p></div></div></div>
+  <ul class="ratios" aria-label="Kontrast i G3 + K2"><li><span class="pair" style="color:#F5EEDF;background:#616A46" aria-hidden="true">Aa</span><span>Kremtekst på grønt</span><span class="num">4,97:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#384527" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,87:1</span></li><li><span class="pair" style="color:#3B372F;background:#F0E9DA" aria-hidden="true">Aa</span><span>Brødtekst på ark</span><span class="num">9,80:1</span></li><li><span class="pair" style="color:#5E594F;background:#F0E9DA" aria-hidden="true">Aa</span><span>Dempet tekst på ark</span><span class="num">5,76:1</span></li><li><span class="pair" style="color:#384527;background:#F0E9DA" aria-hidden="true">Aa</span><span>Navn, overskrifter, «Les mer»</span><span class="num">8,48:1</span></li><li><span class="pair" style="color:#7C3B1D;background:#F0E9DA" aria-hidden="true">Aa</span><span>Feilmelding</span><span class="num">6,95:1</span></li><li><span class="pair" style="color:#3D5A2A;background:#F0E9DA" aria-hidden="true">Aa</span><span>Bekreftelse</span><span class="num">6,45:1</span></li><li><span class="pair" style="background:#F0E9DA" aria-hidden="true"><i style="background:#3B372F"></i></span><span>Fokusring mot ark (krav 3:1)</span><span class="num">9,80:1</span></li></ul>
+</figure>
+<figure class="combo c-g3k3" id="g3k3" aria-labelledby="h-g3k3">
+  <figcaption class="combo-head"><h3 id="h-g3k3"><b>G3 + K3</b></h3><p>mosegrønn og lys krem</p></figcaption>
+  <div class="phone" role="img" aria-label="Invitasjonen med G3 mosegrønn og K3 lys krem: segl, navn, detaljer, svarknapp, kort for programmet og praktisk info, feilmelding og takkemelding."><div class="screen tex-green"><div class="sheet hero tex-sheet"><div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div><p class="names">Rikke &amp; Valdemar</p><p class="invites">inviterer deg til bryllup</p><p class="when">Lørdag 27.&nbsp;mai&nbsp;2028 · Hardingasete i&nbsp;Hardanger</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="guest">Invitert: <b>Sigmund og bestemor</b></p><p class="note">Barnefritt bryllup</p><p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p><span class="btn primary">Svar på invitasjonen</span></div><p class="lead-in">Tre dager sammen i Hardanger, fra fredag til søndag.</p><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Programmet</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Fredag 26.&nbsp;mai</p><p class="det-t">Vi samles på tunet til middag og god stemning.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Lørdag 27.&nbsp;mai</p><p class="det-t">Vielse, lunsj og bryllupsmiddag.</p><span class="btn secondary">Les mer</span></div></div><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Praktisk info</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Reise og parkering</p><p class="det-t">Adresse, tider og parkering ved Hardingasete.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Ha med</p><p class="det-t">Gode sko til fjellturen og badetøy til badstua.</p><span class="btn secondary focused">Les mer</span></div></div><div class="sheet form tex-sheet"><p class="legend">Hvem kommer?</p><p class="msg err"><svg aria-hidden="true" focusable="false"><use href="#i-err"/></svg><span>Velg hvem som kommer</span></p><p class="cb"><i></i>Sigmund</p><p class="cb"><i></i>Bestemor</p></div><div class="sheet done tex-sheet"><p class="msg ok"><svg aria-hidden="true" focusable="false"><use href="#i-ok"/></svg><span>Takk! Svaret er sendt.</span></p></div><div class="foot tex-green"><p>Vi gleder oss til å feire med deg!</p></div></div></div>
+  <ul class="ratios" aria-label="Kontrast i G3 + K3"><li><span class="pair" style="color:#F5EEDF;background:#616A46" aria-hidden="true">Aa</span><span>Kremtekst på grønt</span><span class="num">4,97:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#384527" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,87:1</span></li><li><span class="pair" style="color:#3B372F;background:#F5EEDF" aria-hidden="true">Aa</span><span>Brødtekst på ark</span><span class="num">10,25:1</span></li><li><span class="pair" style="color:#5E594F;background:#F5EEDF" aria-hidden="true">Aa</span><span>Dempet tekst på ark</span><span class="num">6,02:1</span></li><li><span class="pair" style="color:#384527;background:#F5EEDF" aria-hidden="true">Aa</span><span>Navn, overskrifter, «Les mer»</span><span class="num">8,87:1</span></li><li><span class="pair" style="color:#7C3B1D;background:#F5EEDF" aria-hidden="true">Aa</span><span>Feilmelding</span><span class="num">7,27:1</span></li><li><span class="pair" style="color:#3D5A2A;background:#F5EEDF" aria-hidden="true">Aa</span><span>Bekreftelse</span><span class="num">6,75:1</span></li><li><span class="pair" style="background:#F5EEDF" aria-hidden="true"><i style="background:#3B372F"></i></span><span>Fokusring mot ark (krav 3:1)</span><span class="num">10,25:1</span></li></ul>
+</figure>
+<figure class="combo c-g4k2" id="g4k2" aria-labelledby="h-g4k2">
+  <figcaption class="combo-head"><h3 id="h-g4k2"><b>G4 + K2</b></h3><p>salvieoliven og krem</p></figcaption>
+  <div class="phone" role="img" aria-label="Invitasjonen med G4 salvieoliven og K2 krem: segl, navn, detaljer, svarknapp, kort for programmet og praktisk info, feilmelding og takkemelding."><div class="screen tex-green"><div class="sheet hero tex-sheet"><div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div><p class="names">Rikke &amp; Valdemar</p><p class="invites">inviterer deg til bryllup</p><p class="when">Lørdag 27.&nbsp;mai&nbsp;2028 · Hardingasete i&nbsp;Hardanger</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="guest">Invitert: <b>Sigmund og bestemor</b></p><p class="note">Barnefritt bryllup</p><p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p><span class="btn primary">Svar på invitasjonen</span></div><p class="lead-in">Tre dager sammen i Hardanger, fra fredag til søndag.</p><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Programmet</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Fredag 26.&nbsp;mai</p><p class="det-t">Vi samles på tunet til middag og god stemning.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Lørdag 27.&nbsp;mai</p><p class="det-t">Vielse, lunsj og bryllupsmiddag.</p><span class="btn secondary">Les mer</span></div></div><div class="det"><div class="sheet det-sheet tex-sheet"><p class="det-h">Praktisk info</p><svg class="sprig" viewBox="0 0 120 42" aria-hidden="true" focusable="false"><use href="#sprig"/></svg><p class="caps">Reise og parkering</p><p class="det-t">Adresse, tider og parkering ved Hardingasete.</p><svg class="orn" viewBox="0 0 160 16" aria-hidden="true" focusable="false"><use href="#orn"/></svg><p class="caps">Ha med</p><p class="det-t">Gode sko til fjellturen og badetøy til badstua.</p><span class="btn secondary focused">Les mer</span></div></div><div class="sheet form tex-sheet"><p class="legend">Hvem kommer?</p><p class="msg err"><svg aria-hidden="true" focusable="false"><use href="#i-err"/></svg><span>Velg hvem som kommer</span></p><p class="cb"><i></i>Sigmund</p><p class="cb"><i></i>Bestemor</p></div><div class="sheet done tex-sheet"><p class="msg ok"><svg aria-hidden="true" focusable="false"><use href="#i-ok"/></svg><span>Takk! Svaret er sendt.</span></p></div><div class="foot tex-green"><p>Vi gleder oss til å feire med deg!</p></div></div></div>
+  <ul class="ratios" aria-label="Kontrast i G4 + K2"><li><span class="pair" style="color:#F5EEDF;background:#5D6B48" aria-hidden="true">Aa</span><span>Kremtekst på grønt</span><span class="num">4,96:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#364528" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,92:1</span></li><li><span class="pair" style="color:#3B372F;background:#F0E9DA" aria-hidden="true">Aa</span><span>Brødtekst på ark</span><span class="num">9,80:1</span></li><li><span class="pair" style="color:#5E594F;background:#F0E9DA" aria-hidden="true">Aa</span><span>Dempet tekst på ark</span><span class="num">5,76:1</span></li><li><span class="pair" style="color:#364528;background:#F0E9DA" aria-hidden="true">Aa</span><span>Navn, overskrifter, «Les mer»</span><span class="num">8,52:1</span></li><li><span class="pair" style="color:#7C3B1D;background:#F0E9DA" aria-hidden="true">Aa</span><span>Feilmelding</span><span class="num">6,95:1</span></li><li><span class="pair" style="color:#3D5A2A;background:#F0E9DA" aria-hidden="true">Aa</span><span>Bekreftelse</span><span class="num">6,45:1</span></li><li><span class="pair" style="background:#F0E9DA" aria-hidden="true"><i style="background:#3B372F"></i></span><span>Fokusring mot ark (krav 3:1)</span><span class="num">9,80:1</span></li></ul>
+</figure>
+  </div>
+</section>
+
+<section class="wide" id="miniatyr" aria-labelledby="h-mini">
+  <h2 id="h-mini">Hele sida i miniatyr</h2>
+  <p class="lead">De seks kombinasjonene som smale striper, fra invitasjonen øverst til bunnbåndet nederst, så dere ser hvor mye grønt og krem det blir når man blar.</p>
+  <ul class="strips"><li><figure class="strip-fig c-g1k1"><div class="strip tex-green" role="img" aria-label="Hele invitasjonssida i miniatyr for G1 + K1."><span class="s-hero"><span class="s-seal"></span><span class="s-name"></span><span class="s-line" style="width:44%"></span><span class="s-line" style="width:72%"></span><span class="s-line" style="width:54%"></span><span class="s-orn"></span><span class="s-line" style="width:62%"></span><span class="s-line" style="width:40%"></span><span class="s-line" style="width:78%"></span><span class="s-btn"></span></span><span class="s-lead"></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-form"><span class="s-line" style="width:46%"></span><span class="s-err"></span><span class="s-line" style="width:30%"></span><span class="s-line" style="width:34%"></span></span><span class="s-done"><span class="s-ok"></span></span><span class="s-foot"><span class="s-line"></span></span></div><figcaption>G1 + K1</figcaption></figure></li><li><figure class="strip-fig c-g2k1"><div class="strip tex-green" role="img" aria-label="Hele invitasjonssida i miniatyr for G2 + K1."><span class="s-hero"><span class="s-seal"></span><span class="s-name"></span><span class="s-line" style="width:44%"></span><span class="s-line" style="width:72%"></span><span class="s-line" style="width:54%"></span><span class="s-orn"></span><span class="s-line" style="width:62%"></span><span class="s-line" style="width:40%"></span><span class="s-line" style="width:78%"></span><span class="s-btn"></span></span><span class="s-lead"></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-form"><span class="s-line" style="width:46%"></span><span class="s-err"></span><span class="s-line" style="width:30%"></span><span class="s-line" style="width:34%"></span></span><span class="s-done"><span class="s-ok"></span></span><span class="s-foot"><span class="s-line"></span></span></div><figcaption>G2 + K1</figcaption></figure></li><li><figure class="strip-fig c-g2k2"><div class="strip tex-green" role="img" aria-label="Hele invitasjonssida i miniatyr for G2 + K2."><span class="s-hero"><span class="s-seal"></span><span class="s-name"></span><span class="s-line" style="width:44%"></span><span class="s-line" style="width:72%"></span><span class="s-line" style="width:54%"></span><span class="s-orn"></span><span class="s-line" style="width:62%"></span><span class="s-line" style="width:40%"></span><span class="s-line" style="width:78%"></span><span class="s-btn"></span></span><span class="s-lead"></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-form"><span class="s-line" style="width:46%"></span><span class="s-err"></span><span class="s-line" style="width:30%"></span><span class="s-line" style="width:34%"></span></span><span class="s-done"><span class="s-ok"></span></span><span class="s-foot"><span class="s-line"></span></span></div><figcaption>G2 + K2</figcaption></figure></li><li><figure class="strip-fig c-g3k2"><div class="strip tex-green" role="img" aria-label="Hele invitasjonssida i miniatyr for G3 + K2."><span class="s-hero"><span class="s-seal"></span><span class="s-name"></span><span class="s-line" style="width:44%"></span><span class="s-line" style="width:72%"></span><span class="s-line" style="width:54%"></span><span class="s-orn"></span><span class="s-line" style="width:62%"></span><span class="s-line" style="width:40%"></span><span class="s-line" style="width:78%"></span><span class="s-btn"></span></span><span class="s-lead"></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-form"><span class="s-line" style="width:46%"></span><span class="s-err"></span><span class="s-line" style="width:30%"></span><span class="s-line" style="width:34%"></span></span><span class="s-done"><span class="s-ok"></span></span><span class="s-foot"><span class="s-line"></span></span></div><figcaption>G3 + K2</figcaption></figure></li><li><figure class="strip-fig c-g3k3"><div class="strip tex-green" role="img" aria-label="Hele invitasjonssida i miniatyr for G3 + K3."><span class="s-hero"><span class="s-seal"></span><span class="s-name"></span><span class="s-line" style="width:44%"></span><span class="s-line" style="width:72%"></span><span class="s-line" style="width:54%"></span><span class="s-orn"></span><span class="s-line" style="width:62%"></span><span class="s-line" style="width:40%"></span><span class="s-line" style="width:78%"></span><span class="s-btn"></span></span><span class="s-lead"></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-form"><span class="s-line" style="width:46%"></span><span class="s-err"></span><span class="s-line" style="width:30%"></span><span class="s-line" style="width:34%"></span></span><span class="s-done"><span class="s-ok"></span></span><span class="s-foot"><span class="s-line"></span></span></div><figcaption>G3 + K3</figcaption></figure></li><li><figure class="strip-fig c-g4k2"><div class="strip tex-green" role="img" aria-label="Hele invitasjonssida i miniatyr for G4 + K2."><span class="s-hero"><span class="s-seal"></span><span class="s-name"></span><span class="s-line" style="width:44%"></span><span class="s-line" style="width:72%"></span><span class="s-line" style="width:54%"></span><span class="s-orn"></span><span class="s-line" style="width:62%"></span><span class="s-line" style="width:40%"></span><span class="s-line" style="width:78%"></span><span class="s-btn"></span></span><span class="s-lead"></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-det"><span class="s-sheet"><span class="s-h"></span><span class="s-sprig"></span><span class="s-line" style="width:58%"></span><span class="s-line" style="width:80%"></span><span class="s-line" style="width:66%"></span><span class="s-sbtn"></span></span></span><span class="s-form"><span class="s-line" style="width:46%"></span><span class="s-err"></span><span class="s-line" style="width:30%"></span><span class="s-line" style="width:34%"></span></span><span class="s-done"><span class="s-ok"></span></span><span class="s-foot"><span class="s-line"></span></span></div><figcaption>G4 + K2</figcaption></figure></li></ul>
+</section>
+
+<footer class="end">
+  <p>Bare lys utgave, slik dere har bestemt. Alle fargekodene står også som kommentarer øverst i kildekoden, så de kan hentes rett inn i designet.</p>
+  <p>Kontrasten er regnet ut på fargekodene. Den nye papirstrukturen endrer ikke gjennomsnittsfargen, så tallene gjelder det dere ser.</p>
+</footer>
+</body>
+</html>

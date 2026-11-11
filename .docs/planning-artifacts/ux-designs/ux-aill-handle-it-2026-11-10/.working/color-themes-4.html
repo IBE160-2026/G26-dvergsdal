@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Runde 4 – G4 + K1 som hel side, og tre tekstfarger</title>
+<style>
+/* ===== FARGEKODER, RUNDE 4: G4 + K1 SOM HEL SIDE, OG TRE TEKSTFARGER =====
+   Bare lys utgave. Ingen gull, metallic, neon eller animasjon.
+   Kontrast er regnet på fargekodene (WCAG 2.x). Papirstrukturen er den samme som i runde 3:
+   grå støy blandet med «overlay», så gjennomsnittsfargen er uendret.
+   Feltene er flate: ingen skygger, bretter, bakark eller løse arkkanter (kortstilen er ikke bestemt).
+
+   FELLES FOR T1, T2 OG T3
+   Side, G4 salvieoliven   #5D6B48  HSL  84° 20 % 35 %
+   Felt, K1 havre          #EBE4D5  HSL  41° 35 % 88 %
+   Mørk grønn              #364528  HSL  91° 27 % 21 %   knapp, segl og bunnbånd
+   Kremtekst               #F5EEDF  HSL  41° 52 % 92 %   på G4 4,96:1 · på mørk grønn 8,92:1
+   Fokusring på felt       #364528  3 px · 8,14:1 mot K1
+   Fokusring på grønt      #F5EEDF  3 px · 4,96:1 mot G4 (ikke vist i telefonene)
+
+   TEKSTFARGE I FELTENE (brødtekst, overskrifter, navnene og «Les mer»)
+   T1 mørk grønn  #364528  HSL  91° 27 % 21 %   8,14:1 på K1
+   T2 varm grå    #3B372F  HSL  40° 11 % 21 %   9,35:1 på K1   (brødteksten i runde 3)
+   T3 valnøtt     #583B24  HSL  27° 42 % 24 %   8,03:1 på K1
+
+   ALTERNATIV: LYS SALVIE (til sammenligning, ikke en anbefaling)
+   Side                      #95A083  HSL  83° 13 % 57 %   (et hakk mørkere: #8E9A7A, HSL 82° 14 % 54 %)
+   Tekst rett på det grønne  #1F2A18  HSL  97° 27 % 13 %   5,44:1 på #95A083 · 5,03:1 på #8E9A7A
+   Felt K1 #EBE4D5 · tekst i feltene T1 #364528 (8,14:1) · knapp, segl og bunnbånd #364528 (kremtekst 8,92:1)
+   Fokusring på felt         #364528  8,14:1 mot K1
+   Fokusring på grønt        #1F2A18  5,44:1 mot #95A083 (ikke vist i telefonen)
+   Kremtekst på #95A083 ville fått bare 2,38:1, derfor mørk tekst på det grønne.
+
+   IKKE TEKST, BARE TIL INFORMASJON
+   K1 mot G4 4,53:1 · mørk grønn mot G4 1,80:1 · K1 mot lys salvie 2,17:1 · mørk grønn mot lys salvie 3,74:1
+
+   RAMME RUNDT TELEFONENE (ikke en del av designet)
+   bakgrunn #DDDAD3 · panel #E8E5DE · tekst #2B2620 (10,74:1) · dempet #4F473D (6,54:1) · linje #A39C8E · telefon #262521
+*/
+
+:root {
+  color-scheme: light;
+  --frame-bg: #DDDAD3; --frame-panel: #E8E5DE; --frame-ink: #2B2620; --frame-muted: #4F473D; --frame-line: #A39C8E;
+  /* Papirstruktur fra runde 3: grå støy rundt 50 %, blandet med «overlay», så fargen i snitt er uendret. */
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.09 0 0 0 0.455  0.09 0 0 0 0.455  0.09 0 0 0 0.455  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55; font-variant-numeric: lining-nums; }
+a { color: inherit; text-underline-offset: 3px; }
+a:focus-visible { outline: 3px solid var(--frame-ink); outline-offset: 3px; border-radius: 2px; }
+code { font-family: Consolas, "Courier New", monospace; font-size: 16px; }
+.intro { max-width: 900px; margin: 0 auto; padding: 40px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .6em; }
+.intro p { margin: 0 0 .8em; }
+.intro ul { margin: 0 0 1em; padding-left: 1.2em; }
+.intro li { margin: 0 0 .35em; }
+.small { color: var(--frame-muted); }
+.status { display: inline-flex; gap: .55em; align-items: flex-start; padding: .45em .8em; border: 1px solid var(--frame-line); border-radius: 6px; margin: .2em 0 0; background: var(--frame-panel); }
+.status svg { width: 22px; height: 22px; flex: none; margin-top: 3px; }
+.wide { max-width: 1240px; margin: 0 auto; padding: 8px 16px; }
+.wide > h2 { font-weight: normal; font-size: 1.6rem; line-height: 1.25; margin: 1.5em 0 .3em; }
+.lead { margin: 0 0 .8em; max-width: 880px; }
+.chip { display: inline-block; flex: none; width: 18px; height: 18px; border-radius: 3px; border: 1px solid rgba(40,36,28,.35); vertical-align: -3px; margin-right: 6px; }
+.tokens { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 26px; font-size: 16px; line-height: 1.4; }
+.tokens-label { margin: 0 0 4px; font-size: 16px; color: var(--frame-muted); }
+.tex-green { background-image: var(--grain-green), var(--fibre-green); background-blend-mode: overlay, overlay; }
+.tex-sheet { background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; }
+
+/* ---------- Telefonene ---------- */
+.mocks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 48px 28px; margin: 24px 0 0; }
+.mock { margin: 0; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+/* Telefonene står på linje selv om teksten over dem er ulikt lang */
+@supports (grid-template-rows: subgrid) {
+  .mocks > .mock { display: grid; grid-template-rows: subgrid; grid-row: span 3; row-gap: 0; justify-items: center; align-items: start; }
+}
+.mock-head { width: 100%; max-width: 380px; margin: 0 0 14px; }
+.mock-head h3 { margin: 0; font-weight: normal; font-size: 1.75rem; line-height: 1.2; }
+.mock-head h3 b { margin-right: .25em; }
+.mock-head p { margin: 4px 0 0; }
+.mock-head .hex { font-size: 16px; }
+.mock-head .reg { color: var(--frame-muted); }
+.phone { width: 100%; max-width: 380px; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { font-variant-numeric: normal; border-radius: 29px; overflow: hidden; text-align: center; font-size: 18px; line-height: 1.5; background-color: var(--g); padding: 22px 16px 0; }
+/* Flate kremfelt rett på det grønne: ingen skygge, ingen bretter, ingen løse kanter */
+.card { background-color: var(--k); color: var(--tx); border-radius: 3px; }
+.card p { margin: 0; }
+.hero { padding: 30px 18px 28px; }
+.seal { position: relative; width: 96px; height: 96px; margin: 0 auto 14px; transform: rotate(-5deg); }
+.seal svg { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--d); filter: drop-shadow(0 1.5px 1.2px rgba(15,18,10,.42)); }
+.seal span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--t); font-style: italic; font-size: 21px; letter-spacing: .03em; }
+.card .names { font-family: "Segoe Script", "Snell Roundhand", "Brush Script MT", cursive; font-size: 31px; line-height: 1.3; margin-bottom: 4px; }
+.invites { font-style: italic; font-size: 19px; }
+.card .when { margin-top: 18px; font-size: 22px; line-height: 1.35; }
+.card .where { margin-top: 2px; font-size: 19px; }
+.card .guest { margin-top: 18px; }
+.card .deadline { margin: 14px 0 22px; }
+.ex { font-style: italic; }
+.names, .when, .where, .guest, .deadline, .info-h, .info-t, .lead-in, .foot p { text-wrap: balance; }
+.btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 52px; padding: 10px 20px; border-radius: 4px; background: var(--d); color: var(--t); font-size: 19px; line-height: 1.3; }
+.lead-in { margin: 0; padding: 28px 10px 26px; color: var(--on-g); font-style: italic; font-size: 21px; line-height: 1.4; }
+.info { margin: 0 0 16px; padding: 22px 20px 14px; }
+.card .info-h { margin-bottom: 6px; font-size: 24px; line-height: 1.3; }
+/* Lenkene er understreket, så de ikke skilles ut bare med farge, og er minst 44 px høye */
+.more { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; margin-top: 4px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.focused { outline: 3px solid var(--ring-k); outline-offset: 2px; border-radius: 2px; }
+.end-btn { padding: 8px 0 0; }
+.foot { margin: 34px -16px 0; padding: 26px 22px 28px; background-color: var(--d); color: var(--t); }
+.foot p { margin: 0; }
+.foot .q { margin-bottom: 2px; }
+.foot .more { margin-top: 10px; }
+
+/* ---------- Kontrastlistene ---------- */
+.ratios { list-style: none; width: 100%; max-width: 380px; margin: 14px 0 0; padding: 0; display: grid; gap: 6px; font-size: 16px; line-height: 1.3; }
+.ratios li { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.ratios em { font-style: normal; font-weight: bold; }
+.num { white-space: nowrap; }
+.pair { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 30px; border: 1px solid rgba(40,36,28,.35); border-radius: 4px; font-size: 17px; }
+.pair u { text-underline-offset: 2px; }
+.pair i { display: block; width: 26px; height: 16px; border: 3px solid; border-radius: 3px; }
+
+/* ---------- Alternativet ---------- */
+.alt { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 36px 28px; margin: 24px 0 0; align-items: start; }
+@media (min-width: 800px) { .alt-notes { grid-column: 2 / -1; } }
+.panel { background: var(--frame-panel); border: 1px solid var(--frame-line); border-radius: 8px; }
+.alt-notes { max-width: 640px; padding: 18px 20px 6px; }
+.alt-notes h3 { margin: 0 0 10px; font-weight: normal; font-size: 1.35rem; line-height: 1.25; }
+.alt-notes p { margin: 0 0 .8em; }
+.meta { margin: 0 0 1em; display: grid; gap: 10px; }
+.meta dt { font-weight: bold; }
+.meta dd { margin: 0; }
+footer.end { max-width: 900px; margin: 0 auto; padding: 28px 16px 44px; color: var(--frame-muted); font-size: 16px; }
+footer.end p { margin: 0 0 .5em; }
+@media (max-width: 600px) { .intro h1 { font-size: 1.7rem; } }
+
+/* ---------- Fargesett ---------- */
+.g4 { --g: #5D6B48; --d: #364528; --k: #EBE4D5; --t: #F5EEDF; --on-g: #F5EEDF; --ring-k: #364528; }  /* G4 + K1 */
+.t1 { --tx: #364528; }  /* T1 mørk grønn */
+.t2 { --tx: #3B372F; }  /* T2 varm grå */
+.t3 { --tx: #583B24; }  /* T3 valnøtt */
+.ls { --g: #95A083; --d: #364528; --k: #EBE4D5; --t: #F5EEDF; --on-g: #1F2A18; --tx: #364528; --ring-k: #364528; }  /* Lys salvie + K1 + T1 */
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="seal-shape" viewBox="0 0 100 100">
+    <path d="M97.3 50.0C97.6 51.4 97.5 52.8 97.4 54.1C97.2 55.5 96.9 56.9 96.4 58.2C96.0 59.5 95.5 60.8 94.8 62.0C94.1 63.2 93.2 64.3 92.4 65.4C91.5 66.5 90.4 67.4 89.7 68.5C89.0 69.6 88.4 70.7 88.0 71.9C87.5 73.2 87.5 74.6 87.0 75.9C86.5 77.2 86.0 78.5 85.2 79.5C84.3 80.5 83.0 81.2 81.8 81.8C80.6 82.4 79.1 82.8 77.9 83.3C76.7 83.8 75.6 84.4 74.5 85.0C73.4 85.6 72.4 86.4 71.3 86.9C70.2 87.5 69.1 88.0 67.9 88.5C66.8 89.0 65.6 89.3 64.5 89.7C63.3 90.2 62.2 90.8 61.1 91.3C59.9 91.8 58.8 92.4 57.5 92.8C56.3 93.2 55.1 93.4 53.8 93.7C52.6 93.9 51.3 94.1 50.0 94.5C48.7 94.9 47.4 95.5 46.0 96.1C44.6 96.6 43.0 97.5 41.6 97.7C40.1 98.0 38.6 97.9 37.3 97.4C36.0 96.9 34.8 95.7 33.7 94.7C32.7 93.6 31.8 92.2 30.8 91.2C29.8 90.1 28.9 89.1 28.0 88.2C27.0 87.2 26.0 86.4 25.1 85.5C24.2 84.7 23.3 83.7 22.4 82.9C21.5 82.0 20.6 81.2 19.6 80.4C18.6 79.6 17.5 78.9 16.5 78.1C15.6 77.2 14.7 76.3 14.0 75.2C13.4 74.1 13.1 72.8 12.7 71.6C12.3 70.3 12.1 69.1 11.5 67.9C11.0 66.8 10.2 65.8 9.5 64.8C8.7 63.7 7.7 62.7 7.1 61.5C6.6 60.3 6.2 59.0 6.1 57.7C5.9 56.5 6.2 55.1 6.2 53.8C6.3 52.5 6.4 51.3 6.3 50.0C6.2 48.7 5.8 47.4 5.6 46.1C5.4 44.8 5.1 43.4 4.9 42.1C4.8 40.7 4.8 39.3 4.8 37.9C4.8 36.5 4.8 35.0 5.0 33.6C5.2 32.2 5.4 30.7 6.1 29.5C6.7 28.3 7.8 27.2 9.0 26.3C10.2 25.5 12.0 25.0 13.4 24.4C14.8 23.8 16.3 23.4 17.5 22.7C18.6 22.0 19.4 21.2 20.3 20.3C21.2 19.4 21.8 18.4 22.7 17.5C23.6 16.7 24.7 16.0 25.7 15.3C26.7 14.6 27.9 14.2 28.9 13.5C30.0 12.9 31.0 12.2 32.0 11.4C33.1 10.7 34.0 9.8 35.1 9.2C36.2 8.5 37.4 7.9 38.6 7.4C39.8 6.9 41.0 6.5 42.2 6.0C43.5 5.4 44.7 4.8 46.0 4.4C47.3 4.0 48.7 3.5 50.0 3.4C51.3 3.4 52.7 3.8 54.0 4.3C55.3 4.7 56.5 5.7 57.7 6.2C59.0 6.7 60.1 7.2 61.4 7.4C62.7 7.6 64.1 7.3 65.5 7.3C66.9 7.3 68.5 7.2 69.8 7.5C71.1 7.8 72.4 8.5 73.6 9.2C74.7 9.9 75.7 11.0 76.6 12.0C77.6 13.0 78.5 14.0 79.2 15.2C80.0 16.3 80.6 17.6 81.1 18.9C81.6 20.2 81.9 21.7 82.3 22.9C82.7 24.1 83.1 25.3 83.7 26.4C84.4 27.4 85.3 28.2 86.1 29.2C86.9 30.1 87.9 31.0 88.6 32.0C89.2 33.1 89.6 34.3 90.0 35.4C90.4 36.6 90.5 37.9 91.0 39.0C91.5 40.2 92.1 41.3 92.9 42.4C93.6 43.6 94.8 44.8 95.5 46.0C96.3 47.3 97.0 48.6 97.3 50.0Z" fill="currentColor"/>
+    <circle cx="50.4" cy="49.6" r="33" fill="#000" fill-opacity=".10"/>
+    <circle cx="50.4" cy="49.6" r="34.6" fill="none" stroke="#000" stroke-opacity=".30" stroke-width="2.2"/>
+    <circle cx="49.6" cy="50.6" r="36.6" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="1.4"/>
+  </symbol>
+  <symbol id="i-ok" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6 10.3l2.7 2.7L14.2 7.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<div class="intro">
+  <h1>Runde 4 – G4 + K1 som hel side, og tre tekstfarger</h1>
+  <p>I runde 3 likte dere <strong>G4 «salvieoliven»</strong> sammen med <strong>K1 «havre»</strong> best, men dere var ikke helt overbevist. Dere syntes det var vanskelig å se for seg hvilken farge teksten skal ha, og la merke til at inspirasjonsbildene stort sett har grønn tekst. Dere presiserte også at bilde 01 handlet om fargene, ikke om stilen på kortene.</p>
+  <p>Derfor viser denne sida <strong>hele forsida</strong> på telefon, fra seglet øverst til bunnbåndet nederst, slik gjestene vil bla gjennom den. Ingenting er skåret bort. De tre telefonene er helt like, bortsett fra fargen på teksten og overskriftene i de kremfargede feltene:</p>
+  <ul>
+    <li><a href="#t1"><strong>T1 mørk grønn</strong></a>, som i inspirasjonsbildene</li>
+    <li><a href="#t2"><strong>T2 varm grå</strong></a>, den vi brukte i runde 3</li>
+    <li><a href="#t3"><strong>T3 valnøtt</strong></a>, mørk brun som gammelt treverk</li>
+  </ul>
+  <p>Knappen, seglet og bunnbåndet er mørkegrønne i alle tre. Under dem finner dere <a href="#lys-salvie">et alternativ å sammenligne med</a>: <strong>Lys salvie</strong>, en lysere og mykere grønn, omtrent som det grønne arket bak kortet i bilde 01.</p>
+  <p>Siden stilen på kortene ikke er bestemt ennå, er feltene her helt flate: kremfarget papir rett på det grønne, uten skygger, bretter eller ark som stikker fram.</p>
+  <p><strong>Svar gjerne med koder</strong>, for eksempel «T1» eller «Lys salvie med T3».</p>
+  <p class="small">Navnene øverst står i en midlertidig håndskrift. Den ekte skrifttypen velger vi i en egen runde.</p>
+  <p class="status"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><use href="#i-ok"/></svg><span>Kontrollsjekk: all tekst i telefonene er minst 18 piksler og har minst 4,5:1 i kontrast, også lenkene, som i tillegg er understreket. Laveste er 4,96:1 (kremtekst på G4), og 5,44:1 i Lys salvie. Fokusringene har minst 3:1 (laveste er 4,96:1).</span></p>
+</div>
+
+<section class="wide" id="tekstfarger" aria-labelledby="h-tekst">
+  <h2 id="h-tekst">Tre tekstfarger på G4 + K1</h2>
+  <p class="lead">Bla nedover i hver telefon og kjenn etter hvordan teksten i feltene passer sammen med det grønne. Det er bare den fargen som er forskjellig. «Les mer» under Praktisk informasjon er vist slik den ser ut når den er valgt med tastaturet. Under hver telefon står kontrasten for hvert fargepar.</p>
+  <p class="tokens-label">Likt i alle tre:</p>
+  <ul class="tokens">
+    <li><span class="chip" style="background:#5D6B48"></span>side G4&nbsp;<code>#5D6B48</code></li>
+    <li><span class="chip" style="background:#EBE4D5"></span>felt K1&nbsp;<code>#EBE4D5</code></li>
+    <li><span class="chip" style="background:#364528"></span>knapp, segl og bunnbånd&nbsp;<code>#364528</code></li>
+    <li><span class="chip" style="background:#F5EEDF"></span>kremtekst&nbsp;<code>#F5EEDF</code></li>
+  </ul>
+  <div class="mocks">
+<figure class="mock g4 t1" id="t1" aria-labelledby="h-t1">
+  <figcaption class="mock-head"><h3 id="h-t1"><b>T1</b>mørk grønn</h3><p class="hex"><span class="chip" style="background:#364528"></span><code>#364528</code> · 8,14:1 på K1</p><p class="reg">Som i inspirasjonsbildene. Teksten får samme grønne som seglet og knappen, så alt henger sammen.</p></figcaption>
+  <div class="phone" role="img" aria-label="Hele forsida på telefon i G4 salvieoliven og K1 havre, med tekst i mørk grønn i feltene: segl med R og V, navnene, dato og sted, hvem som er invitert, svarfrist og svarknapp; en hilsen rett på det grønne; fire felt for Programmet, Praktisk informasjon, Hardingasete og området og Om oss, hvert med «Les mer»; en svarknapp til; og et mørkegrønt bunnbånd med telefonnumre og Personvern."><div class="screen tex-green">
+    <div class="card hero tex-sheet">
+      <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      <p class="names">Rikke &amp; Valdemar</p>
+      <p class="invites">inviterer deg til bryllup</p>
+      <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+      <p class="where">Hardingasete i&nbsp;Hardanger</p>
+      <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+      <p>Barnefritt bryllup</p>
+      <p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p>
+      <span class="btn">Svar på invitasjonen</span>
+    </div>
+    <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+    <div class="card info tex-sheet"><p class="info-h">Programmet</p><p class="info-t">Fredag 26.&nbsp;mai til søndag 28.&nbsp;mai – hele helgen på tunet.</p><span class="more">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Praktisk informasjon</p><p class="info-t">Adresse, reise, parkering og hva du bør ta med.</p><span class="more focused">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Hardingasete og området</p><p class="info-t">Gamle trehus ved fjorden i&nbsp;Hardanger.</p><span class="more">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Om oss</p><p class="info-t">Litt om Rikke og Valdemar.</p><span class="more">Les mer</span></div>
+    <div class="end-btn"><span class="btn">Svar på invitasjonen</span></div>
+    <div class="foot tex-green"><p class="q">Spørsmål? Send oss en melding:</p><p>Rikke&nbsp;900&nbsp;00&nbsp;000<br>Valdemar&nbsp;900&nbsp;00&nbsp;001 <span class="ex">(eksempelnummer)</span></p><p><span class="more">Personvern</span></p></div>
+  </div></div>
+  <ul class="ratios" aria-label="Kontrast i T1"><li><span class="pair" style="color:#364528;background:#EBE4D5" aria-hidden="true">Aa</span><span>Tekst og overskrifter i feltene</span><span class="num">8,14:1</span></li><li><span class="pair" style="color:#364528;background:#EBE4D5" aria-hidden="true"><u>Aa</u></span><span>«Les mer»-lenker, understreket</span><span class="num">8,14:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#5D6B48" aria-hidden="true">Aa</span><span>Kremtekst på grønt <em>– lavest</em></span><span class="num">4,96:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#364528" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,92:1</span></li><li><span class="pair" style="background:#EBE4D5" aria-hidden="true"><i style="border-color:#364528"></i></span><span>Fokusring på felt (krav 3:1)</span><span class="num">8,14:1</span></li><li><span class="pair" style="background:#5D6B48" aria-hidden="true"><i style="border-color:#F5EEDF"></i></span><span>Fokusring på grønt (krav 3:1)</span><span class="num">4,96:1</span></li></ul>
+</figure>
+<figure class="mock g4 t2" id="t2" aria-labelledby="h-t2">
+  <figcaption class="mock-head"><h3 id="h-t2"><b>T2</b>varm grå</h3><p class="hex"><span class="chip" style="background:#3B372F"></span><code>#3B372F</code> · 9,35:1 på K1</p><p class="reg">Nøytral, som trykksverte på et kort. Det grønne og seglet får stå for fargen alene.</p></figcaption>
+  <div class="phone" role="img" aria-label="Hele forsida på telefon i G4 salvieoliven og K1 havre, med tekst i varm grå i feltene: segl med R og V, navnene, dato og sted, hvem som er invitert, svarfrist og svarknapp; en hilsen rett på det grønne; fire felt for Programmet, Praktisk informasjon, Hardingasete og området og Om oss, hvert med «Les mer»; en svarknapp til; og et mørkegrønt bunnbånd med telefonnumre og Personvern."><div class="screen tex-green">
+    <div class="card hero tex-sheet">
+      <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      <p class="names">Rikke &amp; Valdemar</p>
+      <p class="invites">inviterer deg til bryllup</p>
+      <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+      <p class="where">Hardingasete i&nbsp;Hardanger</p>
+      <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+      <p>Barnefritt bryllup</p>
+      <p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p>
+      <span class="btn">Svar på invitasjonen</span>
+    </div>
+    <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+    <div class="card info tex-sheet"><p class="info-h">Programmet</p><p class="info-t">Fredag 26.&nbsp;mai til søndag 28.&nbsp;mai – hele helgen på tunet.</p><span class="more">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Praktisk informasjon</p><p class="info-t">Adresse, reise, parkering og hva du bør ta med.</p><span class="more focused">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Hardingasete og området</p><p class="info-t">Gamle trehus ved fjorden i&nbsp;Hardanger.</p><span class="more">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Om oss</p><p class="info-t">Litt om Rikke og Valdemar.</p><span class="more">Les mer</span></div>
+    <div class="end-btn"><span class="btn">Svar på invitasjonen</span></div>
+    <div class="foot tex-green"><p class="q">Spørsmål? Send oss en melding:</p><p>Rikke&nbsp;900&nbsp;00&nbsp;000<br>Valdemar&nbsp;900&nbsp;00&nbsp;001 <span class="ex">(eksempelnummer)</span></p><p><span class="more">Personvern</span></p></div>
+  </div></div>
+  <ul class="ratios" aria-label="Kontrast i T2"><li><span class="pair" style="color:#3B372F;background:#EBE4D5" aria-hidden="true">Aa</span><span>Tekst og overskrifter i feltene</span><span class="num">9,35:1</span></li><li><span class="pair" style="color:#3B372F;background:#EBE4D5" aria-hidden="true"><u>Aa</u></span><span>«Les mer»-lenker, understreket</span><span class="num">9,35:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#5D6B48" aria-hidden="true">Aa</span><span>Kremtekst på grønt <em>– lavest</em></span><span class="num">4,96:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#364528" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,92:1</span></li><li><span class="pair" style="background:#EBE4D5" aria-hidden="true"><i style="border-color:#364528"></i></span><span>Fokusring på felt (krav 3:1)</span><span class="num">8,14:1</span></li><li><span class="pair" style="background:#5D6B48" aria-hidden="true"><i style="border-color:#F5EEDF"></i></span><span>Fokusring på grønt (krav 3:1)</span><span class="num">4,96:1</span></li></ul>
+</figure>
+<figure class="mock g4 t3" id="t3" aria-labelledby="h-t3">
+  <figcaption class="mock-head"><h3 id="h-t3"><b>T3</b>valnøtt</h3><p class="hex"><span class="chip" style="background:#583B24"></span><code>#583B24</code> · 8,03:1 på K1</p><p class="reg">Varm og brun, som mørkt treverk i gamle trehus. Den mest gammeldagse av de tre.</p></figcaption>
+  <div class="phone" role="img" aria-label="Hele forsida på telefon i G4 salvieoliven og K1 havre, med tekst i valnøttbrun i feltene: segl med R og V, navnene, dato og sted, hvem som er invitert, svarfrist og svarknapp; en hilsen rett på det grønne; fire felt for Programmet, Praktisk informasjon, Hardingasete og området og Om oss, hvert med «Les mer»; en svarknapp til; og et mørkegrønt bunnbånd med telefonnumre og Personvern."><div class="screen tex-green">
+    <div class="card hero tex-sheet">
+      <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      <p class="names">Rikke &amp; Valdemar</p>
+      <p class="invites">inviterer deg til bryllup</p>
+      <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+      <p class="where">Hardingasete i&nbsp;Hardanger</p>
+      <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+      <p>Barnefritt bryllup</p>
+      <p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p>
+      <span class="btn">Svar på invitasjonen</span>
+    </div>
+    <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+    <div class="card info tex-sheet"><p class="info-h">Programmet</p><p class="info-t">Fredag 26.&nbsp;mai til søndag 28.&nbsp;mai – hele helgen på tunet.</p><span class="more">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Praktisk informasjon</p><p class="info-t">Adresse, reise, parkering og hva du bør ta med.</p><span class="more focused">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Hardingasete og området</p><p class="info-t">Gamle trehus ved fjorden i&nbsp;Hardanger.</p><span class="more">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Om oss</p><p class="info-t">Litt om Rikke og Valdemar.</p><span class="more">Les mer</span></div>
+    <div class="end-btn"><span class="btn">Svar på invitasjonen</span></div>
+    <div class="foot tex-green"><p class="q">Spørsmål? Send oss en melding:</p><p>Rikke&nbsp;900&nbsp;00&nbsp;000<br>Valdemar&nbsp;900&nbsp;00&nbsp;001 <span class="ex">(eksempelnummer)</span></p><p><span class="more">Personvern</span></p></div>
+  </div></div>
+  <ul class="ratios" aria-label="Kontrast i T3"><li><span class="pair" style="color:#583B24;background:#EBE4D5" aria-hidden="true">Aa</span><span>Tekst og overskrifter i feltene</span><span class="num">8,03:1</span></li><li><span class="pair" style="color:#583B24;background:#EBE4D5" aria-hidden="true"><u>Aa</u></span><span>«Les mer»-lenker, understreket</span><span class="num">8,03:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#5D6B48" aria-hidden="true">Aa</span><span>Kremtekst på grønt <em>– lavest</em></span><span class="num">4,96:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#364528" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,92:1</span></li><li><span class="pair" style="background:#EBE4D5" aria-hidden="true"><i style="border-color:#364528"></i></span><span>Fokusring på felt (krav 3:1)</span><span class="num">8,14:1</span></li><li><span class="pair" style="background:#5D6B48" aria-hidden="true"><i style="border-color:#F5EEDF"></i></span><span>Fokusring på grønt (krav 3:1)</span><span class="num">4,96:1</span></li></ul>
+</figure>
+  </div>
+</section>
+
+<section class="wide" id="lys-salvie" aria-labelledby="h-alt">
+  <h2 id="h-alt">Et alternativ å sammenligne med: Lys salvie</h2>
+  <p class="lead">Dette er ikke en anbefaling, bare noe å holde opp mot de tre over. Her er det grønne lysere og mykere, omtrent som arket bak kortet i bilde 01. Alt annet er som i T1.</p>
+  <div class="alt">
+<figure class="mock ls" id="ls" aria-labelledby="h-ls">
+  <figcaption class="mock-head"><h3 id="h-ls"><b>Lys salvie</b></h3><p class="hex"><span class="chip" style="background:#95A083"></span><code>#95A083</code> side · <span class="chip" style="background:#1F2A18"></span><code>#1F2A18</code> tekst på grønt</p><p class="reg">Lysere og mykere grønn. Hilsenen rett på det grønne er svært mørk grønn. Teksten i feltene er T1.</p></figcaption>
+  <div class="phone" role="img" aria-label="Hele forsida på telefon i Lys salvie og K1 havre, med tekst i mørk grønn i feltene og en svært mørk grønn hilsen på det grønne: segl med R og V, navnene, dato og sted, hvem som er invitert, svarfrist og svarknapp; en hilsen rett på det grønne; fire felt for Programmet, Praktisk informasjon, Hardingasete og området og Om oss, hvert med «Les mer»; en svarknapp til; og et mørkegrønt bunnbånd med telefonnumre og Personvern."><div class="screen tex-green">
+    <div class="card hero tex-sheet">
+      <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      <p class="names">Rikke &amp; Valdemar</p>
+      <p class="invites">inviterer deg til bryllup</p>
+      <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+      <p class="where">Hardingasete i&nbsp;Hardanger</p>
+      <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+      <p>Barnefritt bryllup</p>
+      <p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p>
+      <span class="btn">Svar på invitasjonen</span>
+    </div>
+    <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+    <div class="card info tex-sheet"><p class="info-h">Programmet</p><p class="info-t">Fredag 26.&nbsp;mai til søndag 28.&nbsp;mai – hele helgen på tunet.</p><span class="more">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Praktisk informasjon</p><p class="info-t">Adresse, reise, parkering og hva du bør ta med.</p><span class="more focused">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Hardingasete og området</p><p class="info-t">Gamle trehus ved fjorden i&nbsp;Hardanger.</p><span class="more">Les mer</span></div>
+    <div class="card info tex-sheet"><p class="info-h">Om oss</p><p class="info-t">Litt om Rikke og Valdemar.</p><span class="more">Les mer</span></div>
+    <div class="end-btn"><span class="btn">Svar på invitasjonen</span></div>
+    <div class="foot tex-green"><p class="q">Spørsmål? Send oss en melding:</p><p>Rikke&nbsp;900&nbsp;00&nbsp;000<br>Valdemar&nbsp;900&nbsp;00&nbsp;001 <span class="ex">(eksempelnummer)</span></p><p><span class="more">Personvern</span></p></div>
+  </div></div>
+  <ul class="ratios" aria-label="Kontrast i Lys salvie"><li><span class="pair" style="color:#364528;background:#EBE4D5" aria-hidden="true">Aa</span><span>Tekst og overskrifter i feltene</span><span class="num">8,14:1</span></li><li><span class="pair" style="color:#364528;background:#EBE4D5" aria-hidden="true"><u>Aa</u></span><span>«Les mer»-lenker, understreket</span><span class="num">8,14:1</span></li><li><span class="pair" style="color:#1F2A18;background:#95A083" aria-hidden="true">Aa</span><span>Mørk tekst på lys salvie <em>– lavest</em></span><span class="num">5,44:1</span></li><li><span class="pair" style="color:#F5EEDF;background:#364528" aria-hidden="true">Aa</span><span>Knapp, segl og bunnbånd</span><span class="num">8,92:1</span></li><li><span class="pair" style="background:#EBE4D5" aria-hidden="true"><i style="border-color:#364528"></i></span><span>Fokusring på felt (krav 3:1)</span><span class="num">8,14:1</span></li><li><span class="pair" style="background:#95A083" aria-hidden="true"><i style="border-color:#1F2A18"></i></span><span>Fokusring på grønt (krav 3:1)</span><span class="num">5,44:1</span></li></ul>
+</figure>
+    <aside class="panel alt-notes" aria-labelledby="h-ls-diff">
+      <h3 id="h-ls-diff">Dette er annerledes enn i T1</h3>
+      <dl class="meta">
+        <div><dt>Grønn side</dt><dd><span class="chip" style="background:#95A083"></span><code>#95A083</code> i stedet for <code>#5D6B48</code></dd></div>
+        <div><dt>Tekst rett på det grønne</dt><dd><span class="chip" style="background:#1F2A18"></span><code>#1F2A18</code>, svært mørk grønn, i stedet for kremfarget. Kontrast 5,44:1.</dd></div>
+        <div><dt>Likt med T1</dt><dd>Feltene (K1), teksten i feltene (<code>#364528</code>), knappen, seglet og bunnbåndet (<code>#364528</code>).</dd></div>
+      </dl>
+      <p>Kremfarget tekst fungerer ikke på så lyst grønt. Den ville fått bare 2,38:1, langt under kravet på 4,5:1. Derfor er hilsenen mellom feltene mørk her.</p>
+      <p>Feltene skiller seg mindre fra det grønne enn på G4. Sida blir roligere og mykere, men delene blir ikke like tydelig skilt fra hverandre.</p>
+      <p>Et hakk mørkere grønn, <code>#8E9A7A</code>, går også. Da får den mørke teksten 5,03:1.</p>
+      <p>Lys salvie kan brukes med hvilken som helst av de tre tekstfargene i feltene.</p>
+    </aside>
+  </div>
+</section>
+
+<footer class="end">
+  <p>Bare lys utgave, slik dere har bestemt. Alle fargekodene står også som kommentarer øverst i kildekoden, så de kan hentes rett inn i designet.</p>
+  <p>Kontrasten er regnet ut på fargekodene. Papirstrukturen endrer ikke gjennomsnittsfargen, så tallene gjelder det dere ser.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skrift – navn og brødtekst</title>
+<!-- Unntak fra regelen om ingen nettverkskall (logget i .memlog.md): denne lokale planleggingssida henter
+     kandidatskriftene fra Google Fonts når den åpnes, fordi skriftene ikke finnes på PC-en.
+     Den ferdige nettsida skal levere de valgte skriftene selv (PRD 3.2), uten forespørsler til Google. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&amp;family=Corinthia&amp;family=Great+Vibes&amp;family=Imperial+Script&amp;family=Petit+Formal+Script&amp;family=Italianno&amp;family=EB+Garamond:ital@0;1&amp;family=Libre+Baskerville:ital@0;1&amp;family=Lora:ital@0;1&amp;family=Cormorant+Garamond:wght@400;500&amp;display=block">
+<style>
+/* ===== SKRIFT, RUNDE 1: NAVN (S1–S6) OG BRØDTEKST (B1–B4) =====
+   Bare lys utgave. Ingen gull, metallic eller animasjon. Ingen JavaScript.
+   Alle kandidatene er gratis og har SIL Open Font License, så de kan lagres og leveres fra vår egen server.
+   Bildet øverst i del 1 er et utsnitt av ../../../ux/inspirasjon/09-Example.jpg (lokal fil, ingen nettverk).
+
+   FARGER (nåværende retning, den grønne kan fortsatt flytte seg litt)
+   Side, G4 salvieoliven   #5D6B48
+   Felt, K1 havre          #EBE4D5
+   Tekst i feltene, T2     #3B372F   9,35:1 på K1   (også overskrifter i feltene)
+   Kremtekst               #F5EEDF   4,96:1 på G4 · 8,92:1 på mørk grønn
+   Mørk grønn              #364528   segl og knapp · 8,14:1 mot K1 (fokusring i feltene)
+   Skjemafelt              #F7F2E7   tekst #3B372F 10,61:1 · kant #5E594F 5,50:1 mot K1 og 6,23:1 mot feltet
+   Knapp, pekerhover       #2C3A20   kremtekst 10,49:1
+   Laveste tekstkontrast på sida: 4,96:1 (kremtekst på G4). All tekst er minst 18 px.
+
+   NAVNESKRIFTENE, i rekkefølgen de vises (fra mest til minst lik 09, KI-ens vurdering)
+   --n = størrelse på én linje i px (under hverandre: 1,25 × --n). Satt slik at x-høyde og stor R blir
+   omtrent like (målt i nettleseren), og så justert etter øyet. --ws = ekstra mellomrom rundt «&».
+               skrift                 --n   --ws      segl: px   forskyvning   x-høyde · stor R
+   S1          Pinyon Script          50   -0,08em         26    -5 / +3 px     0,34 · 0,70
+   S4          Imperial Script        56   +0,16em         25    -6 / +1 px     0,37 · 0,63
+   S3          Great Vibes            46   +0,16em         22    -1 / +3 px     0,36 · 0,80
+   S6          Italianno              58   +0,10em         27    -6 / +2 px     0,26 · 0,55
+   S5          Petit Formal Script    34    0              23    +1 / +1 px     0,59 · 0,79
+   S2          Corinthia              66   +0,06em         31    -5 / +3 px     0,26 · 0,53
+   Når feltet er smalere enn navnene (telefon), krymper alle seks med samme faktor, så de fortsatt kan
+   sammenlignes: én linje er høyst 343 px bred, under hverandre høyst 222 px.
+
+   BRØDTEKST, X-HØYDE (høyden på små bokstaver, andel av skriftstørrelsen; Georgia til sammenligning 0,48)
+   B1 EB Garamond          0,41   18 px ser ut som ca. 15 px Georgia
+   B2 Libre Baskerville    0,53
+   B3 Lora                 0,50
+   B4 Cormorant Garamond   0,39   18 px ser ut som ca. 14,5 px Georgia
+*/
+
+:root {
+  color-scheme: light;
+  --green: #5D6B48;
+  --cream: #EBE4D5;
+  --ink: #3B372F;
+  --on-green: #F5EEDF;
+  --dark: #364528;
+  --dark-hover: #2C3A20;
+  --field: #F7F2E7;
+  --field-line: #5E594F;
+  --rule: rgba(59, 55, 47, .30);
+  /* Papirstruktur fra runde 3 og 4: grå støy blandet med «overlay», så fargen i snitt er uendret. */
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.09 0 0 0 0.455  0.09 0 0 0 0.455  0.09 0 0 0 0.455  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background-color: var(--green); color: var(--on-green); font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55; }
+.tex-green { background-image: var(--grain-green), var(--fibre-green); background-blend-mode: overlay, overlay; }
+.tex-sheet { background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+a:focus-visible { outline: 3px solid var(--on-green); outline-offset: 3px; border-radius: 2px; }
+.panel a:focus-visible { outline-color: var(--dark); }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 16px; }
+.narrow { max-width: 880px; }
+.nw { white-space: nowrap; }
+
+/* ---------- Topp ---------- */
+.top { padding-top: 40px; padding-bottom: 8px; }
+.top h1 { font-weight: normal; font-size: 2.2rem; line-height: 1.2; margin: 0 0 20px; }
+.panel { background-color: var(--cream); color: var(--ink); border-radius: 4px; padding: 22px 24px 8px; }
+.panel p, .panel ul { margin: 0 0 .9em; }
+.panel ul { padding-left: 1.2em; }
+.panel li { margin: 0 0 .35em; }
+.panel h2 { font-weight: normal; font-size: 1.35rem; line-height: 1.3; margin: 0 0 .5em; }
+.panels { display: grid; gap: 18px; }
+.note { border-left: 6px solid var(--dark); }
+.status { display: flex; gap: .6em; align-items: flex-start; }
+.status svg { width: 22px; height: 22px; flex: none; margin-top: 4px; color: var(--dark); }
+
+/* ---------- Seksjoner ---------- */
+.part { padding-top: 28px; padding-bottom: 8px; }
+.part > h2 { font-weight: normal; font-size: 1.9rem; line-height: 1.25; margin: 1em 0 .4em; }
+.lead { margin: 0 0 1em; }
+.ki { margin: 18px 0 0; }
+.ki .label { font-weight: bold; }
+
+/* Bilde 09 til sammenligning, ved siden av KI-ens vurdering */
+.ref-row { display: grid; gap: 18px; margin: 18px 0 0; max-width: 1100px; }
+@media (min-width: 860px) { .ref-row { grid-template-columns: 340px minmax(0, 1fr); align-items: start; } }
+.ref-row .ki { margin: 0; }
+.ref { margin: 0; padding: 14px 14px 10px; }
+.ref-crop { position: relative; overflow: hidden; aspect-ratio: 190 / 140; border-radius: 2px; }
+/* Utsnitt x 80–270, y 150–290 av et bilde på 1000 × 1500 px */
+.ref-crop img { position: absolute; width: 526.3%; height: auto; max-width: none; left: -42.1%; top: -107.1%; }
+.ref figcaption { margin: 8px 0 0; font-style: italic; }
+
+/* Kandidater: forklaring på det grønne over, prøven på et kremfelt under */
+.grid { display: grid; gap: 44px 28px; margin: 30px 0 0; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); }
+.grid-b { grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); }
+.cand { min-width: 0; margin: 0; display: flex; flex-direction: column; }
+@supports (grid-template-rows: subgrid) {
+  .grid > .cand { display: grid; grid-template-rows: subgrid; grid-row: span 2; row-gap: 0; }
+}
+.cand-head h3 { margin: 0; font-weight: normal; font-size: 1.6rem; line-height: 1.25; }
+.cand-head h3 b { margin-right: .3em; }
+.cand-head p { margin: 6px 0 16px; }
+.sheets { display: grid; gap: 18px; align-content: start; }
+.sheet { background-color: var(--cream); color: var(--ink); border-radius: 4px; padding: 30px 22px; container-type: inline-size; font-synthesis: none; }
+
+/* ---------- Navneskriftene ---------- */
+.s1 { --script: "Pinyon Script", cursive;       --n: 50; --ws: -.08em; --seal-n: 26; --seal-dx: -5px; --seal-dy: 3px; }
+.s2 { --script: "Corinthia", cursive;           --n: 66; --ws: .06em;  --seal-n: 31; --seal-dx: -5px; --seal-dy: 3px; }
+.s3 { --script: "Great Vibes", cursive;         --n: 46; --ws: .16em;  --seal-n: 22; --seal-dx: -1px; --seal-dy: 3px; }
+.s4 { --script: "Imperial Script", cursive;     --n: 56; --ws: .16em;  --seal-n: 25; --seal-dx: -6px; --seal-dy: 1px; }
+.s5 { --script: "Petit Formal Script", cursive; --n: 34; --ws: 0em;    --seal-n: 23; --seal-dx: 1px;  --seal-dy: 1px; }
+.s6 { --script: "Italianno", cursive;           --n: 58; --ws: .10em;  --seal-n: 27; --seal-dx: -6px; --seal-dy: 2px; }
+.specimen { text-align: center; }
+.names-line { margin: 0; font-family: var(--script); font-size: calc(var(--n) * 1px); line-height: 1.3; white-space: nowrap; word-spacing: var(--ws); }
+.names-stack { margin: 0; font-family: var(--script); line-height: 1.15; }
+.names-stack span { display: block; font-size: calc(var(--n) * 1.25px); }
+.names-stack .amp { font-family: Georgia, "Times New Roman", serif; font-size: 22px; line-height: 1.6; }
+/* Krymp alle navn med samme faktor når feltet er smalere enn det bredeste navnet (360 px på én linje, 232 px under hverandre). */
+@supports (width: 100cqi) {
+  .names-line { font-size: min(calc(var(--n) * 1px), calc(var(--n) / 360 * 100cqi)); }
+  .names-stack span:not(.amp) { font-size: min(calc(var(--n) * 1.25px), calc(var(--n) * 1.25 / 232 * 100cqi)); }
+}
+.divider { width: 72px; margin: 26px auto; border-top: 1px solid var(--rule); }
+
+/* Seglet: mørk grønn voks med ujevn, håndpresset kant, som i runde 4 */
+.seal { position: relative; width: 120px; height: 120px; margin: 0 auto; transform: rotate(-5deg); }
+.seal svg { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--dark); filter: drop-shadow(0 1.5px 1.2px rgba(15, 18, 10, .42)); }
+.seal span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--on-green); font-family: var(--script); font-size: calc(var(--seal-n) * 1px); line-height: 1; white-space: nowrap; word-spacing: var(--ws); transform: translate(var(--seal-dx), var(--seal-dy)); }
+
+/* ---------- Brødtekstene ---------- */
+.b1 { --body: "EB Garamond", Georgia, serif; }
+.b2 { --body: "Libre Baskerville", Georgia, serif; }
+.b3 { --body: "Lora", Georgia, serif; }
+.b4 { --body: "Cormorant Garamond", Georgia, serif; }
+.body-spec { font-family: var(--body); font-size: 18px; line-height: 1.55; font-variant-numeric: lining-nums; }
+.body-spec p { margin: 0; }
+.body-spec .sheet-label { margin: 0 0 16px; font-family: Georgia, "Times New Roman", serif; font-style: italic; font-weight: normal; }
+.body-spec .spec-h { font-size: 1.7em; line-height: 1.2; margin: 0 0 12px; }
+.body-spec .meta + .para { margin-top: 16px; }
+.body-spec label { display: block; margin: 22px 0 6px; }
+.body-spec input { display: block; width: 100%; min-height: 52px; margin: 0; padding: 10px 14px; font: inherit; color: var(--ink); background: var(--field); border: 2px solid var(--field-line); border-radius: 4px; }
+.body-spec input:focus-visible { outline: 3px solid var(--dark); outline-offset: 2px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; margin: 24px 0 0; padding: 10px 26px; border: 0; border-radius: 4px; background: var(--dark); color: var(--on-green); font: inherit; font-size: 1.05em; line-height: 1.3; cursor: pointer; }
+.btn:hover { background: var(--dark-hover); }
+.btn:focus-visible { outline: 3px solid var(--dark); outline-offset: 3px; }
+.size-20 { font-size: 20px; }
+.weight-500 { font-weight: 500; }
+
+/* ---------- Par ---------- */
+.hero { text-align: center; }
+.hero .seal { margin-bottom: 18px; }
+.hero .names-stack .amp { font-family: var(--body); font-size: 22px; }
+.hero .invites { margin: 14px 0 0; font-style: italic; font-size: 1.1em; }
+.hero .when { margin: 14px 0 0; font-size: 1.1em; }
+.hero .where { margin: 2px 0 0; }
+.hero .btn { margin-top: 22px; }
+
+footer.end { padding-top: 40px; padding-bottom: 48px; }
+footer.end p { margin: 0 0 .6em; }
+@media (max-width: 600px) {
+  .top h1 { font-size: 1.85rem; }
+  .part > h2 { font-size: 1.6rem; }
+  .panel { padding: 20px 18px 6px; }
+  .sheet { padding: 26px 18px; }
+}
+</style>
+</head>
+<body class="tex-green">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="seal-shape" viewBox="0 0 100 100">
+    <path d="M97.3 50.0C97.6 51.4 97.5 52.8 97.4 54.1C97.2 55.5 96.9 56.9 96.4 58.2C96.0 59.5 95.5 60.8 94.8 62.0C94.1 63.2 93.2 64.3 92.4 65.4C91.5 66.5 90.4 67.4 89.7 68.5C89.0 69.6 88.4 70.7 88.0 71.9C87.5 73.2 87.5 74.6 87.0 75.9C86.5 77.2 86.0 78.5 85.2 79.5C84.3 80.5 83.0 81.2 81.8 81.8C80.6 82.4 79.1 82.8 77.9 83.3C76.7 83.8 75.6 84.4 74.5 85.0C73.4 85.6 72.4 86.4 71.3 86.9C70.2 87.5 69.1 88.0 67.9 88.5C66.8 89.0 65.6 89.3 64.5 89.7C63.3 90.2 62.2 90.8 61.1 91.3C59.9 91.8 58.8 92.4 57.5 92.8C56.3 93.2 55.1 93.4 53.8 93.7C52.6 93.9 51.3 94.1 50.0 94.5C48.7 94.9 47.4 95.5 46.0 96.1C44.6 96.6 43.0 97.5 41.6 97.7C40.1 98.0 38.6 97.9 37.3 97.4C36.0 96.9 34.8 95.7 33.7 94.7C32.7 93.6 31.8 92.2 30.8 91.2C29.8 90.1 28.9 89.1 28.0 88.2C27.0 87.2 26.0 86.4 25.1 85.5C24.2 84.7 23.3 83.7 22.4 82.9C21.5 82.0 20.6 81.2 19.6 80.4C18.6 79.6 17.5 78.9 16.5 78.1C15.6 77.2 14.7 76.3 14.0 75.2C13.4 74.1 13.1 72.8 12.7 71.6C12.3 70.3 12.1 69.1 11.5 67.9C11.0 66.8 10.2 65.8 9.5 64.8C8.7 63.7 7.7 62.7 7.1 61.5C6.6 60.3 6.2 59.0 6.1 57.7C5.9 56.5 6.2 55.1 6.2 53.8C6.3 52.5 6.4 51.3 6.3 50.0C6.2 48.7 5.8 47.4 5.6 46.1C5.4 44.8 5.1 43.4 4.9 42.1C4.8 40.7 4.8 39.3 4.8 37.9C4.8 36.5 4.8 35.0 5.0 33.6C5.2 32.2 5.4 30.7 6.1 29.5C6.7 28.3 7.8 27.2 9.0 26.3C10.2 25.5 12.0 25.0 13.4 24.4C14.8 23.8 16.3 23.4 17.5 22.7C18.6 22.0 19.4 21.2 20.3 20.3C21.2 19.4 21.8 18.4 22.7 17.5C23.6 16.7 24.7 16.0 25.7 15.3C26.7 14.6 27.9 14.2 28.9 13.5C30.0 12.9 31.0 12.2 32.0 11.4C33.1 10.7 34.0 9.8 35.1 9.2C36.2 8.5 37.4 7.9 38.6 7.4C39.8 6.9 41.0 6.5 42.2 6.0C43.5 5.4 44.7 4.8 46.0 4.4C47.3 4.0 48.7 3.5 50.0 3.4C51.3 3.4 52.7 3.8 54.0 4.3C55.3 4.7 56.5 5.7 57.7 6.2C59.0 6.7 60.1 7.2 61.4 7.4C62.7 7.6 64.1 7.3 65.5 7.3C66.9 7.3 68.5 7.2 69.8 7.5C71.1 7.8 72.4 8.5 73.6 9.2C74.7 9.9 75.7 11.0 76.6 12.0C77.6 13.0 78.5 14.0 79.2 15.2C80.0 16.3 80.6 17.6 81.1 18.9C81.6 20.2 81.9 21.7 82.3 22.9C82.7 24.1 83.1 25.3 83.7 26.4C84.4 27.4 85.3 28.2 86.1 29.2C86.9 30.1 87.9 31.0 88.6 32.0C89.2 33.1 89.6 34.3 90.0 35.4C90.4 36.6 90.5 37.9 91.0 39.0C91.5 40.2 92.1 41.3 92.9 42.4C93.6 43.6 94.8 44.8 95.5 46.0C96.3 47.3 97.0 48.6 97.3 50.0Z" fill="currentColor"/>
+    <circle cx="50.4" cy="49.6" r="33" fill="#000" fill-opacity=".10"/>
+    <circle cx="50.4" cy="49.6" r="34.6" fill="none" stroke="#000" stroke-opacity=".30" stroke-width="2.2"/>
+    <circle cx="49.6" cy="50.6" r="36.6" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="1.4"/>
+  </symbol>
+  <symbol id="i-ok" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6 10.3l2.7 2.7L14.2 7.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="wrap top">
+  <h1>Skrift – navn og brødtekst</h1>
+  <div class="panels narrow">
+    <div class="panel tex-sheet">
+      <p>Dere ønsket at navnene skal se ut som «Chris» og «Amanda» øverst i invitasjonen i bilde 09: en formell, skråstilt skjønnskrift (på engelsk kalt <span lang="en">copperplate</span>), med store, pyntede forbokstaver og små bokstaver som henger sammen. Litt løkker, men ikke for mye, og ikke store bokstaver hele veien. Bare fornavn.</p>
+      <p>Denne sida viser tre ting:</p>
+      <ul>
+        <li><a href="#navn"><strong>Seks skrifter for navnene</strong></a>, S1–S6</li>
+        <li><a href="#brodtekst"><strong>Fire skrifter for resten av teksten</strong></a>, B1–B4, prøvd på det som skal være lett å lese for bestefar Sigmund (78)</li>
+        <li><a href="#par"><strong>Tre eksempler på par</strong></a>, der en navneskrift og en brødtekst står sammen</li>
+      </ul>
+      <p>Fargene er de dere har valgt så langt: G4 salvieoliven bak, K1 havre i feltene, varm grå tekst, og mørk grønn på segl og knapp. Den grønne kan fortsatt bli justert litt.</p>
+      <p><strong>Svar gjerne med koder</strong>, for eksempel «S1 og B2», eller «S3, men med færre løkker».</p>
+    </div>
+    <div class="panel tex-sheet note">
+      <h2>Om skriftene på denne sida</h2>
+      <p>Skriftene hentes fra Google Fonts når dere åpner sida, fordi de ikke finnes på PC-en. Det gjelder bare denne planleggingssida. Den ferdige nettsida skal levere skriftene vi velger fra sin egen server, så gjestene ikke sender noen forespørsel til Google.</p>
+      <p>Alle kandidatene er gratis og har lisensen SIL Open Font License, som lar oss bruke dem og lagre dem selv.</p>
+      <p>Sida trenger internett for å vise skriftene. Uten nett ser alle kandidatene like ut, fordi nettleseren da bruker en reserveskrift.</p>
+    </div>
+    <div class="panel tex-sheet">
+      <p class="status"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><use href="#i-ok"/></svg><span>Kontrollsjekk: all tekst er minst 18 piksler og har minst 4,5:1 i kontrast. Laveste er 4,96:1 (kremtekst på det grønne). Lenker er understreket, knapper og felt er minst 44 piksler høye og har synlig fokusring. Ingen animasjon, ingen gull.</span></p>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="wrap part" id="navn" aria-labelledby="h-navn">
+  <h2 id="h-navn">1. Navnene: seks skrifter (S1–S6)</h2>
+  <div class="narrow">
+    <p class="lead">Hvert felt viser navnene på én linje, så under hverandre slik som i bilde 09, og til slutt forbokstavene i et lite segl. I 09 står «AND» med små, vanlige bokstaver mellom navnene; her står et lite «&amp;» på samme måte.</p>
+    <p class="lead">Skriftene er svært ulikt store i seg selv, så størrelsen er justert for hver skrift slik at navnene ser omtrent like store ut. Mellomrommet rundt «&amp;» er også justert litt.</p>
+    <p class="lead">Feltene står i rekkefølge fra mest til minst lik 09, etter KI-ens vurdering. Kodene er bare navnelapper, derfor står de ikke i tallrekkefølge.</p>
+  </div>
+  <div class="ref-row">
+    <figure class="panel tex-sheet ref">
+      <div class="ref-crop"><img src="../../../ux/inspirasjon/09-Example.jpg" width="1000" height="1500" alt="Utsnitt av bilde 09: navnene «Chris» og «Amanda» i formell skjønnskrift, med «AND» i små bokstaver mellom."></div>
+      <figcaption>Bilde 09, forstørret utsnitt</figcaption>
+    </figure>
+    <div class="panel tex-sheet note ki">
+      <p><span class="label">KI-ens vurdering – dere bestemmer.</span> S1 Pinyon Script ligner mest på 09. KI satte «Chris» og «Amanda» i alle seks skriftene ved siden av bildet, og Pinyon har nesten de samme bokstavformene: C-en som krøller seg øverst, A-en som starter med en løkke nede til venstre, tykke nedstreker og hårfine oppstreker, og små bokstaver som henger sammen med jevn helning. Løkkene er moderate, slik dere ønsket.</p>
+      <p>Nest nærmest er S4 Imperial Script, med de samme forbokstavene, men mer pynt. S2 Corinthia ligner minst: strekene er nesten like tykke overalt, og forbokstavene er enkle.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <article class="cand" id="s1" aria-labelledby="h-s1">
+      <header class="cand-head">
+        <h3 id="h-s1"><b>S1</b> Pinyon Script</h3>
+        <p>Nærmest 09: engelsk skjønnskrift med tykke og tynne streker og moderate løkker. Lett å lese i stor størrelse. «&amp;» er liten og håndskrevet; den kan byttes ut.</p>
+      </header>
+      <div class="sheet tex-sheet specimen s1">
+        <p class="names-line">Rikke &amp; Valdemar</p>
+        <div class="divider" aria-hidden="true"></div>
+        <p class="names-stack"><span>Rikke</span><span class="amp">&amp;</span><span>Valdemar</span></p>
+        <div class="divider" aria-hidden="true"></div>
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      </div>
+    </article>
+
+    <article class="cand" id="s4" aria-labelledby="h-s4">
+      <header class="cand-head">
+        <h3 id="h-s4"><b>S4</b> Imperial Script</h3>
+        <p>Også nær 09, men mer pyntet: flere løkker i forbokstavene og svært tynne oppstreker. Litt tyngre å lese.</p>
+      </header>
+      <div class="sheet tex-sheet specimen s4">
+        <p class="names-line">Rikke &amp; Valdemar</p>
+        <div class="divider" aria-hidden="true"></div>
+        <p class="names-stack"><span>Rikke</span><span class="amp">&amp;</span><span>Valdemar</span></p>
+        <div class="divider" aria-hidden="true"></div>
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      </div>
+    </article>
+
+    <article class="cand" id="s3" aria-labelledby="h-s3">
+      <header class="cand-head">
+        <h3 id="h-s3"><b>S3</b> Great Vibes</h3>
+        <p>Rundere og litt kraftigere, med store, myke forbokstaver. Varm og mye brukt til bryllup; ett hakk flere løkker enn 09.</p>
+      </header>
+      <div class="sheet tex-sheet specimen s3">
+        <p class="names-line">Rikke &amp; Valdemar</p>
+        <div class="divider" aria-hidden="true"></div>
+        <p class="names-stack"><span>Rikke</span><span class="amp">&amp;</span><span>Valdemar</span></p>
+        <div class="divider" aria-hidden="true"></div>
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      </div>
+    </article>
+
+    <article class="cand" id="s6" aria-labelledby="h-s6">
+      <header class="cand-head">
+        <h3 id="h-s6"><b>S6</b> Italianno</h3>
+        <p>Smal, lett kursiv som minner om fyllepenn. Få løkker og grei å lese, men mindre formell enn 09.</p>
+      </header>
+      <div class="sheet tex-sheet specimen s6">
+        <p class="names-line">Rikke &amp; Valdemar</p>
+        <div class="divider" aria-hidden="true"></div>
+        <p class="names-stack"><span>Rikke</span><span class="amp">&amp;</span><span>Valdemar</span></p>
+        <div class="divider" aria-hidden="true"></div>
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      </div>
+    </article>
+
+    <article class="cand" id="s5" aria-labelledby="h-s5">
+      <header class="cand-head">
+        <h3 id="h-s5"><b>S5</b> Petit Formal Script</h3>
+        <p>Formell, men med uvanlig store små bokstaver. Lettest å lese av de seks, men bredere og tyngre enn 09.</p>
+      </header>
+      <div class="sheet tex-sheet specimen s5">
+        <p class="names-line">Rikke &amp; Valdemar</p>
+        <div class="divider" aria-hidden="true"></div>
+        <p class="names-stack"><span>Rikke</span><span class="amp">&amp;</span><span>Valdemar</span></p>
+        <div class="divider" aria-hidden="true"></div>
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      </div>
+    </article>
+
+    <article class="cand" id="s2" aria-labelledby="h-s2">
+      <header class="cand-head">
+        <h3 id="h-s2"><b>S2</b> Corinthia</h3>
+        <p>Lett og tynn, med nesten like tykke streker overalt og enkle forbokstaver. Mer som pen håndskrift enn et gravert kort.</p>
+      </header>
+      <div class="sheet tex-sheet specimen s2">
+        <p class="names-line">Rikke &amp; Valdemar</p>
+        <div class="divider" aria-hidden="true"></div>
+        <p class="names-stack"><span>Rikke</span><span class="amp">&amp;</span><span>Valdemar</span></p>
+        <div class="divider" aria-hidden="true"></div>
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="wrap part" id="brodtekst" aria-labelledby="h-brod">
+  <h2 id="h-brod">2. Brødtekst: fire skrifter (B1–B4)</h2>
+  <div class="narrow">
+    <p class="lead">Brødteksten er alt det andre: programmet, praktisk informasjon, skjemaet og knappene. Den skal kjennes som en trykt invitasjon, men først og fremst være lett å lese for bestefar Sigmund (78). Alle fire er vist i 18 piksler, som er minstekravet for brødtekst på nettsida.</p>
+    <p class="lead">Samme tallstørrelse betyr ikke samme lesestørrelse. Det som teller mest, er hvor høye de små bokstavene er (x-høyden) og hvor kraftige strekene er. Til sammenligning har Georgia, som resten av denne sida er skrevet i, små bokstaver på 0,48 av skriftstørrelsen.</p>
+    <div class="panel tex-sheet note ki">
+      <p><span class="label">KI-ens vurdering – dere bestemmer.</span> For Sigmund er B2 Libre Baskerville og B3 Lora tryggest i 18 piksler: høye små bokstaver og streker som holder. B1 EB Garamond ligner mest på en trykt invitasjon, men bør da settes i 20 piksler. B4 Cormorant Garamond passer bedre til store overskrifter enn til brødtekst.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-b">
+    <article class="cand" id="b1" aria-labelledby="h-b1">
+      <header class="cand-head">
+        <h3 id="h-b1"><b>B1</b> EB Garamond</h3>
+        <p>Klassisk bokskrift, mest lik en trykt invitasjon. Men de små bokstavene er lave (0,41), så 18 piksler ser ut som omtrent 15 i Georgia, og strekene er ganske tynne. For Sigmund bør den settes i 20 piksler, som vist nederst.</p>
+      </header>
+      <div class="sheets">
+        <div class="sheet tex-sheet body-spec b1">
+          <p class="spec-h">Programmet</p>
+          <p class="meta"><span class="nw">Lørdag 27. mai 2028 ·</span> <span class="nw">Hardingasete i Hardanger</span></p>
+          <p class="meta">Invitert: Sigmund og bestemor</p>
+          <p class="para">Vi samles på tunet fredag ettermiddag og feirer hele helgen. Ta med gode sko – vi går tur langs fjorden på lørdag formiddag.</p>
+          <label for="mat-b1">Allergier eller matbehov</label>
+          <input id="mat-b1" type="text" value="Tåler ikke nøtter" autocomplete="off">
+          <button type="button" class="btn">Svar på invitasjonen</button>
+        </div>
+        <div class="sheet tex-sheet body-spec b1 size-20">
+          <p class="sheet-label">Samme tekst i 20 piksler:</p>
+          <p class="meta"><span class="nw">Lørdag 27. mai 2028 ·</span> <span class="nw">Hardingasete i Hardanger</span></p>
+          <p class="para">Vi samles på tunet fredag ettermiddag og feirer hele helgen. Ta med gode sko – vi går tur langs fjorden på lørdag formiddag.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="cand" id="b2" aria-labelledby="h-b2">
+      <header class="cand-head">
+        <h3 id="h-b2"><b>B2</b> Libre Baskerville</h3>
+        <p>Laget for å leses på skjerm: høye små bokstaver (0,53), kraftige streker og åpne former. Den mest lettleste i 18 piksler. Også den bredeste, og litt mindre «gammeldags» enn B1.</p>
+      </header>
+      <div class="sheets">
+        <div class="sheet tex-sheet body-spec b2">
+          <p class="spec-h">Programmet</p>
+          <p class="meta"><span class="nw">Lørdag 27. mai 2028 ·</span> <span class="nw">Hardingasete i Hardanger</span></p>
+          <p class="meta">Invitert: Sigmund og bestemor</p>
+          <p class="para">Vi samles på tunet fredag ettermiddag og feirer hele helgen. Ta med gode sko – vi går tur langs fjorden på lørdag formiddag.</p>
+          <label for="mat-b2">Allergier eller matbehov</label>
+          <input id="mat-b2" type="text" value="Tåler ikke nøtter" autocomplete="off">
+          <button type="button" class="btn">Svar på invitasjonen</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="cand" id="b3" aria-labelledby="h-b3">
+      <header class="cand-head">
+        <h3 id="h-b3"><b>B3</b> Lora</h3>
+        <p>Varm skrift med røtter i håndskrift: høye små bokstaver (0,50) og jevne, tydelige streker. Lett å lese i 18 piksler, vennlig i tonen, men litt mindre klassisk enn B1.</p>
+      </header>
+      <div class="sheets">
+        <div class="sheet tex-sheet body-spec b3">
+          <p class="spec-h">Programmet</p>
+          <p class="meta"><span class="nw">Lørdag 27. mai 2028 ·</span> <span class="nw">Hardingasete i Hardanger</span></p>
+          <p class="meta">Invitert: Sigmund og bestemor</p>
+          <p class="para">Vi samles på tunet fredag ettermiddag og feirer hele helgen. Ta med gode sko – vi går tur langs fjorden på lørdag formiddag.</p>
+          <label for="mat-b3">Allergier eller matbehov</label>
+          <input id="mat-b3" type="text" value="Tåler ikke nøtter" autocomplete="off">
+          <button type="button" class="btn">Svar på invitasjonen</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="cand" id="b4" aria-labelledby="h-b4">
+      <header class="cand-head">
+        <h3 id="h-b4"><b>B4</b> Cormorant Garamond</h3>
+        <p>Svært elegant, men tynn: de små bokstavene er de laveste av de fire (0,39), og strekene er hårfine. I 18 piksler er den for liten og for svak for Sigmund. Derfor er den også vist i 20 piksler med litt kraftigere strek; det hjelper, men den er fortsatt den svakeste.</p>
+      </header>
+      <div class="sheets">
+        <div class="sheet tex-sheet body-spec b4">
+          <p class="spec-h">Programmet</p>
+          <p class="meta"><span class="nw">Lørdag 27. mai 2028 ·</span> <span class="nw">Hardingasete i Hardanger</span></p>
+          <p class="meta">Invitert: Sigmund og bestemor</p>
+          <p class="para">Vi samles på tunet fredag ettermiddag og feirer hele helgen. Ta med gode sko – vi går tur langs fjorden på lørdag formiddag.</p>
+          <label for="mat-b4">Allergier eller matbehov</label>
+          <input id="mat-b4" type="text" value="Tåler ikke nøtter" autocomplete="off">
+          <button type="button" class="btn">Svar på invitasjonen</button>
+        </div>
+        <div class="sheet tex-sheet body-spec b4 size-20 weight-500">
+          <p class="sheet-label">B4 i 20 piksler, med litt kraftigere strek (vekt 500 i stedet for 400):</p>
+          <p class="spec-h">Programmet</p>
+          <p class="meta"><span class="nw">Lørdag 27. mai 2028 ·</span> <span class="nw">Hardingasete i Hardanger</span></p>
+          <p class="meta">Invitert: Sigmund og bestemor</p>
+          <p class="para">Vi samles på tunet fredag ettermiddag og feirer hele helgen. Ta med gode sko – vi går tur langs fjorden på lørdag formiddag.</p>
+          <label for="mat-b4-20">Allergier eller matbehov</label>
+          <input id="mat-b4-20" type="text" value="Tåler ikke nøtter" autocomplete="off">
+          <button type="button" class="btn">Svar på invitasjonen</button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="wrap part" id="par" aria-labelledby="h-par">
+  <h2 id="h-par">3. Par: tre eksempler</h2>
+  <div class="narrow">
+    <p class="lead">Slik kan toppen av invitasjonen se ut når en navneskrift og en brødtekst står sammen. Dette er bare eksempler fra KI, ikke anbefalinger: alle S-ene kan kombineres med alle B-ene.</p>
+  </div>
+
+  <div class="grid">
+    <article class="cand" id="par-1" aria-labelledby="h-par-1">
+      <header class="cand-head">
+        <h3 id="h-par-1"><b>S1 + B2</b></h3>
+        <p>Eksempel: Pinyon Script og Libre Baskerville. Nærmest 09 i navnene, og den mest lettleste brødteksten.</p>
+      </header>
+      <div class="sheet tex-sheet hero s1 b2 body-spec">
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+        <p class="names-stack"><span>Rikke</span><span class="amp">&amp;</span><span>Valdemar</span></p>
+        <p class="invites">inviterer deg til bryllup</p>
+        <p class="when">Lørdag 27. mai 2028</p>
+        <p class="where">Hardingasete i Hardanger</p>
+        <button type="button" class="btn">Svar på invitasjonen</button>
+      </div>
+    </article>
+
+    <article class="cand" id="par-2" aria-labelledby="h-par-2">
+      <header class="cand-head">
+        <h3 id="h-par-2"><b>S1 + B1</b></h3>
+        <p>Eksempel: Pinyon Script og EB Garamond, brødteksten i 20 piksler. Mest som et trykt kort.</p>
+      </header>
+      <div class="sheet tex-sheet hero s1 b1 body-spec size-20">
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+        <p class="names-stack"><span>Rikke</span><span class="amp">&amp;</span><span>Valdemar</span></p>
+        <p class="invites">inviterer deg til bryllup</p>
+        <p class="when">Lørdag 27. mai 2028</p>
+        <p class="where">Hardingasete i Hardanger</p>
+        <button type="button" class="btn">Svar på invitasjonen</button>
+      </div>
+    </article>
+
+    <article class="cand" id="par-3" aria-labelledby="h-par-3">
+      <header class="cand-head">
+        <h3 id="h-par-3"><b>S4 + B3</b></h3>
+        <p>Eksempel: Imperial Script og Lora. Litt mer pyntede navn, og en varm, lettlest brødtekst.</p>
+      </header>
+      <div class="sheet tex-sheet hero s4 b3 body-spec">
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+        <p class="names-stack"><span>Rikke</span><span class="amp">&amp;</span><span>Valdemar</span></p>
+        <p class="invites">inviterer deg til bryllup</p>
+        <p class="when">Lørdag 27. mai 2028</p>
+        <p class="where">Hardingasete i Hardanger</p>
+        <button type="button" class="btn">Svar på invitasjonen</button>
+      </div>
+    </article>
+  </div>
+</section>
+</main>
+
+<footer class="wrap end">
+  <div class="narrow">
+    <p><strong>Svar med koder:</strong> S1–S6 for navnene og B1–B4 for brødteksten, for eksempel «S1 + B2». Dere kan også svare «ingen av dem», og gjerne si hvorfor.</p>
+    <p>Når dere har valgt, skriver vi valget inn i DESIGN.md og legger skriftene på nettsida selv. Knappene og feltene på denne sida gjør ingenting; de er bare med for å vise skriften.</p>
+  </div>
+</footer>
+</body>
+</html>

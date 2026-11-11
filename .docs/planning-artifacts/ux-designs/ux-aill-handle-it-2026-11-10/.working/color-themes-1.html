@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fargeforslag 1</title>
+<style>
+/* Fargeforslag for bryllupsnettsida til Rikke & Valdemar. Kun lys modus.
+   Ingen gull, metallic, neon eller sterke farger. Alle tekstpar er sjekket mot WCAG AA (4,5:1),
+   fokusring mot 3:1. Papirtekstur er ren CSS (SVG-støy som data-URI). */
+
+/* Morgenlys i hagen (Salvie-ledet, lys og luftig)
+   Papir (bakgrunn)         #F5F2E8
+   Ark (kort)               #FBF9F2
+   Blekk (brødtekst)        #2C3529
+   Dempet tekst             #55604F
+   Overskrift               #3B5140
+   Hovedknapp               #4A6650
+   Tekst på knapp           #FBF9F2
+   Sekundær / kant-knapp    #3F5A45
+   Segl (aksent)            #557358
+   Linje / kant             #C9CCB7
+   Fokusring                #2F5B3A
+   Bekreftelse              #2F6140
+   Advarsel                 #7A5A1A
+   Feil                     #8E3A2F
+*/
+.v1 {
+  --paper: #F5F2E8;
+  --sheet: #FBF9F2;
+  --ink: #2C3529;
+  --muted: #55604F;
+  --heading: #3B5140;
+  --primary: #4A6650;
+  --onprimary: #FBF9F2;
+  --secondary: #3F5A45;
+  --accent: #557358;
+  --border: #C9CCB7;
+  --focus: #2F5B3A;
+  --success: #2F6140;
+  --warning: #7A5A1A;
+  --error: #8E3A2F;
+}
+/* Oliven og stein (Oliven-ledet, jordnær og varm)
+   Papir (bakgrunn)         #F1EADA
+   Ark (kort)               #F8F3E6
+   Blekk (brødtekst)        #2D2A1E
+   Dempet tekst             #5A5540
+   Overskrift               #4A5025
+   Hovedknapp               #555C2C
+   Tekst på knapp           #F8F3E6
+   Sekundær / kant-knapp    #4A5025
+   Segl (aksent)            #6A6F35
+   Linje / kant             #D2C7A9
+   Fokusring                #3F4520
+   Bekreftelse              #3B5E2E
+   Advarsel                 #7A561A
+   Feil                     #8A3A28
+*/
+.v2 {
+  --paper: #F1EADA;
+  --sheet: #F8F3E6;
+  --ink: #2D2A1E;
+  --muted: #5A5540;
+  --heading: #4A5025;
+  --primary: #555C2C;
+  --onprimary: #F8F3E6;
+  --secondary: #4A5025;
+  --accent: #6A6F35;
+  --border: #D2C7A9;
+  --focus: #3F4520;
+  --success: #3B5E2E;
+  --warning: #7A561A;
+  --error: #8A3A28;
+}
+/* Kveld i stua (Mørkt tre dominerer, lun og trygg)
+   Papir (bakgrunn)         #EEE4D2
+   Ark (kort)               #F7F0E2
+   Blekk (brødtekst)        #2A1D15
+   Dempet tekst             #5E4838
+   Overskrift               #4A2E1F
+   Hovedknapp               #4A2E1F
+   Tekst på knapp           #F7F0E2
+   Sekundær / kant-knapp    #5E3D2A
+   Segl (aksent)            #5A3A28
+   Linje / kant             #CBB79C
+   Fokusring                #3E5A36
+   Bekreftelse              #3C5A33
+   Advarsel                 #77531A
+   Feil                     #8A3527
+*/
+.v3 {
+  --paper: #EEE4D2;
+  --sheet: #F7F0E2;
+  --ink: #2A1D15;
+  --muted: #5E4838;
+  --heading: #4A2E1F;
+  --primary: #4A2E1F;
+  --onprimary: #F7F0E2;
+  --secondary: #5E3D2A;
+  --accent: #5A3A28;
+  --border: #CBB79C;
+  --focus: #3E5A36;
+  --success: #3C5A33;
+  --warning: #77531A;
+  --error: #8A3527;
+}
+/* Brev på bjørkebordet (Elfenben-ledet, klassisk og høytidelig)
+   Papir (bakgrunn)         #FAF6EC
+   Ark (kort)               #FFFDF7
+   Blekk (brødtekst)        #2B2520
+   Dempet tekst             #5C5249
+   Overskrift               #3D2B1F
+   Hovedknapp               #5A6B4E
+   Tekst på knapp           #FFFDF7
+   Sekundær / kant-knapp    #3D2B1F
+   Segl (aksent)            #4E3626
+   Linje / kant             #DDD3C0
+   Fokusring                #3D2B1F
+   Bekreftelse              #3E5F3A
+   Advarsel                 #76561C
+   Feil                     #8C3A30
+*/
+.v4 {
+  --paper: #FAF6EC;
+  --sheet: #FFFDF7;
+  --ink: #2B2520;
+  --muted: #5C5249;
+  --heading: #3D2B1F;
+  --primary: #5A6B4E;
+  --onprimary: #FFFDF7;
+  --secondary: #3D2B1F;
+  --accent: #4E3626;
+  --border: #DDD3C0;
+  --focus: #3D2B1F;
+  --success: #3E5F3A;
+  --warning: #76561C;
+  --error: #8C3A30;
+}
+/* Lyng og lakk (Salvie og valnøtt med dempet lyng-aksent (valgfri))
+   Papir (bakgrunn)         #F4EFE4
+   Ark (kort)               #FAF7EF
+   Blekk (brødtekst)        #2C2721
+   Dempet tekst             #5B544B
+   Overskrift               #3F4E3C
+   Hovedknapp               #4D6248
+   Tekst på knapp           #FAF7EF
+   Sekundær / kant-knapp    #4A3426
+   Segl (aksent)            #7D4A4A
+   Linje / kant             #D3CABA
+   Fokusring                #4D6248
+   Bekreftelse              #3B5E3A
+   Advarsel                 #76561C
+   Feil                     #8A3A33
+*/
+.v5 {
+  --paper: #F4EFE4;
+  --sheet: #FAF7EF;
+  --ink: #2C2721;
+  --muted: #5B544B;
+  --heading: #3F4E3C;
+  --primary: #4D6248;
+  --onprimary: #FAF7EF;
+  --secondary: #4A3426;
+  --accent: #7D4A4A;
+  --border: #D3CABA;
+  --focus: #4D6248;
+  --success: #3B5E3A;
+  --warning: #76561C;
+  --error: #8A3A33;
+}
+
+:root {
+  --frame-bg: #EAE4D6;
+  --frame-ink: #2B2620;
+  --frame-muted: #574F45;
+  --noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.28  0 0 0 0 0.18  0 0 0 0.09 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --fibre: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.08' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 0.40  0 0 0 0 0.32  0 0 0 0 0.20  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; color: var(--frame-ink);
+  background: var(--frame-bg) var(--noise);
+  font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55;
+}
+.intro { max-width: 860px; margin: 0 auto; padding: 40px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; margin: 0 0 .4em; }
+.intro p { margin: 0 0 .8em; }
+.intro ul { margin: 0 0 1em 1.2em; padding: 0; }
+.status { display:inline-block; padding:.3em .7em; border:1px solid #8C826F; border-radius:6px; background:#F7F2E6; }
+main { max-width: 1180px; margin: 0 auto; padding: 8px 16px 48px; }
+
+.theme {
+  margin: 32px 0; padding: 28px 24px; border-radius: 6px;
+  background-color: var(--paper);
+  background-image: var(--fibre), var(--noise),
+    radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.45), rgba(255,255,255,0) 60%),
+    radial-gradient(140% 120% at 50% 110%, rgba(90,70,45,.07), rgba(90,70,45,0) 55%);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(60,45,30,.12), 0 8px 24px rgba(60,45,30,.08);
+  border: 1px solid var(--border);
+}
+.th-head h2 { color: var(--heading); font-weight: normal; font-size: 1.75rem; margin: 0; }
+.reg { margin: .2em 0 .3em; color: var(--muted); font-style: italic; }
+.feel { margin: 0 0 .6em; }
+.opt { margin: 0; padding: .5em .8em; border-left: 3px solid var(--accent); background: var(--sheet); }
+.th-body { display: grid; grid-template-columns: minmax(0,1fr) 380px; gap: 28px; margin-top: 18px; align-items: start; }
+@media (max-width: 900px) { .th-body { grid-template-columns: minmax(0,1fr); } .phone { justify-self: center; } }
+h3 { color: var(--heading); font-weight: normal; font-size: 1.2rem; margin: .4em 0 .5em; }
+.chips { list-style: none; margin: 0 0 1em; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.chip { display: flex; gap: 10px; align-items: center; background: var(--sheet); border: 1px solid var(--border); border-radius: 6px; padding: 6px; }
+.sw { width: 40px; height: 40px; flex: none; border-radius: 4px; border: 1px solid rgba(40,30,20,.25); }
+.cl { display: flex; flex-direction: column; font-size: 16px; line-height: 1.3; }
+.cl b { font-weight: normal; }
+.cl code { font-family: Consolas, "Courier New", monospace; color: var(--muted); font-size: 15px; }
+.ctab { width: 100%; border-collapse: collapse; font-size: 16px; background: var(--sheet); }
+.ctab th, .ctab td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--border); }
+.ctab th { font-weight: normal; color: var(--muted); }
+.num { font-family: Consolas, "Courier New", monospace; white-space: nowrap; }
+.pair { display: inline-block; width: 44px; text-align: center; border: 1px solid; border-radius: 4px; font-size: 18px; }
+@media (max-width: 520px) { .ctab th:nth-child(4), .ctab td:nth-child(4) { display: none; } }
+
+.phone { width: 100%; max-width: 380px; border-radius: 34px; padding: 12px; background: #3A2E25; box-shadow: 0 10px 30px rgba(40,30,20,.25); }
+.screen {
+  border-radius: 24px; padding: 28px 22px 26px; text-align: center;
+  background-color: var(--paper);
+  background-image: var(--fibre), var(--noise),
+    radial-gradient(110% 70% at 50% 0%, rgba(255,255,255,.5), rgba(255,255,255,0) 65%);
+  color: var(--ink); font-size: 18px;
+}
+.seal {
+  width: 84px; height: 84px; margin: 0 auto 14px; display: grid; place-items: center;
+  background: var(--accent); color: var(--onaccent);
+  border-radius: 47% 53% 51% 49% / 53% 46% 54% 47%;
+  box-shadow: inset 0 0 0 5px rgba(0,0,0,.10), inset 0 0 0 7px rgba(255,255,255,.10), inset 0 -4px 8px rgba(0,0,0,.18), 0 2px 3px rgba(40,30,20,.25);
+  transform: rotate(-6deg);
+}
+.seal span { font-size: 20px; letter-spacing: .04em; font-style: italic; }
+.names { font-family: "Snell Roundhand", "Segoe Script", "Brush Script MT", cursive; font-size: 34px; line-height: 1.2; color: var(--heading); margin: 0 0 4px; }
+.invites { margin: 0; font-style: italic; color: var(--muted); }
+.when { margin: 6px 0 0; color: var(--ink); }
+.rule { border: 0; border-top: 1px solid var(--border); width: 60%; margin: 18px auto; }
+.guest, .note { margin: 0 0 6px; }
+.guest b { font-weight: normal; color: var(--heading); }
+.deadline { margin: 0 0 16px; color: var(--ink); }
+.ex { color: var(--muted); font-style: italic; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 10px 22px; border-radius: 6px; font-size: 18px; text-decoration: none; }
+.primary { background: var(--primary); color: var(--onprimary); border: 1px solid var(--primary); width: 100%; }
+.primary + .primary { margin-top: 12px; }
+.focused { outline: 3px solid var(--focus); outline-offset: 3px; }
+.tiny { font-size: 16px; color: var(--muted); margin: 8px 0 18px; font-style: italic; }
+.card { background: var(--sheet); border: 1px solid var(--border); border-radius: 6px; padding: 16px 18px; text-align: left; box-shadow: 0 1px 2px rgba(60,45,30,.08); }
+.card h4 { margin: 0 0 4px; font-weight: normal; font-size: 22px; color: var(--heading); }
+.card p { margin: 0 0 12px; }
+.secondary { background: transparent; color: var(--secondary); border: 1.5px solid var(--secondary); }
+.msg { display: flex; gap: 8px; align-items: center; justify-content: flex-start; text-align: left; margin: 12px 0 0; padding: 8px 12px; background: var(--sheet); border: 1px solid var(--border); border-left-width: 4px; border-radius: 4px; }
+.ico { width: 20px; height: 20px; flex: none; }
+.err { color: var(--error); border-left-color: var(--error); }
+.warn { color: var(--warning); border-left-color: var(--warning); }
+.ok { color: var(--success); border-left-color: var(--success); }
+footer { max-width: 860px; margin: 0 auto; padding: 0 16px 40px; color: var(--frame-muted); font-size: 16px; }
+</style>
+</head>
+<body>
+<div class="intro">
+  <h1>Fargeforslag til invitasjonen</h1>
+  <p>Her er fem fargeforslag å velge mellom. Alle holder seg innenfor fargene dere har valgt selv: salviegrønt og olivengrønt, kremhvitt og elfenben, og mørkt tre. De skiller seg i stemning, ikke bare i nyanse.</p>
+  <p>Dere trenger ikke velge ett forslag som det er. Det er helt fint å blande, for eksempel bakgrunnen fra ett, knappen fra et annet og seglet fra et tredje. Si bare hvilke deler dere liker.</p>
+  <ul>
+    <li>Hver farge har en fast rolle (bakgrunn, tekst, knapp, segl og så videre), med fargekoden ved siden av.</li>
+    <li>Kontrasten er regnet ut for hvert tekstpar, så alle gjester kan lese teksten.</li>
+    <li>Telefonen til høyre viser hvordan invitasjonen kan se ut. Skrifttypene er bare midlertidige.</li>
+  </ul>
+  <p class="status">Kontrollsjekk: alle kontrastpar består WCAG AA.</p>
+</div>
+<main>
+
+<section class="theme v1" aria-labelledby="h-v1">
+  <header class="th-head">
+    <h2 id="h-v1">Morgenlys i hagen</h2>
+    <p class="reg">Salvie-ledet, lys og luftig</p>
+    <p class="feel">Som å åpne vinduet en tidlig maimorgen: lyst, mykt og grønt, med god plass mellom linjene.</p>
+    
+  </header>
+  <div class="th-body">
+    <div class="tokens">
+      <h3>Fargeroller</h3>
+      <ul class="chips"><li class="chip"><span class="sw" style="background:#F5F2E8"></span><span class="cl"><b>Papir (bakgrunn)</b><code>#F5F2E8</code></span></li><li class="chip"><span class="sw" style="background:#FBF9F2"></span><span class="cl"><b>Ark (kort)</b><code>#FBF9F2</code></span></li><li class="chip"><span class="sw" style="background:#2C3529"></span><span class="cl"><b>Blekk (brødtekst)</b><code>#2C3529</code></span></li><li class="chip"><span class="sw" style="background:#55604F"></span><span class="cl"><b>Dempet tekst</b><code>#55604F</code></span></li><li class="chip"><span class="sw" style="background:#3B5140"></span><span class="cl"><b>Overskrift</b><code>#3B5140</code></span></li><li class="chip"><span class="sw" style="background:#4A6650"></span><span class="cl"><b>Hovedknapp</b><code>#4A6650</code></span></li><li class="chip"><span class="sw" style="background:#FBF9F2"></span><span class="cl"><b>Tekst på knapp</b><code>#FBF9F2</code></span></li><li class="chip"><span class="sw" style="background:#3F5A45"></span><span class="cl"><b>Sekundær / kant-knapp</b><code>#3F5A45</code></span></li><li class="chip"><span class="sw" style="background:#557358"></span><span class="cl"><b>Segl (aksent)</b><code>#557358</code></span></li><li class="chip"><span class="sw" style="background:#C9CCB7"></span><span class="cl"><b>Linje / kant</b><code>#C9CCB7</code></span></li><li class="chip"><span class="sw" style="background:#2F5B3A"></span><span class="cl"><b>Fokusring</b><code>#2F5B3A</code></span></li><li class="chip"><span class="sw" style="background:#2F6140"></span><span class="cl"><b>Bekreftelse</b><code>#2F6140</code></span></li><li class="chip"><span class="sw" style="background:#7A5A1A"></span><span class="cl"><b>Advarsel</b><code>#7A5A1A</code></span></li><li class="chip"><span class="sw" style="background:#8E3A2F"></span><span class="cl"><b>Feil</b><code>#8E3A2F</code></span></li></ul>
+      <h3>Kontrast (WCAG AA)</h3>
+      <table class="ctab"><thead><tr><th>Prøve</th><th>Par</th><th>Forhold</th><th>Resultat</th></tr></thead>
+      <tbody><tr><td><span class="pair" style="color:#2C3529;background:#F5F2E8;border-color:#C9CCB7">Aa</span></td><td>Brødtekst på papir</td><td class="num">11.37:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#2C3529;background:#FBF9F2;border-color:#C9CCB7">Aa</span></td><td>Brødtekst på kort</td><td class="num">12.09:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#55604F;background:#F5F2E8;border-color:#C9CCB7">Aa</span></td><td>Dempet tekst på papir</td><td class="num">5.91:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#55604F;background:#FBF9F2;border-color:#C9CCB7">Aa</span></td><td>Dempet tekst på kort</td><td class="num">6.28:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#3B5140;background:#F5F2E8;border-color:#C9CCB7">Aa</span></td><td>Overskrift på papir</td><td class="num">7.69:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#FBF9F2;background:#4A6650;border-color:#C9CCB7">Aa</span></td><td>Knappetekst på knapp</td><td class="num">6.03:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#3F5A45;background:#FBF9F2;border-color:#C9CCB7">Aa</span></td><td>Sekundærknapp-tekst på kort</td><td class="num">7.22:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#FBF9F2;background:#557358;border-color:#C9CCB7">Aa</span></td><td>Initialer på segl</td><td class="num">5.01:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#2F5B3A;background:#F5F2E8;border-color:#C9CCB7">Aa</span></td><td>Fokusring mot papir</td><td class="num">7.00:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#2F5B3A;background:#FBF9F2;border-color:#C9CCB7">Aa</span></td><td>Fokusring mot kort</td><td class="num">7.44:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#2F6140;background:#FBF9F2;border-color:#C9CCB7">Aa</span></td><td>Bekreftelse på kort</td><td class="num">6.86:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#7A5A1A;background:#FBF9F2;border-color:#C9CCB7">Aa</span></td><td>Advarsel på kort</td><td class="num">6.03:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#8E3A2F;background:#FBF9F2;border-color:#C9CCB7">Aa</span></td><td>Feilmelding på kort</td><td class="num">7.13:1</td><td>Bestått (krav 4.5:1)</td></tr></tbody></table>
+    </div>
+    <div class="phone" role="img" aria-label="Eksempel på invitasjonen i fargeforslaget Morgenlys i hagen">
+      <div class="screen">
+        <div class="seal"><span>R &amp; V</span></div>
+        <p class="names">Rikke &amp; Valdemar</p>
+        <p class="invites">inviterer deg til bryllup</p>
+        <p class="when">Lørdag 27. mai 2028 · Hardingasete i Hardanger</p>
+        <hr class="rule">
+        <p class="guest">Invitert: <b>Ola og bestemor Kari</b></p>
+        <p class="note">Barnefritt bryllup</p>
+        <p class="deadline">Svar innen fredag 1. desember 2027 kl. 23:59 <span class="ex">(eksempeldato)</span></p>
+        <span class="btn primary">Svar på invitasjonen</span>
+        <span class="btn primary focused">Svar på invitasjonen</span>
+        <p class="tiny">Slik ser knappen ut når den er valgt med tastaturet.</p>
+        <div class="card">
+          <h4>Programmet</h4>
+          <p>Fra velkomstkveld fredag til frokost og farvel søndag.</p>
+          <span class="btn secondary">Les mer</span>
+        </div>
+        <p class="msg err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 5.5v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.2" r="1.1" fill="currentColor"/></svg><span>Velg hvem som kommer</span></p>
+        <p class="msg warn"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5L18.5 17H1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.4" r="1" fill="currentColor"/></svg><span>Fristen nærmer seg</span></p>
+        <p class="msg ok"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 10.3l2.7 2.7L14.2 7.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Takk! Svaret er sendt.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="theme v2" aria-labelledby="h-v2">
+  <header class="th-head">
+    <h2 id="h-v2">Oliven og stein</h2>
+    <p class="reg">Oliven-ledet, jordnær og varm</p>
+    <p class="feel">Mose på steingjerdet og varm jord etter regn: rolig, solid og nær naturen.</p>
+    
+  </header>
+  <div class="th-body">
+    <div class="tokens">
+      <h3>Fargeroller</h3>
+      <ul class="chips"><li class="chip"><span class="sw" style="background:#F1EADA"></span><span class="cl"><b>Papir (bakgrunn)</b><code>#F1EADA</code></span></li><li class="chip"><span class="sw" style="background:#F8F3E6"></span><span class="cl"><b>Ark (kort)</b><code>#F8F3E6</code></span></li><li class="chip"><span class="sw" style="background:#2D2A1E"></span><span class="cl"><b>Blekk (brødtekst)</b><code>#2D2A1E</code></span></li><li class="chip"><span class="sw" style="background:#5A5540"></span><span class="cl"><b>Dempet tekst</b><code>#5A5540</code></span></li><li class="chip"><span class="sw" style="background:#4A5025"></span><span class="cl"><b>Overskrift</b><code>#4A5025</code></span></li><li class="chip"><span class="sw" style="background:#555C2C"></span><span class="cl"><b>Hovedknapp</b><code>#555C2C</code></span></li><li class="chip"><span class="sw" style="background:#F8F3E6"></span><span class="cl"><b>Tekst på knapp</b><code>#F8F3E6</code></span></li><li class="chip"><span class="sw" style="background:#4A5025"></span><span class="cl"><b>Sekundær / kant-knapp</b><code>#4A5025</code></span></li><li class="chip"><span class="sw" style="background:#6A6F35"></span><span class="cl"><b>Segl (aksent)</b><code>#6A6F35</code></span></li><li class="chip"><span class="sw" style="background:#D2C7A9"></span><span class="cl"><b>Linje / kant</b><code>#D2C7A9</code></span></li><li class="chip"><span class="sw" style="background:#3F4520"></span><span class="cl"><b>Fokusring</b><code>#3F4520</code></span></li><li class="chip"><span class="sw" style="background:#3B5E2E"></span><span class="cl"><b>Bekreftelse</b><code>#3B5E2E</code></span></li><li class="chip"><span class="sw" style="background:#7A561A"></span><span class="cl"><b>Advarsel</b><code>#7A561A</code></span></li><li class="chip"><span class="sw" style="background:#8A3A28"></span><span class="cl"><b>Feil</b><code>#8A3A28</code></span></li></ul>
+      <h3>Kontrast (WCAG AA)</h3>
+      <table class="ctab"><thead><tr><th>Prøve</th><th>Par</th><th>Forhold</th><th>Resultat</th></tr></thead>
+      <tbody><tr><td><span class="pair" style="color:#2D2A1E;background:#F1EADA;border-color:#D2C7A9">Aa</span></td><td>Brødtekst på papir</td><td class="num">11.99:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#2D2A1E;background:#F8F3E6;border-color:#D2C7A9">Aa</span></td><td>Brødtekst på kort</td><td class="num">12.97:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#5A5540;background:#F1EADA;border-color:#D2C7A9">Aa</span></td><td>Dempet tekst på papir</td><td class="num">6.24:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#5A5540;background:#F8F3E6;border-color:#D2C7A9">Aa</span></td><td>Dempet tekst på kort</td><td class="num">6.75:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#4A5025;background:#F1EADA;border-color:#D2C7A9">Aa</span></td><td>Overskrift på papir</td><td class="num">7.11:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#F8F3E6;background:#555C2C;border-color:#D2C7A9">Aa</span></td><td>Knappetekst på knapp</td><td class="num">6.42:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#4A5025;background:#F8F3E6;border-color:#D2C7A9">Aa</span></td><td>Sekundærknapp-tekst på kort</td><td class="num">7.69:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#F8F3E6;background:#6A6F35;border-color:#D2C7A9">Aa</span></td><td>Initialer på segl</td><td class="num">4.81:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#3F4520;background:#F1EADA;border-color:#D2C7A9">Aa</span></td><td>Fokusring mot papir</td><td class="num">8.41:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#3F4520;background:#F8F3E6;border-color:#D2C7A9">Aa</span></td><td>Fokusring mot kort</td><td class="num">9.10:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#3B5E2E;background:#F8F3E6;border-color:#D2C7A9">Aa</span></td><td>Bekreftelse på kort</td><td class="num">6.71:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#7A561A;background:#F8F3E6;border-color:#D2C7A9">Aa</span></td><td>Advarsel på kort</td><td class="num">5.97:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#8A3A28;background:#F8F3E6;border-color:#D2C7A9">Aa</span></td><td>Feilmelding på kort</td><td class="num">6.98:1</td><td>Bestått (krav 4.5:1)</td></tr></tbody></table>
+    </div>
+    <div class="phone" role="img" aria-label="Eksempel på invitasjonen i fargeforslaget Oliven og stein">
+      <div class="screen">
+        <div class="seal"><span>R &amp; V</span></div>
+        <p class="names">Rikke &amp; Valdemar</p>
+        <p class="invites">inviterer deg til bryllup</p>
+        <p class="when">Lørdag 27. mai 2028 · Hardingasete i Hardanger</p>
+        <hr class="rule">
+        <p class="guest">Invitert: <b>Ola og bestemor Kari</b></p>
+        <p class="note">Barnefritt bryllup</p>
+        <p class="deadline">Svar innen fredag 1. desember 2027 kl. 23:59 <span class="ex">(eksempeldato)</span></p>
+        <span class="btn primary">Svar på invitasjonen</span>
+        <span class="btn primary focused">Svar på invitasjonen</span>
+        <p class="tiny">Slik ser knappen ut når den er valgt med tastaturet.</p>
+        <div class="card">
+          <h4>Programmet</h4>
+          <p>Fra velkomstkveld fredag til frokost og farvel søndag.</p>
+          <span class="btn secondary">Les mer</span>
+        </div>
+        <p class="msg err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 5.5v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.2" r="1.1" fill="currentColor"/></svg><span>Velg hvem som kommer</span></p>
+        <p class="msg warn"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5L18.5 17H1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.4" r="1" fill="currentColor"/></svg><span>Fristen nærmer seg</span></p>
+        <p class="msg ok"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 10.3l2.7 2.7L14.2 7.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Takk! Svaret er sendt.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="theme v3" aria-labelledby="h-v3">
+  <header class="th-head">
+    <h2 id="h-v3">Kveld i stua</h2>
+    <p class="reg">Mørkt tre dominerer, lun og trygg</p>
+    <p class="feel">Gamle tømmervegger, levende lys og noen du er glad i rundt bordet, men fortsatt lyst papir.</p>
+    
+  </header>
+  <div class="th-body">
+    <div class="tokens">
+      <h3>Fargeroller</h3>
+      <ul class="chips"><li class="chip"><span class="sw" style="background:#EEE4D2"></span><span class="cl"><b>Papir (bakgrunn)</b><code>#EEE4D2</code></span></li><li class="chip"><span class="sw" style="background:#F7F0E2"></span><span class="cl"><b>Ark (kort)</b><code>#F7F0E2</code></span></li><li class="chip"><span class="sw" style="background:#2A1D15"></span><span class="cl"><b>Blekk (brødtekst)</b><code>#2A1D15</code></span></li><li class="chip"><span class="sw" style="background:#5E4838"></span><span class="cl"><b>Dempet tekst</b><code>#5E4838</code></span></li><li class="chip"><span class="sw" style="background:#4A2E1F"></span><span class="cl"><b>Overskrift</b><code>#4A2E1F</code></span></li><li class="chip"><span class="sw" style="background:#4A2E1F"></span><span class="cl"><b>Hovedknapp</b><code>#4A2E1F</code></span></li><li class="chip"><span class="sw" style="background:#F7F0E2"></span><span class="cl"><b>Tekst på knapp</b><code>#F7F0E2</code></span></li><li class="chip"><span class="sw" style="background:#5E3D2A"></span><span class="cl"><b>Sekundær / kant-knapp</b><code>#5E3D2A</code></span></li><li class="chip"><span class="sw" style="background:#5A3A28"></span><span class="cl"><b>Segl (aksent)</b><code>#5A3A28</code></span></li><li class="chip"><span class="sw" style="background:#CBB79C"></span><span class="cl"><b>Linje / kant</b><code>#CBB79C</code></span></li><li class="chip"><span class="sw" style="background:#3E5A36"></span><span class="cl"><b>Fokusring</b><code>#3E5A36</code></span></li><li class="chip"><span class="sw" style="background:#3C5A33"></span><span class="cl"><b>Bekreftelse</b><code>#3C5A33</code></span></li><li class="chip"><span class="sw" style="background:#77531A"></span><span class="cl"><b>Advarsel</b><code>#77531A</code></span></li><li class="chip"><span class="sw" style="background:#8A3527"></span><span class="cl"><b>Feil</b><code>#8A3527</code></span></li></ul>
+      <h3>Kontrast (WCAG AA)</h3>
+      <table class="ctab"><thead><tr><th>Prøve</th><th>Par</th><th>Forhold</th><th>Resultat</th></tr></thead>
+      <tbody><tr><td><span class="pair" style="color:#2A1D15;background:#EEE4D2;border-color:#CBB79C">Aa</span></td><td>Brødtekst på papir</td><td class="num">12.97:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#2A1D15;background:#F7F0E2;border-color:#CBB79C">Aa</span></td><td>Brødtekst på kort</td><td class="num">14.41:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#5E4838;background:#EEE4D2;border-color:#CBB79C">Aa</span></td><td>Dempet tekst på papir</td><td class="num">6.77:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#5E4838;background:#F7F0E2;border-color:#CBB79C">Aa</span></td><td>Dempet tekst på kort</td><td class="num">7.53:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#4A2E1F;background:#EEE4D2;border-color:#CBB79C">Aa</span></td><td>Overskrift på papir</td><td class="num">9.79:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#F7F0E2;background:#4A2E1F;border-color:#CBB79C">Aa</span></td><td>Knappetekst på knapp</td><td class="num">10.88:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#5E3D2A;background:#F7F0E2;border-color:#CBB79C">Aa</span></td><td>Sekundærknapp-tekst på kort</td><td class="num">8.51:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#F7F0E2;background:#5A3A28;border-color:#CBB79C">Aa</span></td><td>Initialer på segl</td><td class="num">8.94:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#3E5A36;background:#EEE4D2;border-color:#CBB79C">Aa</span></td><td>Fokusring mot papir</td><td class="num">6.12:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#3E5A36;background:#F7F0E2;border-color:#CBB79C">Aa</span></td><td>Fokusring mot kort</td><td class="num">6.81:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#3C5A33;background:#F7F0E2;border-color:#CBB79C">Aa</span></td><td>Bekreftelse på kort</td><td class="num">6.85:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#77531A;background:#F7F0E2;border-color:#CBB79C">Aa</span></td><td>Advarsel på kort</td><td class="num">6.10:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#8A3527;background:#F7F0E2;border-color:#CBB79C">Aa</span></td><td>Feilmelding på kort</td><td class="num">7.07:1</td><td>Bestått (krav 4.5:1)</td></tr></tbody></table>
+    </div>
+    <div class="phone" role="img" aria-label="Eksempel på invitasjonen i fargeforslaget Kveld i stua">
+      <div class="screen">
+        <div class="seal"><span>R &amp; V</span></div>
+        <p class="names">Rikke &amp; Valdemar</p>
+        <p class="invites">inviterer deg til bryllup</p>
+        <p class="when">Lørdag 27. mai 2028 · Hardingasete i Hardanger</p>
+        <hr class="rule">
+        <p class="guest">Invitert: <b>Ola og bestemor Kari</b></p>
+        <p class="note">Barnefritt bryllup</p>
+        <p class="deadline">Svar innen fredag 1. desember 2027 kl. 23:59 <span class="ex">(eksempeldato)</span></p>
+        <span class="btn primary">Svar på invitasjonen</span>
+        <span class="btn primary focused">Svar på invitasjonen</span>
+        <p class="tiny">Slik ser knappen ut når den er valgt med tastaturet.</p>
+        <div class="card">
+          <h4>Programmet</h4>
+          <p>Fra velkomstkveld fredag til frokost og farvel søndag.</p>
+          <span class="btn secondary">Les mer</span>
+        </div>
+        <p class="msg err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 5.5v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.2" r="1.1" fill="currentColor"/></svg><span>Velg hvem som kommer</span></p>
+        <p class="msg warn"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5L18.5 17H1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.4" r="1" fill="currentColor"/></svg><span>Fristen nærmer seg</span></p>
+        <p class="msg ok"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 10.3l2.7 2.7L14.2 7.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Takk! Svaret er sendt.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="theme v4" aria-labelledby="h-v4">
+  <header class="th-head">
+    <h2 id="h-v4">Brev på bjørkebordet</h2>
+    <p class="reg">Elfenben-ledet, klassisk og høytidelig</p>
+    <p class="feel">Et tykt, kremhvitt kort med blekk i valnøttbrunt og et lite grønt blad i hjørnet.</p>
+    
+  </header>
+  <div class="th-body">
+    <div class="tokens">
+      <h3>Fargeroller</h3>
+      <ul class="chips"><li class="chip"><span class="sw" style="background:#FAF6EC"></span><span class="cl"><b>Papir (bakgrunn)</b><code>#FAF6EC</code></span></li><li class="chip"><span class="sw" style="background:#FFFDF7"></span><span class="cl"><b>Ark (kort)</b><code>#FFFDF7</code></span></li><li class="chip"><span class="sw" style="background:#2B2520"></span><span class="cl"><b>Blekk (brødtekst)</b><code>#2B2520</code></span></li><li class="chip"><span class="sw" style="background:#5C5249"></span><span class="cl"><b>Dempet tekst</b><code>#5C5249</code></span></li><li class="chip"><span class="sw" style="background:#3D2B1F"></span><span class="cl"><b>Overskrift</b><code>#3D2B1F</code></span></li><li class="chip"><span class="sw" style="background:#5A6B4E"></span><span class="cl"><b>Hovedknapp</b><code>#5A6B4E</code></span></li><li class="chip"><span class="sw" style="background:#FFFDF7"></span><span class="cl"><b>Tekst på knapp</b><code>#FFFDF7</code></span></li><li class="chip"><span class="sw" style="background:#3D2B1F"></span><span class="cl"><b>Sekundær / kant-knapp</b><code>#3D2B1F</code></span></li><li class="chip"><span class="sw" style="background:#4E3626"></span><span class="cl"><b>Segl (aksent)</b><code>#4E3626</code></span></li><li class="chip"><span class="sw" style="background:#DDD3C0"></span><span class="cl"><b>Linje / kant</b><code>#DDD3C0</code></span></li><li class="chip"><span class="sw" style="background:#3D2B1F"></span><span class="cl"><b>Fokusring</b><code>#3D2B1F</code></span></li><li class="chip"><span class="sw" style="background:#3E5F3A"></span><span class="cl"><b>Bekreftelse</b><code>#3E5F3A</code></span></li><li class="chip"><span class="sw" style="background:#76561C"></span><span class="cl"><b>Advarsel</b><code>#76561C</code></span></li><li class="chip"><span class="sw" style="background:#8C3A30"></span><span class="cl"><b>Feil</b><code>#8C3A30</code></span></li></ul>
+      <h3>Kontrast (WCAG AA)</h3>
+      <table class="ctab"><thead><tr><th>Prøve</th><th>Par</th><th>Forhold</th><th>Resultat</th></tr></thead>
+      <tbody><tr><td><span class="pair" style="color:#2B2520;background:#FAF6EC;border-color:#DDD3C0">Aa</span></td><td>Brødtekst på papir</td><td class="num">14.02:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#2B2520;background:#FFFDF7;border-color:#DDD3C0">Aa</span></td><td>Brødtekst på kort</td><td class="num">14.87:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#5C5249;background:#FAF6EC;border-color:#DDD3C0">Aa</span></td><td>Dempet tekst på papir</td><td class="num">7.05:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#5C5249;background:#FFFDF7;border-color:#DDD3C0">Aa</span></td><td>Dempet tekst på kort</td><td class="num">7.49:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#3D2B1F;background:#FAF6EC;border-color:#DDD3C0">Aa</span></td><td>Overskrift på papir</td><td class="num">12.44:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#FFFDF7;background:#5A6B4E;border-color:#DDD3C0">Aa</span></td><td>Knappetekst på knapp</td><td class="num">5.66:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#3D2B1F;background:#FFFDF7;border-color:#DDD3C0">Aa</span></td><td>Sekundærknapp-tekst på kort</td><td class="num">13.20:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#FAF6EC;background:#4E3626;border-color:#DDD3C0">Aa</span></td><td>Initialer på segl</td><td class="num">10.35:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#3D2B1F;background:#FAF6EC;border-color:#DDD3C0">Aa</span></td><td>Fokusring mot papir</td><td class="num">12.44:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#3D2B1F;background:#FFFDF7;border-color:#DDD3C0">Aa</span></td><td>Fokusring mot kort</td><td class="num">13.20:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#3E5F3A;background:#FFFDF7;border-color:#DDD3C0">Aa</span></td><td>Bekreftelse på kort</td><td class="num">7.11:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#76561C;background:#FFFDF7;border-color:#DDD3C0">Aa</span></td><td>Advarsel på kort</td><td class="num">6.62:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#8C3A30;background:#FFFDF7;border-color:#DDD3C0">Aa</span></td><td>Feilmelding på kort</td><td class="num">7.47:1</td><td>Bestått (krav 4.5:1)</td></tr></tbody></table>
+    </div>
+    <div class="phone" role="img" aria-label="Eksempel på invitasjonen i fargeforslaget Brev på bjørkebordet">
+      <div class="screen">
+        <div class="seal"><span>R &amp; V</span></div>
+        <p class="names">Rikke &amp; Valdemar</p>
+        <p class="invites">inviterer deg til bryllup</p>
+        <p class="when">Lørdag 27. mai 2028 · Hardingasete i Hardanger</p>
+        <hr class="rule">
+        <p class="guest">Invitert: <b>Ola og bestemor Kari</b></p>
+        <p class="note">Barnefritt bryllup</p>
+        <p class="deadline">Svar innen fredag 1. desember 2027 kl. 23:59 <span class="ex">(eksempeldato)</span></p>
+        <span class="btn primary">Svar på invitasjonen</span>
+        <span class="btn primary focused">Svar på invitasjonen</span>
+        <p class="tiny">Slik ser knappen ut når den er valgt med tastaturet.</p>
+        <div class="card">
+          <h4>Programmet</h4>
+          <p>Fra velkomstkveld fredag til frokost og farvel søndag.</p>
+          <span class="btn secondary">Les mer</span>
+        </div>
+        <p class="msg err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 5.5v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.2" r="1.1" fill="currentColor"/></svg><span>Velg hvem som kommer</span></p>
+        <p class="msg warn"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5L18.5 17H1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.4" r="1" fill="currentColor"/></svg><span>Fristen nærmer seg</span></p>
+        <p class="msg ok"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 10.3l2.7 2.7L14.2 7.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Takk! Svaret er sendt.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="theme v5" aria-labelledby="h-v5">
+  <header class="th-head">
+    <h2 id="h-v5">Lyng og lakk</h2>
+    <p class="reg">Salvie og valnøtt med dempet lyng-aksent (valgfri)</p>
+    <p class="feel">Som et brev forseglet med mørk lyngfarget lakk: litt romantisk, men stille og dus.</p>
+    <p class="opt"><b>Valgfritt:</b> Lyngfargen brukes bare på seglet. Dere kan like gjerne beholde et grønt eller brunt segl.</p>
+  </header>
+  <div class="th-body">
+    <div class="tokens">
+      <h3>Fargeroller</h3>
+      <ul class="chips"><li class="chip"><span class="sw" style="background:#F4EFE4"></span><span class="cl"><b>Papir (bakgrunn)</b><code>#F4EFE4</code></span></li><li class="chip"><span class="sw" style="background:#FAF7EF"></span><span class="cl"><b>Ark (kort)</b><code>#FAF7EF</code></span></li><li class="chip"><span class="sw" style="background:#2C2721"></span><span class="cl"><b>Blekk (brødtekst)</b><code>#2C2721</code></span></li><li class="chip"><span class="sw" style="background:#5B544B"></span><span class="cl"><b>Dempet tekst</b><code>#5B544B</code></span></li><li class="chip"><span class="sw" style="background:#3F4E3C"></span><span class="cl"><b>Overskrift</b><code>#3F4E3C</code></span></li><li class="chip"><span class="sw" style="background:#4D6248"></span><span class="cl"><b>Hovedknapp</b><code>#4D6248</code></span></li><li class="chip"><span class="sw" style="background:#FAF7EF"></span><span class="cl"><b>Tekst på knapp</b><code>#FAF7EF</code></span></li><li class="chip"><span class="sw" style="background:#4A3426"></span><span class="cl"><b>Sekundær / kant-knapp</b><code>#4A3426</code></span></li><li class="chip"><span class="sw" style="background:#7D4A4A"></span><span class="cl"><b>Segl (aksent)</b><code>#7D4A4A</code></span></li><li class="chip"><span class="sw" style="background:#D3CABA"></span><span class="cl"><b>Linje / kant</b><code>#D3CABA</code></span></li><li class="chip"><span class="sw" style="background:#4D6248"></span><span class="cl"><b>Fokusring</b><code>#4D6248</code></span></li><li class="chip"><span class="sw" style="background:#3B5E3A"></span><span class="cl"><b>Bekreftelse</b><code>#3B5E3A</code></span></li><li class="chip"><span class="sw" style="background:#76561C"></span><span class="cl"><b>Advarsel</b><code>#76561C</code></span></li><li class="chip"><span class="sw" style="background:#8A3A33"></span><span class="cl"><b>Feil</b><code>#8A3A33</code></span></li></ul>
+      <h3>Kontrast (WCAG AA)</h3>
+      <table class="ctab"><thead><tr><th>Prøve</th><th>Par</th><th>Forhold</th><th>Resultat</th></tr></thead>
+      <tbody><tr><td><span class="pair" style="color:#2C2721;background:#F4EFE4;border-color:#D3CABA">Aa</span></td><td>Brødtekst på papir</td><td class="num">12.90:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#2C2721;background:#FAF7EF;border-color:#D3CABA">Aa</span></td><td>Brødtekst på kort</td><td class="num">13.82:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#5B544B;background:#F4EFE4;border-color:#D3CABA">Aa</span></td><td>Dempet tekst på papir</td><td class="num">6.51:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#5B544B;background:#FAF7EF;border-color:#D3CABA">Aa</span></td><td>Dempet tekst på kort</td><td class="num">6.97:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#3F4E3C;background:#F4EFE4;border-color:#D3CABA">Aa</span></td><td>Overskrift på papir</td><td class="num">7.74:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#FAF7EF;background:#4D6248;border-color:#D3CABA">Aa</span></td><td>Knappetekst på knapp</td><td class="num">6.21:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#4A3426;background:#FAF7EF;border-color:#D3CABA">Aa</span></td><td>Sekundærknapp-tekst på kort</td><td class="num">10.84:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#FAF7EF;background:#7D4A4A;border-color:#D3CABA">Aa</span></td><td>Initialer på segl</td><td class="num">6.65:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#4D6248;background:#F4EFE4;border-color:#D3CABA">Aa</span></td><td>Fokusring mot papir</td><td class="num">5.80:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#4D6248;background:#FAF7EF;border-color:#D3CABA">Aa</span></td><td>Fokusring mot kort</td><td class="num">6.21:1</td><td>Bestått (krav 3:1)</td></tr><tr><td><span class="pair" style="color:#3B5E3A;background:#FAF7EF;border-color:#D3CABA">Aa</span></td><td>Bekreftelse på kort</td><td class="num">6.89:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#76561C;background:#FAF7EF;border-color:#D3CABA">Aa</span></td><td>Advarsel på kort</td><td class="num">6.29:1</td><td>Bestått (krav 4.5:1)</td></tr><tr><td><span class="pair" style="color:#8A3A33;background:#FAF7EF;border-color:#D3CABA">Aa</span></td><td>Feilmelding på kort</td><td class="num">7.18:1</td><td>Bestått (krav 4.5:1)</td></tr></tbody></table>
+    </div>
+    <div class="phone" role="img" aria-label="Eksempel på invitasjonen i fargeforslaget Lyng og lakk">
+      <div class="screen">
+        <div class="seal"><span>R &amp; V</span></div>
+        <p class="names">Rikke &amp; Valdemar</p>
+        <p class="invites">inviterer deg til bryllup</p>
+        <p class="when">Lørdag 27. mai 2028 · Hardingasete i Hardanger</p>
+        <hr class="rule">
+        <p class="guest">Invitert: <b>Ola og bestemor Kari</b></p>
+        <p class="note">Barnefritt bryllup</p>
+        <p class="deadline">Svar innen fredag 1. desember 2027 kl. 23:59 <span class="ex">(eksempeldato)</span></p>
+        <span class="btn primary">Svar på invitasjonen</span>
+        <span class="btn primary focused">Svar på invitasjonen</span>
+        <p class="tiny">Slik ser knappen ut når den er valgt med tastaturet.</p>
+        <div class="card">
+          <h4>Programmet</h4>
+          <p>Fra velkomstkveld fredag til frokost og farvel søndag.</p>
+          <span class="btn secondary">Les mer</span>
+        </div>
+        <p class="msg err"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 5.5v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.2" r="1.1" fill="currentColor"/></svg><span>Velg hvem som kommer</span></p>
+        <p class="msg warn"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5L18.5 17H1.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M10 8v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="14.4" r="1" fill="currentColor"/></svg><span>Fristen nærmer seg</span></p>
+        <p class="msg ok"><svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 10.3l2.7 2.7L14.2 7.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Takk! Svaret er sendt.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+<footer>
+  <p>Kun lys modus, slik dere har bestemt. Fargekodene står også som kommentarer i kildekoden, slik at de kan hentes rett inn i designet.</p>
+</footer>
+</body>
+</html>
