@@ -79,5 +79,15 @@ Ta med: Følelsen dette bildet gir. Koselig, klassisk, varmt, trivelig.
 
 ## 14-Illustration.jpg
 Liker: Har ved hjelp av AI lagd denne illustrasjonen av området vi skal gifte oss. 
-Liker ikke: KLarer ikke bestemme meg for om jeg liker den stilen best eller den som er i noen av de andre bildene med helt enkle illustrasjoner med grønne streker. Liker begge. 
+Liker ikke: KLarer ikke bestemme meg for om jeg liker den stilen best eller den som er i noen av de andre bildene med helt enkle illustrasjoner med grønne streker. Liker alle. 
+Ta med: Kanskje?
+
+## 15-Illustration.png
+Liker: Har ved hjelp av AI lagd denne illustrasjonen av området vi skal gifte oss. 
+Liker ikke: KLarer ikke bestemme meg for om jeg liker den stilen best eller den som er i noen av de andre bildene med mer maleripreg. Liker alle. 
+Ta med: Kanskje?
+
+## 16-Illustration.jpg
+Liker: Har ved hjelp av AI lagd denne illustrasjonen av området vi skal gifte oss. 
+Liker ikke: KLarer ikke bestemme meg for om jeg liker den stilen best eller den som er i noen av de andre bildene med mer maleripreg eller mer strektegning. Liker alle. 
 Ta med: Kanskje?
