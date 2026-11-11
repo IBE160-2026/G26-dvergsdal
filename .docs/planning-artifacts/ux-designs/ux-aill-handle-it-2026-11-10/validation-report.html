@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UX Design Validation: AI&#x27;ll handle it</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+  .nb-summary { border-left-color: var(--verdict-adequate); }
+  .nb-summary h2 { margin: 0 0 8px; font-size: 15px; font-weight: 600; }
+  .nb-summary ul { margin: 0; padding-left: 20px; }
+  .nb-summary li { margin-bottom: 4px; }
+  .finding-note ul, .finding-fix ul { margin: 4px 0 4px; padding-left: 20px; }
+  .finding-note span, .finding-fix span { display: block; }
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.88em; background: rgba(120,113,108,0.10); padding: 0 3px; border-radius: 3px; }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="synthesis nb-summary" lang="nb">
+      <h2>Kort oppsummering (norsk)</h2>
+      <ul>
+        <li>Hva er sjekket: to KI-gjennomganger av UX-dokumentene DESIGN.md (utseende) og EXPERIENCE.md (oppførsel). Den ene sjekket at dokumentene er komplette og henger sammen, den andre sjekket tilgjengelighet (WCAG 2.2 AA og eldre brukere som bestefar Sigmund).</li>
+        <li>Antall funn: 1 kritisk, 5 høy, 25 middels og 24 lav (55 i alt). Noen funn går igjen hos begge gjennomgangene, for eksempel forsiden og fokusringen.</li>
+        <li>Viktigst 1 (kritisk): et halvutfylt svar kan forsvinne hvis Messenger-nettleseren laster siden på nytt. Hvert steg bør lagres som et utkast på serveren.</li>
+        <li>Viktigst 2: forsiden lover at alt vises uten å scrolle på mobil, men målingen viser at knappen «Svar på invitasjonen» havner langt under skjermkanten. Det må bestemmes nå.</li>
+        <li>Viktigst 3: papirteksturen på den grønne bakgrunnen gjør den lyse teksten for svak (kontrast), og oppsettet tåler ikke 200 % zoom. I tillegg er det ikke bestemt hvor spørsmålet om ankomst (FR-18) skal stå i skjemaet.</li>
+        <li>Det gis ingen samlet karakter. Neste steg er å ta funnene inn i en oppdatering av DESIGN.md og EXPERIENCE.md.</li>
+      </ul>
+    </div>
+
+    <header class="report-header">
+      <div class="title">
+        <h1>AI&#x27;ll handle it — UX Design Validation Report</h1>
+        <div class="subtitle">.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md · .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md</div>
+      </div>
+    </header>
+
+    <div class="synthesis">
+      <p>The pair is a usable contract. Every colour token has a hex value (light only, which decision D justifies), and all 12 stated contrast ratios recompute exactly. The 30 component names match one to one across DESIGN.md › Components and EXPERIENCE.md › Component Patterns. All six UJ titles are taken verbatim from the PRD, and every memlog decision has landed in a spine. Two high-impact gaps remain before stories can be written. First, the committed hero tokens most likely break FR-7's "no scrolling on a phone" promise. Second, the position of the FR-18 arrival step is still open. Neither is critical. A handful of medium component and token gaps also remain: focus on the primary button, colours for status tags, the consent block, and the admin overview table.</p>
+      <p>The accessibility review shifts the picture. Measured in a rendered harness, it confirms the rubric's hero concern as fact rather than estimate (the button sits at 797px on a 360 × 640 screen), and it adds the report's only critical finding: nothing guarantees that a half-filled household answer survives a reload in the Messenger in-app browser, which puts SM-3 at risk. It also finds that the paper texture pushes the cream-on-green pair below 4.5:1 and that the type rules break at 200 % zoom. Its own verdict is that the spines are not ready to hand to implementation until the critical and high findings are resolved. Several findings overlap between the two reviewers (hero above the fold, focus offset, copy-button failure); they are kept separate below and counted once per reviewer.</p>
+      <p><strong>Findings by severity:</strong> Critical 1 · High 5 · Medium 25 · Low 24 (rubric walker and accessibility reviewer combined; no overall grade).</p>
+    </div>
+
+    <div class="dimension-summary">
+      <div class="dim-card">
+        <div class="dim-name">Flow coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Token completeness</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Component coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">State coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Visual reference coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Bloat &amp; overspecification</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Inheritance discipline</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Shape fit</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
+      </div>
+    </div>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Flow coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Checked: UJ-1 to UJ-6 from the PRD (§4), plus the v1 guest-flow FRs the flows depend on (FR-7, FR-13 to FR-23, FR-34 to FR-38, FR-41 to FR-43). All six UJs have a Key Flow with a named protagonist, numbered steps, a <strong>Climax</strong> beat and a failure path. The memlog override on the UJ-1 quality bar is applied.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Hero content does not fit above the fold on a phone</h3>
+              <span class="finding-location">EXPERIENCE › Component Patterns › Hero panel; Key Flows › UJ-1 step 1; Open Questions 1; DESIGN › Layout &amp; Spacing front-page order</span>
+            </header>
+            <div class="finding-note"><span>UJ-1 step 1 and the FR-7 Hero panel rule promise that names, date, place, invited names, "Barnefritt bryllup", deadline and the button are all visible without scrolling. The committed tokens most likely do not fit. At 360px wide the content box is about 292px (gutter 16 + hero inline padding 18 on each side). Image 17 (1695×928) is then about 160px tall. Adding the nav row (one or two lines at ≥44px), hero padding 30px, seal 96px, names 46px×1.2, invites, date, place, invited, child-free and deadline lines (about 30px each), and the 52px button gives about 670px or more, against roughly 560px of visible viewport at 360×640. This is left as Open Question 1 with no committed rule.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Commit a budget now. Either cap the illustration height (for example <code>hero-illustration.maxHeight</code> ≤ 110px at narrow widths), let the seal shrink at 320–360px, or move the nav words below the hero or onto one line. Then verify with a 360×640 render before the stories are written.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">FR-18 expected arrival has no step position</h3>
+              <span class="finding-location">EXPERIENCE › Interaction Primitives › Form step order; Open Questions 3 and 5</span>
+            </header>
+            <div class="finding-note"><span>FR-18 (expected arrival, a v1 guest-flow requirement) has no step position. The step order in Interaction Primitives skips it, and it is listed as open. Form-step stories, the "Steg n av m" count and the check-answers grouping all depend on it.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Decide the position with Rikke (for example per person together with days, or as its own step before the hike), and record the fixed choices including "Vet ikke".</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">FR-14 read as one step instead of two</h3>
+              <span class="finding-location">EXPERIENCE › Interaction Primitives; DESIGN › Components › Progress line; PRD FR-14</span>
+            </header>
+            <div class="finding-note"><span>FR-14 defines two steps: first who is coming, then "whole weekend?" with days per person. The memlog and EXPERIENCE make it one step: "who is coming and which days (FR-14)". The DESIGN example "Steg 2 av 6" means a different count depending on which reading is used.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>State explicitly whether step 1 is one screen or two, and update the progress-line example to match.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">UJ-2 refund coda has no flow beat</h3>
+              <span class="finding-location">EXPERIENCE › Key Flows › UJ-2, UJ-5</span>
+            </header>
+            <div class="finding-note"><span>The PRD UJ-2 coda (the couple sees "Endret", pays Arild back and registers the refund so the balance is zero) has no flow beat. UJ-5 covers only received payments.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Add a refund step to UJ-5 or a closing line to UJ-2 that points to A9.</span></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Token completeness</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Checked: all 17 <code>colors</code>, 13 <code>typography</code>, 3 <code>rounded</code> and 17 <code>spacing</code> tokens, 21 frontmatter components, and every <code>{path.to.token}</code> reference in both spines. All references resolve, and every colour has a hex value. There are no dark pairs, which is justified by memlog decision D ("light only"). The 12 contrast pairs recompute to the stated values (9.35, 10.61, 5.50, 8.08, 4.95, 8.86, 10.49, 6.64, 6.16, 5.67, 5.50 and 4.52:1).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Focus ring merges with the primary button</h3>
+              <span class="finding-location">DESIGN › Colors <code>focus-on-panel</code>; <code>components.button-primary</code>; EXPERIENCE › Accessibility Floor</span>
+            </header>
+            <div class="finding-note"><span>The focus ring on cream is <code>focus-on-panel</code> <code>#344628</code>, which is the same value as the primary button fill <code>green-dark</code>. The 3px ring therefore merges with the button (1.00:1) unless there is an offset, and no offset is specified.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Add a <code>focus-offset</code> spacing token (for example 2–3px, so the cream panel shows between button and ring) and state it in Components › Primary button.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Status tags have no status → colour mapping</h3>
+              <span class="finding-location">DESIGN › Components › Status tag; EXPERIENCE › Component Patterns › Status tag</span>
+            </header>
+            <div class="finding-note"><span>The status tag says "outlined text label in the state colour", but nothing maps the payment statuses ("Ingenting å betale", "Ikke betalt", "Delbetalt, 300 kr mangler", "Betalt", "Skal ha tilbake 200 kr") or "Endret" to <code>success</code>, <code>warning</code>, <code>error</code> or <code>ink</code>. Only "Stemmer ikke" → <code>error</code> is given.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Add a status → colour → icon table.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">No tokens for busy, hover and pressed states</h3>
+              <span class="finding-location">DESIGN frontmatter <code>components</code></span>
+            </header>
+            <div class="finding-note"><span>No visual tokens for the busy state ("Sender …", the button ignores repeat taps) or for hover/pressed on the secondary button, destructive button and text links. Only <code>green-dark-hover</code> exists.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>State whether busy buttons keep their colours, and give hover treatments for the remaining interactive components.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title"><code>rounded.none</code> unused; choice control lacks radius</h3>
+              <span class="finding-location">DESIGN frontmatter; › Shapes</span>
+            </header>
+            <div class="finding-note"><span><code>rounded.none</code> is defined but never used. Prose gives choice boxes <code>{rounded.md}</code>, but <code>components.choice-control</code> has no radius, and the radio button is round.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Remove <code>none</code> or use it, and add <code>radius</code> to <code>choice-control</code>.</span></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Component coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Checked: every component name across both spines. All 30 rows in DESIGN › Components have a matching row in EXPERIENCE › Component Patterns with real behavioural rules. Gaps are components that are used but not named.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">"One primary button per screen" conflicts with G2</h3>
+              <span class="finding-location">DESIGN › Components › Primary button; EXPERIENCE › Component Patterns › Primary button and Status block</span>
+            </header>
+            <div class="finding-note"><span>"One per screen" for the primary button conflicts with G2. The front page has the RSVP button in the hero and again in its own bottom panel (FR-8). Once the guest has answered, the status block adds a second "Se eller endre svar" primary button next to the hero button that becomes "Se eller endre svar" (FR-37).</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Reword the rule as "one distinct primary action per screen; repeats of the same action allowed". Decide whether the hero button or the status block carries "Se eller endre svar" once the guest has answered.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Consent block has no component row</h3>
+              <span class="finding-location">EXPERIENCE › Consent &amp; Privacy UX; FR-26 to FR-28</span>
+            </header>
+            <div class="finding-note"><span>The consent block has no component row in either spine. It holds the purpose and recipients text before the choice, a Yes/No that starts unanswered, the "Jeg bekrefter at Marie vet om dette og er enig" confirmation, and the withdrawal entry. It is described only in prose, and this is the most sensitive control in the product.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Add a "Consent block" row to both Components tables: visual (panel section, text order, choice control) and behavioural (starts unanswered, never blocks sending, confirmation shown only for others).</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">No component for the A4 overview or admin nav</h3>
+              <span class="finding-location">EXPERIENCE › IA A4 and admin navigation; › Responsive &amp; Platform; DESIGN › Layout &amp; Spacing › Admin</span>
+            </header>
+            <div class="finding-note"><span>Admin has no component for the A4 full overview (table on PC, stacked rows on phone, unanswered households "stand out", mismatch and "Endret" markers) or for the admin nav row. EXPERIENCE says "same word-row pattern", but DESIGN's Nav words are cream text on <code>page-green</code> with no admin variant.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Add "Overview row / table" and an admin nav variant (or say explicitly that admin reuses Nav words on green).</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Several used pieces are not named as components</h3>
+              <span class="finding-location">IA; State Patterns</span>
+            </header>
+            <div class="finding-note"><span>Several pieces are named in IA or states but not as components: the last-updated header (G4b), the typed-confirmation input for tier 3, the multi-line question field (G10) and the admin search field (A6).</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Name them as variants of Text field or Notice in both tables.</span></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>State coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Checked: each G1–G15 and A1–A16 surface against the "Surface coverage" line and the State Patterns table (empty, cold load, focus, error, save failed, locked, conflict, read-only, session expired, static fallback). Coverage is broad and specific.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Status block position on G2 is unstated</h3>
+              <span class="finding-location">EXPERIENCE › IA › Receipt vs status block; DESIGN › Layout &amp; Spacing front-page order</span>
+            </header>
+            <div class="finding-note"><span>The answered state of G2 puts the status block "near the top" without saying whether it sits above, inside or below the hero panel. Above the hero it pushes the FR-7 content further below the fold (see Flow coverage).</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Add the status block to the numbered front-page order in DESIGN › Layout &amp; Spacing.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">No failure state for copy buttons</h3>
+              <span class="finding-location">EXPERIENCE › Responsive &amp; Platform; G7; A6</span>
+            </header>
+            <div class="finding-note"><span>There is no failure state for "Kopier" (G7) or "Kopier lenke" (A6). The clipboard API can fail in Messenger or Facebook in-app browsers, which EXPERIENCE names as a target.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>When copying fails, show the value selected with "Trykk og hold for å kopiere".</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Admin loading behaviour unstated</h3>
+              <span class="finding-location">EXPERIENCE › State Patterns › Loading</span>
+            </header>
+            <div class="finding-note"><span>Loading is defined for guest pages only ("no skeletons or spinners"). Admin loading and slow-list behaviour are unstated.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>One line for admin.</span></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Visual reference coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Checked: <code>mockups/</code> (does not exist yet; three links are expected to resolve after promotion from <code>.working/</code>), <code>wireframes/</code> (none), <code>imports/</code> (empty; inspiration and venue folders are referenced in place by memlog decision), and inline links. "Spines win on conflict" is stated in both headers.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Hero illustration and seal have no specific source file</h3>
+              <span class="finding-location">DESIGN › Components › Hero illustration; › Shapes</span>
+            </header>
+            <div class="finding-note"><span>Two downstream assets have no specific path. (1) The hero illustration is named as "image 17", but the file <code>../../ux/inspirasjon/17-Illustration.jpg</code> is never linked. (2) The seal outline is "in the renders (<code>#seal-shape</code>)", but it appears in nine <code>.working</code> files with different versions, and no one file is named.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Link the image file and name the canonical seal source (for example <code>mockups/illustration-3.html#seal-shape</code>), or export the seal to an SVG file.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Renders linked only in the header, without captions</h3>
+              <span class="finding-location">DESIGN header, › Brand &amp; Style, › Typography, › Shapes</span>
+            </header>
+            <div class="finding-note"><span>DESIGN links the renders only in its header. They are not linked inline at Colors (color-themes-5), Typography (typography-1) or Hero illustration (illustration-3), and the header does not say what each render shows. Inspiration images (01, 03, 08, 09) are cited by number without links.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Move each render link to its section with a one-line caption, and link the cited images.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Final type pairing never rendered together</h3>
+              <span class="finding-location">typography-1; color-themes-5</span>
+            </header>
+            <div class="finding-note"><span>The final type pairing, Imperial Script with EB Garamond at 20px, was never rendered together (typography-1 pairings: S1+B2, S1+B1@20px, S4+B3). color-themes-5 predates both the illustration and the font choice.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Render the final front page (G4a + K1 + T2 + S4 + B1@20 + I7) as one mockup when promoting to <code>mockups/</code>.</span></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Bloat &amp; overspecification</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>DESIGN prose carries a fitting editorial voice. Provenance notes in the Colors table ("renderer's own value, not chosen by the couple") are useful for downstream consumers. EXPERIENCE is mostly tables and rules.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Consent &amp; Privacy UX restates the requirements</h3>
+              <span class="finding-location">EXPERIENCE › Consent &amp; Privacy UX</span>
+            </header>
+            <div class="finding-note"><span>Consent &amp; Privacy UX largely restates FR-25 to FR-30, FR-43 and NFR-4, although the header says requirements are "not restated here".</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Keep the UX decisions (explanation before Yes/No, withdrawal in two places, confirmation wording) and cite the FRs for the rest.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">"Surface coverage" is one long run-on line</h3>
+              <span class="finding-location">EXPERIENCE › State Patterns</span>
+            </header>
+            <div class="finding-note"><span>The "Surface coverage" paragraph is a single 150-word run-on line, which is hard to source-extract.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Turn it into a Surface | States table.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Decided items live in struck-through Open Questions</h3>
+              <span class="finding-location">EXPERIENCE › Open Questions 6</span>
+            </header>
+            <div class="finding-note"><span>Open Questions keeps struck-through decided items, and the hike "kanskje" decision (memlog: shown separately in the admin summary) lives only there.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Move it into Component Patterns › Admin summary row and drop the struck items.</span></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Inheritance discipline</h2>
+          <span class="verdict-pill verdict-strong">strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Checked: all 7 <code>sources</code> paths resolve. UJ-1 to UJ-6 titles match the PRD verbatim. The PRD's English working labels map to bokmål through the microcopy table ("Needs attention" → "Trenger oppfølging", "Changed" → "Endret" and so on), and that wording is used consistently. Component names are identical in both Components tables, and every EXPERIENCE token reference resolves to a DESIGN token.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Example deadline has the wrong weekday</h3>
+              <span class="finding-location">EXPERIENCE › State Patterns › Locked after deadline</span>
+            </header>
+            <div class="finding-note"><span>The example deadline "fredag 1. desember kl. 23:59" has the wrong weekday: 1 December 2027 is a Wednesday.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Correct the weekday, or use a neutral example date.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Frontmatter component keys drift from table names</h3>
+              <span class="finding-location">DESIGN frontmatter vs › Components</span>
+            </header>
+            <div class="finding-note"><span>Frontmatter component keys drift from the table names: <code>panel</code> ↔ Info card, <code>field</code> ↔ Text field, <code>link-more</code> ↔ Text link / "Les mer".</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Name the key in each table row, or align the names.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">EXPERIENCE frontmatter uses <code>title:</code> instead of <code>name:</code></h3>
+              <span class="finding-location">EXPERIENCE frontmatter</span>
+            </header>
+            <div class="finding-note"><span>EXPERIENCE frontmatter uses <code>title:</code> where the examples use <code>name:</code>.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Add <code>name: "AI'll handle it"</code>.</span></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>Shape fit</h2>
+          <span class="verdict-pill verdict-strong">strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>DESIGN sections are in the locked order: Brand &amp; Style → Colors → Typography → Layout &amp; Spacing → Elevation &amp; Depth → Shapes → Components → Do's and Don'ts. EXPERIENCE has all required defaults. Inspiration &amp; Anti-patterns is present, which the memlog rejects trigger, and Responsive &amp; Platform is present, as triggered by phone, PC and admin. Two invented sections earn their place: Consent &amp; Privacy UX (consumer stakes, health-adjacent data) and Open Questions.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">G4b is an element, not an IA surface</h3>
+              <span class="finding-location">EXPERIENCE › IA</span>
+            </header>
+            <div class="finding-note"><span>G4b ("Last-updated header + conflict notice") is listed as an IA surface, but it is an element inside G4.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Move it to Component Patterns or State Patterns.</span></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Accessibility review</h2>
+          <span class="reviewer-source">review-accessibility.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>The token table looks compliant, but nearly every guarantee is made on paper and fails when you measure it: the cream-on-green pair has no headroom and the paper texture already pushes it under 4.5:1, the "above the fold" hero sits about 160px below the fold on a 360 × 640 phone, and the layout rules break at the zoom level Sigmund is most likely to use. Worse, the spines never say what happens to a half-filled household answer when the Messenger in-app browser reloads, which puts SM-3 at risk. <strong>Not ready to hand to implementation</strong> until the critical and high findings below are resolved in the spines.</p>
+            <p>How this was checked: contrast was recomputed from the hexes (WCAG 2.x relative luminance) in a scratch script, and every pair in DESIGN.md › Contrast pairs matches to two decimals. A spec-faithful front page was rebuilt from the renders' CSS (render texture, image 17, Imperial Script and EB Garamond, plus the nav-word row that no render includes) and rendered headless in Chrome at 360 × 640, 320 × 568 and 180 × 320 (a 360px phone at 200 % text or zoom); screenshot pixels were sampled for the texture finding. Measurements quoted come from that harness, not from estimates. Key reader: bestefar Sigmund, 78, SMS link on his phone (UJ-1, SM-3, NFR-5).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">An unsent answer does not survive a reload, discarded tab or timeout</h3>
+              <span class="finding-location">EXPERIENCE § State Patterns "Not sent yet"; § Interaction Primitives "One step at a time"; § Responsive &amp; Platform "In-app browsers"</span>
+            </header>
+            <div class="finding-note"><span>Nothing in the spines says an unsent answer survives a reload, a discarded tab or a timeout. The only protection is a leave warning, and the spine itself admits in-app browsers "cannot be relied on" for it. Messenger and Facebook WebViews routinely reload a page when the user switches apps. Sigmund will put the phone down to ask bestemor about her allergies or take a call, then come back to a blank form. No guest-side form or CSRF token lifetime is specified either, so a "Send svaret" after a long pause may fail. Under WCAG 2.2.1 a time limit needs a warning and a way to extend it, and here the user is not even told one exists. This directly threatens SM-3 (completing alone in under 10 minutes).</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Make "Fortsett" persist each step server-side as a household draft (status "ikke sendt"). On reopening the link, show "Du har et svar som ikke er sendt ennå. Fortsett der du slapp" on G2 and in the status block. State that guest pages have no session or token expiry, or that expiry is at least 20 hours, and that an expired submit keeps all input. Add the draft states to the Surface coverage list.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">The paper texture breaks the 4.95:1 cream-on-green pair</h3>
+              <span class="finding-location">DESIGN § Elevation &amp; Depth "Paper texture"; § Contrast pairs; § Components "Nav words", "Lead-in"</span>
+            </header>
+            <div class="finding-note"><span>Keeping the <em>average</em> colour unchanged is not enough. Overlay noise lightens individual pixels, and this pair has only 0.45 of headroom. Sampled from the render's own <code>--grain-green</code>/<code>--fibre-green</code> on <code>#5A6C48</code>:</span><ul><li>17.4 % of background pixels give <code>#F5EEDF</code> text less than 4.5:1;</li><li>the 95th percentile is 4.23:1 and the worst pixel is 3.47:1.</li></ul><span>This text is the primary navigation and the lead-in, set in thin EB Garamond (the lead-in is italic). It fails 1.4.3 wherever a glyph lands on a light speck. The panels are fine: ink stays ≥ 7.8:1 and <code>ink-muted</code> ≥ 4.6:1 on the textured cream.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Either take the texture off the green behind text (a <code>page-green</code> band under the nav row and lead-in), or cap the green texture so that no pixel is lighter than <code>#5F7250</code> (≥ 4.5:1 with headroom), or darken <code>page-green</code> by about 2 L* so that the lightest texture pixel still passes. Write the rule "contrast is checked against the lightest texture pixel, not the average" into DESIGN § Contrast pairs.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">The "everything above the fold" claim is false</h3>
+              <span class="finding-location">EXPERIENCE § Component Patterns "Hero panel"; § Key Flows UJ-1 step 1; DESIGN § Layout &amp; Spacing front-page order</span>
+            </header>
+            <div class="finding-note"><span>The spine states it as fact in two places. Measured bottom of the "Svar på invitasjonen" button:</span><ul><li><strong>797px</strong> at 360 × 640, so the button and the deadline line are entirely below the fold;</li><li><strong>805px</strong> at 320 × 568;</li><li>about 240px below the fold in a Messenger in-app browser, which leaves roughly 360 × 560 visible;</li><li>over 1 100px at 200 % zoom.</li></ul><span>The nav row alone takes 104px (two lines), and image 17 takes 152px. Open Question 1 suggests "cap illustration height or shrink the seal", but that is not enough. Even removing <em>both</em> leaves the button at about 630px with no margin for the in-app toolbar. Sigmund, who does not scroll speculatively, may never see the deadline or the button.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Decide it now rather than leave it open:</span><ul><li>move the nav row <em>below</em> the hero, or reduce it to a single "Les mer om helgen ↓" line;</li><li>cap the illustration at about 90px tall (<code>object-fit: cover</code>), or move it below the button;</li><li>put the deadline directly above the button;</li><li>re-measure at 360 × 560.</li></ul><span>Rewrite UJ-1 step 1 so it does not promise what the layout cannot deliver.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">The reflow rules contradict each other at the zoom level older users actually use</h3>
+              <span class="finding-location">DESIGN § Typography "Imperial Script … never below 32px … shrink to fit at 320px rather than wrap"; § Layout &amp; Spacing; EXPERIENCE § Accessibility Floor; § Responsive &amp; Platform</span>
+            </header>
+            <div class="finding-note"><span>On a phone, "200 % zoom" means Android font scaling (which Chrome now applies as page zoom) or iOS page zoom. That gives a layout viewport of about 180 CSS px, not 320. At 180px:</span><ul><li>the names need 17px to fit, which breaks the 32px floor, yet <code>white-space: nowrap</code> forbids wrapping, so the document becomes 296px wide and scrolls sideways (fails 1.4.10);</li><li>the nav row becomes four lines (192px).</li></ul><span>The render shrinks the names with <code>cqi</code> units. This means zoom does not enlarge them, which conflicts with 1.4.4. Container queries are also unsupported in iOS &lt; 16 and older Android WebViews, and that is exactly Sigmund's old phone, where the fallback is a fixed 46px nowrap line that overflows even at 320px (measured 262px of names in a 237px box). Long bokmål compounds ("Allergiopplysningene", "Hardingasete") will also overflow narrow columns. All type tokens are in px, which ignores the browser font-size setting.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <ul><li>let the names wrap onto two lines (name / "&amp;" / name, as in inspiration 09) below about 300px instead of shrinking;</li><li>drop the "shrink to fit" rule and any <code>cqi</code>/JS fitting;</li><li>specify <code>rem</code> for type tokens, <code>overflow-wrap: anywhere</code> and <code>hyphens: auto</code> (with <code>lang="nb"</code>);</li><li>add 180 × 320 as an explicit check width in § Responsive &amp; Platform.</li></ul></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Hint text breaks the spine's own rule, and the 18px floor holds only in the letter</h3>
+              <span class="finding-location">DESIGN § Colors <code>ink-muted</code> "Never: … anything the guest must read to act" vs § Components "Text field … hint below in <code>{typography.small}</code> <code>{colors.ink-muted}</code>"; § Typography</span>
+            </header>
+            <div class="finding-note"><span>Format hints such as "for eksempel 900" are exactly what the guest must read to act, yet they are set in the smallest and lightest style. EB Garamond's x-height is 0.41, so <code>small</code> at 18px renders like about 15px Georgia (the typography render says so itself). That is below the <em>intent</em> of NFR-5's 18px floor, and it also covers the progress line and footer meta.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Set hints in <code>ink</code> at <code>body</code> size, italic if they must be told apart. Raise <code>small</code> to 19–20px, or limit it to text nobody needs to act on (timestamps, "Ikke oppgitt").</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Focus visibility depends on an offset that is never specified</h3>
+              <span class="finding-location">DESIGN § Colors <code>focus-on-panel</code>; § Components "Primary button", "Text field"; EXPERIENCE § Accessibility Floor</span>
+            </header>
+            <div class="finding-note"><ul><li><code>focus-on-panel</code> is <code>#344628</code>, the same colour as the primary button fill, so with <code>outline-offset: 0</code> the ring merges into the button (1:1).</li><li>On a text field the ring replaces a 2px <code>#5E594F</code> border with a 3px <code>#344628</code> ring. The two differ by only 1.50:1, so the focused field looks almost the same as an unfocused one.</li><li>Rings drawn past a panel edge land on <code>page-green</code> at 1.79:1.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Add <code>focus-offset: 3px</code> as a token and make it mandatory. On fields, use a ring <em>plus</em> a thicker border, or a 3px ring offset outside a cream gap. Choose the ring colour by the surface the ring is <em>painted on</em>, not by the element's parent. Specify <code>:focus-visible</code> with no <code>outline: none</code> anywhere.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Field error, hint and consent semantics are left undefined</h3>
+              <span class="finding-location">DESIGN § Components "Text field", "Choice control"; EXPERIENCE § Component Patterns "Text field", "Error summary"; § Consent &amp; Privacy UX</span>
+            </header>
+            <div class="finding-note"><span>The spine places the error "between label and field" but never changes the field's visual state: border colour and width stay the same. It also never requires <code>aria-invalid</code>, or <code>aria-describedby</code> linking the hint and error to the input. The consent explanation must be read <em>before</em> Yes/No, but there is no fieldset/legend/describedby structure tying the long text to the radio group. Choice groups get no error placement at all.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Error state = <code>error</code> 3px border plus the error text with icon, <code>aria-invalid="true"</code>, and <code>aria-describedby="hint error"</code>. Every radio group is a <code>fieldset</code>, with the question as <code>legend</code> and the error inside the fieldset. Consent text goes in the fieldset, before the radios, and is referenced from the legend.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Feedback on server-rendered pages is planned as if it were a single-page app</h3>
+              <span class="finding-location">EXPERIENCE § Component Patterns "Notice"; § Accessibility Floor "announced via polite live regions"</span>
+            </header>
+            <div class="finding-note"><span>Each step, the check page, the receipt and G8 are full page loads (NFR-7 "server pages"). Live regions do not announce content that is present at load, so "Svaret er sendt" and validation results are silent to screen readers unless focus is managed. The page title is also "identical for every guest" and presumably the same for every step, which fails 2.4.2 in practice.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>On every load, set <code>&lt;title&gt;</code> to "Steg 3 av 6: Måltider – Invitasjon", prefixed with "Feil: " when there are errors. Focus the error summary when there are errors; otherwise let focus start at the top, with the <code>h1</code> as the step question. Keep live regions for in-page changes only (running total, "Kopiert").</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The step count "Steg n av m" moves under the guest</h3>
+              <span class="finding-location">EXPERIENCE § Component Patterns "Progress line"; DESIGN § Components "Progress line"</span>
+            </header>
+            <div class="finding-note"><span>If m is recalculated as steps appear or disappear, Sigmund sees "Steg 3 av 5" and then "Steg 4 av 6", which undermines the one orientation cue an older user relies on. It is also set in the smallest type (see the hint finding).</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Settle m after step 1, which determines all conditional steps. Show the step name in the progress line ("Steg 2 av 6: Overnatting"), set it at <code>body</code> size, and expose it as the first line under the <code>h1</code>.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Browser Back on POST-driven steps is left unspecified</h3>
+              <span class="finding-location">EXPERIENCE § Interaction Primitives "browser Back equals 'Tilbake' [ASSUMPTION]"</span>
+            </header>
+            <div class="finding-note"><span>With server-submitted steps, Back produces "Bekreft innsending av skjema" prompts or stale pages. Older users press Back constantly.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Require Post/Redirect/Get for every step, so each step has its own GET URL and Back is always safe and shows the saved draft (see the critical finding).</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The nav-word row has unaddressed semantics and wayfinding problems</h3>
+              <span class="finding-location">DESIGN § Components "Nav words"; EXPERIENCE § Information Architecture "Navigation"</span>
+            </header>
+            <div class="finding-note"><ul><li>Middle-dot separators written as text are read aloud ("midtpunkt") between every link, and they dangle at line starts when the row wraps.</li><li>No render has ever shown the row.</li><li>"Svar" is only about 44px wide at 20px with 6px padding, so NFR-5's 44 × 44 needs explicit inline padding. The spine specifies only height.</li><li>The row has no entry for the invitation itself, so on G3 the current-page marker works but there is no way "home" except "Tilbake til invitasjonen".</li><li>"Svar" (a noun or verb with a changing destination) competes with the primary "Svar på invitasjonen".</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Use <code>&lt;nav aria-label="Invitasjonen"&gt;&lt;ul&gt;</code> with the dots generated by CSS <code>::before</code> (<code>aria-hidden</code> by nature). Set an inline padding token so every word is ≥ 44 × 44. Add "Invitasjonen" as the first word on G3. Rename "Svar" to "Ditt svar", or drop it, since the button already exists.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The couple's names exist only in a hairline script, and there is no defined <code>h1</code></h3>
+              <span class="finding-location">DESIGN § Typography "Imperial Script"; EXPERIENCE § Component Patterns "Hero panel"; § Accessibility Floor "page titles … contain no names"</span>
+            </header>
+            <div class="finding-note"><ul><li>The typography render itself rated Imperial Script "litt tyngre å lese" with "svært tynne oppstreker".</li><li>On G2 the names appear nowhere else on the screen, and the tab title has no names (FR-4). A guest with low vision or cataracts gets the most important fact (whose wedding) only in the least legible type on the page.</li><li>The renders use <code>&lt;p&gt;</code> for both names and card headings, and the spine never fixes the heading outline.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Set the invites line in plain text as "Rikke og Valdemar inviterer deg til bryllup", with the script names as a decorative echo above it (<code>aria-hidden</code>). Alternatively, make the <code>h1</code> the script names with a plain-text accessible name. Fix the outline: <code>h1</code> names/invitation, <code>h2</code> per card, <code>h1</code> = step question on form pages.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Forced colours break three things</h3>
+              <span class="finding-location">DESIGN § Components "Hero illustration" <code>mix-blend-mode: darken</code>, "Choice control", "Primary button"</span>
+            </header>
+            <div class="finding-note"><span>Forced colours (Windows High Contrast, Android high-contrast themes):</span><ul><li>In a dark forced-colour theme the panel background becomes black, and <code>darken</code> takes the minimum of the image and the backdrop, so the illustration turns into a solid black box.</li><li>Custom choice controls whose "selected" state is a <code>green-dark</code> <em>background fill</em> lose that fill, so checked and unchecked look identical.</li><li>Primary buttons that are links with only a background have no visible boundary.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> <ul><li>bake the panel colour into the shipped JPG instead of blending at runtime; this also guarantees zero colour shift and removes a WebView compatibility risk;</li><li>draw the check/dot as an SVG or <code>::after</code> with <code>currentColor</code>, or use native inputs with <code>accent-color</code>;</li><li>give buttons <code>border: 2px solid transparent</code>;</li><li>add a <code>@media (forced-colors: active)</code> check to § Accessibility Floor.</li></ul></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">"Light only" is a wish with no mechanism behind it</h3>
+              <span class="finding-location">DESIGN § Brand &amp; Style "Light only"; EXPERIENCE § Foundation</span>
+            </header>
+            <div class="finding-note"><span>Samsung Internet's dark mode is a likely default browser for older Android users. It and Chrome's auto-dark force-darken pages that do not opt out. Cream panels go dark, ink goes light, and the <code>darken</code>-blended illustration collapses.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Specify <code>&lt;meta name="color-scheme" content="light only"&gt;</code> and <code>:root { color-scheme: light only; }</code>, test in Samsung Internet with dark mode on, and record the result.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">State colours cannot be told apart</h3>
+              <span class="finding-location">DESIGN § Colors <code>error</code>/<code>success</code>/<code>warning</code>; § Components "Notice", "Status tag"; EXPERIENCE § Component Patterns "Status tag"; IA A4 "unanswered stand out"</span>
+            </header>
+            <div class="finding-note"><span>Icon shape and text must do all the work, and the spine does not say how.</span><ul><li>The three state colours differ from each other by only 1.08–1.17:1 in luminance. To a colour-blind user, or an older eye with yellowed lenses, rust, olive and brown are the same dark brown.</li><li>The notice spec gives one "22px icon" without saying the icons differ in shape.</li><li>"Unanswered stand out" in A4 has no mechanism, which in practice means colour.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Specify distinct icon shapes (error = triangle/!, warning = circle/!, success = check, info = i) and a visible text prefix ("Feil:", "Obs:"). In A4, mark unanswered households with the word "Ikke svart" and sort them first.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The undo bar fails timing, focus and obscuring checks</h3>
+              <span class="finding-location">EXPERIENCE § Component Patterns "Undo bar", "Attention item"; § Admin protection tiers tier 1; DESIGN § Components "Undo bar"; § Accessibility Floor 2.4.11</span>
+            </header>
+            <div class="finding-note"><ul><li>Ten seconds is not enough for a screen-reader or switch user to hear a polite announcement and travel to a bar at the bottom of the viewport.</li><li>The "can also be unmarked later" escape hatch has no defined location, so the timed bar may be the <em>only</em> undo, which falls under 2.2.1.</li><li>"Merk som håndtert" removes the focused row, so focus drops to <code>&lt;body&gt;</code>.</li><li>A fixed bottom bar is exactly the sticky element the spine bans on guest pages (2.4.11), and at 200 % zoom it covers a large share of a phone screen.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Replace the row in place with "Merket som håndtert. Angre", move focus to "Angre", and keep it until the user leaves the page (no timer). Define where handled items can be found and unmarked (a "Vis håndterte" filter). No fixed bars in admin either.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Admin session expiry loses input, and the spine leaves it open</h3>
+              <span class="finding-location">EXPERIENCE § State Patterns "Session expired"; Open Question 8</span>
+            </header>
+            <div class="finding-note"><span>Logging Rikke out mid-edit with no warning and no extension fails 2.2.1 unless the session lasts ≥ 20 hours.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Decide now: either a ≥ 20-hour idle session, or a warning dialog two minutes before expiry with "Fortsett å være logget inn", plus restoring the unsaved form after logging in again.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Dialog behaviour is underspecified for phones and screen readers</h3>
+              <span class="finding-location">EXPERIENCE § Component Patterns "Dialog"; DESIGN § Components "Dialog"</span>
+            </header>
+            <div class="finding-note"><ul><li>"Focus moves into it" does not say <em>to what</em>. For tier 2 and 3 the consequence sentence must be heard first.</li><li>"Actions right-aligned, safest action first" is ambiguous in DOM versus visual order, and right-aligned side-by-side buttons do not survive 320px or 200 %.</li><li>"Esc = cancel" does not exist on a phone, and scrim taps are unspecified.</li><li>The guest leave-warning dialog has no button wording.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Use <code>role="alertdialog"</code> with <code>aria-labelledby</code> set to the heading and <code>aria-describedby</code> set to the consequence, and focus the safe button (or the heading for tier 3). Stack buttons full-width on narrow screens, safe action first in both DOM and visual order. A scrim tap equals cancel. The leave warning says "Svaret er ikke sendt ennå", with buttons "Bli og fullfør svaret" (primary) and "Gå uten å sende". Let the dialog body scroll at 200 %.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The "Kopier" buttons on G7 are identical and fragile in in-app browsers</h3>
+              <span class="finding-location">DESIGN § Components "Payment details"; EXPERIENCE § Component Patterns "Payment details"</span>
+            </header>
+            <div class="finding-note"><ul><li>Four buttons all named "Kopier" are ambiguous to screen readers and voice control.</li><li><code>navigator.clipboard</code> is missing or blocked in some Messenger and Facebook WebViews, so the button may silently do nothing while showing nothing.</li><li>"Kopiert inline" has no announcement and no duration.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Accessible names "Kopier kontonummer" and so on (the visible label may stay "Kopier"). Feature-detect, and hide the button when copying is unsupported. Values are always selectable plain text at <code>body</code> size with lining figures. "Kopiert" goes in a polite live region and stays until the next copy.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The footer phone numbers, the help path for older guests, have no stated targets</h3>
+              <span class="finding-location">DESIGN § Components "Footer band"; EXPERIENCE § Component Patterns "Footer band"</span>
+            </header>
+            <div class="finding-note"><span>In color-themes-5 the two numbers share one paragraph separated by <code>&lt;br&gt;</code> at 27px line height, so two adjacent <code>tel:</code> targets are well under NFR-5's 44px, and a mis-tap calls the wrong person.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Give each contact its own ≥ 44px row: "Ring Rikke 900 00 000" and "Send SMS til Rikke", as separate full-width links. Note that <code>sms:</code> body syntax differs between iOS and Android, so link the number only.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Guest content must not depend on JavaScript in v1, yet the spine defers that guarantee to [2027]</h3>
+              <span class="finding-location">EXPERIENCE § Component Patterns "Hero panel … Renders without JavaScript [2027]"; § State Patterns "Static fallback [2027]"</span>
+            </header>
+            <div class="finding-note"><span>Read literally, the v1 invitation and form may require JS, which old phones and in-app browsers fail on first.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>In v1, all guest pages and form steps are server-rendered HTML that work without JS. JS only adds the running-total update, copy buttons and the envelope. Only the envelope's fallback can wait for [2027].</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The illustration's alt text is long and read before the names</h3>
+              <span class="finding-location">EXPERIENCE § Component Patterns "Hero illustration"; illustration-3.html alt for I7, about 200 characters</span>
+            </header>
+            <div class="finding-note"><span>A screen-reader user hears a description of a watercolour before learning whose wedding it is, and the venue is described in text on G3 anyway.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Use <code>alt=""</code> (decorative, since its information is in the text), or a short alt such as "Akvarell av tunet på Hardingasete."</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The seal is marked decorative but carries live text</h3>
+              <span class="finding-location">EXPERIENCE § Component Patterns "Wax seal" <code>alt=""</code>; renders put "R &amp; V" in a <code>&lt;span&gt;</code></span>
+            </header>
+            <div class="finding-note"><span>An <code>alt=""</code> on an image does not hide sibling text, so screen readers announce "R og V" before the names.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span><code>aria-hidden="true"</code> on the whole seal container, or render the seal and monogram as one SVG with <code>alt=""</code>.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Four identical visible "Les mer" links, and the card itself is not a target</h3>
+              <span class="finding-location">DESIGN § Components "Info card"; EXPERIENCE § Component Patterns "Info card"</span>
+            </header>
+            <div class="finding-note"><span>The hidden "om programmet" helps screen readers but not Sigmund, who will tap the heading "Programmet" and get nothing.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Make the visible link text "Les mer om programmet", or make the heading the link with the whole card as the hit area (one link per card).</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The respondent switch "Bytt" is a link that changes state</h3>
+              <span class="finding-location">DESIGN § Components "Respondent line"; EXPERIENCE § Component Patterns "Text link … never submits data"</span>
+            </header>
+            <div class="finding-note"><span>"Bytt" alone does not say what it changes, it sits first on every step, and as a link it contradicts the rule that links never change data.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Use a button with the accessible name "Bytt hvem som svarer" and <code>aria-expanded</code>, give it a ≥ 44px target, and place it after the step question rather than before.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Hover and pressed states give no tap feedback</h3>
+              <span class="finding-location">DESIGN § Colors <code>green-dark-hover</code></span>
+            </header>
+            <div class="finding-note"><span><code>#2C3A20</code> against <code>#344628</code> is 1.18:1, so on a phone the "did my tap work?" signal is invisible until the "Sender …" text appears, and that appears only on submits.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>The pressed state also gets the 3px offset ring, or an inset cream rule, and every button responds visibly on <code>:active</code>.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The lining figures are still an [ASSUMPTION] and may be stripped by subsetting</h3>
+              <span class="finding-location">DESIGN § Typography "Figures"</span>
+            </header>
+            <div class="finding-note"><span>EB Garamond defaults to old-style figures, which are hard for older eyes to read in "1 450 kr", "23:59" and account numbers. Subsetting tools often drop the <code>lnum</code> and <code>tnum</code> features.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Make lining figures a requirement (<code>font-variant-numeric: lining-nums</code>), keep <code>lnum</code> and <code>tnum</code> in the self-hosted WOFF2 subset, and verify in the built page. Use a non-breaking space in "1 450" so screen readers read one number.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The typed confirmation will fight phone keyboards</h3>
+              <span class="finding-location">EXPERIENCE § Admin protection tiers tier 3; Voice and Tone "Tier-3 typed word"</span>
+            </header>
+            <div class="finding-note"><span>Autocapitalise and autocorrect will turn "SLETT" into "Slett" or a suggestion. Household "names" with "og", commas or æøå invite mismatches, and a disabled destructive button does not explain itself.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Match case-insensitively with trimmed whitespace, set <code>autocapitalize="off" autocorrect="off" spellcheck="false"</code>, show the exact word to type in plain text in the label, and keep the button enabled but validate on press with an inline error.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The envelope reveal needs more than reduce-motion</h3>
+              <span class="finding-location">EXPERIENCE § Envelope reveal; DESIGN § Components "Envelope reveal"</span>
+            </header>
+            <div class="finding-note"><span>It needs:</span><ul><li>a cap of 5 s or less (2.2.2);</li><li>the static invitation present in the DOM and readable by screen readers underneath, not <code>display: none</code> until the animation ends;</li><li>focus and scroll at the top of G2 afterwards;</li><li>"Hopp over" ≥ 44 × 44, placed on cream or <code>green-dark</code> (not on textured <code>page-green</code>, see the texture finding);</li><li>a fail-safe: no JS or storage means no envelope.</li></ul></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>Add these as acceptance criteria next to the [If time] item.</span></div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Admin density competes with targets and type size</h3>
+              <span class="finding-location">DESIGN § Layout &amp; Spacing "Admin"; tokens <code>admin-body</code> 18px, <code>admin-gap</code> 8px; EXPERIENCE § Accessibility Floor "admin the same [ASSUMPTION]"</span>
+            </header>
+            <div class="finding-note"><span>Rows of 18px EB Garamond (about 15px Georgia-equivalent) with 8px gaps and 44px targets will not fit FR-48's "one phone screen" for long lists. Something will give, and the spine does not say what. Stacked mobile tables also lose header associations.</span></div>
+            <div class="finding-fix"><strong>Fix:</strong> <span>State that 44px targets win over density. Stacked rows repeat their labels as visible text ("Betalt: 900 kr"), not as CSS-only headers.</span></div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <div class="mechanical">
+      <h3>Mechanical notes</h3>
+      <ul>
+        <li><strong>Broken links:</strong> only the three expected ones (<code>mockups/color-themes-5.html</code>, <code>mockups/typography-1.html</code>, <code>mockups/illustration-3.html</code>, linked in both headers, waiting for promotion from <code>.working/</code>). No other broken links. <code>.memlog.md</code>, <code>DESIGN.md</code>, the PRD and its addendum, <code>inspirasjon.md</code> and <code>stedet.md</code> all resolve. <code>imports/</code> is empty, as intended (the memlog references these folders in place).</li>
+        <li><strong>Token references:</strong> every <code>{colors.<em>}</code>, <code>{typography.</em>}</code>, <code>{spacing.<em>}</code>, <code>{rounded.</em>}</code> and <code>{components.*}</code> reference in both files resolves. <code>rounded.none</code> is unused.</li>
+        <li><strong>Contrast:</strong> all 12 stated pairs recompute exactly. Pairs in use but not listed, all of which pass: <code>error</code> on <code>field-surface</code> 7.52:1 and <code>ink-muted</code> on <code>field-surface</code> 6.23:1. <code>green-dark</code> on <code>page-green</code> is 1.79:1, which is correctly the reason for the "primary buttons only on cream" rule.</li>
+        <li><strong>Memlog landing:</strong> every decision and override landed. Earlier entries that were superseded (script reference 01, receipt-focused climax, card style, walnut ink, illustration style open) are correctly not carried. One weak landing: hike "kanskje" exists only in struck-through Open Questions (see Bloat &amp; overspecification).</li>
+        <li><strong>Frontmatter:</strong> DESIGN has name, description, status, created, updated and all token groups. EXPERIENCE has title, status, created, updated and sources, but no <code>name</code>.</li>
+        <li><strong>Mermaid:</strong> none present.</li>
+      </ul>
+    </div>
+
+    <footer class="report-footer">
+      <div class="meta">
+        <span>Rubric: .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/review-rubric.md</span>
+        <span>Accessibility: .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/review-accessibility.md</span>
+        <span>DESIGN.md: .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md</span>
+        <span>EXPERIENCE.md: .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md</span>
+        <span>Generated: 2026-11-11T09:05:26Z</span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
