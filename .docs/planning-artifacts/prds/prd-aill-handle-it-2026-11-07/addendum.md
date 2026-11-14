@@ -28,7 +28,7 @@ Warm and "koselig" throughout, including error messages.
 - The animation is If time (PRD section 3.3). The static invitation look is required in v1 (FR-7) and has to work well on its own.
 - The guest first sees a green envelope sealed with a wax-style stamp reading "R & V".
 - The envelope opens and unfolds into an invitation, and the unfolded invitation **is** the website.
-- Once the invitation has unfolded, the envelope and the paper outline disappear. There are no folds and no sheet edges, only the content, in the same visual style as the invitation.
+- Once the invitation has unfolded, the envelope and the folds disappear. ~~There are no folds and no sheet edges, only the content, in the same visual style as the invitation.~~ *Changed 2026-11-14 after the UX work:* the unfolded invitation keeps a soft paper edge, and every content panel on the guest pages is a paper sheet with a soft, hand-made edge and a soft shadow. Reason: Rikke wanted the sheets to look like real paper, like the main sheet in inspiration 01, and the invitation to feel more solemn (UX memlog, 2026-11-11, *Sheet edge refined* and *Front page approved*). Still no folds, no backing sheets and no heart shape or lace.
 - The invitation says that Rikke and Valdemar are getting married on Saturday 27 May 2028 and that the named guests are invited (full content: FR-7).
 - The guest should feel invited to scroll down for more information.
 
