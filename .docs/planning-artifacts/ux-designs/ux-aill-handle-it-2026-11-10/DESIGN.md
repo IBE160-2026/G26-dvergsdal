@@ -1,9 +1,9 @@
 ---
 name: "AI'll handle it"
-description: "Rikke & Valdemar's wedding invitation as a website: flat cream panels on a textured olive-green page, a dark green wax seal, a script name line and printed-invitation body text. Light only."
+description: "Rikke & Valdemar's wedding invitation as a website: cream paper sheets with soft hand-made edges on a textured olive-green page, a dark green wax seal, a gypsophila divider, a script name line and printed-invitation body text. Light only."
 status: draft
 created: 2026-11-10
-updated: 2026-11-11
+updated: 2026-11-14
 colors:
   page-green: '#5A6C48'
   green-dark: '#344628'
@@ -25,14 +25,9 @@ colors:
 typography:
   display-names:
     fontFamily: 'Imperial Script'
-    fontSize: 46px
+    fontSize: 48px
     fontWeight: '400'
     lineHeight: '1.15'
-  monogram:
-    fontFamily: 'Imperial Script'
-    fontSize: 23px
-    fontWeight: '400'
-    lineHeight: '1'
   heading-page:
     fontFamily: 'EB Garamond'
     fontSize: 32px
@@ -45,17 +40,24 @@ typography:
     lineHeight: '1.3'
   date-line:
     fontFamily: 'EB Garamond'
-    fontSize: 24px
+    fontSize: 23px
     fontWeight: '400'
     lineHeight: '1.3'
+    letterSpacing: '0.14em'
+  place-line:
+    fontFamily: 'EB Garamond'
+    fontSize: 20px
+    fontWeight: '400'
+    lineHeight: '1.3'
+    letterSpacing: '0.14em'
   lead-in:
     fontFamily: 'EB Garamond'
-    fontSize: 23px
+    fontSize: 24px
     fontWeight: '400'
     lineHeight: '1.4'
   invites:
     fontFamily: 'EB Garamond'
-    fontSize: 21px
+    fontSize: 20px
     fontWeight: '400'
     lineHeight: '1.3'
   button:
@@ -83,6 +85,7 @@ typography:
     fontSize: 18px
     fontWeight: '400'
     lineHeight: '1.2'
+    letterSpacing: '0.02em'
   small:
     fontFamily: 'EB Garamond'
     fontSize: 18px
@@ -101,6 +104,7 @@ typography:
 rounded:
   sm: 3px
   md: 4px
+  sheet: 5px
   full: 9999px
 spacing:
   '1': 4px
@@ -114,34 +118,36 @@ spacing:
   gutter-narrow: 8px
   panel-gap: 16px
   panel-padding: 20px
-  hero-padding-top: 14px
-  hero-padding-bottom: 18px
-  hero-padding-inline: 18px
+  page-padding-top: 46px
+  hero-padding-top: 26px
+  hero-padding-bottom: 22px
+  hero-padding-inline: 20px
   admin-panel-padding: 12px
   admin-gap: 8px
   content-max: 480px
   target-min: 44px
   button-height: 52px
-  nav-height: 52px
+  nav-height: 64px
   scroll-gap: 12px
   focus-width: 3px
   focus-offset: 3px
 components:
   page:
     background: '{colors.page-green}'
-    texture: 'paper-grain; zero average colour shift; on page-green no pixel lighter than #5F7250'
+    texture: 'calm paper grain (grain-green in mockups/paper-ceremony-5.html); zero average colour shift'
+    paddingTop: '{spacing.page-padding-top}'
   nav-bar:
     background: '{colors.page-green}'
-    texture: 'same as page'
+    texture: 'none (flat, so cream text keeps 4.95:1)'
     height: '{spacing.nav-height}'
-    padding: '4px 10px 4px 14px'
-    shadow: '0 2px 6px rgba(20,24,14,.28)'
+    padding: '8px 12px 8px 16px'
+    borderBottom: '1px rgba(245,238,223,.22)'
     position: 'sticky top 0, only when viewport height >= 400px'
   nav-words:
     foreground: '{colors.cream-on-green}'
     typography: '{typography.nav-words}'
-    gap: '11px'
-    underline: '1px, offset 4px'
+    gap: '12px'
+    underline: 'none; current page 2px, offset 4px'
     minHeight: '{spacing.target-min}'
   nav-svar:
     background: '{colors.green-dark}'
@@ -152,35 +158,42 @@ components:
     minWidth: 64px
     padding: '0 16px'
     typography: '{typography.nav-button}'
+  paper-sheet:
+    background: '{colors.panel-cream}'
+    texture: 'grain-sheet + fibre-sheet, overlay'
+    radius: '{rounded.sheet}'
+    edge: 'filter edge-b3: soft wave, fine fibre, same colour as the sheet, no rim'
+    shadow: 'part of edge-b3: blur 3.2px, offset 0 2.5px, #141A0C at 42 %'
+    layer: 'colour, texture, edge and shadow on ::before behind the content'
+    fallback: 'flat {colors.panel-cream} with {rounded.sheet} under forced-colors or without filter support'
   panel:
-    background: '{colors.panel-cream}'
+    sheet: '{components.paper-sheet}'
     foreground: '{colors.ink}'
-    radius: '{rounded.sm}'
-    padding: '{spacing.panel-padding}'
-    shadow: 'none'
+    padding: '24px 22px 14px'
   hero-panel:
-    background: '{colors.panel-cream}'
+    sheet: '{components.paper-sheet}'
     foreground: '{colors.ink}'
-    radius: '{rounded.sm}'
     padding: '{spacing.hero-padding-top} {spacing.hero-padding-inline} {spacing.hero-padding-bottom}'
   rsvp-panel:
-    background: '{colors.panel-cream}'
+    sheet: '{components.paper-sheet}'
     foreground: '{colors.ink}'
-    radius: '{rounded.sm}'
-    padding: '22px 18px 20px'
+    padding: '26px 22px 24px'
     scrollMarginTop: 'nav-height + scroll-gap'
   wax-seal:
-    fill: '{colors.seal}'
-    foreground: '{colors.cream-on-green}'
-    size: 68px
-    rotate: -5deg
-    typography: '{typography.monogram}'
+    image: 'mockups/segl-19.png (Rikke, image tool; cut out to transparent PNG)'
+    width: 74px
+    position: 'centred over the hero sheet top edge, top -36px'
+    shadow: 'drop-shadow 0 2px 2px rgba(12,16,8,.45)'
   hero-illustration:
-    width: 'full hero-panel width (bleeds over the inline padding)'
-    height: 150px
-    objectFit: cover
-    objectPosition: '50% 58%'
+    image: 'inspiration 17 (watercolour of the farmyard)'
+    width: 262px
+    height: auto
+    marginTop: '-12px (its top is empty sky)'
     blend: 'mix-blend-mode: darken; normal under forced-colors'
+  flower-divider:
+    image: 'mockups/brudeslor-20.png (gypsophila, Rikke, image tool; cut out to transparent PNG)'
+    width: '224px in the hero; 180px in the RSVP panel'
+    blend: 'none (white petals must stay white)'
   button-primary:
     background: '{colors.green-dark}'
     foreground: '{colors.cream-on-green}'
@@ -215,7 +228,7 @@ components:
   lead-in:
     foreground: '{colors.cream-on-green}'
     typography: '{typography.lead-in}'
-    padding: '22px 10px 20px'
+    padding: '26px 10px 22px'
   footer-band:
     background: '{colors.green-dark}'
     foreground: '{colors.cream-on-green}'
@@ -272,13 +285,15 @@ The site **is** the invitation. A guest opening their link should think what Rik
 
 The visual language follows from that:
 
-- **An envelope-coloured page with cream sheets on it.** Olive-green textured page, flat cream panels carrying the content (direction B *Konvolutten*, about half green, half cream).
-- **A hand-pressed wax seal** in dark green with *R & V*, at the top of the invitation and as the browser-tab icon.
+- **An envelope-coloured page with paper sheets on it.** Olive-green textured page, and cream sheets with soft, hand-made edges and a soft shadow carrying the content (direction B *Konvolutten*, about half green, half cream). The sheets look like the main sheet in [inspiration 01](../../ux/inspirasjon/01-Vibe.jpg), in the sheet's own colour (memlog, *Sheet edge refined*).
+- **Solemn, not cabin-cosy.** Rikke found the earlier version gave a "hytte" feeling and wanted it more festive (memlog 100). The top sheet is therefore laid out like a formal printed invitation: seal over the top edge, the farmyard drawing, the names, "inviterer dere til sitt bryllup", a flower divider, then date and place in letter-spaced small capitals.
+- **A hand-pressed wax seal** in dark green with *R & V*, made by Rikke in an image tool ([19-Stamp.jpg](../../ux/inspirasjon/19-Stamp.jpg)), lying over the top edge of the invitation; also the browser-tab icon.
+- **Flowers from the wedding, used sparingly.** One gypsophila (*brudeslør*) divider, also made by Rikke ([20-Flowers.jpg](../../ux/inspirasjon/20-Flowers.jpg)): in the hero, and smaller above the RSVP button. Discreet, not like [inspiration 05](../../ux/inspirasjon/05-Vibe.jpg).
 - **One script moment.** The couple's first names in a formal copperplate-style script (as in [inspiration 09](../../ux/inspirasjon/09-Example.jpg)); everything else in a book serif that reads like a printed invitation.
-- **One illustration.** A soft sage watercolour of Hardingasete in the top panel.
-- **Real paper, not a hint of it.** Visible paper texture on page and panels, tuned so it never changes the colours and never costs text contrast.
+- **One illustration.** A soft sage watercolour of Hardingasete in the top sheet, shown whole.
+- **Real paper, not a hint of it.** Visible paper texture on page and sheets, tuned so it never changes the colours and never costs text contrast.
 
-What it is not: gold, diamonds, metallic, glitter, neon, blinking or animated noise, clutter, luxury-brand gloss, draping, heart-shaped or lace letters, bluish "sage" greens. The guest list spans everyone from teenagers to bestefar Sigmund (78), so restraint and legibility outrank decoration everywhere.
+What it is not: gold, diamonds, metallic, glitter, neon, blinking or animated noise, clutter, luxury-brand gloss, draping, heart-shaped or lace letters, bluish "sage" greens, flowers spread over the page, sprigs drawn in code. The guest list spans everyone from teenagers to bestefar Sigmund (78), so restraint and legibility outrank decoration everywhere.
 
 **Light only.** There is no dark mode; the invitation looks the same at all times (memlog, decision D). Pages declare `color-scheme: light only` so browser auto-dark modes (Samsung Internet, Chrome) leave them alone.
 
@@ -288,10 +303,10 @@ The palette was chosen over six render rounds from colours sampled in the couple
 
 | Token | Hex | Role | Never |
 |---|---|---|---|
-| `page-green` | `#5A6C48` | The page behind everything, including the sticky nav bar: a warm, slightly less yellow olive (G4a, hue ~90°). | Text on cream; button fill (it is only 1.79:1 against `green-dark`). |
+| `page-green` | `#5A6C48` | The page behind everything, including the sticky nav bar (flat there, textured elsewhere): a warm, slightly less yellow olive (G4a, hue ~90°). Also the envelope in the [If time] reveal. | Text on cream; button fill (it is only 1.79:1 against `green-dark`). |
 | `green-dark` | `#344628` | Primary button fill, nav "Svar" button, footer band, focus ring on panels, A2 attention-panel top rule and answer-progress bar fill. | A page background (round 6 dark page rejected). |
 | `green-dark-hover` | `#2C3A20` | Primary button hover/pressed; 10.49:1 with cream text. Too close to `green-dark` (1.18:1) to be the only tap feedback — see Focus ring. | Anything but the pressed button. |
-| `seal` | `#344628` | Wax seal body. Same value as `green-dark`, separate token so the seal can be tuned alone. | — |
+| `seal` | `#344628` | The colour the seal image was made to match; used only if the seal has to be drawn without the image (e.g. a simplified favicon). Same value as `green-dark`. | — |
 | `panel-cream` | `#EBE4D5` | All content panels ("havre"). | Large areas without texture. |
 | `ink` | `#3B372F` | All text inside panels, including the names and form hints (T2 warm grey, chosen over dark green and walnut). | Text on green. |
 | `ink-muted` | `#5E594F` | Only text nobody needs to act on: timestamps, "Ikke oppgitt", example-number notes. | Hints, body copy, progress line, anything the guest must read to act. |
@@ -318,9 +333,9 @@ The palette was chosen over six render rounds from colours sampled in the couple
 | `ink` on `field-surface` | 10.61:1 | Typed text |
 | `ink-muted` on `panel-cream` / `field-surface` | 5.50 / 6.23:1 | Meta only |
 | `green-dark` on `panel-cream` | 8.08:1 | Secondary button text, focus ring on cream |
-| `cream-on-green` on `page-green` | **4.95:1** | Nav words, lead-in — the lowest text pair; never smaller than 18px |
-| `cream-on-green` on lightest allowed texture pixel `#5F7250` | 4.53:1 | Texture limit on green (see Elevation & Depth) |
-| `cream-on-green` on `green-dark` | 8.86:1 | Buttons, nav "Svar", seal monogram, footer |
+| `cream-on-green` on `page-green` (flat) | **4.95:1** | Nav words in the flat nav bar — the lowest small-text pair; never smaller than 18px |
+| `cream-on-green` on the lightest pixel of the green texture (`#6D8358`) | 3.61:1 | Only large text (≥ 24px, needs 3:1): the lead-in. Measured in headless Chrome on `mockups/paper-ceremony-5.html`'s texture (see Elevation & Depth) |
+| `cream-on-green` on `green-dark` | 8.86:1 | Buttons, nav "Svar", footer |
 | `cream-on-green` on `green-dark-hover` | 10.49:1 | Pressed button |
 | `error` on `panel-cream` / `field-surface` | 6.64 / 7.52:1 | Error text, destructive button |
 | `success` on `panel-cream` | 6.16:1 | Success notice |
@@ -335,24 +350,25 @@ The PRD addendum asks to check "sage green on soft white": green is never text o
 
 ## Typography
 
-Two self-hosted families, both SIL Open Font License, served from our own server as WOFF2 with Latin subsets including æ, ø, å, **keeping the `lnum` and `tnum` features** (PRD 3.2: guest pages load nothing from other companies). The Google Fonts links in the renders are a planning-mock exception only. Specimens: [mockups/typography-1.html](mockups/typography-1.html) (candidates S1–S6 and B1–B4; the chosen S4 + B1 at 20px are shown together in [mockups/front-page-2.html](mockups/front-page-2.html)).
+Two self-hosted families, both SIL Open Font License, served from our own server as WOFF2 with Latin subsets including æ, ø, å, **keeping the `lnum` and `tnum` features** (PRD 3.2: guest pages load nothing from other companies). The Google Fonts links in the renders are a planning-mock exception only. Specimens: [mockups/typography-1.html](mockups/typography-1.html) (candidates S1–S6 and B1–B4; the chosen S4 + B1 at 20px are shown together in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html)).
 
-- **Imperial Script** — the couple's first names (*Rikke & Valdemar*, no surnames) and the *R & V* seal monogram. Its upstrokes are hair-thin, so it is **display only**: the names at `{typography.display-names}` are the only Imperial Script anyone must read; the 23px monogram sits inside the decorative, screen-reader-hidden seal. Never for headings, labels, buttons or the admin area. Fallback: Georgia italic **[ASSUMPTION]**.
-  - **Names wrap, never shrink.** One line needs a 262px content box (measured, fonts loaded); when it does not fit, the names stack on three centred lines — *Rikke* / *&* / *Valdemar* — as in inspiration 09. No shrink-to-fit, no `cqi` units, no JS fitting, no `nowrap`. *Valdemar* alone is 136px, which fits every layout width down to 180 CSS px once the narrow-width gutters apply (Layout & Spacing).
+- **Imperial Script** — the couple's first names only (*Rikke & Valdemar*, no surnames). Its upstrokes are hair-thin, so it is **display only**: the names at `{typography.display-names}` are the only Imperial Script on the site. Never for headings, labels, buttons or the admin area. The *R & V* on the seal is part of Rikke's seal image, not live text. Fallback: Georgia italic **[ASSUMPTION]**.
+  - **Names wrap, never shrink.** At 48px one line needs about 274px (the 262px measured at 46px, scaled); the hero's content box is 288px on a 360px phone, so they fit on one line there. When they do not fit, the names stack on three centred lines — *Rikke* / *&* / *Valdemar* — as in inspiration 09. No shrink-to-fit, no `cqi` units, no JS fitting, no `nowrap`. *Valdemar* alone is about 142px, which fits every layout width down to 180 CSS px once the narrow-width gutters apply (Layout & Spacing). Re-measure in the build.
 - **EB Garamond** — everything else. Its short x-height (0.41) is why guest body text is **20px**, above the NFR-5 floor of 18px (memlog, *Body font*). Regular and italic; weight 600 for labels and emphasis such as the invited names **[ASSUMPTION — the render used bold; 600 is the nearest weight to load]**. Fallback: Georgia.
 
 Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so the phone's text-size setting scales them. Running text uses `overflow-wrap: break-word` and `hyphens: auto` with `lang="nb"` so long compounds ("Allergiopplysningene") never force sideways scroll; the script names are never hyphenated.
 
 | Role | Token | Where |
 |---|---|---|
-| Names | `display-names` | Hero panel only; `h1` of the front page |
-| Seal | `monogram` | Seal and favicon |
+| Names | `display-names` | Hero sheet only; `h1` of the front page |
 | Page title | `heading-page` | Info pages, form step question (`h1`), check page heading, receipt heading «Svaret er sendt» (32px, as rendered in the key-screen mockups) |
 | Card heading | `heading-card` | Card and RSVP panel headings (`h2`) |
-| Date | `date-line` | "Lørdag 27. mai 2028" in the hero |
-| Lead-in | `lead-in`, *italic* | One line on green between hero and cards |
-| Invites line | `invites`, *italic* | "inviterer deg til bryllup" |
-| Nav words | `nav-words` | Sticky nav bar (rendered at 18px; cream on green at the floor size, so the texture limit is mandatory) |
+| Invites line | `invites`, *italic* | «inviterer dere til sitt bryllup» (du/dere rule) |
+| Date | `date-line`, small capitals | «Lørdag 27. mai 2028» in the hero |
+| Place | `place-line`, small capitals | «Hardingasete · Hardanger» in the hero |
+| Invited line | `body`, *italic*; names upright | «for **Sigmund og bestemor**» in the hero (names upright regular, not bold) |
+| Lead-in | `lead-in`, *italic* | One line on green between hero and cards; 24px so it may sit on the textured green (Elevation & Depth) |
+| Nav words | `nav-words` | Sticky nav bar, 18px, slight letter spacing; only on the flat nav bar (Elevation & Depth) |
 | Nav "Svar" | `nav-button` | The button in the nav bar |
 | Buttons | `button` | All other guest buttons |
 | Body | `body` | All guest running text, form hints (*italic*), progress line |
@@ -360,26 +376,39 @@ Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so
 | Small | `small` | Only text nobody acts on: timestamps, "Ikke oppgitt", footer meta. The 18px floor; nothing on guest pages is smaller |
 | Admin | `admin-heading`, `admin-body` | Admin working screens **[ASSUMPTION — denser, 18px body]**; the A2 answer-progress line («Svart: 28 av 30 husstander») uses `label` (20px, 600) |
 
-**Figures:** amounts, dates, times, phone and account numbers use lining figures (`font-variant-numeric: lining-nums`), tables also tabular (`tabular-nums`); EB Garamond defaults to old-style figures, which older eyes misread. Thousands use a non-breaking space ("1 450 kr") so screen readers read one number. No all-caps, no letter-spaced small caps (the small-caps card style was explicitly not decided).
+**Figures:** amounts, dates, times, phone and account numbers use lining figures (`font-variant-numeric: lining-nums`), tables also tabular (`tabular-nums`); EB Garamond defaults to old-style figures, which older eyes misread. Thousands use a non-breaking space ("1 450 kr") so screen readers read one number.
+
+**Small capitals in two places only:** the date and the place in the hero, set with `font-variant-caps: all-small-caps` and `{typography.date-line.letterSpacing}`, as on a printed invitation (memlog, *Front page approved*). The text stays in normal case in the HTML, so screen readers do not spell it out. No all-caps anywhere, and no small capitals for headings: the small-caps card headings in `paper-ceremony-5.html` below the hero were never decided (memlog, 2026-11-14) and wait for the below-the-hero revisit (EXPERIENCE Open Question 12).
 
 ## Layout & Spacing
 
 Phone first (NFR-6). One centred column, maximum `{spacing.content-max}`; a PC shows the same phone column on the green page **[ASSUMPTION — 480px max]**. Side gutter `{spacing.gutter}`. No horizontal scroll at 320px or at 200 % zoom (NFR-5); on a phone 200 % zoom means a layout width of about **180 CSS px**, so below 260px layout width the gutter and the hero's inline padding drop to `{spacing.gutter-narrow}`.
 
-Front-page order, as approved in [mockups/front-page-2.html](mockups/front-page-2.html) (memlog, *Front page redesign* and *New front page approved*; PRD FR-7, FR-8):
+Front-page order. The first screen is approved in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html) (memlog, *Front page approved*, 2026-11-11), which supersedes [mockups/front-page-2.html](mockups/front-page-2.html) for the nav bar and the hero; front-page-2 still shows the order of the cards below (PRD FR-7, FR-8):
 
-1. **Nav bar**, sticky (see EXPERIENCE › Accessibility Floor for when it stops sticking): nav words left, the "Svar" button right, `{spacing.nav-height}` tall.
-2. **Hero panel**: seal (68px) → illustration (150px band, full panel width) → names → invites line → date → place → "Invitert: …" → deadline line *"**Svar** innen onsdag 1. desember 2027 kl. 23:59"*, where "Svar" is a link. No button and no child-free line in the hero.
+1. **Nav bar**, sticky (see EXPERIENCE › Accessibility Floor for when it stops sticking): nav words left, the "Svar" button right, `{spacing.nav-height}` tall, flat green.
+2. **Hero sheet**, `{spacing.page-padding-top}` below the nav bar so the seal is never hidden under it: seal over the top edge → illustration 17, whole → names → «inviterer dere til sitt bryllup» → gypsophila divider → date and place in small capitals → «for Sigmund og bestemor» → deadline line *«**Svar** innen 4. januar 2028»*, where "Svar" is a link. The short deadline here has no weekday or time; the full deadline sits above the RSVP button (FR-41 asks for it next to the button). No button and no child-free line in the hero.
 3. Lead-in line on green.
 4. Four info cards, `{spacing.panel-gap}` apart (Gifts as a fifth only if built).
-5. **RSVP panel** (jump target of both "Svar" links): heading "Svar på invitasjonen", the child-free line, the deadline, the primary button.
+5. **RSVP sheet** (jump target of both "Svar" links): heading "Svar på invitasjonen", a small gypsophila (180px), the child-free line, the full deadline «Svar innen tirsdag 4. januar 2028 kl. 23:59», the primary button.
 6. Footer band, full-bleed `green-dark`.
 
-The answered state (where the status block goes) is Open Question 1 in EXPERIENCE.
+Items 3–5 are the part of the front page the couple wants to revisit (EXPERIENCE Open Question 12). The answered state (where the status block goes) is Open Question 1.
 
-**First-screen budget** (measured at 360px wide, fonts and image loaded; the fold is 560px, what a browser or Messenger shows on a 360 × 640 phone): nav "Svar" bottom 48px, deadline "Svar" link 525px, deadline line bottom **553px**. The margin is 7px, so the hero values below are a budget, not a starting point — any added line or larger seal pushes the deadline off the first screen. At 320px the names stack (the hero content box is 252px) and the deadline drops below the fold; the nav "Svar" stays visible (Open Question 2). Check widths for every build: 360 × 560, 320 × 568, 180 × 320.
+**First-screen budget** (measured 2026-11-14 in headless Chrome at 360px wide, fonts and images loaded; the fold is 560px, what a browser or Messenger shows on a 360 × 640 phone):
 
-Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal margin −4px above, 6px below; illustration 8px below; 8px above the date, the invited line and the deadline line. Cards: padding 20/20/12px (the "Les mer" target supplies the bottom space). Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero, cards and RSVP panel is centred; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
+| Element | Top–bottom (px) |
+|---|---|
+| Nav bar · nav "Svar" | 0–64 · 10–54 |
+| Seal | 74–150 |
+| Hero sheet | 110–**552** |
+| Illustration · names (one line) | 124–267 · 271–327 |
+| Divider · date · place | 357–407 · 407–437 · 437–463 |
+| «for …» · deadline line | 469–499 · 503–**530** |
+
+The whole hero sheet fits above the fold with 8px to spare, so these values are a budget, not a starting point: any added line or larger seal pushes the sheet's end off the first screen. At 320px the nav words wrap to two lines (bar 104px), the names and the place wrap, and the deadline line ends at 651px, below the fold; the nav "Svar" stays visible (Open Question 2). Check widths for every build: 360 × 560, 320 × 568, 180 × 320.
+
+Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal centred with its top 36px above the sheet's top edge; illustration pulled up 12px (its top is empty sky) with 4px below; invites 2px below the names; divider 2px below; 6px above the invited line, 4px above the deadline line. Cards: padding 24/22/14px (the "Les mer" target supplies the bottom space). Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero, cards and RSVP sheet is centred; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
 
 Sections are separated by green showing between panels, which answers inspiration 08's "not one long page on one identical background".
 
@@ -399,23 +428,37 @@ Sections are separated by green showing between panels, which answers inspiratio
 
 ## Elevation & Depth
 
-Flat. Panels lie directly on the page with **no shadow, no fold, no backing sheet, no loose or torn sheet edge** (PRD addendum *Invitation reveal*; memlog override dropping the layered-sheet card style). Hierarchy comes from the cream-on-green contrast and from typography.
+**Paper sheets on an envelope.** Every guest content panel is a cream sheet lying on the green page, as the main sheet in [inspiration 01](../../ux/inspirasjon/01-Vibe.jpg): a soft, slightly wavy, hand-made edge with fine fibre, in **the sheet's own colour** (no lighter rim, no inner ridge, nothing chalk-white), and a soft shadow underneath. Chosen over three rounds of edge renders (memlog, *Sheet edge* and *Sheet edge refined*; edge B3). Still **no folds, no backing sheet, no layered or offset sheets** (memlog override dropping the layered-sheet card style). Reference: [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html), filter `edge-b3`.
 
-Depth appears in exactly three places:
+How the sheet is built, so the edge never touches the text:
 
-- **The seal**: a small drop shadow (0 1.5px 1.2px, dark green-black at ~42 %) and faint inner rings, so it reads as pressed wax.
-- **The sticky nav bar**: `0 2px 6px rgba(20,24,14,.28)` below it, so content visibly slides under it.
-- **Dialogs**: a cream panel over `{colors.scrim}` at 60 %; no shadow **[ASSUMPTION]**.
+- Colour, texture, edge and shadow sit on a layer **behind** the content (`::before`); only that layer is filtered. Text, links and focus rings stay sharp, and their contrast is unchanged.
+- The edge is an SVG filter (displacement for the wave, fine noise for the fibre, blur 3.2px offset 2.5px at 42 % `#141A0C` for the shadow). If it is slow on old phones, the build may swap it for a pre-rendered edge image with the same look (memlog, *Technical defaults while folding in*).
+- Under forced colours, or where filters are unsupported, the sheet falls back to flat `panel-cream` with `{rounded.sheet}` corners. The edge and shadow are decoration; the flat sheet is a complete design.
 
-**Paper texture.** Page and panels carry a fine paper grain: two tiling SVG noise layers (fine grain and soft fibre, inline data-URIs, no network) blended with `overlay` around mid-grey, so the **average colour is unchanged**. On `page-green` the texture is **weakened so every pixel keeps cream text ≥ 4.5:1**: no pixel lighter than `#5F7250` (4.53:1). The renders' green texture does *not* meet this (17 % of pixels under 4.5:1, worst 3.47:1, accessibility review) and must not be copied as-is; production is re-measured on a screenshot against the lightest pixel (memlog, *Technical defaults*). Panel texture is fine as rendered (ink ≥ 7.8:1, `ink-muted` ≥ 4.6:1). The texture is decoration: if it fails to load, the flat token colours are the design.
+Depth appears in exactly four places:
 
-**Open, to be discussed later (non-blocking):** the couple want to revisit (1) the texture on the green page and (2) the edge treatment of the cream panels (straight vs softer, more paper-like edges, and the corner radius). Until then the weakened green texture and the flat, straight-edged panels above are the working default. Any paper-like edge must still respect the PRD addendum: no folds and no loose-sheet look.
+- **The sheets**, as above.
+- **The seal**: Rikke's image already looks like pressed, glossy wax; the page adds `drop-shadow(0 2px 2px rgba(12,16,8,.45))` so it lies *on* the sheet's top edge.
+- **The sticky nav bar**: a 1px hairline of `cream-on-green` at 22 % along its bottom edge, so content visibly slides under it.
+- **Dialogs**: a cream sheet over `{colors.scrim}` at 60 % **[ASSUMPTION]**.
+
+**Paper texture.** Page and sheets carry a fine paper grain: tiling SVG noise layers (fine grain and soft fibre, inline data-URIs, no network) blended with `overlay` around mid-grey, so the **average colour is unchanged**. The green texture is the calmer one approved in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html) (`--grain-green`). Contrast is checked against the worst texture pixel (memlog, *Technical default, measured*):
+
+- **Green:** the lightest pixel is `#6D8358`, which gives cream text 3.61:1. So cream text on the *textured* green must be **large (≥ 24px)**, where 3:1 is enough: that is the lead-in. Smaller cream text, the nav words, sits only in the **flat** nav bar (4.95:1). The weakened-texture rule from the first review (cap at `#5F7250`) is superseded; weakening it that far removed the grain.
+- **Sheet:** the darkest pixel is `#DBCFB4`. Worst cases: `ink` 7.67:1, `ink-muted` 4.51:1, `warning` 4.65:1, `success` 5.05:1, `error` 5.44:1, `green-dark` 6.62:1. All pass.
+- Re-measure on a screenshot of the built page if the texture changes. The texture is decoration: if it fails to load, the flat token colours are the design.
 
 ## Shapes
 
-Paper with barely softened corners: `{rounded.sm}` (3px) for panels, fields, notices and tags; `{rounded.md}` (4px) for buttons and checkboxes; `{rounded.full}` only for radio buttons. No pills, no circles for surfaces, no arched or scalloped panel tops.
+Guest sheets have a soft, hand-made edge (Elevation & Depth) over `{rounded.sheet}` (5px) corners, which is also their flat fallback. Inside the sheets everything is crisp: `{rounded.sm}` (3px) for fields, notices and tags; `{rounded.md}` (4px) for buttons and checkboxes; `{rounded.full}` only for radio buttons. No pills, no circles for surfaces, no arched or scalloped tops, no torn or ripped look (the edge is soft, not jagged).
 
-The **seal** is the one organic shape: an uneven, hand-pressed wax outline (as [inspiration 03](../../ux/inspirasjon/03-Vibe.jpg); the couple wanted a "larger, less perfect" seal than 05), rotated −5°. Canonical outline: the `#seal-shape` symbol in [mockups/front-page-2.html](mockups/front-page-2.html); reuse it, do not redraw.
+Two organic shapes come from Rikke's own images, not from code:
+
+- The **seal**: an uneven, hand-pressed wax disc with *R & V*, glossy dark green ([19-Stamp.jpg](../../ux/inspirasjon/19-Stamp.jpg), cut out to [mockups/segl-19.png](mockups/segl-19.png)).
+- The **gypsophila divider**: two crossing sprigs with green stems and white flowers ([20-Flowers.jpg](../../ux/inspirasjon/20-Flowers.jpg), cut out to [mockups/brudeslor-20.png](mockups/brudeslor-20.png)).
+
+Both are cut out with [.working/cutout-segl-brudeslor.py](.working/cutout-segl-brudeslor.py), because the seal lies over the green edge and white petals would disappear if blended into the cream. If Rikke replaces an image, run the script again rather than editing the PNGs. Code-drawn sprigs and seals were tried and rejected ("så jalla ut", memlog 101–105).
 
 ## Components
 
@@ -423,15 +466,17 @@ Frontmatter key in brackets where one exists.
 
 | Component | Visual spec |
 |---|---|
-| **Page** [`page`] | `{colors.page-green}` with the weakened paper texture. Never plain white anywhere. |
-| **Nav bar** [`nav-bar`, `nav-words`] | Full-width strip on green with the page texture, 52px, shadow below. Nav words left (Program · Praktisk · Stedet · Om oss), `{typography.nav-words}` in `{colors.cream-on-green}`, underlined, 11px apart, each ≥ 44 × 44px; no separator characters; may wrap to two lines; no hamburger. Current page: 2px underline **[ASSUMPTION]**. |
+| **Page** [`page`] | `{colors.page-green}` with the calm paper texture. Never plain white anywhere. |
+| **Paper sheet** [`paper-sheet`] | The surface of every guest content panel: cream, textured, soft hand-made edge in its own colour, soft shadow, all on a layer behind the content. Flat `{rounded.sheet}` fallback (Elevation & Depth). |
+| **Nav bar** [`nav-bar`, `nav-words`] | Full-width strip, **flat** `{colors.page-green}` (no texture), 64px, a faint cream hairline below. Nav words left (Program · Praktisk · Stedet · Om oss), `{typography.nav-words}` in `{colors.cream-on-green}`, **not underlined**, 12px apart, each ≥ 44 × 44px; no separator characters; may wrap to two lines; no hamburger. Current page: 2px underline, offset 4px **[ASSUMPTION]**. |
 | **Nav "Svar" button** [`nav-svar`] | Right end of the nav bar: `{colors.green-dark}` fill, cream text, **1px `{colors.cream-on-green}` border** (dark green on page-green is only 1.79:1), ≥ 64 × 44px. The one primary-styled control allowed on green. |
-| **Hero panel** [`hero-panel`] | Centred. Seal, illustration, names, invites, date, place, invited names, deadline line with the "Svar" link. |
-| **Wax seal** [`wax-seal`] | 68px, dark green, uneven edge, cream *R & V* in Imperial Script at 23px. Same artwork, simplified, is the favicon. |
-| **Hero illustration** [`hero-illustration`] | [Image 17](../../ux/inspirasjon/17-Illustration.jpg) (cool sage watercolour of the bell house and main house among pines with string lights), cropped to a **150px band** (`object-fit: cover`, `object-position: 50% 58%`) spanning the full panel width, `mix-blend-mode: darken` so its paper melts into the cream (`normal` under forced colours). Final file has no signature or text and ships with the app. Alternatives I5–I8: [mockups/illustration-3.html](mockups/illustration-3.html) (I7 chosen; full-height there, cropped here). |
-| **Info card** [`panel`] | `{typography.heading-card}`, two or three lines of `{typography.body}`, then a "Les mer" link whose target covers the whole card. Centred. |
-| **Lead-in** [`lead-in`] | One italic line on green, e.g. "Vi gleder oss til å feire med dere!" |
-| **RSVP panel** [`rsvp-panel`] | Cream panel after the cards: `heading-card` "Svar på invitasjonen", child-free line ("Barnefritt bryllup – …", placement and text a proposal), deadline line, primary button. When an unsent draft exists, a warning notice sits above the button. |
+| **Hero sheet** [`hero-panel`] | Centred, in this order: seal over the top edge, illustration, names, invites line, gypsophila divider, date and place in small capitals, «for <household>», short deadline line with the "Svar" link. Rendered in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html). |
+| **Wax seal** [`wax-seal`] | Rikke's seal image, 74px wide, centred with its top 36px above the hero sheet's top edge, drop shadow. Decorative (`alt=""`). The favicon is made from the same image (at 32px and 180px). |
+| **Hero illustration** [`hero-illustration`] | [Image 17](../../ux/inspirasjon/17-Illustration.jpg) (cool sage watercolour of the bell house and main house among pines with string lights), **shown whole** at 262px wide, pulled up 12px under the seal, `mix-blend-mode: darken` so its paper melts into the cream (`normal` under forced colours). Final file has no signature or text and ships with the app. Alternatives I5–I8: [mockups/illustration-3.html](mockups/illustration-3.html) (I7 chosen). The 150px cropped band in front-page-2.html is superseded (Rikke: "kuttet for mye"). |
+| **Flower divider** [`flower-divider`] | Rikke's gypsophila image, 224px wide in the hero (between invites line and date), 180px above the child-free line in the RSVP sheet. Decorative (`alt=""`), no blend mode. The only flowers on the page. |
+| **Info card** [`panel`] | Paper sheet. `{typography.heading-card}`, two or three lines of `{typography.body}`, then a "Les mer" link whose target covers the whole card. Centred. |
+| **Lead-in** [`lead-in`] | One italic line on the textured green, 24px, e.g. «Vi gleder oss til å feire med dere». |
+| **RSVP sheet** [`rsvp-panel`] | Paper sheet after the cards: `heading-card` "Svar på invitasjonen", small gypsophila divider, child-free line («Barnefritt bryllup – …», placement and text a proposal), the full deadline «Svar innen tirsdag 4. januar 2028 kl. 23:59», primary button. When an unsent draft exists, a warning notice sits above the button. |
 | **Primary button** [`button-primary`] | Full panel width, 52px, cream text on dark green, 2px transparent border (visible outline in forced colours). Only on cream panels — the nav "Svar" is the one exception. **One distinct primary action per screen; repeats of the same action are allowed** (nav "Svar" and RSVP button). Busy: keeps its colours, label becomes "Sender …". |
 | **Secondary button** [`button-secondary`] | Outlined dark green on cream; border 3px on hover/pressed. For "Tilbake", "Betal senere", "Avbryt", "Nei, begynn på nytt". In form steps, check page and receipt it sits **below** the primary button, same full width **[forslag]**. |
 | **Destructive button** [`button-destructive`] | Muted rust outline on cream, placed apart (tier 3 only); border 3px on hover/pressed. Filled rust is not used **[ASSUMPTION — "muted rust" read as outline]**. |
@@ -442,7 +487,7 @@ Frontmatter key in brackets where one exists.
 | **Choice control** [`choice-control`] | 26px box, 2px ink border; checkbox `{rounded.md}`, radio `{rounded.full}`; selected mark in `{colors.green-dark}` drawn so it survives forced colours (native input with `accent-color`, or a `currentColor` mark — never a background fill alone). Whole row ≥ 44px is the target. Group error (a fieldset of choices): **no border on the group**; one error line under the legend, before the first choice: 22px triangle icon + «Feil: …» in `{colors.error}` (e.g. «Feil: Velg «Kommer» eller «Kommer ikke» for bestemor.» **[forslag]**), as in [mockups/key-form-steps.html](mockups/key-form-steps.html). |
 | **Notice** [`notice`] | 4px left rule, 22px icon and text in the state colour on cream. Icon shapes differ: success = check, warning = circle with "!", error = triangle with "!", info (`ink`) = "i". Error and warning also start with a word ("Feil:", "Obs:" — proposal). Variants: success, warning, error, info; last-updated header (info). |
 | **Error summary** | Error notice at the top of the step panel with a heading and linked list of errors. |
-| **Status block** | Cream panel shown once answered, left-aligned: `heading-card` «Svaret er sendt», then «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.», «Totalt for husstanden: 3 900 kr», «Meldt betalt: 3 900 kr, 12. oktober.», «Dere kan endre svaret fram til onsdag 1. desember 2027 kl. 23:59.», and the primary button "Se eller endre svar" **[forslag — wording except the button]**. Rendered in [mockups/key-receipt.html](mockups/key-receipt.html) (second phone). Position: Open Question 1 in EXPERIENCE. |
+| **Status block** | Cream panel shown once answered, left-aligned: `heading-card` «Svaret er sendt», then «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.», «Totalt for husstanden: 3 900 kr», «Meldt betalt: 3 900 kr, 12. oktober.», «Dere kan endre svaret fram til tirsdag 4. januar 2028 kl. 23:59.», and the primary button "Se eller endre svar" **[forslag — wording except the button]**. Rendered in [mockups/key-receipt.html](mockups/key-receipt.html) (second phone). Position: Open Question 1 in EXPERIENCE. |
 | **Draft offer** | Cream panel at the top of the form: heading «Vil du fortsette der du slapp?», one line saying when the answer was started, primary "Ja, fortsett", secondary "Nei, begynn på nytt". Rendered in [mockups/key-form-steps.html](mockups/key-form-steps.html). |
 | **Progress line** | "Steg 3 av 6: Overnatting" in `{typography.body}`, directly under the step question; no graphic stepper **[ASSUMPTION]**. |
 | **Respondent line** | "Jeg er **Sigmund** · Bytt" — "Bytt" a button styled as an underlined link (≥ 44px) — directly under the progress line **on every form step**, so the guest always sees who is answering; switching opens a radio list of household members in the panel **[ASSUMPTION]**. |
@@ -452,7 +497,7 @@ Frontmatter key in brackets where one exists.
 | **Check-answers list** | Under the `h1` «Se over svaret før du sender» **[forslag]**: one block per part (Hvem kommer · Dager · Overnatting · Måltider · Allergier og matbehov · Fjelltur fredag) with the part name and its "Endre" link on one line, then one line per person ("Sigmund: kommer"); `divider` between parts; "Ikke oppgitt" in `ink-muted`. Rendered in [mockups/key-check-page.html](mockups/key-check-page.html). |
 | **Receipt panel** | Cream panel. Success notice at top carrying the `h1` «Svaret er sendt» and «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.» **[forslag]**; Rikke's message in `{typography.body}`; summary «Dette har dere svart» **[forslag]** and the running total; then "Betal nå" / "Betal senere" with the closing line «Du kan nå trygt lukke invitasjonen.» directly below them. Rendered in [mockups/key-receipt.html](mockups/key-receipt.html). |
 | **Payment details** | Cream panel «Slik betaler du» **[forslag]** listing amount, Vipps number, account number and payment message as selectable `body` text, each with a secondary "Kopier" button and «Kopiert» beside the last-used one; "Jeg har betalt" below **[ASSUMPTION]**. Rendered in [mockups/key-receipt.html](mockups/key-receipt.html). |
-| **Envelope reveal** [If time] | `{colors.page-green}` envelope with the `{colors.green-dark}` wax seal, opening into a **plain** sheet that becomes the hero panel. No heart shape, no lace. "Hopp over" ≥ 44 × 44 on cream or `green-dark`. |
+| **Envelope reveal** [If time] | `{colors.page-green}` envelope closed with Rikke's seal image, opening into a **plain** paper sheet that becomes the hero sheet (same edge, same seal position). No heart shape, no lace, no folds. "Hopp over" ≥ 44 × 44 on cream or `green-dark`. |
 | **Admin nav** | Reuses Nav words on the green page (Oversikt · Gjester · Betalinger · Spørsmål · Innstillinger · Logg ut), **not sticky**, no "Svar" button **[ASSUMPTION]**. |
 | **Attention panel** [`attention-panel`] | A2's first panel: cream, `admin-panel-padding`, a 5px `{colors.green-dark}` rule along the top edge so it reads as "start here" (decoration; the heading carries the meaning) **[forslag]**. `admin-heading` «Trenger oppfølging (7)», then attention items with `divider` between, then «Vis alle 7» as an underlined link (≥ 44px) after a `divider`. Rendered in [mockups/admin-rework-1.html](mockups/admin-rework-1.html). |
 | **Attention empty state** | The attention panel without the top rule: its heading becomes a 26px check icon + «Ingenting trenger oppfølging nå» in `{colors.success}` (icon and words, never colour alone), then «Vis håndterte». Rendered in [mockups/admin-rework-1.html](mockups/admin-rework-1.html) (second phone). |
@@ -469,16 +514,17 @@ Frontmatter key in brackets where one exists.
 
 | Do | Don't |
 |---|---|
-| Cream panels on the green page, flat, with paper texture | Shadows, folds, backing sheets on panels (edge treatment itself is still open — see Elevation & Depth) |
+| Cream paper sheets on the green page: textured, soft hand-made edge in the sheet's own colour, soft shadow | Folds, backing or offset sheets, a light or chalk-white rim, jagged torn edges |
 | Primary buttons on cream panels; the nav "Svar" (with its cream border) is the only exception | A dark green button on green without the cream border |
 | The nav bar is the only thing that sticks | Other sticky or fixed bars, on guest or admin pages |
-| Imperial Script for the names (46px, stacking when needed) and the seal | Script for headings, labels, buttons or admin; shrinking the names to fit |
+| Imperial Script for the names only (48px, stacking when needed) | Script for headings, labels, buttons or admin; shrinking the names to fit |
+| Small capitals for the date and place in the hero only | All-caps; small-caps headings |
 | EB Garamond 20px for guest body text, hints in `ink` | Guest text under 18px; hints in `ink-muted` |
 | Warm olive greens (hue ~85–100°) | Bluish sage greens (round 1), neon or saturated greens |
-| Cream `#F5EEDF` text on green at 18px or larger, on a texture capped at `#5F7250` | Cream text on the renders' unweakened green texture |
+| Cream `#F5EEDF` text under 24px only on the flat nav bar; 24px or larger may sit on the textured green | Small cream text on the textured green |
 | State colour plus icon shape plus words | Red/green/brown alone to mean anything (WCAG 1.4.1) |
-| One illustration (17) in the hero, cropped to 150px | Icons, sprigs, leaves, ornaments sprinkled through the page |
+| One illustration (17, whole) in the hero, one seal, the gypsophila divider in two places — all from Rikke's images | Icons, sprigs, leaves, ornaments sprinkled through the page; flowers or seals drawn in code |
 | Venue photos as information on info pages | Venue photos as style or background texture |
 | Same tokens in admin, denser, no decoration, 44px targets | Seal, illustration or script on admin working screens |
-| A plain sheet in the envelope reveal | A heart-shaped or lace letter |
+| A plain paper sheet in the envelope reveal | A heart-shaped or lace letter |
 | Restraint | Gold, metallic, diamonds, glitter, bling, neon, blinking, draping, clutter, luxury-brand feel, Italian or olive-plant motifs |
