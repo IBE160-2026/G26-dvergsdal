@@ -38,7 +38,7 @@ Warm and "koselig" throughout, including error messages.
 2. **Below:** a short section (FR-8) with one entry per topic, each a picture, one line and "Read more" (changed 2026-11-15, see the PRD change log):
    - Programme
    - Practical information, which now also covers Hardingasete, the cabins, the area and the directions
-   - About us
+   - Our story (*Vår historie*; called About us until 2026-11-15)
    - Gifts (If time)
 3. **After the section:** the RSVP panel with the child-free note, the deadline and the RSVP button; both "Svar" links lead here (changed 2026-11-11, see FR-7).
 
