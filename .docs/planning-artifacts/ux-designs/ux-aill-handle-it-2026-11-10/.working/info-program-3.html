@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Programmet, runde 3</title>
+<!-- Unntak for denne lokale planleggingssida: skriftene lastes fra Google Fonts når sida vises.
+     Den ferdige gjestesida lagrer Imperial Script og EB Garamond selv (PRD 3.2). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;display=swap">
+<style>
+/* Infosida «Programmet», runde 3 (2026-11-15). Rikke: ingen av A, C1, C2 var «like estetisk fine» som
+   «Order of events» i inspirasjon 09. Her nærmere 09: tidslinje i midten, hendelsene veksler side og overlapper litt,
+   bare klokkeslett og et kort navn, lett skrift og mye luft. Betaling og hva man tar med står samlet i «Godt å vite»
+   nederst på arket. D1 = uten ikoner; D2 = tomme ringer der ikoner (laget av Rikke i bildeverktøyet) kunne stått. */
+:root {
+  color-scheme: light;
+  --frame-bg: #DDDAD3; --frame-ink: #2B2620; --frame-muted: #4F473D;
+  --g: #5A6C48; --d: #344628; --k: #EBE4D5; --tx: #3B372F; --t: #F5EEDF;
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, serif; font-size: 18px; line-height: 1.55; }
+.intro { max-width: 820px; margin: 0 auto; padding: 36px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .5em; }
+.intro p { margin: 0 0 .8em; }
+.wrap { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 24px; padding: 8px 16px 48px; }
+.col { width: 382px; max-width: 100%; }
+.col h2.label { margin: 0 0 12px; font-weight: normal; font-size: 22px; text-align: center; }
+.phone { width: 382px; max-width: 100%; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { position: relative; width: 360px; max-width: 100%; border-radius: 29px; overflow: hidden; text-align: left; font-family: "EB Garamond", Georgia, serif; font-size: 20px; line-height: 1.5; color: var(--t); background-color: var(--g); background-image: var(--grain-green); background-blend-mode: overlay; }
+/* Menyen, med «Praktisk» som sida du er på */
+.nav { position: relative; z-index: 3; display: flex; align-items: center; gap: 8px; min-height: 64px; padding: 8px 12px 8px 16px; background: var(--g); box-shadow: 0 1px 0 rgba(245,238,223,.22); }
+.navwords { flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: 0 12px; color: var(--t); font-size: 18px; line-height: 1.2; letter-spacing: .02em; }
+.navwords a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-decoration: none; }
+.navwords a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.navbtn { flex: none; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 64px; padding: 0 16px; border-radius: 4px; border: 1px solid var(--t); background: var(--d); color: var(--t); font-size: 19px; text-decoration: none; }
+.page { padding: 10px 16px 30px; }
+.back { display: inline-flex; align-items: center; min-height: 44px; color: var(--t); font-size: 20px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.page-h { margin: 14px 6px 0; padding-bottom: 12px; border-bottom: 1px solid rgba(245,238,223,.5); text-align: center; font-weight: normal; font-style: italic; font-size: 32px; line-height: 1.2; }
+h2.part { margin: 0 0 10px; padding-bottom: 8px; font-weight: normal; font-style: italic; font-size: 26px; line-height: 1.2; }
+.part-body p { margin: 0 0 10px; }
+.part-body ul { margin: 0 0 10px; padding-left: 22px; }
+.part-body li { margin: 0 0 2px; }
+.part-body a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.part-body .facts { margin: 0 0 10px; }
+.part-body .facts b { font-weight: 600; }
+.small-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; margin: 4px 0 6px; border: 1.5px solid currentColor; border-radius: 4px; color: inherit; text-decoration: none !important; font-size: 19px; line-height: 1.1; }
+.framed { position: relative; width: 220px; aspect-ratio: 932 / 901; margin: 6px auto 14px; }
+.framed img.photo { position: absolute; left: 5.2%; top: 5.3%; width: 89.6%; height: 89.4%; object-fit: cover; }
+.framed img.lace-frame { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 1px 1.5px rgba(10,14,6,.35)); }
+.bottom-back { text-align: center; padding-top: 14px; }
+/* A: hver del på et papirark (samme ark som toppfeltet og svarfeltet på forsida) */
+.sheet { position: relative; isolation: isolate; color: var(--tx); padding: 22px 22px 12px; margin-top: 20px; }
+.sheet::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 5px; background-color: var(--k); background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; filter: url(#edge-b3); }
+.sheet h2.part { border-bottom: 1px solid rgba(59,55,47,.35); }
+/* «Hopp til» */
+.toc1 ul { margin: 0; padding: 0; list-style: none; }
+.toc1 a { color: inherit; text-decoration: none; }
+section[id] { scroll-margin-top: 76px; }
+/* Kapitéler med prikker, rett på det grønne */
+.toc1 { margin: 10px 4px 0; color: var(--t); }
+.toc1 ul { display: flex; flex-wrap: wrap; justify-content: center; }
+.toc1 li { display: inline-flex; align-items: center; }
+.toc1 li + li::before { content: "·"; padding: 0 7px; opacity: .8; }
+.toc1 a { display: inline-flex; align-items: center; min-height: 40px; font-variant-caps: all-small-caps; letter-spacing: .08em; font-size: 19px; }
+/* Programmet: tidslinje som «Order of events» i 09 */
+.day-date { margin: -4px 0 6px; font-style: italic; }
+.part-body .tl { position: relative; margin: 8px 0 6px; padding: 0; list-style: none; }
+.tl::before { content: ""; position: absolute; left: 50%; top: 6px; bottom: 6px; width: 1px; background: rgba(59,55,47,.45); }
+.tl li { position: relative; width: 50%; padding: 0 18px 0 0; text-align: right; }
+.tl li:nth-child(even) { margin-left: 50%; padding: 0 0 0 18px; text-align: left; }
+.tl li + li { margin-top: -10px; }
+.tl li::after { content: ""; position: absolute; top: 9px; right: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--tx); }
+.tl li:nth-child(even)::after { right: auto; left: -3px; }
+.tl .time { display: block; font-size: 18px; line-height: 1.3; letter-spacing: .04em; font-variant-numeric: lining-nums tabular-nums; }
+.tl .what { display: block; font-style: italic; line-height: 1.25; }
+/* D2: plass til et lite ikon over klokkeslettet */
+.icons .tl li + li { margin-top: -26px; }
+.icons .tl li::before { content: ""; display: block; width: 38px; height: 38px; margin: 0 0 4px auto; border: 1.5px dashed rgba(59,55,47,.45); border-radius: 50%; }
+.icons .tl li:nth-child(even)::before { margin: 0 auto 4px 0; }
+.icons .tl li::after { top: 52px; }
+.good { margin: 14px 0 0; padding-top: 10px; border-top: 1px solid rgba(59,55,47,.25); }
+.good h3 { margin: 0 0 4px; font-weight: normal; font-style: italic; font-size: 20px; }
+.part-body .good ul { margin: 0; padding-left: 20px; }
+.good li { margin: 0 0 4px; }
+.footer { background: var(--d); color: var(--t); padding: 22px 16px 26px; font-size: 20px; line-height: 1.4; text-align: center; }
+.footer p { margin: 0; }
+.footer a { color: inherit; text-underline-offset: 4px; display: flex; align-items: center; justify-content: center; min-height: 44px; }
+/* Skjermstreker */
+.mark { position: absolute; left: 0; right: 0; border-top: 3px dashed #2F2F2F; z-index: 5; pointer-events: none; }
+.mark span { position: absolute; right: 8px; top: 4px; padding: 1px 9px; border-radius: 3px; background: #2F2F2F; color: #FFF; font-family: Georgia, serif; font-size: 14px; line-height: 1.4; }
+.note { max-width: 820px; margin: 0 auto; padding: 0 16px 48px; color: var(--frame-muted); }
+.note b { color: var(--frame-ink); }
+@media (max-width: 420px) {
+  .wrap { padding: 0 0 40px; }
+  .phone { width: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .screen { width: 100%; border-radius: 0; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <filter id="edge-b3" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="6" result="wave"/>
+    <feDisplacementMap in="SourceGraphic" in2="wave" scale="8" xChannelSelector="R" yChannelSelector="G" result="wob"/>
+    <feGaussianBlur in="wob" stdDeviation="1.8" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="3" seed="2" result="fn"/>
+    <feColorMatrix in="fn" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="fa"/>
+    <feComposite in="soft" in2="fa" operator="arithmetic" k1="0" k2="1" k3="0.7" k4="-0.35" result="mix"/>
+    <feComponentTransfer in="mix" result="mask"><feFuncA type="linear" slope="6" intercept="-2.4"/></feComponentTransfer>
+    <feComposite in="wob" in2="mask" operator="in" result="sheet"/>
+    <feGaussianBlur in="mask" stdDeviation="3.2" result="sb"/>
+    <feOffset in="sb" dy="2.5" result="so"/>
+    <feFlood flood-color="#141A0C" flood-opacity=".42"/>
+    <feComposite in2="so" operator="in" result="shadow"/>
+    <feMerge><feMergeNode in="shadow"/><feMergeNode in="sheet"/></feMerge>
+  </filter>
+</defs></svg>
+
+<div class="intro">
+  <h1>Programmet, runde 3</h1>
+  <p>Nærmere «Order of events» i bilde 09: bare klokkeslett og et kort navn i tidslinja, lett skrift og mye luft. Det om betaling og hva dere tar med, står samlet i «Godt å vite» nederst på hvert ark. <b>D1</b> er uten ikoner. <b>D2</b> viser med tomme ringer hvor ikonene kunne stått. Klokkeslettene og prisene er plassholdere.</p>
+  <p>Alle tekstene er plassholdere, så se på formen, ikke ordene. De stiplede strekene viser hvor hver skjerm slutter på en vanlig mobil.</p>
+</div>
+
+<div class="wrap">
+<template id="content">
+  <nav class="nav" aria-label="Meny"><div class="navwords"><a href="#" aria-current="page">Program</a><a href="#">Praktisk</a><a href="#">Om oss</a></div><a class="navbtn" href="#">Svar</a></nav>
+  <div class="page">
+    <a class="back" href="#">← Tilbake til invitasjonen</a>
+    <h1 class="page-h">Programmet</h1>
+    <nav class="toc1" aria-label="Hopp til"><ul><li><a href="#fredag">Fredag</a></li><li><a href="#lordag">Lørdag</a></li><li><a href="#sondag">Søndag</a></li></ul></nav>
+
+    <section class="PART" id="fredag">
+      <h2 class="part">Fredag</h2>
+      <div class="part-body">
+        <p class="day-date">26. mai</p>
+        <ol class="tl"><li><span class="time">10:00</span><span class="what">Fjelltur</span></li><li><span class="time">15:00</span><span class="what">Hyttene er klare</span></li><li><span class="time">17:00</span><span class="what">Skattejakt</span></li><li><span class="time">19:00</span><span class="what">Middag</span></li><li><span class="time">21:00</span><span class="what">Badstue og stamp</span></li></ol>
+        <div class="good"><h3>Godt å vite</h3><ul><li>Fjellturen er for dem som kommer tidlig. Meld dere på i svarskjemaet, og ta med gode sko.</li><li><b>Middagen betales selv:</b> [x] kr.</li><li>Ta med badetøy til stampen.</li></ul></div>
+      </div>
+    </section>
+
+    <section class="PART" id="lordag">
+      <h2 class="part">Lørdag</h2>
+      <div class="part-body">
+        <p class="day-date">27. mai · bryllupsdagen</p>
+        <ol class="tl"><li><span class="time">08:00</span><span class="what">Frokost</span></li><li><span class="time">09:00</span><span class="what">Yoga</span></li><li><span class="time">13:30</span><span class="what">Vi drar til kirka</span></li><li><span class="time">14:00</span><span class="what">Vielsen</span></li><li><span class="time">16:00</span><span class="what">Lunsj på tunet</span></li><li><span class="time">19:00</span><span class="what">Middag og fest</span></li></ol>
+        <div class="good"><h3>Godt å vite</h3><ul><li><b>Frokosten betales selv:</b> [x] kr.</li><li>Yoga er for den som vil. Ta med treningstøy.</li><li>Vielsen er i Strandebarm kirke. Lunsj, middag og fest spanderer vi.</li></ul></div>
+      </div>
+    </section>
+
+    <section class="PART" id="sondag">
+      <h2 class="part">Søndag</h2>
+      <div class="part-body">
+        <p class="day-date">28. mai</p>
+        <ol class="tl"><li><span class="time">09:00</span><span class="what">Frokost</span></li><li><span class="time">12:00</span><span class="what">Hyttene skal være tomme</span></li></ol>
+        <div class="good"><h3>Godt å vite</h3><ul><li><b>Frokosten betales selv:</b> [x] kr.</li></ul></div>
+      </div>
+    </section>
+
+    <div class="bottom-back"><a class="small-btn back-btn" href="#">Tilbake til invitasjonen</a></div>
+  </div>
+  <footer class="footer">
+    <p>Spørsmål? Send oss en melding:</p>
+    <a href="#">Rikke 900 00 000</a>
+    <a href="#">Valdemar 900 00 001</a>
+    <a href="#">Personvern</a>
+  </footer>
+</template>
+
+  <div class="col"><h2 class="label">D1 · Uten ikoner</h2><div class="phone"><div class="screen" id="sa"></div></div></div>
+  <div class="col"><h2 class="label">D2 · Med plass til ikoner</h2><div class="phone"><div class="screen icons" id="sb"></div></div></div>
+</div>
+
+<div class="note">
+  <p><b>Ikonene i 09</b> (ringer, kamera, glass …) er tegnet for hånd. Hos oss skal pynt ikke tegnes i kode, men du kan lage dem i bildeverktøyet, slik som seglet og blomstene. De stiplede ringene i D2 er bare plassholdere som viser hvor de ville stått.</p>
+  <p><b>Det som koster penger</b> står fortsatt i ord («betales selv» og prisen), og alle ser alle hendelsene, også fjellturen (PRD FR-9).</p>
+</div>
+
+<script>
+// Fyller telefonen med innholdet, hver del på et ark.
+const tpl = document.getElementById('content');
+for (const [id, cls] of [['sa', 'sheet'], ['sb', 'sheet']]) {
+  const s = document.getElementById(id);
+  s.appendChild(tpl.content.cloneNode(true));
+  s.querySelectorAll('section.PART').forEach(el => { el.className = cls; });
+}
+// Tegner en strek for hver skjermhøyde (560 px), og skriver høyden på sida.
+window.addEventListener('load', () => setTimeout(() => {
+  for (const id of ['sa', 'sb']) {
+    const s = document.getElementById(id); const h = s.scrollHeight;
+    for (let y = 560, n = 2; y < h; y += 560, n++) {
+      const m = document.createElement('div'); m.className = 'mark'; m.style.top = y + 'px';
+      m.innerHTML = '<span>Skjerm ' + n + ' starter her</span>'; m.setAttribute('aria-hidden', 'true'); s.appendChild(m);
+    }
+    s.setAttribute('data-height', h);
+  }
+  document.title = 'H ' + ['sa', 'sb'].map(id => document.getElementById(id).scrollHeight).join(' ');
+}, 600));
+</script>
+</body>
+</html>
