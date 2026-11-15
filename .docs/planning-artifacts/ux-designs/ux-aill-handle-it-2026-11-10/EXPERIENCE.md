@@ -35,7 +35,7 @@ sources:
 
 | # | Surface | Reached from | Purpose |
 |---|---|---|---|
-| G1 | No valid link | Unknown/deactivated link, bare domain | Friendly private-invitation message; no names, phones, date or place (FR-5) |
+| G1 | No valid link | Unknown/deactivated link, bare domain | One paper sheet on the green page, no nav and no footer: «Dette er en privat invitasjon», the gypsophila, «Virker ikke lenken din? Ta kontakt med brudeparet direkte.» No names, phones, date, place or seal (the seal carries the initials) (FR-5). Approved in [mockups/privacy-1.html](mockups/privacy-1.html) |
 | G2 | Invitation (front page) | The personal link | Sticky nav bar with "Svar"; hero with FR-7 content and a "Svar" link in the deadline line; lead-in; «Alt om helgen» with three topics; RSVP panel; footer (FR-7, FR-8) |
 | G3 | Info pages: Programmet · Praktisk informasjon · Vår historie | Nav words, topic "Les mer" | One topic each; "Tilbake til invitasjonen" at top and bottom (FR-11); jump links under the title; one paper sheet per part. **Praktisk informasjon** (approved, [mockups/info-praktisk.html](mockups/info-praktisk.html)): Vielsen (in Strandebarm kirke, with its time) · Hardingasete og hyttene · Hvordan komme seg dit (address, route, bus, parking, map link) · Husregler · Antrekk · Ta med · Området rundt (FR-10; Rikke, 2026-11-15). The cabin times live in Programmet, not here. **Programmet** (approved, [mockups/info-program.html](mockups/info-program.html)): jump links Fredag · Lørdag · Søndag, the voluntary line, one sheet per day with a timeline of events (icon, time, short name) and «Godt å vite» (prices, what to bring, who covers what) (FR-9). **Vår historie** (approved, [mockups/info-om-oss.html](mockups/info-om-oss.html); called *Om oss* until 2026-11-15): one sheet without its own heading, with the couple's view photo, their own text in chapters (time · place lines), a closing line and their signed names |
 | G3b | Gifts [If time] | Fourth topic row | Text and links |
@@ -46,8 +46,8 @@ sources:
 | G8 | "Jeg har betalt" report | G7, status block | Report and later correct a payment (FR-35, FR-36) |
 | G9 | Answer view, locked | "Se svaret" after the deadline | Read-only answers; payment, report, info, consent withdrawal still work (FR-42) |
 | G10 | ~~Ask us~~ | — | **Removed 2026-11-15**: guests call or message the couple, whose numbers are in the footer (PRD FR-43 to FR-45) |
-| G11 | Consent withdrawal | Answer view (G4/G9) **and** G12 | Delete one person's allergy data (FR-30; memlog) |
-| G12 | Privacy page | Footer "Personvern", consent text | FR-66 content; withdrawal entry |
+| G11 | Consent withdrawal | Answer view (G4/G9) **and** G12 (its last sheet lists each household member's allergy data with «Trekk samtykket for <name>») | Delete one person's allergy data (FR-30; memlog) |
+| G12 | Privacy page | Footer "Personvern", consent text | The info-page frame (back link, title «Personvern», jump links, one sheet per part): Hva vi lagrer, og hvorfor · Hvem som ser det · Når det slettes · Rettighetene dine · Trekke samtykket. FR-66 and NFR-3 content in plain words; contacts in the footer. Approved in [mockups/privacy-1.html](mockups/privacy-1.html) |
 | G13 | Envelope reveal [If time] | First visit to G2 | See Interaction Primitives |
 | G14–G15 | Speech sign-up, English [If time] | — | Not specified further here |
 
@@ -144,7 +144,8 @@ Microcopy. "Decided" = memlog or the couple kept it in a render; all others are 
 | Error summary heading | For å gå videre må du rette opp følgende feil. | research (Designsystemet) |
 | Notice prefixes | Feil: · Obs: | proposal |
 | Page title | «Steg 3 av 6: Overnatting – Invitasjon»; «Feil: » first when the step has errors | proposal |
-| Invalid link | Dette er en privat invitasjon. Ta kontakt med Rikke eller Valdemar slik du pleier. | proposal (FR-5 content) |
+| Invalid link | «Dette er en privat invitasjon» · «Virker ikke lenken din? Ta kontakt med brudeparet direkte.» | decided (Rikke, 2026-11-15; the earlier proposal named Rikke and Valdemar, which FR-5 forbids) |
+| Privacy page | Personvern · Hva vi lagrer, og hvorfor · Hvem som ser det · Når det slettes · Rettighetene dine · Trekke samtykket · «Trekk samtykket for bestemor» · the sentences in [mockups/privacy-1.html](mockups/privacy-1.html) | headings and structure decided; the sentences are proposals built on FR-66 and NFR-3 |
 | Needs attention / Changed / Not answered | Trenger oppfølging / Endret / Ikke svart | proposal |
 | Admin attention panel | «Trenger oppfølging (7)» · «Vis alle 7» · reasons e.g. «Betalingen stemmer ikke», «Har ikke svart ennå» · empty: «Ingenting trenger oppfølging nå» (with check icon) · «Vis håndterte» | proposal (render) |
 | Admin guests (A4, A6) | «Finn en gjest» · «Legg til husstand» · «Alle gjester» · «Endre svaret» · «Se betalingene» · «Kopier lenke» · «Kopiert» · «Endre navn og kontaktinfo» · «Fjern husstanden» · tier 3: «Fjerne Sigmund og bestemor?», «Skriv FJERN for å bekrefte», «Avbryt» | proposal (render, [mockups/admin-guests-1.html](mockups/admin-guests-1.html)) |
@@ -293,7 +294,7 @@ Principle: **prefer undo over "Er du sikker?"** wherever possible.
 | 2 Important | Register or correct a payment (also undoable, FR-59), edit household, deactivate link + new link, change deadline or settings, price change, move guest, register consent **[ASSUMPTION for the last two]** | Dialog stating the consequence in plain words: the new deadline in words and, if past or within two weeks, how many households are locked out (FR-64); number of households whose total changes (FR-65). |
 | 3 Irreversible | Delete guest or household; delete all guest data [2027] | Typed confirmation: the label shows the exact word in plain text; matching ignores case and surrounding spaces; `autocapitalize="off" autocorrect="off" spellcheck="false"`; the button stays enabled and a mismatch gives an inline error. Destructive button placed apart, muted rust. |
 
-Guest-side consent withdrawal: one confirmation dialog naming what is deleted ("Allergiopplysningene til Marie slettes.") **[ASSUMPTION]**.
+Guest-side consent withdrawal: one confirmation dialog naming what is deleted: «Trekke samtykket for bestemor?», «Allergiopplysningene til bestemor slettes. Kjøkkenet får ikke vite om laktoseallergien.», «Avbryt» (focused) and «Slett allergiopplysningene» (Rikke approved the wording, 2026-11-15, [mockups/privacy-1.html](mockups/privacy-1.html)). Afterwards the sheet says «Allergiopplysningene til bestemor er slettet.» and the household is tagged «Endret» in admin.
 
 ### Envelope reveal [If time]
 
