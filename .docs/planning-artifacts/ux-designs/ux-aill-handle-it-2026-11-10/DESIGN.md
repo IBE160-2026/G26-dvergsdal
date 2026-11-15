@@ -397,7 +397,7 @@ components:
 
 # AI'll handle it — Design Spine
 
-> Visual identity for the guest invitation and the couple's admin area. Behaviour, states and flows live in [EXPERIENCE.md](EXPERIENCE.md). Decisions are logged in [.memlog.md](.memlog.md); requirements in the [PRD](../../prds/prd-aill-handle-it-2026-11-07/prd.md) and its [addendum](../../prds/prd-aill-handle-it-2026-11-07/addendum.md). Renders are linked in the sections they illustrate. **The spines win on any conflict with a render.**
+> Visual identity for the guest invitation and the couple's admin area. Behaviour, states and flows live in [EXPERIENCE.md](EXPERIENCE.md). Decisions are logged in [.memlog.md](.memlog.md); requirements in the [PRD](../../prds/prd-aill-handle-it-2026-11-07/prd.md) and its [addendum](../../prds/prd-aill-handle-it-2026-11-07/addendum.md). Renders are linked in the sections they illustrate. **DESIGN.md and EXPERIENCE.md (the spines) win on any conflict with a render (a mockup file).**
 
 ## Brand & Style
 
@@ -438,11 +438,11 @@ The palette was chosen over six render rounds from colours sampled in the couple
 | `focus-on-panel` | `#344628` | Focus ring painted on cream. | — |
 | `focus-on-green` | `#F5EEDF` | Focus ring painted on green and in the footer band. | — |
 | `error` | `#7C3B1D` | Errors, tier-3 destructive actions, "Stemmer ikke". Sampled from the rust wax seal in inspiration 01. | Decoration; the only signal of an error. |
-| `success` | `#3D5A2A` | "Svaret er sendt", saved confirmations, "Betalt", A2 «Ingenting trenger oppfølging nå». Renderer's own value, not chosen by the couple. | Primary buttons. |
-| `warning` | `#765012` | "Ikke sendt ennå", unsent-draft notice, allergy-without-consent, conflict, unpaid. Renderer's own value, not chosen by the couple. | Errors. |
-| `scrim` | `#141A0C` | Behind dialogs, at 60 % opacity (the near-black green of the sheet shadow; approved in the admin and privacy renders, 2026-11-15). | — |
+| `success` | `#3D5A2A` | "Svaret er sendt", saved confirmations, "Betalt", A2 «Ingenting trenger oppfølging nå». Picked by Claude for the renders; not chosen by the couple. | Primary buttons. |
+| `warning` | `#765012` | "Ikke sendt ennå", unsent-draft notice, allergy-without-consent, conflict, unpaid. Picked by Claude for the renders; not chosen by the couple. | Errors. |
+| `scrim` | `#141A0C` | The dimmed backdrop behind dialogs, at 60 % opacity (the near-black green of the sheet shadow; approved in the admin and privacy renders, 2026-11-15). | — |
 
-**Dark wood** from the brief has no UI token: walnut text (T3) was rejected, so dark wood lives only in photographs of the venue and in the illustration **[ASSUMPTION]**.
+**Dark wood** from the brief has no UI token: walnut text (text candidate T3) was rejected, so dark wood lives only in photographs of the venue and in the illustration **[ASSUMPTION]**.
 
 `error`, `success` and `warning` differ from each other by only 1.08–1.17:1 in luminance; they read as one dark brown to many older or colour-blind eyes. State is therefore always carried by **icon shape and words**, never colour (see Components › Notice, Status tag).
 
@@ -467,7 +467,7 @@ The palette was chosen over six render rounds from colours sampled in the couple
 
 **Rule:** contrast on a textured surface is checked against the texture **averaged over an area no wider than a letter stroke** (3 × 3 px for 20px EB Garamond), never against the overall average (memlog, *Contrast method refined*). On the sheets, the single darkest pixel still passes for every pair.
 
-The PRD addendum asks to check "sage green on soft white": green is never text on cream here; the green-on-cream pair in use is `green-dark` on `panel-cream` at 8.08:1.
+The PRD addendum asks to check "sage green on soft white": `page-green` is never text on cream. The only green-on-cream pair is `green-dark` on `panel-cream`, at 8.08:1.
 
 ## Typography
 
@@ -475,7 +475,7 @@ Two self-hosted families, both SIL Open Font License, served from our own server
 
 - **Imperial Script** — the couple's first names only (*Rikke & Valdemar*, no surnames). Its upstrokes are hair-thin, so it is **display only**: the names at `{typography.display-names}` and the same names as a signature at the end of *Vår historie* (`{typography.signature}`, 40px) are the only Imperial Script on the site. Never for headings, labels, buttons or the admin area. The *R & V* on the seal is part of Rikke's seal image, not live text. Fallback: Georgia italic **[ASSUMPTION]**.
   - **Names wrap, never shrink.** At 48px one line needs about 274px (the 262px measured at 46px, scaled); the hero's content box is 288px on a 360px phone, so they fit on one line there. When they do not fit, the names stack on three centred lines — *Rikke* / *&* / *Valdemar* — as in inspiration 09. No shrink-to-fit, no `cqi` units, no JS fitting, no `nowrap`. *Valdemar* alone is about 142px, which fits every layout width down to 180 CSS px once the narrow-width gutters apply (Layout & Spacing). Re-measure in the build.
-- **EB Garamond** — everything else. Its short x-height (0.41) is why guest body text is **20px**, above the NFR-5 floor of 18px (memlog, *Body font*). Regular and italic; weight 600 for labels and emphasis such as the invited names **[ASSUMPTION — the render used bold; 600 is the nearest weight to load]**. Fallback: Georgia.
+- **EB Garamond** — everything else. Its short x-height (0.41) is why guest body text is **20px**, above the NFR-5 floor of 18px (memlog, *Body font*). Regular and italic; weight 600 for labels and emphasis **[ASSUMPTION — the render used bold; 600 is the nearest weight to load]**. Fallback: Georgia.
 
 Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so the phone's text-size setting scales them. Running text uses `overflow-wrap: break-word` and `hyphens: auto` with `lang="nb"` so long compounds ("Allergiopplysningene") never force sideways scroll; the script names are never hyphenated.
 
@@ -489,10 +489,10 @@ Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so
 | Topic text | `body`, *italic* | One line under each topic title, e.g. «Fra vi møttes til i dag.»; italic so it reads lighter than the title (EB Garamond has no weight below 400) |
 | Card heading | `heading-card` | RSVP sheet and other panel headings (`h2`); on info pages *italic* with a thin ink hairline under it (Vielsen, Husregler …) |
 | Jump links | `jump-links`, small capitals | «Hopp til» on info pages: short words such as *Vielsen · Hardingasete*, cream on green |
-| Invites line | `invites`, *italic* | «inviterer dere til sitt bryllup» (du/dere rule) |
+| Invites line | `invites`, *italic* | «inviterer dere til sitt bryllup» (du/dere rule, EXPERIENCE › Voice and Tone) |
 | Date | `date-line`, small capitals | «Lørdag 27. mai 2028» in the hero |
 | Place | `place-line`, small capitals | «Hardingasete · Hardanger» in the hero |
-| Invited line | `body`, *italic*; names upright | «for **Sigmund og bestemor**» in the hero (names upright regular, not bold) |
+| Household line | `body`, *italic*; names upright | «for **Sigmund og bestemor**» in the hero (names upright regular, not bold) |
 | Lead-in | `lead-in`, *italic* | One line on green between the hero and «Alt om helgen» |
 | Small button on green | `button-small` | «Les mer» under each topic |
 | Nav words | `nav-words` | Sticky nav bar, 18px, slight letter spacing; only on the flat nav bar (Elevation & Depth) |
@@ -505,11 +505,15 @@ Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so
 
 **Figures:** amounts, dates, times, phone and account numbers use lining figures (`font-variant-numeric: lining-nums`), tables also tabular (`tabular-nums`); EB Garamond defaults to old-style figures, which older eyes misread. Thousands use a non-breaking space ("1 450 kr") so screen readers read one number.
 
-**Small capitals in three places only:** the date and the place in the hero, set with `font-variant-caps: all-small-caps` and `{typography.date-line.letterSpacing}`, as on a printed invitation (memlog, *Front page approved*), and the jump links on info pages with `{typography.jump-links.letterSpacing}` (Rikke's pick of three, 2026-11-15). The text stays in normal case in the HTML, so screen readers do not spell it out. No all-caps anywhere, and no small capitals for headings: small-caps «ALT OM HELGEN» was tried and Rikke wanted it «mer i stil med resten av nettsiden» (memlog, 2026-11-15); the section heading is italic instead.
+**Small capitals in three places only:** the date and the place in the hero, and the jump links on info pages. All use `font-variant-caps: all-small-caps`. The hero lines use `{typography.date-line.letterSpacing}`, as on a printed invitation (memlog, *Front page approved*); the jump links use `{typography.jump-links.letterSpacing}` (Rikke's pick of three, 2026-11-15). The text stays in normal case in the HTML, so screen readers do not spell it out. No all-caps anywhere, and no small capitals for headings: small-caps «ALT OM HELGEN» was tried and Rikke wanted it «mer i stil med resten av nettsiden» (memlog, 2026-11-15); the section heading is italic instead.
 
 ## Layout & Spacing
 
-Phone first (NFR-6). One centred column, maximum `{spacing.content-max}`; a PC shows the same phone column on the green page **[ASSUMPTION — 480px max]**. Side gutter `{spacing.gutter}`. No horizontal scroll at 320px or at 200 % zoom (NFR-5); on a phone 200 % zoom means a layout width of about **180 CSS px**, so below 260px layout width the gutter and the hero's inline padding drop to `{spacing.gutter-narrow}`. Between 260px and 340px (the smallest phones, 320px wide) the gutter is `{spacing.gutter-small-phone}` and the hero's inline padding `{spacing.hero-padding-inline-small-phone}`, so the names and the place stay on one line and the whole hero fits the first screen (Rikke chose this, 2026-11-15, [.working/small-phone-1.html](.working/small-phone-1.html)).
+### Grid and gutters
+
+Phone first (NFR-6). One centred column, maximum `{spacing.content-max}`; a PC shows the same phone column on the green page **[ASSUMPTION — 480px max]**. Side gutter `{spacing.gutter}`. No horizontal scroll at 320px or at 200 % zoom (NFR-5). On a phone, 200 % zoom means a layout width of about **180 CSS px**. Below 260px layout width, the gutter and the hero's inline padding drop to `{spacing.gutter-narrow}`. Between 260px and 340px (the smallest phones, 320px wide) the gutter is `{spacing.gutter-small-phone}` and the hero's inline padding `{spacing.hero-padding-inline-small-phone}`, so the names and the place stay on one line and the whole hero fits the first screen (Rikke chose this, 2026-11-15, [.working/small-phone-1.html](.working/small-phone-1.html)).
+
+### Front page
 
 Front-page order. The whole front page is approved in [mockups/front-page-3.html](mockups/front-page-3.html) (memlog, 2026-11-15), built on the first screen approved in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html) (memlog, *Front page approved*, 2026-11-11). Both supersede [mockups/front-page-2.html](mockups/front-page-2.html) (PRD FR-7, FR-8):
 
@@ -520,7 +524,9 @@ Front-page order. The whole front page is approved in [mockups/front-page-3.html
 5. **RSVP sheet** (jump target of both "Svar" links), 20px below the garland: heading "Svar på invitasjonen", a small gypsophila (180px), «Barnefritt bryllup», the full deadline «Svar innen tirsdag 4. januar 2028 kl. 23:59», the primary button.
 6. Footer band, full-bleed `green-dark`.
 
-**Answered state** (decided 2026-11-15, [mockups/answered-1.html](mockups/answered-1.html)): the page is the same, except that the hero's deadline line becomes «Svar sendt 12. oktober · **Se svaret**», and the RSVP sheet is replaced, in the same place, by the status sheet (the target of the nav "Svar" and of «Se svaret»).
+**Answered state** (decided 2026-11-15, [mockups/answered-1.html](mockups/answered-1.html)): the page is the same, except that the hero's deadline line becomes «Svar sendt 12. oktober · **Se svaret**», and the RSVP sheet is replaced, in the same place, by the status block (the target of the nav "Svar" and of «Se svaret»).
+
+### First-screen budget
 
 **First-screen budget** (measured 2026-11-14 in headless Chrome at 360px wide, fonts and images loaded; the fold is 560px, what a browser or Messenger shows on a 360 × 640 phone):
 
@@ -533,11 +539,13 @@ Front-page order. The whole front page is approved in [mockups/front-page-3.html
 | Divider · date · place | 357–407 · 407–437 · 437–463 |
 | «for …» · deadline line | 469–499 · 503–**530** |
 
-The whole hero sheet fits above the fold with 8px to spare, so these values are a budget, not a starting point: any added line or larger seal pushes the sheet's end off the first screen. At 320px (re-measured 2026-11-15 with «Vår historie» as the third nav word) the nav bar stays on one line (64px) only with tighter spacing below 340px layout width: nav words 8px apart, bar padding 8px 10px 8px 12px, the "Svar" button padding 0 12px and minimum width 56px (still ≥ 44px tall); with the normal spacing «Vår historie» wraps and the bar grows to 104px, the small-phone gutter and hero padding keep the names and the place on one line, and the deadline line ends at 530px, above the 568px fold (with the normal 16px/20px it was 611px, below; Open Question 2, resolved). «Praktisk informasjon» wraps to two lines beside its frame there, which is fine. Check widths for every build: 360 × 560, 320 × 568, 180 × 320.
+The whole hero sheet fits above the fold with 8px to spare, so these values are a budget, not a starting point: any added line or larger seal pushes the sheet's end off the first screen. At 320px (re-measured 2026-11-15 with «Vår historie» as the third nav word) the nav bar stays on one line (64px) only with tighter spacing below 340px layout width: nav words 8px apart, bar padding 8px 10px 8px 12px, the "Svar" button padding 0 12px and minimum width 56px (still ≥ 44px tall); with the normal spacing, «Vår historie» wraps and the bar grows to 104px. At 320px the small-phone gutter and hero padding keep the names and the place on one line, and the deadline line ends at 530px, above the 568px fold. With the normal 16px gutter and 20px padding it ended at 611px, below the fold (Open Question 2, resolved). «Praktisk informasjon» wraps to two lines beside its frame there, which is fine. Check widths for every build: 360 × 560, 320 × 568, 180 × 320.
 
-Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal centred with its top 36px above the sheet's top edge; illustration pulled up 12px (its top is empty sky) with 4px below; invites 2px below the names; divider 2px below; 6px above the invited line, 4px above the deadline line. Topic rows: 20px above, 6px below, 14px between frame and text; the «Les mer» target supplies the bottom space. Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero and RSVP sheet is centred, the details heading too; topic text is left-aligned beside its picture; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
+Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal centred with its top 36px above the sheet's top edge; illustration pulled up 12px (its top is empty sky) with 4px below; invites 2px below the names; divider 2px below; 6px above the household line, 4px above the deadline line. Topic rows: 20px above, 6px below, 14px between frame and text; the «Les mer» target supplies the bottom space. Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero and RSVP sheet is centred, the details heading too; topic text is left-aligned beside its picture; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
 
-Sections are separated by green showing between the sheets and by the lily garlands around «Alt om helgen», which answers inspiration 08's "not one long page on one identical background".
+Sections are separated by green showing between the sheets and by the lily garlands around «Alt om helgen». This answers inspiration 08's "not one long page on one identical background".
+
+### Info pages
 
 **Info pages** (G3). *Praktisk informasjon* is approved in [mockups/info-praktisk.html](mockups/info-praktisk.html) (memlog, 2026-11-15; rounds in `.working/info-praktisk-1.html` to `-6.html`). Order, under the nav bar with «Praktisk» as the current page:
 
@@ -562,13 +570,23 @@ At 360px the page is about 2 930px with placeholder times.
 
 *Vår historie* (called *Om oss* until Rikke renamed it on 2026-11-15) is approved in [mockups/info-om-oss.html](mockups/info-om-oss.html) (memlog, 2026-11-15; rounds in `.working/info-om-oss-1.html` and `-2.html`). Same frame, with «Vår historie» as the page title and current nav word, and no jump links. **One story sheet** without its own heading (the page title already says «Vår historie»): the couple's view photo ([egne-bilder/13-Us2.jpg](../../ux/egne-bilder/13-Us2.jpg)) in the lace frame, then the couple's own text ([ux/innhold/Vår historie.docx](../../ux/innhold/V%C3%A5r%20historie.docx)) in chapters, each opened by an italic line with time and place (*Sensommeren 2021 · Trondheim* … *Våren 2027 · Oslo*), then the last sentence as an italic centred closing line and «Rikke & Valdemar» as a signature. One photo only: the beach photo stays on the invitation (Rikke). At 360px the page is about 3 780px; it is read by choice, so no jump links.
 
+### Form, check page and receipt
+
 **Form step, check page and receipt** (one paper sheet per screen on the green page, with the same soft edge and texture as the front page; no nav bar, footer band kept). Rendered at 360px, redrawn in the paper-sheet style on 2026-11-15 (same content as the 2026-11-11 renders; Rikke approved), in [mockups/key-form-steps.html](mockups/key-form-steps.html) (steps 1, 3 and 5, an error state and the draft offer), [mockups/key-check-page.html](mockups/key-check-page.html) and [mockups/key-receipt.html](mockups/key-receipt.html) (receipt and payment details; the answered front page is in [mockups/answered-1.html](mockups/answered-1.html)):
 
 - **Form step:** step question (`h1`) → progress line → respondent line (**on every step**) → one fieldset per person or question → running total (paid steps only) → **"Fortsett" (primary) above "Tilbake" (secondary), both full width, 12px apart, 24px below the content** **[forslag — button order]**.
 - **Check page:** warning notice «Obs: Svaret er ikke sendt ennå.» first, then the `h1` «Se over svaret før du sender» **[forslag]**, the check-answers list, the running total, "Send svaret" above "Tilbake".
 - **Receipt:** success notice holding the `h1` «Svaret er sendt» and the sent-by line, Rikke's message, the summary, the total, "Betal nå" above "Betal senere", and the closing line directly below them.
 
-**Narrow widths (200 % zoom, 180 CSS px).** Every image (illustration, garlands, gypsophila, lace frames) has `max-width: 100%` and keeps its aspect ratio. Below about 300px layout width a topic row stacks: the framed picture (up to 136px) above the text. Below about 260px the programme timeline becomes one-sided: the line moves to the left edge and every event sits to its right, left-aligned, without the overlap. These breakpoints are measured in the build (review A2-01, A2-02).
+### No valid link and privacy page
+
+**No valid link (G1) and Personvern (G12)**, approved in [mockups/privacy-1.html](mockups/privacy-1.html) (Rikke, 2026-11-15). G1: the textured green page with one centred paper sheet 120px from the top: `heading-card` *italic* «Dette er en privat invitasjon», the small gypsophila (180px), one line of body text. No nav bar, footer band or seal. Under the sheet, a plain cream «Personvern» link (FR-66). G12: the info-page frame (Layout › info pages) with the title «Personvern», jump links and one sheet per part; the last sheet lists each household member with a secondary button «Trekk samtykket for <name>». The withdrawal dialog is a paper sheet over the 60 % scrim with an *italic* heading, «Avbryt» (secondary, focused) and the primary «Slett allergiopplysningene». The button is primary, not Destructive, on purpose: it is the guest's only confirmation, as in Rikke's approved render. Destructive buttons are only for the couple's tier-3 actions.
+
+### Narrow widths
+
+**Narrow widths (200 % zoom, 180 CSS px).** Every image (illustration, garlands, gypsophila, lace frames) has `max-width: 100%` and keeps its aspect ratio. Below about 300px layout width a topic row stacks: the framed picture (up to 136px) above the text. Below about 260px the programme timeline becomes one-sided: the line moves to the left edge and every event sits to its right, left-aligned, without the overlap. Measure these breakpoints in the build (review A2-01, A2-02).
+
+### Admin screens
 
 **Admin:** same tokens, denser. The admin page is the **flat** `page-green` (no texture), because admin text on the green is 18px and cream text under 19px may only stand on flat green (review A2-04). Panels use `{spacing.admin-panel-padding}` and `{spacing.admin-gap}`; lists and tables rather than cards; quick tasks (find guest, copy link, see if answered) fit one phone screen (FR-48). When density and targets collide, **44px targets win**; lists scroll.
 
@@ -580,8 +598,6 @@ At 360px the page is about 2 930px with placeholder times.
 
 **Gjester (A4) and the household page (A6)**, approved in [mockups/admin-guests-1.html](mockups/admin-guests-1.html) (Rikke, 2026-11-15; the full overview and the guest list are one page). *Gjester*: the page title in `admin-title` on the green, the count «30 husstander · 70 gjester», a panel with the search field and «Legg til husstand», then the household list (Overview table). *Household page*: a back link «Alle gjester», the household name as title, then four admin panels: *Svar* · *Betaling* · *Lenker* · *Husstanden*. «Fjern husstanden» is a Destructive button 28px below the last safe button. The tier-3 dialog lies over a 60 % scrim: heading in 600 weight, the consequence sentence, the typed-confirmation field, «Avbryt» first and «Fjern husstanden» apart below.
 
-**No valid link (G1) and Personvern (G12)**, approved in [mockups/privacy-1.html](mockups/privacy-1.html) (Rikke, 2026-11-15). G1: the textured green page with one centred paper sheet 120px from the top: `heading-card` *italic* «Dette er en privat invitasjon», the small gypsophila (180px), one line of body text. No nav bar, footer band or seal. Under the sheet, a plain cream «Personvern» link (FR-66). G12: the info-page frame (Layout › info pages) with the title «Personvern», jump links and one sheet per part; the last sheet lists each household member with a secondary button «Trekk samtykket for <name>». The withdrawal dialog is a paper sheet over the 60 % scrim with an *italic* heading, «Avbryt» (secondary, focused) and the primary «Slett allergiopplysningene». Primary, not Destructive, on purpose: the guest's one confirmation, in Rikke's approved render; Destructive stays for the couple's tier-3 actions.
-
 **Betalinger (A9)**, approved in [mockups/admin-payments-1.html](mockups/admin-payments-1.html) (Rikke, 2026-11-15). Same frame as *Gjester*. *List*: title and «25 husstander som kommer», a «Til sammen» panel of summary rows (label left, amount right), then the household list with status tags stacked under the name. *Household payment page*: back link «Alle betalinger», then panels *Status* · *Registrert* (one row per entry: date, «Mottatt 600 kr», secondary «Angre») · *Registrer betaling* (two radio choices, the amount field with the hint «Dagens dato settes selv.», and the one primary button «Registrer») · *Betalingsmelding*. The tier-2 dialog has «Avbryt» (secondary, focused) above the primary «Registrer 300 kr». After saving, an admin panel with the check icon, «Registrert: mottatt 300 kr.» and «Angre» stands first under the title.
 
 ## Elevation & Depth
@@ -592,7 +608,7 @@ How the sheet is built, so the edge never touches the text:
 
 - Colour, texture, edge and shadow sit on a layer **behind** the content (`::before`); only that layer is filtered. Text, links and focus rings stay sharp, and their contrast is unchanged.
 - The edge is an SVG filter (displacement for the wave, fine noise for the fibre, blur 3.2px offset 2.5px at 42 % `#141A0C` for the shadow). If it is slow on old phones, the build may swap it for a pre-rendered edge image with the same look (memlog, *Technical defaults while folding in*).
-- Where filters are unsupported, the sheet falls back to flat `panel-cream` with `{rounded.sheet}` corners. Under forced colours the cream becomes `Canvas` like the page, so sheets, admin panels and dialogs get a 1px `CanvasText` border there. The edge and shadow are decoration; the flat sheet is a complete design.
+- Where filters are unsupported, the sheet falls back to flat `panel-cream` with `{rounded.sheet}` corners. Under forced colours (Windows high-contrast mode) the cream becomes `Canvas` like the page, so sheets, admin panels and dialogs get a 1px `CanvasText` border there. The edge and shadow are decoration; the flat sheet is a complete design.
 
 Depth appears in exactly five places:
 
@@ -602,9 +618,9 @@ Depth appears in exactly five places:
 - **The sticky nav bar**: a 1px hairline of `cream-on-green` at 22 % along its bottom edge, so content visibly slides under it.
 - **Dialogs**: a cream sheet over `{colors.scrim}` at 60 %; on guest pages the sheet has the paper edge, in admin the straight edge.
 
-**Paper texture.** Page and sheets carry a fine paper grain: tiling SVG noise layers (fine grain and soft fibre, inline data-URIs, no network) blended with `overlay` around mid-grey, so the **average colour is unchanged**. The green texture is the calmer one approved in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html) (`--grain-green`). Contrast is checked against the worst texture pixel (memlog, *Technical default, measured*):
+**Paper texture.** Page and sheets carry a fine paper grain: tiling SVG noise layers (fine grain and soft fibre, inline data-URIs, no network) blended with `overlay` around mid-grey, so the **average colour is unchanged**. The green texture is the calmer one approved in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html) (`--grain-green`). Contrast is checked against the worst case on each surface (memlog, *Technical default, measured*): the lightest 3 × 3 px average on the green, and the darkest single pixel on the sheet:
 
-- **Green:** the grain is finer than a letter stroke, so cream text is checked against the texture averaged over 3 × 3 px: worst **4.50:1** (4.61:1 at 4 × 4 px), 0 % under 4.5:1 (memlog, *Contrast method refined*). So cream text of **19px or more** may sit on the textured green: the lead-in, the whole «Alt om helgen» section, and the title, back link and jump links of the info pages. The 3 × 3 px box (radius 1px) stays finer than the letter stroke down to 19px (about 1.9px), including the 19px «Les mer» and the small-capital jump links (memlog, 2026-11-15). The single lightest pixel (`#6D8358`, 3.61:1) is no longer the test. The nav words (18px) stay on the **flat** nav bar (4.95:1). Re-measure the italic topic text in the build, since italic strokes are thinner.
+- **Green:** the grain is finer than a letter stroke, so cream text is checked against the texture averaged over 3 × 3 px: worst **4.50:1** (4.61:1 at 4 × 4 px), 0 % under 4.5:1 (memlog, *Contrast method refined*). So cream text of **19px or more** may sit on the textured green: the lead-in, the whole «Alt om helgen» section, and the title, back link and jump links of the info pages. The 3 × 3 px box (radius 1px) stays within the letter stroke down to 19px text, whose strokes are about 1.9px wide, including the 19px «Les mer» and the small-capital jump links (memlog, 2026-11-15). The single lightest pixel (`#6D8358`, 3.61:1) is no longer the test. The nav words (18px) stay on the **flat** nav bar (4.95:1). Re-measure the italic topic text in the build, since italic strokes are thinner.
 - **Sheet:** the darkest pixel is `#DBCFB4`. Worst cases: `ink` 7.67:1, `ink-muted` 4.51:1, `warning` 4.65:1, `success` 5.05:1, `error` 5.44:1, `green-dark` 6.62:1. All pass.
 - Re-measure on a screenshot of the built page if the texture changes. The texture is decoration: if it fails to load, the flat token colours are the design.
 
@@ -631,7 +647,7 @@ Frontmatter key in brackets where one exists.
 | **Page** [`page`] | `{colors.page-green}` with the calm paper texture. Never plain white anywhere. |
 | **Paper sheet** [`paper-sheet`] | The surface of every guest content panel: cream, textured, soft hand-made edge in its own colour, soft shadow, all on a layer behind the content. Flat `{rounded.sheet}` fallback (Elevation & Depth). |
 | **Nav bar** [`nav-bar`, `nav-words`] | Full-width strip, **flat** `{colors.page-green}` (no texture), 64px, a faint cream hairline below. Nav words left (Program · Praktisk · Vår historie), `{typography.nav-words}` in `{colors.cream-on-green}`, **not underlined**, 12px apart, each ≥ 44 × 44px; no separator characters; may wrap to two lines; no hamburger. Current page: 2px underline, offset 4px (approved in the info-page renders). |
-| **Nav "Svar" button** [`nav-svar`] | Right end of the nav bar: `{colors.green-dark}` fill, cream text, **1px `{colors.cream-on-green}` border** (dark green on page-green is only 1.79:1), ≥ 64 × 44px (56px wide, padding 0 12px, below 340px layout width). The one primary-styled control allowed on green. |
+| **Nav "Svar" button** [`nav-svar`] | Right end of the nav bar: `{colors.green-dark}` fill, cream text, **1px `{colors.cream-on-green}` border** (dark green on page-green is only 1.79:1), ≥ 64 × 44px (below 340px layout width: 56px wide, padding 0 12px). The one primary-styled control allowed on green. |
 | **Hero sheet** [`hero-panel`] | Centred, in this order: seal over the top edge, illustration, names, invites line, gypsophila divider, date and place in small capitals, «for <household>», short deadline line with the "Svar" link. Rendered in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html). |
 | **Wax seal** [`wax-seal`] | Rikke's seal image, 74px wide, centred with its top 36px above the hero sheet's top edge, drop shadow. Decorative (`alt=""`). The favicon is made from the same image (at 32px and 180px). |
 | **Hero illustration** [`hero-illustration`] | [Rikke's illustration 04](../../ux/egne-bilder/04-Illustration.jpg) (cool sage watercolour of the bell house and main house among pines with string lights), **shown whole** at 262px wide, pulled up 12px under the seal, `mix-blend-mode: darken` so its paper melts into the cream (`normal` under forced colours). Final file has no signature or text and ships with the app. Alternatives I5–I8: [mockups/illustration-3.html](mockups/illustration-3.html) (I7 chosen). The 150px cropped band in front-page-2.html is superseded (Rikke: "kuttet for mye"). |
@@ -639,7 +655,7 @@ Frontmatter key in brackets where one exists.
 | **Lily garland** [`lily-garland`] | Rikke's lilies, 296px wide: the top image above the details heading, the bottom image below the last topic row; both bow towards the text, so neither is rotated. Decorative (`alt=""`). With the gypsophila, the only flowers on the page. |
 | **Lead-in** [`lead-in`] | One italic line on the textured green, 24px, e.g. «Vi gleder oss til å feire med dere». |
 | **Details section** [`details-section`] | «Alt om helgen» directly on the textured green, no sheet: top garland, `heading-section` *italic* centred with a 1px cream hairline under it, the topic rows, bottom garland. Rendered in [mockups/front-page-3.html](mockups/front-page-3.html); the rounds that led here are in `.working/finer-details-1.html` to `-10.html`. |
-| **Topic row** [`topic-row`] | Lace-framed picture left (136px), text right: `topic-title`, one line of `body` *italic*, then «Les mer» as an outlined button on green. Only «Les mer»; directions and other links live inside the topic's page. Pictures are information (`alt` describes them when they carry content; decorative otherwise **[ASSUMPTION]**). |
+| **Topic row** [`topic-row`] | Lace-framed picture left (136px), text right: `topic-title`, one line of `body` *italic*, then «Les mer» as an outlined button on green. Only «Les mer»; directions and other links live inside the topic's page. Pictures can carry information: `alt` describes them when they do, and is empty when the title says it all **[ASSUMPTION]**. |
 | **Lace frame** [`lace-frame`] | Rikke's lace image in `panel-cream` over a square-cut photo that fills its window, soft drop shadow; 136px in topic rows, 220px on info sheets. Decorative (`alt=""` on the frame). Never oval, never a soft fade, never a stamp or double-line frame (rejected as «for harde»). |
 | **Info page title** [`info-page-title`] | `heading-page` *italic*, centred, cream on green, 1px cream hairline under it; the page's `h1`. |
 | **Back link** [`back-link`] | «← Tilbake til invitasjonen» at the top of every info page: cream, 20px, underlined, ≥ 44px. At the bottom the same words are an outlined button on green (FR-11). |
@@ -652,7 +668,7 @@ Frontmatter key in brackets where one exists.
 | **Voluntary line** [`voluntary-line`] | One italic cream line under the jump links on Programmet: «Alt i programmet er frivillig. Bli med på det dere har lyst til.» |
 | **Outlined button on green** [`button-on-green`] | Transparent, 1.5px `cream-on-green` border and text, 4px radius, ≥ 44px tall, `button-small` 19px. Hover/pressed: border 3px; focus ring `focus-on-green`. On a cream sheet the same shape is drawn in `ink` («Åpne veibeskrivelse i kart»). |
 | **RSVP sheet** [`rsvp-panel`] | Paper sheet after «Alt om helgen»: `heading-card` "Svar på invitasjonen", small gypsophila divider, «Barnefritt bryllup» (Rikke removed the rest of the proposed line), the full deadline «Svar innen tirsdag 4. januar 2028 kl. 23:59», primary button. When an unsent draft exists, a warning notice sits above the button. |
-| **Primary button** [`button-primary`] | Full panel width, 52px, cream text on dark green, 2px transparent border (visible outline in forced colours). Only on cream panels — the nav "Svar" is the one exception. **One distinct primary action per screen; repeats of the same action are allowed** (nav "Svar" and RSVP button). Busy: keeps its colours, label becomes "Sender …". |
+| **Primary button** [`button-primary`] | Full panel width, 52px, cream text on dark green, 2px transparent border (visible outline in forced colours). Only on paper sheets and admin panels — the nav "Svar" is the one exception. **One distinct primary action per screen; repeats of the same action are allowed** (nav "Svar" and RSVP button). Busy: keeps its colours, label becomes "Sender …". |
 | **Secondary button** [`button-secondary`] | Outlined dark green on cream; border 3px on hover/pressed. For "Tilbake", "Betal senere", "Avbryt", "Nei, begynn på nytt". In form steps, check page and receipt it sits **below** the primary button, same full width **[forslag]**. |
 | **Destructive button** [`button-destructive`] | Muted rust outline on cream, placed apart (tier 3 only); border 3px on hover/pressed. Filled rust is not used **[ASSUMPTION — "muted rust" read as outline]**. |
 | **Focus ring** [`focus-ring`] | 3px outline at 3px offset on `:focus-visible` and on `:active` (tap feedback). Colour by the surface the ring is **painted on**: `focus-on-panel` on cream, `focus-on-green` on green or the footer. Never `outline: none`. |
@@ -665,7 +681,7 @@ Frontmatter key in brackets where one exists.
 | **Status block** | Paper sheet shown once answered, in the RSVP sheet's place and centred like it: `heading-card` «Svaret er sendt», the small gypsophila, «Barnefritt bryllup» (kept, Rikke 2026-11-15), then «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.», «Totalt for husstanden: 3 900 kr», «Meldt betalt: 3 900 kr, 12. oktober.», «Dere kan endre svaret fram til tirsdag 4. januar 2028 kl. 23:59.», and the primary button "Se eller endre svar" **[forslag — wording except the button]**. Rendered in [mockups/answered-1.html](mockups/answered-1.html) (approved placement, 2026-11-15; it replaces the second phone of the first receipt render, removed when the receipt was redrawn on 2026-11-15). |
 | **Draft offer** | Paper sheet at the top of the form: heading «Vil du fortsette der du slapp?», one line saying when the answer was started, primary "Ja, fortsett", secondary "Nei, begynn på nytt". Rendered in [mockups/key-form-steps.html](mockups/key-form-steps.html). |
 | **Progress line** | "Steg 3 av 6: Overnatting" in `{typography.body}`, directly under the step question; no graphic stepper **[ASSUMPTION]**. |
-| **Respondent line** | "Jeg er **Sigmund** · Bytt" — "Bytt" a button styled as an underlined link (≥ 44px) — directly under the progress line **on every form step**, so the guest always sees who is answering; switching opens a radio list of household members in the panel **[ASSUMPTION]**. |
+| **Respondent line** | "Jeg er **Sigmund** · Bytt" ("Bytt" is a button styled as an underlined link, ≥ 44px), directly under the progress line **on every form step**, so the guest always sees who is answering; switching opens a radio list of household members in the panel **[ASSUMPTION]**. |
 | **Running total** | Right-aligned "Totalt for husstanden: 1 450 kr", lining figures, `divider` hairline above, at the foot of each paid step. |
 | **Read-more disclosure** | Underlined "Les mer om …" with a small chevron; expands in place with a left rule in `{colors.divider}`. |
 | **Consent block** | Section at the end of the allergies step, after a `divider`: purpose and recipients text (`body`), how to withdraw, then the Ja/Nei choice under its legend, then — when answering for others — the "Jeg bekrefter …" checkbox. No special colour; nothing pre-selected. |
@@ -684,7 +700,7 @@ Frontmatter key in brackets where one exists.
 | **Admin summary row** | Inside a summary panel: label and count; the Svar rows show two counts («58 personer · 25 husstander»), the hike row two linked figures («5 kommer, 2 kanskje»), "kanskje" never added to "kommer". |
 | **Overview table** | A4: one admin panel listing the households, `divider` between rows. Each row: the household name as a 600-weight link (≥ 44px), the status tag on its own line, then one `admin-body` line (who comes, total, payment). On PC the rows may become a table (`admin-body`, 600-weight header row). Unanswered households sort first and carry the "Ikke svart" tag. Rendered in [mockups/admin-guests-1.html](mockups/admin-guests-1.html). |
 | **Undo (in place)** | After a tier-1 action the row is replaced in place by "Merket som håndtert." and an "Angre" link-button. No fixed bar, no toast (kept after the key-screen render). |
-| **Status tag** [`status-tag`] | Outlined label in the state colour, icon as in Notice. Mapping **[ASSUMPTION — proposal]**: "Betalt" → success · "Ikke betalt", "Delbetalt, 300 kr mangler", "Skal ha tilbake 200 kr", "Ikke svart" → warning · "Stemmer ikke" → error · "Ingenting å betale", "Endret" → ink (info). |
+| **Status tag** [`status-tag`] | Outlined label in the state colour, icon as in Notice. Mapping **[forslag]**: "Betalt" → success · "Ikke betalt", "Delbetalt, 300 kr mangler", "Skal ha tilbake 200 kr", "Ikke svart" → warning · "Stemmer ikke" → error · "Ingenting å betale", "Endret" → ink (info). |
 | **Dialog** [`dialog`] | Consequence sentence, then actions; on narrow screens buttons stack full-width, safe action first. |
 
 ## Do's and Don'ts
@@ -692,7 +708,7 @@ Frontmatter key in brackets where one exists.
 | Do | Don't |
 |---|---|
 | Cream paper sheets on the green page: textured, soft hand-made edge in the sheet's own colour, soft shadow | Folds, backing or offset sheets, a light or chalk-white rim, jagged torn edges |
-| Primary buttons on cream panels; the nav "Svar" (with its cream border) is the only exception | A dark green button on green without the cream border |
+| Primary buttons on paper sheets and admin panels; the nav "Svar" (with its cream border) is the only exception | A dark green button on green without the cream border |
 | The nav bar is the only thing that sticks | Other sticky or fixed bars, on guest or admin pages |
 | Imperial Script for the names only: 48px in the hero (stacking when needed), 40px as the signature on *Vår historie* | Script for headings, labels, buttons or admin; shrinking the names to fit |
 | Small capitals for the date and place in the hero and the jump links on info pages | All-caps; small-caps headings |
