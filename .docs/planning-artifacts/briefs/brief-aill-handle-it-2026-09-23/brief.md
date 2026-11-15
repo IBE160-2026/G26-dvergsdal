@@ -2,7 +2,7 @@
 title: "Product Brief: AI'll handle it"
 status: final
 created: 2026-09-23
-updated: 2026-11-07
+updated: 2026-11-16
 ---
 
 # Product Brief: AI'll handle it
@@ -115,10 +115,10 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 **Constraints and open questions**
 - Solo developer, early in learning to code. Delivery mid-December 2026.
 - Must be full-stack with a database (course requirement). A simple full-stack solution with one database, chosen and justified in the architecture document. An AI feature in the site is not required. AI is used in the development process and documented in the prompt log.
-- Open: prices from Hardingasete are not known yet, so they must be easy to change.
+- Prices from Hardingasete are known only for 2026, so they must be easy to change.
 - Open: the form of the gift list (static list, external link, or gifts guests can reserve).
 - Open: whether sending email costs anything in production. The course version does not depend on it.
-- Open: Hardingasete's answers on beds and cabins (accommodation is confirmed as the whole weekend or nothing), prices, the deadline for final numbers, and whether guests can pay the venue directly (asked 2026-11-06). The RSVP deadline is set about two weeks before Hardingasete's deadline.
+- Hardingasete answered on 2026-11-16 ([answers](../../research/hardingasete/svar-hardingasete-2026-11-16.md)): 75 beds for the whole weekend (accommodation is the whole weekend or nothing), the 2026 prices (the 2028 prices come at the start of 2028), and guests pay the couple, who pays Hardingasete. Open: the exact date for final numbers, which is at the start of 2028. The RSVP deadline is set about two weeks before it.
 
 ## Data and Privacy
 
@@ -156,3 +156,4 @@ If time allows after the wedding, the site could become a keepsake: guests share
   - Link tracking and keeping an unfinished answer on the guest's device move from "if time" to required before invitations go out in 2027. Notifications to guests when information changes are out of scope.
   - Invitations aren't sent until the 2028 prices are known.
   - v1 is split into three priority tiers, so the most important parts are done first.
+- **2026-11-16:** Hardingasete answered ([answers](../../research/hardingasete/svar-hardingasete-2026-11-16.md)). The constraints now give the beds, the 2026 prices and that guests pay the couple. Accommodation is priced for the whole place, not per bed, so the couple sets what each guest pays for the cabin.

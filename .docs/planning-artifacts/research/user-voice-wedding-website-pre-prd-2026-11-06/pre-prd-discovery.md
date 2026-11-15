@@ -2,7 +2,7 @@
 title: "Pre-PRD discovery: open questions, decisions, ideas and topics"
 project: "AI'll handle it"
 created: "2026-11-06"
-updated: "2026-11-07"
+updated: "2026-11-16"
 status: draft
 inputs:
   - "../../briefs/brief-aill-handle-it-2026-09-23/brief.md"
@@ -100,9 +100,9 @@ These can't be answered with web research. They have to be asked.
 | # | Ask whom | Question | Why it matters |
 |---|---|---|---|
 | Q1 | Hardingasete | How many beds/cabins are there, and how are they allocated (per person, per cabin)? | Bed limit, price model, and whether the admin needs to allocate cabins — capacity answered 2026-11-07 (Rikke): Hardingasete has far more beds than there are guests, so the form needs no bed limit. The couple allocates cabins outside the site |
-| Q2 | Hardingasete | When do they need final numbers for meals, beds and allergies? In what format? | Sets the RSVP deadline (D4) and what the admin overview/print should look like |
-| Q3 | Hardingasete | Prices per meal and accommodation (or when they'll come)? Prices for children are irrelevant (child-free) | Price model, configurable prices |
-| Q4 | Hardingasete | Should guests pay the couple, or can they pay Hardingasete directly? | Etiquette (R 2.2: paying a third party feels better), payment flow |
+| Q2 | Hardingasete | When do they need final numbers for meals, beds and allergies? In what format? | Sets the RSVP deadline (D4) and what the admin overview/print should look like — partly answered 2026-11-16: final numbers at the start of 2028, exact date and format not set ([answers](../hardingasete/svar-hardingasete-2026-11-16.md)) |
+| Q3 | Hardingasete | Prices per meal and accommodation (or when they'll come)? Prices for children are irrelevant (child-free) | Price model, configurable prices — answered 2026-11-16 with the 2026 prices; the 2028 prices come at the start of 2028. Accommodation is priced for the whole place ([answers](../hardingasete/svar-hardingasete-2026-11-16.md)) |
+| Q4 | Hardingasete | Should guests pay the couple, or can they pay Hardingasete directly? | Etiquette (R 2.2: paying a third party feels better), payment flow — answered 2026-11-16: no, guests pay the couple, and the couple pays Hardingasete ([answers](../hardingasete/svar-hardingasete-2026-11-16.md)) |
 | Q5 | The couple | Can someone come only Saturday? Only Friday? | D1, D2 — answered 2026-11-06: yes, guests choose days and meals independently of accommodation |
 | Q6 | The couple | Should Friday activities (treasure hunt, sauna) and Saturday yoga have sign-up, or just be information? | Scope of the form — answered 2026-11-07: information only, no sign-up. The activities are shown on the programme page and are not part of the RSVP form |
 | Q7 | 2–3 guests (incl. an older one) | How does "pay for meals" come across? What would you look for on the site? | C3, information architecture |
@@ -181,7 +181,7 @@ Sorted by how strongly the research supports them. "Scope" proposes where they b
 
 - [x] C1–C7 discussed and decided (section 1) — 2026-11-06
 - [x] D1–D13 decided or explicitly moved into the PRD (section 2) — D1–D11 decided 2026-11-06; D12–D13 moved into the PRD
-- [x] Questions Q1–Q4 sent to Hardingasete (the answers can come during the PRD; prices and deadlines are configurable) — sent 2026-11-06, awaiting reply
+- [x] Questions Q1–Q4 sent to Hardingasete (the answers can come during the PRD; prices and deadlines are configurable) — sent 2026-11-06, answered 2026-11-16 (Q2 partly), see [Hardingasete's answers](../hardingasete/svar-hardingasete-2026-11-16.md)
 - [x] Q5–Q6 answered by the couple — Q5 2026-11-06, Q6 2026-11-07 (activities are information only)
 - [x] Brief updated with what changes (C1, C2, C3, C4, C6, C7), with a change log entry — 2026-11-06
 - [x] Start `bmad-prd` with the brief, the addendum, research.md and this note as input — 2026-11-07, see [prd.md](../../prds/prd-aill-handle-it-2026-11-07/prd.md)
