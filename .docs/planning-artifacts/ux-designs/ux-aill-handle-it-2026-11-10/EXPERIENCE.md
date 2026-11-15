@@ -426,7 +426,7 @@ Failure: logs in with wrong password → plain error, slowed retries.
 
 1. ~~Answered state of G2~~ — **resolved 2026-11-15**: the status block replaces the RSVP panel in the same place, and the hero's deadline line becomes «Svar sendt 12. oktober · Se svaret» ([.working/answered-1.html](.working/answered-1.html)).
 2. ~~Small phones~~ — **resolved 2026-11-15**: below 340px layout width the page gutter is 12px and the hero's inline padding 10px, so at 320px the names and the place stay on one line and the deadline line ends at 530px, above the 568px fold ([.working/small-phone-1.html](.working/small-phone-1.html); DESIGN › Layout & Spacing).
-3. **Plain-text names** (couple's taste): add the names in plain serif for low-vision guests (e.g. «Rikke og Valdemar inviterer deg til bryllup»), or keep the names in script only?
+3. ~~Plain-text names~~ — **resolved 2026-11-15**: the names stay in script only (Rikke chose A in [.working/plain-names-1.html](.working/plain-names-1.html)); screen readers read them as normal text, guests can zoom, and the names are in plain type in the page title and the footer.
 4. **No-JS guest pages in v1** (PRD/architecture): PRD 3.2 puts the static fallback in [2027]; should all guest pages and form steps work without scripts in v1, with scripts only enhancing?
 5. **Admin session expiry** (architecture): an idle session of at least 20 hours, or a warning two minutes before expiry with "Fortsett å være logget inn" — and in both cases is unsaved input restored after logging in again?
 6. **Device draft content** (architecture/privacy): may the draft hold allergy categories and notes before consent is given, on a phone others may use? UX default: deleted on send, on "Begynn på nytt" and at the deadline.
