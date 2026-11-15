@@ -62,7 +62,6 @@ This table sets when each item in FR-56 leaves the list.
 |---|---|
 | Household not answered | The household answers, or the couple marks it as handled |
 | Guest with nothing registered for allergies | Allergies or "No allergies" are registered, or the couple marks it as handled |
-| Unanswered question | The couple marks it as answered |
 | "I have paid" report without a matching payment (marked red) | A matching amount is registered, or the couple marks it as handled |
 | Refund owed | The refund is registered |
 | Household marked "Changed" | The couple marks it as seen |
@@ -128,9 +127,10 @@ The resulting scope and changes are in PRD sections 3.4 and 9. This table keeps 
 | Change notices to guests by email or SMS | Out | The site would send messages itself, which the couple doesn't want. The couple sends a message if something important changes. |
 | Storing guest names only, without phone or email (Claude's data-minimisation proposal) | Rejected by Rikke | Contact details make follow-up easier for the couple, who are responsible for following up guests. The privacy page must explain what is stored and why. |
 | Asking a person to confirm allergies someone else entered for them, in their own link (AI GDPR review) | Not planned | The risk was accepted in C2, and FR-29 records who gave each consent. A possible improvement for 2027. |
-| Hiding questions and payments from helpers (AI GDPR review) | Rejected | The "Ask us" form tells guests that the helpers can read questions. |
+| Hiding questions and payments from helpers (AI GDPR review) | Rejected | The "Ask us" form told guests that the helpers can read questions. (The form itself was removed on 2026-11-15.) |
 | Importing the guest list from Excel | Not needed | The couple enters about 35 households by hand. |
 | Cabin and bed allocation on the site | Out | The couple does it outside the site. |
 | A bed limit in the form | Not needed | Hardingasete has far more beds than there are guests (Rikke, 2026-11-07). |
 | *Hardingasete and the area* as its own topic and page (Claude's recommendation in the UX work, to tempt guests to stay the whole weekend) | Rejected by Rikke, 2026-11-15 | Three topics are enough; the place, the cabins and the directions belong with the practical information. |
+| An "Ask us" question form on every guest page (brief, FR-43 to FR-45) | Removed by Rikke, 2026-11-15 | Guests call or message the couple, whose numbers are at the bottom of every guest page. |
 | A "Directions" button next to "Read more" on the front page (Claude's proposal from inspiration 09) | Rejected by Rikke, 2026-11-15 | The directions belong inside the *Practical information* page; the front page has only "Read more". |

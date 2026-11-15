@@ -37,7 +37,7 @@ inputs:
 *AI'll handle it* is a wedding website that is also the invitation. The site itself has no AI features.
 
 - **The wedding.** Rikke and Valdemar marry on **Saturday 27 May 2028** at **Hardingasete in Hardanger**. The weekend runs from Friday 26 to Sunday 28 May.
-- **For guests.** About **70 guests** each get a personal link. A household answers together through it: who is coming, which days, which meals, whether they stay in a cabin, and allergies. Guests see what each option costs, the household total and how to pay. They can also ask the couple questions.
+- **For guests.** About **70 guests** each get a personal link. A household answers together through it: who is coming, which days, which meals, whether they stay in a cabin, and allergies. Guests see what each option costs, the household total and how to pay. For questions, they call or message the couple.
 - **For the couple.** The couple and their helpers get one overview of everything.
 
 ### The problem it replaces
@@ -80,7 +80,7 @@ Rikke's own priority is that **it must work**:
 | SM-4 | The couple finds any number Hardingasete asks for. | Under 1 minute | Usability test |
 | SM-5 | Someone new to the project installs and runs the app and the tests by following the README. | Within 15–20 minutes, no help | A trial run on a clean machine before delivery |
 | SM-11 | Answers lock for guests at the deadline, while the couple can still change them. | Works at the boundary | Automated tests (FR-41, FR-42, FR-63) |
-| SM-12 | A guest's question shows in the admin area, and is printed in the terminal when no email key is set. | Every question | Automated test (FR-44, FR-45) |
+| SM-12 | ~~A guest's question shows in the admin area, and is printed in the terminal when no email key is set.~~ **Removed 2026-11-15** with FR-43 to FR-45. | — | — |
 | SM-13 | Every working session with AI is logged, with the key prompts and what was accepted, changed or rejected. | Every session | Session logs in `.logs/`, used in the reflection report [brief] |
 
 ### The real wedding (2027–2028, not measured in the course)
@@ -127,7 +127,7 @@ The course version is built in three tiers, so that the most important part work
 **Tier 2, the complete course version,** in this order:
 
 1. Changing answers, the lock and overrides (FR-37 to FR-39, FR-42, FR-63, FR-64).
-2. Questions (FR-43 to FR-45).
+2. ~~Questions (FR-43 to FR-45).~~ Removed 2026-11-15.
 3. Payments (FR-35, FR-36, FR-59 to FR-61).
 4. "Needs attention", the guest list and the helper role (FR-56, FR-49, FR-51, FR-46).
 5. FR-19, FR-20, FR-29, FR-30, FR-66 and the full text for FR-9 and FR-10.
@@ -145,8 +145,7 @@ Anything in tier 3 that isn't done by 10 December moves to [2027], and the chang
 - **Hosting and domain.** Production hosting in the EU/EEA. The domain is fixed, and the site is live on it with HTTPS, at least a month before invitations. The domain and the hosting are paid until at least 1 September 2028.
 - **Prices.** Invitations are not sent until Hardingasete's 2028 prices are confirmed.
 - **Real settings.** Real prices, deadline, contact details and payment details entered as settings.
-- **Email.** An email provider for guest questions that stores data in the EU (D16).
-- **Agreements.** Data processing agreements with the hosting and email providers.
+- **Agreements.** A data processing agreement with the hosting provider. (An email provider is no longer needed, since FR-43 to FR-45 were removed on 2026-11-15.)
 - **Vipps.** A fresh check of Vipps terms and prices.
 - **Deferred requirements.** The requirements marked [2027] in section 5.
 
@@ -165,13 +164,13 @@ Anything in tier 3 that isn't done by 10 December moves to [2027], and the chang
 **Going live**
 
 - **Device floor.** A few older guests are asked which phones and tablets they use. The invitation and the whole RSVP must work on those devices, including inside Messenger's and Facebook's built-in browsers. This is checked on a real old device. The invitation text and the RSVP button appear even if the animation or scripts fail.
-- **Pilot.** Guests are told in advance, through a channel they trust, that a personal link is coming from Rikke or Valdemar. Then three to five friendly households, including the oldest guest and someone with an old device, get their invitations first. Each completes a full RSVP, reports "I have paid" and asks a question. At least one Vipps payment and one bank payment use exactly the details shown. The couple checks the counts, and writes down a go or no-go before the rest are sent in batches.
+- **Pilot.** Guests are told in advance, through a channel they trust, that a personal link is coming from Rikke or Valdemar. Then three to five friendly households, including the oldest guest and someone with an old device, get their invitations first. Each completes a full RSVP, and reports "I have paid". At least one Vipps payment and one bank payment use exactly the details shown. The couple checks the counts, and writes down a go or no-go before the rest are sent in batches.
 
 **Privacy in operation**
 
 - A short record of what personal data is processed, why, and where it is stored.
 - A plan for a data leak: who does what, and reporting to Datatilsynet within 72 hours when required.
-- The privacy page lists the companies that process data for the couple (hosting, email).
+- The privacy page lists the companies that process data for the couple (hosting).
 - Guest pages load nothing, such as fonts or scripts, from other companies, so guests' visits are not shared with them.
 
 ### 3.3 If time and capacity allow
@@ -200,6 +199,7 @@ These are built only if they can be finished before the ready date (1 November 2
 - **Answering for oneself only.** The respondent answers for everyone in the household; there is no "answers for themselves" choice.
 - **Lost links.** Self-service link recovery; the couple resends links by hand.
 - **Change emails.** Email to the couple when a guest changes an answer.
+- **Questions through the site.** An "Ask us" form; guests call or message the couple, whose phone numbers are at the bottom of every guest page (removed 2026-11-15).
 - **Change notices to guests.** The site sending email or SMS to guests when information changes; the couple sends a message themselves if something important changes.
 - **Grace period.** A grace period after the deadline (D5).
 - **Guest list for guests.** A "who's coming" list that guests can see; it would show guests who else is coming.
@@ -275,7 +275,6 @@ The RSVP deadline has passed, and Hardingasete needs the final numbers soon.
 1. **Rikke logs in** and first sees **"Needs attention"** (FR-56) at the very top, without scrolling: a clear list of what Rikke or Valdemar must handle. It shows:
    - households that haven't answered;
    - guests who haven't answered the allergy question;
-   - unanswered guest questions;
    - "I have paid" reports that don't match a registered payment;
    - refunds owed;
    - households that have changed their answer.
@@ -313,8 +312,7 @@ Some Vipps payments and bank transfers have come in.
 4. **She opens a guest link** in a narrow window, like a phone, and goes through the whole RSVP flow. She tries wrong input and checks the receipt.
 5. **She logs in as admin** and sees that the summary matches the expected-results list in the documentation.
 6. **She tests the deadline** by moving it to yesterday in the admin settings. The guest can no longer change the answer; the admin still can.
-7. **She sends a question as a guest.** It shows up in the admin area and is printed in the terminal, because no email key is set.
-8. **She runs the tests with one command.** Among other things, they check that the admin counts match the expected-results list.
+7. **She runs the tests with one command.** Among other things, they check that the admin counts match the expected-results list.
 
 **Done when:** Ingrid has run the app and the tests within 15–20 minutes without asking Rikke anything.
 
@@ -389,14 +387,16 @@ Some Vipps payments and bank transfers have come in.
 - **FR-41** The RSVP deadline is a date: guests can answer until 23:59 Norwegian time that day. It is shown with weekday, date and time next to the RSVP button and in the household's status. All times on the site are Norwegian time. [D4, review]
 - **FR-42** After the deadline, guests can no longer change who is coming, days, meals, overnight stay, the hike or allergies. [D5, UJ-3]
   - The button says "See answer". The page explains that the deadline has passed and shows how to reach Rikke and Valdemar.
-  - Payment information, "I have paid", the information pages, questions and consent withdrawal still work.
+  - Payment information, "I have paid", the information pages and consent withdrawal still work.
   - Households that never answered see the same message.
 
 ### 5.7 Questions to the couple
 
-- **FR-43** An "Ask us" button on every guest page lets the guest send a short question. The form says that Rikke, Valdemar and the helpers can read it, and asks guests not to write health information there. [brief, review]
-- **FR-44** Questions are always stored and listed under "Needs attention". The couple answers outside the site and marks the question as answered. [brief]
-- **FR-45** If an email key is configured, each question is also emailed to the couple. Otherwise it is written to the terminal. [brief]
+**Removed 2026-11-15** in the UX work: Rikke chose to drop the "Ask us" link. Guests ask by phone or message instead, with the couple's numbers at the bottom of every guest page. The site then stores no free-text questions and needs no email provider.
+
+- **FR-43** ~~An "Ask us" button on every guest page lets the guest send a short question. The form says that Rikke, Valdemar and the helpers can read it, and asks guests not to write health information there.~~ **Removed.**
+- **FR-44** ~~Questions are always stored and listed under "Needs attention". The couple answers outside the site and marks the question as answered.~~ **Removed.**
+- **FR-45** ~~If an email key is configured, each question is also emailed to the couple. Otherwise it is written to the terminal.~~ **Removed.**
 
 ### 5.8 Admin access and roles
 
@@ -427,7 +427,6 @@ Some Vipps payments and bank transfers have come in.
 - **FR-56** At the very top of the admin home page, visible without scrolling, "Needs attention" lists (and says so when the list is empty): [UJ-4, UJ-5, UX memlog]
   - households that haven't answered;
   - guests who are coming but have nothing registered for allergies, neither allergies nor "No allergies or dietary needs";
-  - unanswered questions;
   - "I have paid" reports without a matching payment (FR-61), in red;
   - refunds owed;
   - households marked "Changed".
@@ -471,7 +470,7 @@ The text on the information pages lives in the code in v1, so changing it means 
   - how to contact the couple.
 
   It is linked from the bottom of every page and from the consent question.
-- **FR-67** The couple can delete all guest data in one operation, after a clear confirmation. This covers answers, contact details, consent records, the change history, questions, notes and payments. [review] **[2027]**
+- **FR-67** The couple can delete all guest data in one operation, after a clear confirmation. This covers answers, contact details, consent records, the change history, notes and payments. [review] **[2027]**
 
 ### 5.14 Local setup and test data (course version)
 
@@ -530,12 +529,11 @@ The text on the information pages lives in the code in v1, so changing it means 
   | Allergies and dietary needs | Safe food from Hardingasete's kitchen | Explicit consent (GDPR Art. 9(2)(a)) | The couple and helpers; names and allergies go to Hardingasete's kitchen |
   | Consent records | Showing that consent was given | Legal obligation to prove consent (Art. 7(1)) | The couple |
   | Payments and "I have paid" reports | Keeping track of money | Legitimate interest | The couple and helpers |
-  | Questions from guests | Answering guests | Legitimate interest | The couple and helpers |
 
 - Only what is needed is collected. Guests are stored with a name and, optionally, a phone number and email so the couple can follow up. Allergies are categories and a short note, with no diagnoses.
 - The repository is public. Only fictional data is used in the repository, tests, test data, screenshots, the usability test and AI tools. Apart from Rikke and Valdemar, all people named in this PRD are fictional.
-- Real data lives only in the production database, hosted in the EU/EEA. Hosting and email providers that handle it have data processing agreements.
-- Real data is deleted by 31 August 2028. That includes emailed copies, such as forwarded questions and the allergy list sent to Hardingasete.
+- Real data lives only in the production database, hosted in the EU/EEA. The hosting provider has a data processing agreement.
+- Real data is deleted by 31 August 2028. That includes emailed copies, such as the allergy list sent to Hardingasete.
 - **Accepted risk.** When one adult enters allergies for another, the consent comes from the respondent's confirmation, not from the person themselves (C2). This risk was accepted on 2026-11-06. FR-29 records who gave each consent.
 
 ### NFR-4 Security
@@ -614,7 +612,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 | D12 | In production, should the programme and the practical information be editable in the admin area? Rikke's rule: yes, if the architecture shows it isn't much harder than keeping the text in the code with the update rules in section 3.2. | Architecture | No | bmad-architecture |
 | D14 | Store link codes hashed or in plain form? | Architecture | No | bmad-architecture |
 | D15 | Database and technology stack | Architecture | No | bmad-architecture |
-| D16 | Email provider in production; it must store data in the EU | Rikke | No | 2027 |
+| D16 | ~~Email provider in production; it must store data in the EU~~ Closed 2026-11-15: no email is needed after FR-43 to FR-45 were removed. | Rikke | No | — |
 
 ## 9. Changes from the product brief
 
@@ -641,6 +639,7 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | Running the site | Hosting in 2027 | Backups, monitoring, access, update rules, a pilot and a ready date of 1 November 2027 (section 3.2) | The pre-mortem review found that nothing kept the real site alive |
 | New in v1 | — | "Needs attention" (FR-56), counts that open the people behind them (FR-55), the "Changed" marker (FR-39), settings in admin (FR-64, FR-65), the privacy page (FR-66), consent registered by the couple (FR-31), rules for counts (FR-73 to FR-75) | Came out of the user journeys and the reviews |
 | Dropped | — | Email to the couple when an answer changes | Rikke: the overview is enough |
+| Questions to the couple | An "Ask us" form on the site | Removed (FR-43 to FR-45); guests call or message the couple | Rikke's choice in the UX work, 2026-11-15: the phone numbers at the bottom of every guest page are enough |
 
 ## 10. Change log
 
@@ -655,4 +654,4 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-08 | Status set to final. |
 | 2026-11-11 | From the UX work (`bmad-ux`, see `ux-designs/ux-aill-handle-it-2026-11-10/.memlog.md`): FR-18 (expected arrival) removed because the chosen days already show arrival; FR-42, FR-54 and the data table updated to match; hike "maybe" counted separately in FR-54. FR-7, FR-8 and UJ-1 step 1 changed to the new front page: sticky menu with a "Svar" button, "Svar" link in the deadline line, RSVP button and child-free note after the information. FR-78 (unsent answer kept on the device) moved from [2027] to tier 1; FR-18 taken out of the tier 1 list. Admin home reworked after Rikke's review of the mock-ups: "Needs attention" first (FR-56), answer progress, summary regrouped (whole weekend or not, who does not stay overnight) in FR-54 and UJ-4; UJ-4's leftover "expected arrival" removed. |
 | 2026-11-14 | From the UX work (approved front page, `ux-designs/…/mockups/paper-ceremony-5.html`): the addendum's *Invitation reveal* no longer says "no sheet edges"; guest panels are paper sheets with soft edges because Rikke wanted real paper and a more solemn invitation. FR-7 clarifies that the first screen may show the deadline as a date alone, since FR-41 puts the full form next to the RSVP button. |
-| 2026-11-15 | From the UX work (the section below the invitation, `ux-designs/…/.working/finer-details-9.html`): Rikke chose three topics instead of four. *Hardingasete and the area* is folded into *Practical information*, so guests find how to get there, where they sleep and the place itself on one page; directions are on that page, not on the front page. FR-8, FR-10 and UJ-1 step 2 changed to match; FR-8 no longer says "cards", since each topic is now a picture with one line beside it. |
+| 2026-11-15 | From the UX work (the section below the invitation, `ux-designs/…/.working/finer-details-9.html`): Rikke chose three topics instead of four. *Hardingasete and the area* is folded into *Practical information*, so guests find how to get there, where they sleep and the place itself on one page; directions are on that page, not on the front page. FR-8, FR-10 and UJ-1 step 2 changed to match; FR-8 no longer says "cards", since each topic is now a picture with one line beside it. Rikke also removed the "Ask us" link: FR-43 to FR-45 and SM-12 removed, D16 closed, and FR-42, FR-56, FR-67, UJ-4, UJ-6, the pilot, the data table and section 9 updated to match. |
