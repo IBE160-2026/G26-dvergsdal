@@ -24,6 +24,8 @@
 - [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare om allergier oppgitt uten samtykke (FR-28) skal ha egen markering i admin
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — føre den godkjente forsida (paper-ceremony-5) inn i DESIGN.md og EXPERIENCE.md, flytte skissa til mockups/ og oppdatere PRD-tillegget om arkkanter med begrunnelse (løst 2026-11-14)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: delen av forsida under toppfeltet (løst 2026-11-15: «Alt om helgen», hele forsida godkjent)
-- [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 17–20 i inspirasjon.md
-- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe infosidene (Programmet, Praktisk informasjon, Om oss) med plassholdere, én om gangen, og start med Praktisk informasjon
-- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 21–24 i inspirasjon.md
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 17–20 i inspirasjon.md (løst 2026-11-15: bildene er flyttet til egne-bilder/ og beskrevet i egne-bilder.md)
+- [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe infosidene (Programmet, Praktisk informasjon, Om oss) med plassholdere, én om gangen, og start med Praktisk informasjon (løst 2026-11-15 for Praktisk informasjon og Programmet; Om oss videreført under)
+- [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 21–24 i inspirasjon.md (løst 2026-11-15: egne-bilder.md)
+- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive den godkjente Programmet-sida inn i DESIGN.md, EXPERIENCE.md og PRD-en (FR-9: rebus, lunsj utenfor kirka med cider, drikke, «alt er frivillig»; programmet i addendumet)
+- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe «Om oss» (teksten ligger i ux/innhold/Vår historie.docx)
