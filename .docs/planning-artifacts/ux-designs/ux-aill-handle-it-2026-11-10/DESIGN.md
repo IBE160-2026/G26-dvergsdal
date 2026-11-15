@@ -28,6 +28,11 @@ typography:
     fontSize: 48px
     fontWeight: '400'
     lineHeight: '1.15'
+  signature:
+    fontFamily: 'Imperial Script'
+    fontSize: 40px
+    fontWeight: '400'
+    lineHeight: '1.1'
   heading-page:
     fontFamily: 'EB Garamond'
     fontSize: 32px
@@ -253,6 +258,14 @@ components:
     rule: '1px rgba(59,55,47,.25) above, 14px above the rule, 10px below'
     heading: '{typography.body}, italic («Godt å vite»)'
     list: 'bulleted, {typography.body}'
+  story-sheet:
+    sheet: '{components.paper-sheet}'
+    foreground: '{colors.ink}'
+    padding: '22px 22px 18px'
+    photo: '{components.lace-frame} at 220px, centred under the heading'
+    chapterLine: '{typography.body}, italic, 18px above, 4px below'
+    closing: '{typography.body}, italic, centred, 18px above'
+    signature: '{typography.signature}, centred'
   voluntary-line:
     foreground: '{colors.cream-on-green}'
     typography: '{typography.body}, italic, centred'
@@ -446,7 +459,7 @@ The PRD addendum asks to check "sage green on soft white": green is never text o
 
 Two self-hosted families, both SIL Open Font License, served from our own server as WOFF2 with Latin subsets including æ, ø, å, **keeping the `lnum` and `tnum` features** (PRD 3.2: guest pages load nothing from other companies). The Google Fonts links in the renders are a planning-mock exception only. Specimens: [mockups/typography-1.html](mockups/typography-1.html) (candidates S1–S6 and B1–B4; the chosen S4 + B1 at 20px are shown together in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html)).
 
-- **Imperial Script** — the couple's first names only (*Rikke & Valdemar*, no surnames). Its upstrokes are hair-thin, so it is **display only**: the names at `{typography.display-names}` are the only Imperial Script on the site. Never for headings, labels, buttons or the admin area. The *R & V* on the seal is part of Rikke's seal image, not live text. Fallback: Georgia italic **[ASSUMPTION]**.
+- **Imperial Script** — the couple's first names only (*Rikke & Valdemar*, no surnames). Its upstrokes are hair-thin, so it is **display only**: the names at `{typography.display-names}` and the same names as a signature at the end of *Om oss* (`{typography.signature}`, 40px) are the only Imperial Script on the site. Never for headings, labels, buttons or the admin area. The *R & V* on the seal is part of Rikke's seal image, not live text. Fallback: Georgia italic **[ASSUMPTION]**.
   - **Names wrap, never shrink.** At 48px one line needs about 274px (the 262px measured at 46px, scaled); the hero's content box is 288px on a 360px phone, so they fit on one line there. When they do not fit, the names stack on three centred lines — *Rikke* / *&* / *Valdemar* — as in inspiration 09. No shrink-to-fit, no `cqi` units, no JS fitting, no `nowrap`. *Valdemar* alone is about 142px, which fits every layout width down to 180 CSS px once the narrow-width gutters apply (Layout & Spacing). Re-measure in the build.
 - **EB Garamond** — everything else. Its short x-height (0.41) is why guest body text is **20px**, above the NFR-5 floor of 18px (memlog, *Body font*). Regular and italic; weight 600 for labels and emphasis such as the invited names **[ASSUMPTION — the render used bold; 600 is the nearest weight to load]**. Fallback: Georgia.
 
@@ -455,6 +468,7 @@ Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so
 | Role | Token | Where |
 |---|---|---|
 | Names | `display-names` | Hero sheet only; `h1` of the front page |
+| Signature | `signature` | «Rikke & Valdemar» at the end of *Om oss*, centred; the only other Imperial Script |
 | Page title | `heading-page` | Info pages (*italic*, centred, cream on green with a cream hairline under it, like the details heading), form step question (`h1`), check page heading, receipt heading «Svaret er sendt» (32px, as rendered in the key-screen mockups) |
 | Section heading | `heading-section`, *italic* | «Alt om helgen» (`h2`), on green with a cream hairline under it (Rikke: «klassisk inntrykk») |
 | Topic title | `topic-title` | Programmet · Praktisk informasjon · Om oss (`h3`); 21px so «Praktisk informasjon» fits one line beside the frame (166.9px in a 174px column; 22px needed 174.9px) |
@@ -530,7 +544,9 @@ At 360px the page is about 3 530px (six screens) with placeholder text; the jump
 4. The timeline, like «Order of events» in [inspiration 09](../../ux/inspirasjon/09-Example.jpg): a thin centre line, a small dot per event, events alternating sides and overlapping in height, each with Rikke's icon (56px) above the time (18px) and a short italic name. Only time and name sit in the timeline; what costs money, what to bring and who covers what go in «Godt å vite» (Rikke: the first three layouts were not «like estetisk fine» as 09).
 5. Bottom back button and footer.
 
-At 360px the page is about 2 930px with placeholder times. Om oss follows the same frame; its parts are not designed yet.
+At 360px the page is about 2 930px with placeholder times.
+
+*Om oss* is approved in [mockups/info-om-oss.html](mockups/info-om-oss.html) (memlog, 2026-11-15; rounds in `.working/info-om-oss-1.html` and `-2.html`). Same frame, with «Om oss» as the current nav word and no jump links. **One story sheet** headed «Vår historie»: the couple's view photo ([egne-bilder/13-Us2.jpg](../../ux/egne-bilder/13-Us2.jpg)) in the lace frame, then the couple's own text ([ux/innhold/Vår historie.docx](../../ux/innhold/V%C3%A5r%20historie.docx)) in chapters, each opened by an italic line with time and place (*Sensommeren 2021 · Trondheim* … *Våren 2027 · Oslo*), then the last sentence as an italic centred closing line and «Rikke & Valdemar» as a signature. One photo only: the beach photo stays on the invitation (Rikke). At 360px the page is about 3 780px; it is read by choice, so no jump links.
 
 **Form step, check page and receipt** (one cream panel per screen on the green page; no nav bar, footer band kept). Rendered at 360px in [mockups/key-form-steps.html](mockups/key-form-steps.html) (steps 1, 3 and 5, an error state and the draft offer), [mockups/key-check-page.html](mockups/key-check-page.html) and [mockups/key-receipt.html](mockups/key-receipt.html) (receipt, payment details, and the answered front page per EXPERIENCE Open Question 1):
 
@@ -610,6 +626,7 @@ Frontmatter key in brackets where one exists.
 | **Programme timeline** [`programme-timeline`] | One ordered list per day: a thin centre line, a 6px ink dot per event, events alternating left (right-aligned) and right (left-aligned), each overlapping the one before by 36px so the timeline stays compact. Each event: icon, time (`small`, lining figures), short name (`body` *italic*). Rendered in [mockups/info-program.html](mockups/info-program.html). |
 | **Programme icon** [`programme-icon`] | Rikke's line drawings ([egne-bilder/14-Icons.jpg](../../ux/egne-bilder/14-Icons.jpg)), cut out to one PNG each and recoloured to `ink`, 56px, above the time. Decorative (`alt=""`): time and name carry the meaning. The same icon may repeat (breakfast on Saturday and Sunday). |
 | **«Godt å vite»** [`good-to-know`] | At the foot of each day sheet, after a faint hairline: italic «Godt å vite», then a bulleted list of what costs money («**Frokosten betales selv:** [x] kr.»), what to bring and who covers what. |
+| **Story sheet** [`story-sheet`] | *Om oss*: one paper sheet, `heading-card` *italic* «Vår historie», a lace-framed photo (220px), chapters each opened by an italic time · place line, an italic centred closing sentence, and the names as a signature in Imperial Script 40px. Rendered in [mockups/info-om-oss.html](mockups/info-om-oss.html). |
 | **Voluntary line** [`voluntary-line`] | One italic cream line under the jump links on Programmet: «Alt i programmet er frivillig. Bli med på det dere har lyst til.» |
 | **Outlined button on green** [`button-on-green`] | Transparent, 1.5px `cream-on-green` border and text, 4px radius, ≥ 44px tall, `button-small` 19px. Hover/pressed: border 3px; focus ring `focus-on-green`. On a cream sheet the same shape is drawn in `ink` («Åpne veibeskrivelse i kart»). |
 | **RSVP sheet** [`rsvp-panel`] | Paper sheet after «Alt om helgen»: `heading-card` "Svar på invitasjonen", small gypsophila divider, «Barnefritt bryllup» (Rikke removed the rest of the proposed line), the full deadline «Svar innen tirsdag 4. januar 2028 kl. 23:59», primary button. When an unsent draft exists, a warning notice sits above the button. |
@@ -653,7 +670,7 @@ Frontmatter key in brackets where one exists.
 | Cream paper sheets on the green page: textured, soft hand-made edge in the sheet's own colour, soft shadow | Folds, backing or offset sheets, a light or chalk-white rim, jagged torn edges |
 | Primary buttons on cream panels; the nav "Svar" (with its cream border) is the only exception | A dark green button on green without the cream border |
 | The nav bar is the only thing that sticks | Other sticky or fixed bars, on guest or admin pages |
-| Imperial Script for the names only (48px, stacking when needed) | Script for headings, labels, buttons or admin; shrinking the names to fit |
+| Imperial Script for the names only: 48px in the hero (stacking when needed), 40px as the signature on *Om oss* | Script for headings, labels, buttons or admin; shrinking the names to fit |
 | Small capitals for the date and place in the hero and the jump links on info pages | All-caps; small-caps headings |
 | EB Garamond 20px for guest body text, hints in `ink` | Guest text under 18px; hints in `ink-muted` |
 | Warm olive greens (hue ~85–100°) | Bluish sage greens (round 1), neon or saturated greens |
