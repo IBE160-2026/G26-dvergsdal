@@ -2,7 +2,7 @@
 title: "PRD: AI'll handle it"
 status: final
 created: 2026-11-07
-updated: 2026-11-14
+updated: 2026-11-15
 inputs:
   - ../../briefs/brief-aill-handle-it-2026-09-23/brief.md
   - ../../briefs/brief-aill-handle-it-2026-09-23/addendum.md
@@ -216,7 +216,7 @@ Apart from Rikke and Valdemar, all people in these journeys are fictional. The g
 **Sigmund, 78**, is not used to technology. He gets a text message with a link and opens it on his phone.
 
 1. **First impression.** He sees an invitation: Rikke and Valdemar are getting married on Saturday 27 May 2028 at Hardingasete, and **he and bestemor** are invited. The RSVP deadline and "Svar" in the menu and in the deadline line are visible without scrolling; "Svar" takes him down to the RSVP button, past the information and the child-free note. *(If time: a green envelope sealed with "R & V" opens and unfolds into the invitation the first time he visits.)*
-2. **He scrolls.** Below the invitation he finds short cards for the programme, practical information, Hardingasete and the area, and one about the couple. Each card opens its own page through "Read more", so the RSVP button never gets lost. The button is repeated at the bottom.
+2. **He scrolls.** Below the invitation he finds three short entries: the programme, practical information (including the venue and the area), and one about the couple. Each opens its own page through "Read more", so the RSVP button never gets lost. The button is repeated at the bottom.
 3. **He starts his answer.** The form already shows "I am Sigmund", because it is his link. He could change it if bestemor were using his phone.
    - First he marks who is coming: both of them.
    - Then he answers that both are there the whole weekend, Friday to Sunday.
@@ -332,9 +332,9 @@ Some Vipps payments and bank transfers have come in.
 ### 5.2 Invitation and information pages
 
 - **FR-7** The front page looks like an invitation. Without scrolling on a phone, it shows the couple's names, the date and place, the names of the invited household and the RSVP deadline, and "Svar" is visible in two places: as a button in the menu at the top, which stays visible while scrolling, and as a link in the deadline line. Both take the guest straight down to the RSVP button, which comes after the information about the wedding together with the note that the weekend is child-free. On the first screen the deadline may be the date alone; the weekday and time stand next to the RSVP button (FR-41). *Changed 2026-11-11 in the UX work: the couple wants guests to see that the invitation has more content than the first screen, and "Svar" in two places keeps the way to answer obvious.* [UJ-1, review, UX memlog]
-- **FR-8** Below the invitation are short cards for Programme, Practical information, Hardingasete and the area, and About us. Each opens its own page through "Read more". After the cards comes the RSVP panel with the child-free note, the deadline and the RSVP button (FR-7). [UJ-1]
+- **FR-8** Below the invitation is a short section with one entry each for Programme, Practical information and About us: a picture, one line of text and "Read more", which opens the topic's own page. After the section comes the RSVP panel with the child-free note, the deadline and the RSVP button (FR-7). [UJ-1]
 - **FR-9** The programme shows the weekend day by day, marks what costs money and says what to bring. Everyone sees every activity, including the Friday hike, so a guest who sees it can still decide to come on Friday. The treasure hunt, the sauna and hot tub, and yoga are information only, with no sign-up. [Q6, brief]
-- **FR-10** The practical information covers the address, times, transport and parking, dress codes, house rules (child-free, little phone use) and what to bring. [brief]
+- **FR-10** The practical information covers the address and directions, times, transport and parking, the venue (Hardingasete, the farmyard and the cabins) and the area around it, dress codes, house rules (child-free, little phone use) and what to bring. [brief]
 - **FR-11** Every information page has an obvious way back to the invitation. [UJ-1]
 
 ### 5.3 RSVP form
@@ -655,3 +655,4 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-08 | Status set to final. |
 | 2026-11-11 | From the UX work (`bmad-ux`, see `ux-designs/ux-aill-handle-it-2026-11-10/.memlog.md`): FR-18 (expected arrival) removed because the chosen days already show arrival; FR-42, FR-54 and the data table updated to match; hike "maybe" counted separately in FR-54. FR-7, FR-8 and UJ-1 step 1 changed to the new front page: sticky menu with a "Svar" button, "Svar" link in the deadline line, RSVP button and child-free note after the information. FR-78 (unsent answer kept on the device) moved from [2027] to tier 1; FR-18 taken out of the tier 1 list. Admin home reworked after Rikke's review of the mock-ups: "Needs attention" first (FR-56), answer progress, summary regrouped (whole weekend or not, who does not stay overnight) in FR-54 and UJ-4; UJ-4's leftover "expected arrival" removed. |
 | 2026-11-14 | From the UX work (approved front page, `ux-designs/…/mockups/paper-ceremony-5.html`): the addendum's *Invitation reveal* no longer says "no sheet edges"; guest panels are paper sheets with soft edges because Rikke wanted real paper and a more solemn invitation. FR-7 clarifies that the first screen may show the deadline as a date alone, since FR-41 puts the full form next to the RSVP button. |
+| 2026-11-15 | From the UX work (the section below the invitation, `ux-designs/…/.working/finer-details-9.html`): Rikke chose three topics instead of four. *Hardingasete and the area* is folded into *Practical information*, so guests find how to get there, where they sleep and the place itself on one page; directions are on that page, not on the front page. FR-8, FR-10 and UJ-1 step 2 changed to match; FR-8 no longer says "cards", since each topic is now a picture with one line beside it. |

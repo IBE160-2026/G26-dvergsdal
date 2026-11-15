@@ -35,13 +35,12 @@ Warm and "koselig" throughout, including error messages.
 ### Front page structure (FR-7, FR-8; agreed 2026-11-07)
 
 1. **Top:** the invitation, with everything FR-7 lists visible without scrolling, under a menu that stays visible and has a "Svar" button (changed 2026-11-11, see FR-7).
-2. **Below:** short cards (FR-8) with two or three lines each and "Read more":
+2. **Below:** a short section (FR-8) with one entry per topic, each a picture, one line and "Read more" (changed 2026-11-15, see the PRD change log):
    - Programme
-   - Practical information
-   - Hardingasete and the area
+   - Practical information, which now also covers Hardingasete, the cabins, the area and the directions
    - About us
    - Gifts (If time)
-3. **After the cards:** the RSVP panel with the child-free note, the deadline and the RSVP button; both "Svar" links lead here (changed 2026-11-11, see FR-7).
+3. **After the section:** the RSVP panel with the child-free note, the deadline and the RSVP button; both "Svar" links lead here (changed 2026-11-11, see FR-7).
 
 ### Rikke's own wording for the receipt (FR-23; Norwegian original)
 
@@ -133,3 +132,5 @@ The resulting scope and changes are in PRD sections 3.4 and 9. This table keeps 
 | Importing the guest list from Excel | Not needed | The couple enters about 35 households by hand. |
 | Cabin and bed allocation on the site | Out | The couple does it outside the site. |
 | A bed limit in the form | Not needed | Hardingasete has far more beds than there are guests (Rikke, 2026-11-07). |
+| *Hardingasete and the area* as its own topic and page (Claude's recommendation in the UX work, to tempt guests to stay the whole weekend) | Rejected by Rikke, 2026-11-15 | Three topics are enough; the place, the cabins and the directions belong with the practical information. |
+| A "Directions" button next to "Read more" on the front page (Claude's proposal from inspiration 09) | Rejected by Rikke, 2026-11-15 | The directions belong inside the *Practical information* page; the front page has only "Read more". |
