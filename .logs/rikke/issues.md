@@ -22,6 +22,8 @@
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: tekstur på det grønne, kantene på kremfeltene, og forsida under toppfeltet (løst 2026-11-11: kanter og tekstur bestemt; delen under toppfeltet er flyttet til eget punkt)
 - [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare brudeparets åpne spørsmål i EXPERIENCE.md (navn i vanlig tekst, 320 px-mobiler, hvordan hjelpere ser at de bare kan lese, «barnefritt» etter svar)
 - [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare om allergier oppgitt uten samtykke (FR-28) skal ha egen markering i admin
-- [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — føre den godkjente forsida (paper-ceremony-5) inn i DESIGN.md og EXPERIENCE.md, flytte skissa til mockups/ og oppdatere PRD-tillegget om arkkanter med begrunnelse
-- [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: delen av forsida under toppfeltet
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — føre den godkjente forsida (paper-ceremony-5) inn i DESIGN.md og EXPERIENCE.md, flytte skissa til mockups/ og oppdatere PRD-tillegget om arkkanter med begrunnelse (løst 2026-11-14)
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: delen av forsida under toppfeltet (løst 2026-11-15: «Alt om helgen», hele forsida godkjent)
 - [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 17–20 i inspirasjon.md
+- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe infosidene (Programmet, Praktisk informasjon, Om oss) med plassholdere, én om gangen, og start med Praktisk informasjon
+- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 21–24 i inspirasjon.md
