@@ -681,7 +681,7 @@ Frontmatter key in brackets where one exists.
 | State colour plus icon shape plus words | Red/green/brown alone to mean anything (WCAG 1.4.1) |
 | One illustration (egne-bilder 04, whole) in the hero, one seal, the gypsophila in two places, the lilies around «Alt om helgen», lace frames around its pictures and the info-page photos, line icons in the programme timeline — all from Rikke's images | Icons outside the programme timeline, sprigs, leaves, ornaments sprinkled through the page; flowers, seals, lace or icons drawn in code (Claude's SVG trial icons were set aside: Rikke made her own, memlog 2026-11-15) |
 | Square pictures in the cream lace frame, beside their text on the front page or at the top of their info sheet | Oval pictures, soft fades into the green, stamp or double-line frames, pictures on a sheet of their own |
-| Venue photos as information: in the topic frames and on info pages | Venue photos as style or background texture |
+| Venue photos as information: in the topic frames and on info pages, shown as taken, without a colour filter (Rikke, 2026-11-15, [.working/photo-style-1.html](.working/photo-style-1.html)) | Venue photos as style or background texture |
 | Same tokens in admin, denser, no decoration, 44px targets | Seal, illustration or script on admin working screens |
 | A plain paper sheet in the envelope reveal; lace only as a frame around pictures | A heart-shaped or lace letter |
 | Restraint | Gold, metallic, diamonds, glitter, bling, neon, blinking, draping, clutter, luxury-brand feel, Italian or olive-plant motifs |

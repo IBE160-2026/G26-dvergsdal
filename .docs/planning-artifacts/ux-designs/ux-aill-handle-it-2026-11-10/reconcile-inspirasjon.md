@@ -17,7 +17,7 @@ Input: [ux/inspirasjon/inspirasjon.md](../../ux/inspirasjon/inspirasjon.md) (12 
 | 05-Vibe | Envelope colour with a little pattern; the background behind it | included | `page-green` with paper texture |
 | 05-Vibe | The perfect stamp; wanted a larger, less perfect seal with our initials | included | Rikke's own seal (egne-bilder 06), DESIGN › Shapes |
 | 05-Vibe | Too much going on on the right | rejected | Restraint (Do's and Don'ts) |
-| 06-Vibe | Photo style: cosy, muted, soft, classic | **dropped** | No rule for how photos look. Surfaced to Rikke (see below) |
+| 06-Vibe | Photo style: cosy, muted, soft, classic | rejected after asking | Rikke kept the photos as taken (2026-11-15, `.working/photo-style-1.html`); DESIGN › Do's and Don'ts |
 | 06-Vibe | Photos must fit our wedding, venue and area | included | Venue photos from stedet/ as information (EXPERIENCE › Inspiration & Anti-patterns) |
 | 07-Vibe | Simple | included | Brand & Style, restraint |
 | 07-Vibe | Too angular; olive plants | rejected | Anti-patterns; soft paper edges (Elevation & Depth) |
@@ -33,4 +33,4 @@ Input: [ux/inspirasjon/inspirasjon.md](../../ux/inspirasjon/inspirasjon.md) (12 
 
 ## Dropped ideas surfaced to Rikke
 
-1. **06-Vibe, photo style** (soft, muted, classic). The spines say which photos are used, but not how they should look. Asked whether the photos should get a light, soft treatment in code or be used as they are.
+1. **06-Vibe, photo style** (soft, muted, classic). The spines say which photos are used, but not how they should look. Asked whether the photos should get a light, soft treatment in code or be used as they are. Rendered in `.working/photo-style-1.html`. **Rikke chose A, as they are** (2026-11-15).
