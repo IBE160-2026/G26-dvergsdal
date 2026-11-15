@@ -3,7 +3,7 @@ name: "AI'll handle it"
 title: "Experience: AI'll handle it"
 status: final
 created: 2026-11-10
-updated: 2026-11-15
+updated: 2026-11-16
 sources:
   - ../../prds/prd-aill-handle-it-2026-11-07/prd.md
   - ../../prds/prd-aill-handle-it-2026-11-07/addendum.md
@@ -417,7 +417,7 @@ Failure: logs in with wrong password → plain error, slowed retries.
 
 - **Lifted from the couple's images** ([inspirasjon.md](../../ux/inspirasjon/inspirasjon.md)): the cosy sheet feeling and the soft paper edge of the main sheet (01), green envelope (02, 05), colours and simple area drawings (03), sections separated rather than one uniform page (08), top links to jump to parts and "The finer details" with a framed picture beside each topic (09), colours, texture and dark wood (10, 12), the *Brudeferden i Hardanger* feeling (11). **The couple's own images** ([egne-bilder.md](../../ux/egne-bilder/egne-bilder.md); moved out of the inspiration folder and renumbered on 2026-11-15) are used on the site itself: illustration 04 (chosen from 01–05), the wax seal (06), gypsophila (07) and lilies (09, 10) from their wedding flowers, the lace frame (11), the photos of the couple (12 on the front page, 13 on *Vår historie*) and the programme icons (14). Reconciled per input in reconcile-inspirasjon.md, reconcile-stedet.md, reconcile-egne-bilder.md and reconcile-sources.md.
 - **Lifted from research:** GOV.UK check-answers and confirmation patterns; Designsystemet error summary; deadline next to the RSVP button (Joy); personal link instead of name search.
-- **Venue photos** ([stedet.md](../../ux/stedet/stedet.md)) are information for the topic frames and G3 pages, not style. Sources and permissions for them, including 18-Kirka.jpg, are still to be noted there before launch.
+- **Venue photos** ([stedet.md](../../ux/stedet/stedet.md)) are information for the topic frames and G3 pages, not style. Rikke has permission to use them on the site, including 18-Kirka.jpg (2026-11-16).
 - **Rejected** (each is a choice the couple made against a proposal or an inspiration image; details in the memlog):
 
 | Rejected | Why, in the couple's words where they gave them | Where it was tried |
