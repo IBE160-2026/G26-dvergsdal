@@ -239,6 +239,24 @@ components:
     photoWindow: 'left 5.2%, top 5.3%, width 89.6%, height 89.4%; photo object-fit cover, under the frame'
     shadow: 'drop-shadow 0 1px 1.5px rgba(10,14,6,.35)'
     widthOnInfoSheet: '220px, centred at the top of the sheet body, 6px above and 14px below'
+  programme-timeline:
+    line: '1px rgba(59,55,47,.45), centred, between the first and last dot'
+    dot: '6px circle in {colors.ink} on the line, level with the time'
+    layout: 'events alternate right-aligned left of the line and left-aligned right of it, 18px from the line; each event overlaps the one before by 36px in height'
+    time: '{typography.small}, lining and tabular figures, letter spacing 0.04em'
+    name: '{typography.body}, italic, line height 1.25'
+  programme-icon:
+    image: 'mockups/ikoner/ikon-01-fjelltur.png … ikon-12-avreise.png (Rikke, image tool; cut out and recoloured to {colors.ink})'
+    size: 56px
+    position: 'above the time, on the side away from the line, 4px below'
+  good-to-know:
+    rule: '1px rgba(59,55,47,.25) above, 14px above the rule, 10px below'
+    heading: '{typography.body}, italic («Godt å vite»)'
+    list: 'bulleted, {typography.body}'
+  voluntary-line:
+    foreground: '{colors.cream-on-green}'
+    typography: '{typography.body}, italic, centred'
+    margin: '6px 10px 0, under the jump links'
   info-page-title:
     foreground: '{colors.cream-on-green}'
     typography: '{typography.heading-page}, italic, centred'
@@ -502,7 +520,17 @@ Sections are separated by green showing between the sheets and by the lily garla
 5. «Tilbake til invitasjonen» as an outlined button on green, centred, 14px below the last sheet.
 6. Footer band.
 
-At 360px the page is about 3 530px (six screens) with placeholder text; the jump links are why that is acceptable. Programmet and Om oss follow the same frame; their parts are not designed yet.
+At 360px the page is about 3 530px (six screens) with placeholder text; the jump links are why that is acceptable.
+
+*Programmet* is approved in [mockups/info-program.html](mockups/info-program.html) (memlog, 2026-11-15; rounds in `.working/info-program-1.html` to `-6.html`). Same frame, with «Program» as the current nav word:
+
+1. Back link, then the title «Programmet» with its hairline.
+2. Jump links *Fredag · Lørdag · Søndag* on one line, then the voluntary line on green: «Alt i programmet er frivillig. Bli med på det dere har lyst til.»
+3. **One paper sheet per day**: the day as the italic heading, an italic date line («27. mai · bryllupsdagen»), the **programme timeline**, then **«Godt å vite»**.
+4. The timeline, like «Order of events» in [inspiration 09](../../ux/inspirasjon/09-Example.jpg): a thin centre line, a small dot per event, events alternating sides and overlapping in height, each with Rikke's icon (56px) above the time (18px) and a short italic name. Only time and name sit in the timeline; what costs money, what to bring and who covers what go in «Godt å vite» (Rikke: the first three layouts were not «like estetisk fine» as 09).
+5. Bottom back button and footer.
+
+At 360px the page is about 2 930px with placeholder times. Om oss follows the same frame; its parts are not designed yet.
 
 **Form step, check page and receipt** (one cream panel per screen on the green page; no nav bar, footer band kept). Rendered at 360px in [mockups/key-form-steps.html](mockups/key-form-steps.html) (steps 1, 3 and 5, an error state and the draft offer), [mockups/key-check-page.html](mockups/key-check-page.html) and [mockups/key-receipt.html](mockups/key-receipt.html) (receipt, payment details, and the answered front page per EXPERIENCE Open Question 1):
 
@@ -554,7 +582,7 @@ Four organic shapes come from Rikke's own images, not from code:
 - The **lily garlands**: white lilies, gypsophila and buds on green stems, one arching up for above the heading and one bowing down for below ([09-FlowersTop.jpg](../../ux/egne-bilder/09-FlowersTop.jpg), [10-FlowersBottom.jpg](../../ux/egne-bilder/10-FlowersBottom.jpg), cut out to [mockups/lilje-topp.png](mockups/lilje-topp.png) and [mockups/lilje-bunn.png](mockups/lilje-bunn.png)).
 - The **lace frame**: a thin square frame with small fan scallops and eyelets ([11-Frame.jpg](../../ux/egne-bilder/11-Frame.jpg), cut out and recoloured to `panel-cream` in [mockups/blonde.png](mockups/blonde.png)). Pictures inside it are square-cut, never oval and never faded into the green (rejected in rounds 1–2).
 
-The seal and gypsophila are cut out with [.working/cutout-segl-brudeslor.py](.working/cutout-segl-brudeslor.py), the lilies and the frame with [.working/cutout-liljer-blonde.py](.working/cutout-liljer-blonde.py) (from black backgrounds; usage in the file). If Rikke replaces an image, run the script again rather than editing the PNGs. Code-drawn sprigs, seals and lace were tried and rejected ("så jalla ut", memlog 101–105; code lace L1/L2, memlog 2026-11-15).
+The seal and gypsophila are cut out with [.working/cutout-segl-brudeslor.py](.working/cutout-segl-brudeslor.py), the lilies and the frame with [.working/cutout-liljer-blonde.py](.working/cutout-liljer-blonde.py), and the twelve programme icons with [.working/cutout-ikoner.py](.working/cutout-ikoner.py) (one shared scale so every line weighs the same) (all from black backgrounds; usage in each file). If Rikke replaces an image, run the script again rather than editing the PNGs. Code-drawn sprigs, seals and lace were tried and rejected ("så jalla ut", memlog 101–105; code lace L1/L2, memlog 2026-11-15).
 
 ## Components
 
@@ -579,6 +607,10 @@ Frontmatter key in brackets where one exists.
 | **Back link** [`back-link`] | «← Tilbake til invitasjonen» at the top of every info page: cream, 20px, underlined, ≥ 44px. At the bottom the same words are an outlined button on green (FR-11). |
 | **Jump links** [`jump-links`] | A `nav` labelled «Hopp til» under the info page title: short words in small capitals, 19px, centred in balanced lines (two or three words each), a decorative middle dot between words on the same line, no underline (they read like the nav words), each ≥ 40px tall. Rendered in [mockups/info-praktisk.html](mockups/info-praktisk.html). A large list with underlined words (round 2) was «rotete og stort»; closed sheets that open (round 3) were «ikke så fint og koselig». |
 | **Info sheet** [`info-sheet`] | One paper sheet per part of an info page: `heading-card` *italic* with a 1px ink hairline under it, then `body` text; facts lead with a 600-weight label («**Adresse:** …»); lists keep their bullets; links are underlined; one outlined dark-green button where a part needs an action («Åpne veibeskrivelse i kart»). An optional lace-framed photo, 220px, centred at the top of the body. Sheets are 20px apart. |
+| **Programme timeline** [`programme-timeline`] | One ordered list per day: a thin centre line, a 6px ink dot per event, events alternating left (right-aligned) and right (left-aligned), each overlapping the one before by 36px so the timeline stays compact. Each event: icon, time (`small`, lining figures), short name (`body` *italic*). Rendered in [mockups/info-program.html](mockups/info-program.html). |
+| **Programme icon** [`programme-icon`] | Rikke's line drawings ([egne-bilder/14-Icons.jpg](../../ux/egne-bilder/14-Icons.jpg)), cut out to one PNG each and recoloured to `ink`, 56px, above the time. Decorative (`alt=""`): time and name carry the meaning. The same icon may repeat (breakfast on Saturday and Sunday). |
+| **«Godt å vite»** [`good-to-know`] | At the foot of each day sheet, after a faint hairline: italic «Godt å vite», then a bulleted list of what costs money («**Frokosten betales selv:** [x] kr.»), what to bring and who covers what. |
+| **Voluntary line** [`voluntary-line`] | One italic cream line under the jump links on Programmet: «Alt i programmet er frivillig. Bli med på det dere har lyst til.» |
 | **Outlined button on green** [`button-on-green`] | Transparent, 1.5px `cream-on-green` border and text, 4px radius, ≥ 44px tall, `button-small` 19px. Hover/pressed: border 3px; focus ring `focus-on-green`. On a cream sheet the same shape is drawn in `ink` («Åpne veibeskrivelse i kart»). |
 | **RSVP sheet** [`rsvp-panel`] | Paper sheet after «Alt om helgen»: `heading-card` "Svar på invitasjonen", small gypsophila divider, «Barnefritt bryllup» (Rikke removed the rest of the proposed line), the full deadline «Svar innen tirsdag 4. januar 2028 kl. 23:59», primary button. When an unsent draft exists, a warning notice sits above the button. |
 | **Primary button** [`button-primary`] | Full panel width, 52px, cream text on dark green, 2px transparent border (visible outline in forced colours). Only on cream panels — the nav "Svar" is the one exception. **One distinct primary action per screen; repeats of the same action are allowed** (nav "Svar" and RSVP button). Busy: keeps its colours, label becomes "Sender …". |
@@ -627,7 +659,7 @@ Frontmatter key in brackets where one exists.
 | Warm olive greens (hue ~85–100°) | Bluish sage greens (round 1), neon or saturated greens |
 | Cream `#F5EEDF` text of 19px or more on the textured green; the 18px nav words only on the flat nav bar | Cream text under 19px on the textured green |
 | State colour plus icon shape plus words | Red/green/brown alone to mean anything (WCAG 1.4.1) |
-| One illustration (egne-bilder 04, whole) in the hero, one seal, the gypsophila in two places, the lilies around «Alt om helgen», lace frames around its pictures and the info-page photos — all from Rikke's images | Icons, sprigs, leaves, ornaments sprinkled through the page; flowers, seals or lace drawn in code |
+| One illustration (egne-bilder 04, whole) in the hero, one seal, the gypsophila in two places, the lilies around «Alt om helgen», lace frames around its pictures and the info-page photos, line icons in the programme timeline — all from Rikke's images | Icons outside the programme timeline, sprigs, leaves, ornaments sprinkled through the page; flowers, seals, lace or icons drawn in code (Claude's SVG trial icons were set aside: Rikke made her own, memlog 2026-11-15) |
 | Square pictures in the cream lace frame, beside their text on the front page or at the top of their info sheet | Oval pictures, soft fades into the green, stamp or double-line frames, pictures on a sheet of their own |
 | Venue photos as information: in the topic frames and on info pages | Venue photos as style or background texture |
 | Same tokens in admin, denser, no decoration, 44px targets | Seal, illustration or script on admin working screens |
