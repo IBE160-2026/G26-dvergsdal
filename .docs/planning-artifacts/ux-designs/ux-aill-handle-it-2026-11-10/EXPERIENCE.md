@@ -413,7 +413,7 @@ Failure: logs in with wrong password → plain error, slowed retries.
 
 | Context | Behaviour |
 |---|---|
-| Phone 320–480px | The design. Nav bar sticky; nav words may wrap. Names on one line from about a 274px content box (360px phones: 288px); stacked below that (320px phones). At 320px the three nav words stay on one line (bar 64px) with the tighter nav spacing below 340px (DESIGN › Layout & Spacing; re-measured 2026-11-15 with «Vår historie»). |
+| Phone 320–480px | The design. Nav bar sticky; nav words may wrap. Names on one line from about a 274px content box (360px phones: 288px); on 320px phones the narrower small-phone gutter and hero padding keep them on one line, and the whole hero fits the first screen (deadline line ends at 530px); they stack only below that. At 320px the three nav words stay on one line (bar 64px) with the tighter nav spacing below 340px (DESIGN › Layout & Spacing; re-measured 2026-11-15 with «Vår historie»). |
 | Short or zoomed viewport (< 400 CSS px tall) | Nav bar not sticky. |
 | 200 % zoom on a phone (~180 CSS px wide) | Gutter and hero padding 8px; names stacked; nav words wrap freely; no sideways scroll. |
 | PC | Same phone column centred on the green page. Wider layout [If time]. |
@@ -425,7 +425,7 @@ Failure: logs in with wrong password → plain error, slowed retries.
 ## Open Questions
 
 1. ~~Answered state of G2~~ — **resolved 2026-11-15**: the status block replaces the RSVP panel in the same place, and the hero's deadline line becomes «Svar sendt 12. oktober · Se svaret» ([.working/answered-1.html](.working/answered-1.html)).
-2. **Small phones** (couple): at 320px the names stack and the deadline line ends at 611px, below the 568px first screen; at 360px it clears the fold by only 8px. Accept (the nav "Svar" stays visible), or narrow the hero's inline padding to 12px at ≤ 340px so the names stay on one line?
+2. ~~Small phones~~ — **resolved 2026-11-15**: below 340px layout width the page gutter is 12px and the hero's inline padding 10px, so at 320px the names and the place stay on one line and the deadline line ends at 530px, above the 568px fold ([.working/small-phone-1.html](.working/small-phone-1.html); DESIGN › Layout & Spacing).
 3. **Plain-text names** (couple's taste): add the names in plain serif for low-vision guests (e.g. «Rikke og Valdemar inviterer deg til bryllup»), or keep the names in script only?
 4. **No-JS guest pages in v1** (PRD/architecture): PRD 3.2 puts the static fallback in [2027]; should all guest pages and form steps work without scripts in v1, with scripts only enhancing?
 5. **Admin session expiry** (architecture): an idle session of at least 20 hours, or a warning two minutes before expiry with "Fortsett å være logget inn" — and in both cases is unsaved input restored after logging in again?

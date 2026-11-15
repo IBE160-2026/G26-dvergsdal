@@ -142,6 +142,8 @@ spacing:
   '7': 32px
   gutter: 16px
   gutter-narrow: 8px
+  gutter-small-phone: 12px
+  hero-padding-inline-small-phone: 10px
   panel-gap: 16px
   panel-padding: 20px
   page-padding-top: 46px
@@ -495,7 +497,7 @@ Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so
 
 ## Layout & Spacing
 
-Phone first (NFR-6). One centred column, maximum `{spacing.content-max}`; a PC shows the same phone column on the green page **[ASSUMPTION — 480px max]**. Side gutter `{spacing.gutter}`. No horizontal scroll at 320px or at 200 % zoom (NFR-5); on a phone 200 % zoom means a layout width of about **180 CSS px**, so below 260px layout width the gutter and the hero's inline padding drop to `{spacing.gutter-narrow}`.
+Phone first (NFR-6). One centred column, maximum `{spacing.content-max}`; a PC shows the same phone column on the green page **[ASSUMPTION — 480px max]**. Side gutter `{spacing.gutter}`. No horizontal scroll at 320px or at 200 % zoom (NFR-5); on a phone 200 % zoom means a layout width of about **180 CSS px**, so below 260px layout width the gutter and the hero's inline padding drop to `{spacing.gutter-narrow}`. Between 260px and 340px (the smallest phones, 320px wide) the gutter is `{spacing.gutter-small-phone}` and the hero's inline padding `{spacing.hero-padding-inline-small-phone}`, so the names and the place stay on one line and the whole hero fits the first screen (Rikke chose this, 2026-11-15, [.working/small-phone-1.html](.working/small-phone-1.html)).
 
 Front-page order. The whole front page is approved in [mockups/front-page-3.html](mockups/front-page-3.html) (memlog, 2026-11-15), built on the first screen approved in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html) (memlog, *Front page approved*, 2026-11-11). Both supersede [mockups/front-page-2.html](mockups/front-page-2.html) (PRD FR-7, FR-8):
 
@@ -519,7 +521,7 @@ Front-page order. The whole front page is approved in [mockups/front-page-3.html
 | Divider · date · place | 357–407 · 407–437 · 437–463 |
 | «for …» · deadline line | 469–499 · 503–**530** |
 
-The whole hero sheet fits above the fold with 8px to spare, so these values are a budget, not a starting point: any added line or larger seal pushes the sheet's end off the first screen. At 320px (re-measured 2026-11-15 with «Vår historie» as the third nav word) the nav bar stays on one line (64px) only with tighter spacing below 340px layout width: nav words 8px apart, bar padding 8px 10px 8px 12px, the "Svar" button padding 0 12px and minimum width 56px (still ≥ 44px tall); with the normal spacing «Vår historie» wraps and the bar grows to 104px, the names and the place wrap, and the deadline line ends at 611px, below the 568px fold; the nav "Svar" stays visible (Open Question 2). «Praktisk informasjon» wraps to two lines beside its frame there, which is fine. Check widths for every build: 360 × 560, 320 × 568, 180 × 320.
+The whole hero sheet fits above the fold with 8px to spare, so these values are a budget, not a starting point: any added line or larger seal pushes the sheet's end off the first screen. At 320px (re-measured 2026-11-15 with «Vår historie» as the third nav word) the nav bar stays on one line (64px) only with tighter spacing below 340px layout width: nav words 8px apart, bar padding 8px 10px 8px 12px, the "Svar" button padding 0 12px and minimum width 56px (still ≥ 44px tall); with the normal spacing «Vår historie» wraps and the bar grows to 104px, the small-phone gutter and hero padding keep the names and the place on one line, and the deadline line ends at 530px, above the 568px fold (with the normal 16px/20px it was 611px, below; Open Question 2, resolved). «Praktisk informasjon» wraps to two lines beside its frame there, which is fine. Check widths for every build: 360 × 560, 320 × 568, 180 × 320.
 
 Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal centred with its top 36px above the sheet's top edge; illustration pulled up 12px (its top is empty sky) with 4px below; invites 2px below the names; divider 2px below; 6px above the invited line, 4px above the deadline line. Topic rows: 20px above, 6px below, 14px between frame and text; the «Les mer» target supplies the bottom space. Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero and RSVP sheet is centred, the details heading too; topic text is left-aligned beside its picture; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
 
