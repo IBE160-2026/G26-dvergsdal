@@ -566,7 +566,7 @@ At 360px the page is about 2 930px with placeholder times.
 
 ## Elevation & Depth
 
-**Paper sheets on an envelope.** Every guest content panel is a cream sheet lying on the green page, as the main sheet in [inspiration 01](../../ux/inspirasjon/01-Vibe.jpg): a soft, slightly wavy, hand-made edge with fine fibre, in **the sheet's own colour** (no lighter rim, no inner ridge, nothing chalk-white), and a soft shadow underneath. Chosen over three rounds of edge renders (memlog, *Sheet edge* and *Sheet edge refined*; edge B3). Still **no folds, no backing sheet, no layered or offset sheets** (memlog override dropping the layered-sheet card style). Reference: [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html), filter `edge-b3`.
+**Paper sheets on an envelope.** Every guest content panel is a cream sheet lying on the green page, as the main sheet in [inspiration 01](../../ux/inspirasjon/01-Vibe.jpg): a soft, slightly wavy, hand-made edge with fine fibre, in **the sheet's own colour** (no lighter rim, no inner ridge, nothing chalk-white), and a soft shadow underneath. Chosen over three rounds of edge renders (memlog, *Sheet edge* and *Sheet edge refined*; edge B3). Still **no folds, no backing sheet, no layered or offset sheets** (memlog override dropping the layered-sheet card style). Reference: [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html), filter `edge-b3`. **Admin panels keep straight edges** with the same cream paper texture and no edge filter: admin is a working tool, denser, and the attention panel's green top rule needs a straight edge (Rikke chose A in [.working/admin-edge-1.html](.working/admin-edge-1.html), 2026-11-15).
 
 How the sheet is built, so the edge never touches the text:
 
