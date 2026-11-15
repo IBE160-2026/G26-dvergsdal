@@ -20,8 +20,8 @@
 - [x] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — velge illustrasjonsstil: KI-illustrasjonen (14) eller enkle grønne strektegninger (løst 2026-11-11: illustrasjon 17)
 - [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — gå gjennom resterende småendringer i UX, kjøre struktur- og språkgjennomgang, sette DESIGN.md og EXPERIENCE.md til final og lage PR for docs/ux
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: tekstur på det grønne, kantene på kremfeltene, og forsida under toppfeltet (løst 2026-11-11: kanter og tekstur bestemt; delen under toppfeltet er flyttet til eget punkt)
-- [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare brudeparets åpne spørsmål i EXPERIENCE.md (navn i vanlig tekst, 320 px-mobiler, hvordan hjelpere ser at de bare kan lese, «barnefritt» etter svar)
-- [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare om allergier oppgitt uten samtykke (FR-28) skal ha egen markering i admin
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare brudeparets åpne spørsmål i EXPERIENCE.md (navn i vanlig tekst, 320 px-mobiler, hvordan hjelpere ser at de bare kan lese, «barnefritt» etter svar) (løst 2026-11-15)
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare om allergier oppgitt uten samtykke (FR-28) skal ha egen markering i admin (løst 2026-11-15: nei, ordlyden «Ingen allergiopplysninger lagret»)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — føre den godkjente forsida (paper-ceremony-5) inn i DESIGN.md og EXPERIENCE.md, flytte skissa til mockups/ og oppdatere PRD-tillegget om arkkanter med begrunnelse (løst 2026-11-14)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: delen av forsida under toppfeltet (løst 2026-11-15: «Alt om helgen», hele forsida godkjent)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 17–20 i inspirasjon.md (løst 2026-11-15: bildene er flyttet til egne-bilder/ og beskrevet i egne-bilder.md)
