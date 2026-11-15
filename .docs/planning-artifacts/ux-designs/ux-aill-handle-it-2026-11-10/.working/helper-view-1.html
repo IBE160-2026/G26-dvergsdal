@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>Hjelperens visning, runde 1</title>
+<!-- Unntak for denne lokale planleggingssida: skriften lastes fra Google Fonts når sida vises.
+     Den ferdige sida lagrer EB Garamond selv (selvhostet, PRD 3.2). SIL Open Font License. Admin bruker ikke Imperial Script. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;display=swap">
+<style>
+/* ===== HJELPERENS VISNING AV ADMIN (A2), RUNDE 1 (2026-11-15) =====
+   Åpent spørsmål 15 i EXPERIENCE.md: hjelperne kan se alt, men ikke endre noe (PRD FR-46). Knappene er skjult, ikke grået ut.
+   Bygger på den godkjente admin-oversikten (mockups/admin-rework-1.html, telefon 1). A = bare uten knapper;
+   B = i tillegg en linje under menyen: «Du kan se alt, men ikke endre noe.» Navn og tall er oppdiktede eksempeltall. */
+:root {
+  color-scheme: light only;
+  --frame-bg: #DDDAD3; --frame-ink: #2B2620; --frame-muted: #4F473D;
+  --g: #5A6C48; --d: #344628; --dh: #2C3A20; --k: #EBE4D5; --tx: #3B372F; --mu: #5E594F; --t: #F5EEDF;
+  --div: #C8BFAE;
+  --err: #7C3B1D; --ok: #3D5A2A;
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.09 0 0 0 0.455  0.09 0 0 0 0.455  0.09 0 0 0 0.455  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55; overflow-wrap: break-word; }
+.intro { max-width: 760px; margin: 0 auto; padding: 40px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .6em; }
+.intro p { margin: 0 0 .8em; }
+.wide { max-width: 1640px; margin: 0 auto; padding: 8px 16px 48px; }
+.tex-green { background-image: var(--grain-green), var(--fibre-green); background-blend-mode: overlay, overlay; }
+.tex-sheet { background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.num { font-variant-numeric: lining-nums; }
+
+/* ---------- Telefonene (rammen er ikke en del av designet) ---------- */
+.mocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 382px), 382px)); justify-content: center; gap: 48px 40px; margin: 24px 0 0; align-items: start; }
+/* Linja for hjelpere: krem tekst på grønt, 20 px (minst 19 px på det mønstrede grønne) */
+.readonly { margin: 0 0 12px; padding: 6px 12px; border-left: 4px solid var(--t); color: var(--t); font-size: 20px; line-height: 1.4; }
+.mock { margin: 0; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+.mock-head { width: 100%; max-width: 382px; margin: 0 0 14px; }
+.mock-head h2 { margin: 0; font-weight: normal; font-size: 1.75rem; line-height: 1.2; }
+.mock-head p { margin: 4px 0 0; color: var(--frame-muted); }
+.mock-head .tag { vertical-align: middle; }
+.phone { width: 382px; max-width: 100%; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { position: relative; width: 360px; max-width: 100%; border-radius: 29px; overflow: hidden; font-family: "EB Garamond", Georgia, serif; background-color: var(--g); color: var(--tx); text-align: left; }
+.mock-note { width: 100%; max-width: 382px; margin: 16px 0 0; }
+.mock-note p { margin: 0; color: var(--frame-muted); }
+footer.end { max-width: 760px; margin: 0 auto; padding: 0 16px 44px; color: var(--frame-muted); font-size: 16px; }
+footer.end h2 { margin: 0 0 .4em; font-weight: normal; font-size: 1.3rem; color: var(--frame-ink); }
+footer.end p, footer.end ul { margin: 0 0 .8em; }
+footer.end ul { padding-left: 1.2em; }
+footer.end b { color: var(--frame-ink); }
+
+/* ---------- Merkelapper i skissa (ikke en del av designet) ---------- */
+.tag { display: inline-block; padding: 2px 10px; border-radius: 3px; background: #2F2F2F; color: #FFFFFF; font-family: Georgia, serif; font-size: 15px; line-height: 1.4; font-style: normal; font-weight: normal; }
+.forslag { background: #6B4E16; }
+.cutline { position: relative; margin: 14px 0 8px; height: 34px; border-top: 3px dashed var(--t); }
+.cutline span { position: absolute; right: 0; top: 6px; }
+
+/* ---------- Paneler, lenker, knapper ---------- */
+.card { background-color: var(--k); color: var(--tx); border-radius: 3px; }
+.card p { margin: 0; }
+.card a, .linkbtn { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.card a:hover { text-decoration-thickness: 2px; }
+.btn2 { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 6px 14px; border-radius: 4px; border: 1.5px solid var(--d); background: var(--k); color: var(--d); font-family: inherit; font-size: 18px; line-height: 1.3; cursor: pointer; }
+.btn2:hover { border-width: 3px; padding: 4.5px 12.5px; }
+
+/* ---------- Fokusring ---------- */
+:focus-visible { outline: 3px solid var(--d); outline-offset: 3px; }
+.on-green :focus-visible { outline-color: var(--t); }
+
+@media (max-width: 420px) {
+  .intro h1 { font-size: 1.7rem; }
+  .wide { padding-left: 0; padding-right: 0; }
+  .mock-head, .mock-note { padding: 0 16px; }
+  .phone { width: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .screen { width: 100%; border-radius: 0; }
+}
+@media (forced-colors: active) {
+  .btn2 { border-color: ButtonText; }
+}
+
+/* ---------- Admin: samme tokens, tettere, uten pynt ---------- */
+.admin { font-size: 18px; line-height: 1.4; }
+.admin .page { padding: 4px 16px 20px; }
+.anav { display: flex; flex-wrap: wrap; gap: 0 11px; margin: 0; padding: 4px 14px; list-style: none; color: var(--t); font-size: 18px; line-height: 1.2; }
+.anav li { display: flex; }
+.anav a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.anav a[aria-current="page"] { text-decoration-thickness: 2px; }
+.apanel { padding: 12px; }
+.apanel + .apanel { margin-top: 8px; }
+.apanel h2 { margin: 0 0 4px; font-size: 22px; font-weight: 600; line-height: 1.25; }
+.page > .apanel:first-of-type { margin-top: 6px; }
+/* Oppfølgingspanelet skiller seg ut med en mørkegrønn kant øverst (pynt, ikke betydning; overskriften bærer innholdet) */
+.attpanel { border-top: 5px solid var(--d); }
+
+/* Tallrader: etikett til venstre, tall (lenke) til høyre, minst 44 px høye */
+.rows { margin: 0; padding: 0; list-style: none; }
+.rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 12px; min-height: 44px; border-top: 1px solid var(--div); font-variant-numeric: lining-nums tabular-nums; }
+.rows li:first-child { border-top: 0; }
+.rows .c { text-align: right; }
+.rows a, .rows .zero { display: inline-flex; align-items: center; justify-content: flex-end; min-height: 44px; min-width: 44px; padding: 0 2px; }
+.rows .lead-row > span:first-child { font-weight: 600; }
+.rows li.sub { padding-left: 18px; border-top-style: dotted; }
+.rows li.minor { color: var(--mu); }
+.ptext { margin-top: 4px !important; font-style: italic; color: var(--mu); }
+
+/* Oppfølgingspunkter: grunn, husstand, én handling */
+.att { margin: 0; padding: 0; list-style: none; }
+.att > li { padding: 10px 0; border-top: 1px solid var(--div); }
+.att > li:first-child { border-top: 0; padding-top: 4px; }
+.att p { margin: 0 0 2px; font-variant-numeric: lining-nums; }
+.att .why { font-weight: 600; }
+.att .btn2 { margin-top: 8px; }
+.stag { display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 4px; padding: 1px 8px; border: 1.5px solid currentColor; border-radius: 3px; font-size: 18px; line-height: 1.4; }
+.stag svg { width: 20px; height: 20px; flex: none; }
+.s-err { color: var(--err); }
+.more { border-top: 1px solid var(--div); }
+.more a { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* Svarfremdrift: teksten bærer tallet, streken er bare en hjelp for øyet (aria-hidden) */
+.prog-text { font-size: 20px; font-weight: 600; font-variant-numeric: lining-nums; }
+.bar { height: 12px; margin: 6px 0 8px; border: 1px solid var(--mu); border-radius: 3px; background: var(--t); overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--d); }
+@media (forced-colors: active) { .bar span { background: CanvasText; } }
+
+/* Tomtilstand: rolig, ikon + ord */
+.okline { display: flex; align-items: center; gap: 10px; margin: 0 !important; color: var(--ok); }
+.okline svg { width: 26px; height: 26px; flex: none; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12.4l3.3 3.3L17.2 8.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-err" viewBox="0 0 24 24"><path d="M12 2.6L22.4 20.8H1.6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v5.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.4" fill="currentColor"/></symbol>
+</svg>
+
+<div class="intro">
+  <h1>Hjelperens visning, runde 1</h1>
+  <p>Hjelperne kan se alt i admin, men ikke endre noe. Derfor er knappene «Merk som håndtert» borte for dem. Spørsmålet er om det holder, eller om det også skal stå en kort linje øverst som sier det.</p>
+  <p><span class="tag">eksempeltall</span> Navn og tall er oppdiktet.</p>
+</div>
+
+<section class="wide" aria-label="Hjelperens visning med og uten linje">
+  <div class="mocks">
+
+<!-- A: uten knapper -->
+<figure class="mock" aria-labelledby="h-a">
+  <div class="mock-head"><h2 id="h-a">A · Bare uten knapper</h2><p>Hjelper, før fristen <span class="tag">eksempeltall</span></p></div>
+  <div class="phone"><div class="screen tex-green admin">
+    <nav class="on-green" aria-label="Admin"><ul class="anav">
+      <li><a href="#" aria-current="page">Oversikt</a></li><li><a href="#">Gjester</a></li><li><a href="#">Betalinger</a></li><li><a href="#">Innstillinger</a></li><li><a href="#">Logg ut</a></li>
+    </ul></nav>
+    <div class="page">
+      <h1 class="sr">Oversikt</h1>
+
+      <section class="card apanel tex-sheet attpanel" aria-labelledby="a-trenger">
+        <h2 id="a-trenger">Trenger oppfølging <span class="num">(7)</span></h2>
+        <ul class="att">
+          <li>
+            <p class="why">Betalingen stemmer ikke</p>
+            <span class="stag s-err"><svg aria-hidden="true" focusable="false"><use href="#i-err"/></svg>Stemmer ikke</span>
+            <p>Synne. Meldt betalt <span class="num">900&nbsp;kr</span>, registrert mottatt <span class="num">600&nbsp;kr</span>.</p>
+          </li>
+          <li>
+            <p class="why">Har ikke svart ennå</p>
+            <p>Bjørn, Kari og Ida Haugland.</p>
+          </li>
+        </ul>
+        <p class="more"><a href="#">Vis alle&nbsp;<span class="num">7</span></a></p>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="a-svar">
+        <h2 id="a-svar">Svar</h2>
+        <p class="prog-text">Svart: <span class="num">28 av 30</span> husstander</p>
+        <div class="bar" aria-hidden="true"><span style="width:93.3%"></span></div>
+        <ul class="rows">
+          <li><span>Kommer</span><span class="c"><a href="#">58 personer</a> · <a href="#">25 husstander</a></span></li>
+          <li><span>Kommer ikke</span><span class="c"><a href="#">7 personer</a> · <a href="#">3 husstander</a></span></li>
+          <li><span>Ikke svart ennå</span><span class="c"><a href="#">5 personer</a> · <a href="#">2 husstander</a></span></li>
+        </ul>
+        <p class="more"><a href="#">Se hva alle har svart</a></p>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="a-dager">
+        <h2 id="a-dager">Når kommer de?</h2>
+        <ul class="rows">
+          <li class="lead-row"><span>Hele helgen (fre–søn)</span><a href="#">40</a></li>
+          <li class="lead-row"><span>Ikke hele helgen</span><a href="#">18</a></li>
+          <li class="sub"><span>Bare lørdag–søndag</span><a href="#">9</a></li>
+          <li class="sub"><span>Bare lørdag</span><a href="#">6</a></li>
+          <li class="sub"><span>Bare fredag–lørdag</span><a href="#">3</a></li>
+        </ul>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="a-natt">
+        <h2 id="a-natt">Overnatting</h2>
+        <ul class="rows">
+          <li class="lead-row"><span>Overnatter ikke</span><a href="#">10</a></li>
+          <li class="minor"><span>Senger totalt</span><a href="#">48</a></li>
+        </ul>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="a-mat">
+        <h2 id="a-mat">Mat</h2>
+        <ul class="rows">
+          <li><span>Fredag middag</span><a href="#">38</a></li>
+          <li><span>Lørdag frokost</span><a href="#">36</a></li>
+          <li><span>Lørdag lunsj</span><a href="#">58</a></li>
+          <li><span>Lørdag middag</span><a href="#">58</a></li>
+          <li><span>Søndag frokost</span><a href="#">44</a></li>
+        </ul>
+        <p class="ptext">Lunsj og middag lørdag: alle som er der lørdag.</p>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="a-allergi">
+        <h2 id="a-allergi">Allergier (med samtykke)</h2>
+        <ul class="rows">
+          <li class="lead-row"><span>Har allergier eller matbehov</span><a href="#">10</a></li>
+          <li class="sub"><span>Gluten</span><a href="#">2</a></li>
+          <li class="sub"><span>Laktose</span><a href="#">4</a></li>
+          <li class="sub"><span>Nøtter</span><a href="#">1</a></li>
+          <li class="sub"><span>Skalldyr</span><span class="zero">0</span></li>
+          <li class="sub"><span>Vegetar</span><a href="#">3</a></li>
+          <li class="sub"><span>Veganer</span><a href="#">1</a></li>
+          <li class="sub"><span>Annet</span><a href="#">1</a></li>
+          <li class="lead-row"><span>Ingen allergier eller matbehov</span><a href="#">45</a></li>
+          <li class="lead-row"><span>Ingen allergiopplysninger lagret</span><a href="#">3</a></li>
+        </ul>
+        <p class="ptext">Én person kan ha flere allergier.</p>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="a-tur">
+        <h2 id="a-tur">Fottur fredag</h2>
+        <ul class="rows">
+          <li><span>Svar</span><span class="c"><a href="#">5 kommer</a>, <a href="#">2 kanskje</a></span></li>
+        </ul>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="a-betaling">
+        <h2 id="a-betaling">Betaling (husstander som kommer)</h2>
+        <ul class="rows">
+          <li><span>Ingenting å betale</span><a href="#">3</a></li>
+          <li><span>Ikke betalt</span><a href="#">8</a></li>
+          <li><span>Delbetalt</span><a href="#">3</a></li>
+          <li><span>Betalt</span><a href="#">10</a></li>
+          <li><span>Tilgode</span><a href="#">1</a></li>
+        </ul>
+      </section>
+    </div>
+  </div></div>
+  <figcaption class="mock-note">
+    <p>Hjelperen ser det samme som dere, men uten knappene «Merk som håndtert». Ingenting sier hvorfor de mangler.</p>
+  </figcaption>
+</figure>
+
+<!-- B: med linje -->
+<figure class="mock" aria-labelledby="h-b">
+  <div class="mock-head"><h2 id="h-b">B · Med en linje under menyen</h2><p>Hjelper, før fristen <span class="tag">eksempeltall</span></p></div>
+  <div class="phone"><div class="screen tex-green admin">
+    <nav class="on-green" aria-label="Admin"><ul class="anav">
+      <li><a href="#" aria-current="page">Oversikt</a></li><li><a href="#">Gjester</a></li><li><a href="#">Betalinger</a></li><li><a href="#">Innstillinger</a></li><li><a href="#">Logg ut</a></li>
+    </ul></nav>
+    <div class="page">
+      <h1 class="sr">Oversikt</h1>
+      <p class="readonly">Du kan se alt, men ikke endre noe.</p>
+
+      <section class="card apanel tex-sheet attpanel" aria-labelledby="b-trenger">
+        <h2 id="b-trenger">Trenger oppfølging <span class="num">(7)</span></h2>
+        <ul class="att">
+          <li>
+            <p class="why">Betalingen stemmer ikke</p>
+            <span class="stag s-err"><svg aria-hidden="true" focusable="false"><use href="#i-err"/></svg>Stemmer ikke</span>
+            <p>Synne. Meldt betalt <span class="num">900&nbsp;kr</span>, registrert mottatt <span class="num">600&nbsp;kr</span>.</p>
+          </li>
+          <li>
+            <p class="why">Har ikke svart ennå</p>
+            <p>Bjørn, Kari og Ida Haugland.</p>
+          </li>
+        </ul>
+        <p class="more"><a href="#">Vis alle&nbsp;<span class="num">7</span></a></p>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="b-svar">
+        <h2 id="b-svar">Svar</h2>
+        <p class="prog-text">Svart: <span class="num">28 av 30</span> husstander</p>
+        <div class="bar" aria-hidden="true"><span style="width:93.3%"></span></div>
+        <ul class="rows">
+          <li><span>Kommer</span><span class="c"><a href="#">58 personer</a> · <a href="#">25 husstander</a></span></li>
+          <li><span>Kommer ikke</span><span class="c"><a href="#">7 personer</a> · <a href="#">3 husstander</a></span></li>
+          <li><span>Ikke svart ennå</span><span class="c"><a href="#">5 personer</a> · <a href="#">2 husstander</a></span></li>
+        </ul>
+        <p class="more"><a href="#">Se hva alle har svart</a></p>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="b-dager">
+        <h2 id="b-dager">Når kommer de?</h2>
+        <ul class="rows">
+          <li class="lead-row"><span>Hele helgen (fre–søn)</span><a href="#">40</a></li>
+          <li class="lead-row"><span>Ikke hele helgen</span><a href="#">18</a></li>
+          <li class="sub"><span>Bare lørdag–søndag</span><a href="#">9</a></li>
+          <li class="sub"><span>Bare lørdag</span><a href="#">6</a></li>
+          <li class="sub"><span>Bare fredag–lørdag</span><a href="#">3</a></li>
+        </ul>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="b-natt">
+        <h2 id="b-natt">Overnatting</h2>
+        <ul class="rows">
+          <li class="lead-row"><span>Overnatter ikke</span><a href="#">10</a></li>
+          <li class="minor"><span>Senger totalt</span><a href="#">48</a></li>
+        </ul>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="b-mat">
+        <h2 id="b-mat">Mat</h2>
+        <ul class="rows">
+          <li><span>Fredag middag</span><a href="#">38</a></li>
+          <li><span>Lørdag frokost</span><a href="#">36</a></li>
+          <li><span>Lørdag lunsj</span><a href="#">58</a></li>
+          <li><span>Lørdag middag</span><a href="#">58</a></li>
+          <li><span>Søndag frokost</span><a href="#">44</a></li>
+        </ul>
+        <p class="ptext">Lunsj og middag lørdag: alle som er der lørdag.</p>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="b-allergi">
+        <h2 id="b-allergi">Allergier (med samtykke)</h2>
+        <ul class="rows">
+          <li class="lead-row"><span>Har allergier eller matbehov</span><a href="#">10</a></li>
+          <li class="sub"><span>Gluten</span><a href="#">2</a></li>
+          <li class="sub"><span>Laktose</span><a href="#">4</a></li>
+          <li class="sub"><span>Nøtter</span><a href="#">1</a></li>
+          <li class="sub"><span>Skalldyr</span><span class="zero">0</span></li>
+          <li class="sub"><span>Vegetar</span><a href="#">3</a></li>
+          <li class="sub"><span>Veganer</span><a href="#">1</a></li>
+          <li class="sub"><span>Annet</span><a href="#">1</a></li>
+          <li class="lead-row"><span>Ingen allergier eller matbehov</span><a href="#">45</a></li>
+          <li class="lead-row"><span>Ingen allergiopplysninger lagret</span><a href="#">3</a></li>
+        </ul>
+        <p class="ptext">Én person kan ha flere allergier.</p>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="b-tur">
+        <h2 id="b-tur">Fottur fredag</h2>
+        <ul class="rows">
+          <li><span>Svar</span><span class="c"><a href="#">5 kommer</a>, <a href="#">2 kanskje</a></span></li>
+        </ul>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="b-betaling">
+        <h2 id="b-betaling">Betaling (husstander som kommer)</h2>
+        <ul class="rows">
+          <li><span>Ingenting å betale</span><a href="#">3</a></li>
+          <li><span>Ikke betalt</span><a href="#">8</a></li>
+          <li><span>Delbetalt</span><a href="#">3</a></li>
+          <li><span>Betalt</span><a href="#">10</a></li>
+          <li><span>Tilgode</span><a href="#">1</a></li>
+        </ul>
+      </section>
+    </div>
+  </div></div>
+  <figcaption class="mock-note">
+    <p>Det samme, men med en kort linje øverst som sier at hjelperen bare kan se, ikke endre.</p>
+  </figcaption>
+</figure>
+
+  </div>
+</section>
+
+<footer class="end">
+  <p>Knappene er skjult, ikke grået ut: en grå knapp ser ut som noe som kan virke senere. Serveren stopper uansett hjelpere som prøver å endre noe (PRD FR-46).</p>
+</footer>
+</body>
+</html>
