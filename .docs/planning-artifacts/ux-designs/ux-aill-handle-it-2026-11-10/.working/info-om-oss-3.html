@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Om oss, runde 3</title>
+<!-- Unntak for denne lokale planleggingssida: skriftene lastes fra Google Fonts når sida vises.
+     Den ferdige gjestesida lagrer Imperial Script og EB Garamond selv (PRD 3.2). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;display=swap">
+<style>
+/* Infosida «Om oss», runde 2 (2026-11-15). Rikke valgte B (kapitler med år og sted), men tidene og stedene var feil;
+   hun skrev om teksten i ux/innhold/Vår historie.docx, og overskriftene følger nå starten av hvert avsnitt.
+   Den siste setningen står uten overskrift, som avslutning over navnene. «❤️» fra Word-overskriften er ikke med.
+   Runde 3 (Rikke): ny tekst (Word-fila 21:21), «Våren 2027 · Oslo», bildet med utsikt øverst og bildet fra stranda
+   bare på invitasjonen. Rettet i skissa: «morro» → «moro», «At det det var» → «At det var», komma og punktum i parentesen. */
+:root {
+  color-scheme: light;
+  --frame-bg: #DDDAD3; --frame-ink: #2B2620; --frame-muted: #4F473D;
+  --g: #5A6C48; --d: #344628; --k: #EBE4D5; --tx: #3B372F; --t: #F5EEDF;
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, serif; font-size: 18px; line-height: 1.55; }
+.intro { max-width: 760px; margin: 0 auto; padding: 36px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .5em; }
+.intro p { margin: 0 0 .8em; }
+.wrap { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 24px; padding: 8px 16px 48px; }
+.col { width: 382px; max-width: 100%; }
+.col h2.label { margin: 0 0 12px; font-weight: normal; font-size: 22px; text-align: center; }
+.phone { width: 382px; max-width: 100%; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { position: relative; width: 360px; max-width: 100%; border-radius: 29px; overflow: hidden; text-align: left; font-family: "EB Garamond", Georgia, serif; font-size: 20px; line-height: 1.5; color: var(--t); background-color: var(--g); background-image: var(--grain-green); background-blend-mode: overlay; }
+/* Menyen, med «Praktisk» som sida du er på */
+.nav { position: relative; z-index: 3; display: flex; align-items: center; gap: 8px; min-height: 64px; padding: 8px 12px 8px 16px; background: var(--g); box-shadow: 0 1px 0 rgba(245,238,223,.22); }
+.navwords { flex: 1 1 auto; display: flex; flex-wrap: wrap; gap: 0 12px; color: var(--t); font-size: 18px; line-height: 1.2; letter-spacing: .02em; }
+.navwords a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-decoration: none; }
+.navwords a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.navbtn { flex: none; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 64px; padding: 0 16px; border-radius: 4px; border: 1px solid var(--t); background: var(--d); color: var(--t); font-size: 19px; text-decoration: none; }
+.page { padding: 10px 16px 30px; }
+.back { display: inline-flex; align-items: center; min-height: 44px; color: var(--t); font-size: 20px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.page-h { margin: 14px 6px 0; padding-bottom: 12px; border-bottom: 1px solid rgba(245,238,223,.5); text-align: center; font-weight: normal; font-style: italic; font-size: 32px; line-height: 1.2; }
+h2.part { margin: 0 0 10px; padding-bottom: 8px; font-weight: normal; font-style: italic; font-size: 26px; line-height: 1.2; }
+.part-body p { margin: 0 0 10px; }
+.part-body ul { margin: 0 0 10px; padding-left: 22px; }
+.part-body li { margin: 0 0 2px; }
+.part-body a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.part-body .facts { margin: 0 0 10px; }
+.part-body .facts b { font-weight: 600; }
+.small-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; margin: 4px 0 6px; border: 1.5px solid currentColor; border-radius: 4px; color: inherit; text-decoration: none !important; font-size: 19px; line-height: 1.1; }
+.framed { position: relative; width: 220px; aspect-ratio: 932 / 901; margin: 6px auto 14px; }
+.framed img.photo { position: absolute; left: 5.2%; top: 5.3%; width: 89.6%; height: 89.4%; object-fit: cover; }
+.framed img.lace-frame { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 1px 1.5px rgba(10,14,6,.35)); }
+/* Om oss */
+.story { padding: 22px 22px 18px; margin-top: 20px; }
+.story .framed { margin: 4px auto 16px; }
+.story p { margin: 0 0 12px; }
+.story h3 { display: none; margin: 18px 0 4px; font-weight: normal; font-style: italic; font-size: 20px; line-height: 1.3; color: var(--tx); }
+.chapters .story h3 { display: block; }
+.chapters .story h3:first-of-type { margin-top: 2px; }
+.story .mid { display: none; }
+.chapters .story .mid { display: block; }
+.closing { margin: 18px 4px 0 !important; text-align: center; font-style: italic; }
+.sign { margin: 18px 0 2px !important; text-align: center; font-family: "Imperial Script", cursive; font-size: 40px; line-height: 1.1; }
+.bottom-back { text-align: center; padding-top: 14px; }
+/* A: hver del på et papirark (samme ark som toppfeltet og svarfeltet på forsida) */
+.sheet { position: relative; isolation: isolate; color: var(--tx); padding: 22px 22px 12px; margin-top: 20px; }
+.sheet::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 5px; background-color: var(--k); background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; filter: url(#edge-b3); }
+.sheet h2.part { border-bottom: 1px solid rgba(59,55,47,.35); }
+/* «Hopp til» */
+.toc1 ul { margin: 0; padding: 0; list-style: none; }
+.toc1 a { color: inherit; text-decoration: none; }
+section[id] { scroll-margin-top: 76px; }
+/* Kapitéler med prikker, rett på det grønne */
+.toc1 { margin: 10px 4px 0; color: var(--t); }
+.toc1 ul { display: flex; flex-wrap: wrap; justify-content: center; }
+.toc1 li { display: inline-flex; align-items: center; }
+.toc1 li + li::before { content: "·"; padding: 0 7px; opacity: .8; }
+.toc1 a { display: inline-flex; align-items: center; min-height: 40px; font-variant-caps: all-small-caps; letter-spacing: .08em; font-size: 19px; }
+.footer { background: var(--d); color: var(--t); padding: 22px 16px 26px; font-size: 20px; line-height: 1.4; text-align: center; }
+.footer p { margin: 0; }
+.footer a { color: inherit; text-underline-offset: 4px; display: flex; align-items: center; justify-content: center; min-height: 44px; }
+/* Skjermstreker */
+.mark { position: absolute; left: 0; right: 0; border-top: 3px dashed #2F2F2F; z-index: 5; pointer-events: none; }
+.mark span { position: absolute; right: 8px; top: 4px; padding: 1px 9px; border-radius: 3px; background: #2F2F2F; color: #FFF; font-family: Georgia, serif; font-size: 14px; line-height: 1.4; }
+.note { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; color: var(--frame-muted); }
+.note b { color: var(--frame-ink); }
+@media (max-width: 420px) {
+  .wrap { padding: 0 0 40px; }
+  .phone { width: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .screen { width: 100%; border-radius: 0; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <filter id="edge-b3" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="6" result="wave"/>
+    <feDisplacementMap in="SourceGraphic" in2="wave" scale="8" xChannelSelector="R" yChannelSelector="G" result="wob"/>
+    <feGaussianBlur in="wob" stdDeviation="1.8" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="3" seed="2" result="fn"/>
+    <feColorMatrix in="fn" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="fa"/>
+    <feComposite in="soft" in2="fa" operator="arithmetic" k1="0" k2="1" k3="0.7" k4="-0.35" result="mix"/>
+    <feComponentTransfer in="mix" result="mask"><feFuncA type="linear" slope="6" intercept="-2.4"/></feComponentTransfer>
+    <feComposite in="wob" in2="mask" operator="in" result="sheet"/>
+    <feGaussianBlur in="mask" stdDeviation="3.2" result="sb"/>
+    <feOffset in="sb" dy="2.5" result="so"/>
+    <feFlood flood-color="#141A0C" flood-opacity=".42"/>
+    <feComposite in2="so" operator="in" result="shadow"/>
+    <feMerge><feMergeNode in="shadow"/><feMergeNode in="sheet"/></feMerge>
+  </filter>
+</defs></svg>
+
+<div class="intro">
+  <h1>Om oss, runde 3</h1>
+  <p>Med den nye teksten din, «Våren 2027 · Oslo», og bildet med utsikt øverst. Bildet fra stranda er bare på invitasjonen, så sida har ett bilde.</p>
+  <p>Teksten er din egen, med tydelige skrivefeil rettet (listet nederst). De stiplede strekene viser hvor hver skjerm slutter på en vanlig mobil.</p>
+</div>
+
+<div class="wrap">
+<template id="content">
+  <nav class="nav" aria-label="Meny"><div class="navwords"><a href="#">Program</a><a href="#">Praktisk</a><a href="#" aria-current="page">Om oss</a></div><a class="navbtn" href="#">Svar</a></nav>
+  <div class="page">
+    <a class="back" href="#">← Tilbake til invitasjonen</a>
+    <h1 class="page-h">Om oss</h1>
+    <section class="sheet story">
+      <h2 class="part">Vår historie</h2>
+      <div class="part-body">
+        <div class="framed"><img class="photo" src="../../../ux/egne-bilder/13-Us2.jpg" alt="Rikke og Valdemar med utsikt."><img class="lace-frame" src="../mockups/blonde.png" alt=""></div>
+        <h3>Sensommeren 2021 · Trondheim</h3>
+        <p>Vi møttes sensommeren 2021, da Rikke flyttet til Trondheim for å begynne å studere, og Valdemar begynte sitt andre studieår. Begge hadde blitt valgt inn i Teknologiporten, et verv som jobber med å knytte studenter og næringslivet tettere sammen.</p>
+        <h3>2022 · Trondheim</h3>
+        <p>I starten av 2022 begynte vi å bli bedre kjent, og etter hvert utviklet det seg et godt vennskap. Vi ble begge valgt inn i styret i Teknologiporten og fant raskt tonen, ikke minst sammen med vår gode venn Einar. Vi tre ble en liten trio som tilbrakte stadig mer tid sammen. Høsten 2022 begynte vennskapet mellom oss to å utvikle seg til noe mer. Timingen var imidlertid ikke helt på vår side, og vi bestemte oss for å fortsette som venner.</p>
+        <h3>2023 · Trondheim</h3>
+        <p>Vennskapet vårt, og den lille trioen med Einar, holdt seg sterkt. 2023 fylte vi med mye fest, fyll og moro i Trondheim.</p>
+        <h3>Høsten 2024 · Firenze</h3>
+        <p>Høsten 2024 pakket trioen vår koffertene og flyttet sammen til Firenze for et år på utveksling. Her bodde vi i kollektiv med to andre nordmenn og fikk leve «la dolce vita» («det søte liv»).</p>
+        <h3>Starten av 2025 · Annecy</h3>
+        <p>Vi startet året 2025 med en roadtrip gjennom Europa sammen med Einar. På den aller siste kvelden av turen, i den idylliske franske byen Annecy, gikk vennskapet vårt over til litt mer enn vennskap. (At det var noe mer mellom oss enn bare vennskap, hadde ligget i luften lenge.)</p>
+        <h3>Våren 2025 · Italia</h3>
+        <p>Våren 2025 blomstret kjærligheten i Italia. Vi spiste utallige gode måltider, utforsket vakre italienske steder og nøt livet i Italia sammen. I begynnelsen av april gikk turen til Comosjøen. På den øverste balkongen i en nydelig villa, med utsikt over innsjøen og en vakker hage, spurte Valdemar om vi skulle bli kjærester.</p>
+        <h3>Høsten 2025 · Trondheim</h3>
+        <p>Høsten 2025 gikk turen tilbake til Trondheim for å fullføre studiene. Vi flyttet inn i en koselig liten leilighet ved Studentersamfundet, og hverdagen besto stort sett av skole, jobb, trening, god mat og hyggelige stunder med venner.</p>
+        <h3>Sommeren 2026 · Asia</h3>
+        <p>Tidlig sommer 2026 leverte vi masteroppgavene, pakket sekkene og satte kursen mot nye eventyr. De neste ni månedene tilbrakte vi på reise i Asia! Vi startet i Indonesia og fortsatte videre til Filippinene, Taiwan og Japan. Deretter ble det en liten avstikker til Singapore før turen gikk videre til Thailand. Julen feiret vi i Hongkong, og det nye året ønsket vi velkommen med reiser i Kina. Eventyret ble rundet av med to fantastiske måneder i Vietnam.</p>
+        <h3>Våren 2027 · Oslo</h3>
+        <p>Etter ni måneder med opplevelser, eventyr og utallige minner vendte vi til slutt hjem til Norge, denne gangen med Oslo som vår nye hjemby. Her startet et nytt kapittel med jobb og voksenliv. Valdemar begynte som Graduate Drilling and Wells Engineer i Aker BP, mens Rikke startet som [stilling] i Volve.</p>
+        <p class="closing">Nå gleder vi oss til å gifte oss, og ser virkelig frem til å feire kjærligheten og den store dagen sammen med dere!</p>
+        <p class="sign">Rikke &amp; Valdemar</p>
+      </div>
+    </section>
+
+    <div class="bottom-back"><a class="small-btn back-btn" href="#">Tilbake til invitasjonen</a></div>
+  </div>
+  <footer class="footer">
+    <p>Spørsmål? Send oss en melding:</p>
+    <a href="#">Rikke 900 00 000</a>
+    <a href="#">Valdemar 900 00 001</a>
+    <a href="#">Personvern</a>
+  </footer>
+</template>
+
+  <div class="col"><div class="phone"><div class="screen chapters" id="sa"></div></div></div>
+</div>
+
+<div class="note">
+  <p><b>Navnene nederst</b> står i samme skrift som navnene på invitasjonen. Det er den eneste andre plassen den skriften brukes.</p>
+  <p><b>Kapitteloverskriftene</b> er laget ut fra starten av hvert avsnitt i teksten din. Bytt dem gjerne.</p>
+  <p><b>«❤️»</b> fra overskriften i Word-fila er ikke med: på mobil blir den en fargerik emoji som bryter med papirstilen. <b>Rettet i skissa</b> (rett gjerne i Word-fila også): «morro» → «moro», og i parentesen om Annecy «At det det var» → «At det var», med komma før «hadde» og punktum til slutt. «[stilling]» står som plassholder.</p>
+</div>
+
+<script>
+// Fyller telefonen med innholdet, delt i kapitler.
+const tpl = document.getElementById('content');
+for (const [id, cls] of [['sa', 'sheet']]) {
+  const s = document.getElementById(id);
+  s.appendChild(tpl.content.cloneNode(true));
+  s.querySelectorAll('section.PART').forEach(el => { el.className = cls; });
+}
+// Tegner en strek for hver skjermhøyde (560 px), og skriver høyden på sida.
+window.addEventListener('load', () => setTimeout(() => {
+  for (const id of ['sa']) {
+    const s = document.getElementById(id); const h = s.scrollHeight;
+    for (let y = 560, n = 2; y < h; y += 560, n++) {
+      const m = document.createElement('div'); m.className = 'mark'; m.style.top = y + 'px';
+      m.innerHTML = '<span>Skjerm ' + n + ' starter her</span>'; m.setAttribute('aria-hidden', 'true'); s.appendChild(m);
+    }
+    s.setAttribute('data-height', h);
+  }
+  document.title = 'H ' + document.getElementById('sa').scrollHeight;
+}, 600));
+</script>
+</body>
+</html>
