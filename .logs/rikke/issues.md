@@ -29,4 +29,4 @@
 - [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 21–24 i inspirasjon.md (løst 2026-11-15: egne-bilder.md)
 - [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive den godkjente Programmet-sida inn i DESIGN.md, EXPERIENCE.md og PRD-en (FR-9: rebus, lunsj utenfor kirka med cider, drikke, «alt er frivillig»; programmet i addendumet) (løst 2026-11-15)
 - [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe «Om oss» (teksten ligger i ux/innhold/Vår historie.docx) (løst 2026-11-15)
-- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — fylle inn «[stilling]» i «Vår historie», og rette «morro» og «det det» i Word-fila
+- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — fylle inn «[stilling]» i «Vår historie», og rette «morro» og «det det» i Word-fila (skrivefeilene rettet av Rikke 2026-11-15; «[stilling]» gjenstår)
