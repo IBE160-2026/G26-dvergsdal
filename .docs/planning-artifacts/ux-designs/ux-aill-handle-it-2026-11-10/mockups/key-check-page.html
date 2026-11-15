@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>Sjekk før sending, runde 2</title>
+<!-- Unntak for denne lokale planleggingssida: skriftene lastes fra Google Fonts når sida vises.
+     Den ferdige gjestesida lagrer Imperial Script og EB Garamond selv (selvhostet, PRD 3.2). Begge er SIL Open Font License. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;display=swap">
+<style>
+/* ===== NØKKELSKJERM: SJEKKSIDA (G5) =====
+   Styrende avsnitt i ryggradene (spines) – sjekk mot disse:
+   EXPERIENCE.md
+     - Information Architecture › G5 («Not sent yet», alle svar, total, «Endre» per del, «Send svaret»)
+     - Component Patterns: Check-answers list («Endre» med skjult kontekst, «Ikke oppgitt»), Running total (lik på sjekkside og kvittering),
+       Notice (varsel, ikke live-region ved sidelasting), Primary button («Sender …» ved trykk), Secondary button, Focus ring, Footer band
+     - State Patterns: Not sent yet; Voice and Tone › mikrotekst («Svaret er ikke sendt ennå.», «Endre», «Ikke oppgitt», «Send svaret», «Obs:»)
+     - Key Flows › UJ-1 steg 6
+   DESIGN.md
+     - Components: Check-answers list, Notice (warning = sirkel med «!»), Running total, Primary/Secondary button, Footer band
+     - Colors: ink-muted bare for «Ikke oppgitt»; divider mellom radene; warning #765012
+   PRD: FR-21, FR-33
+   Ingen JS. Priser er eksempelpriser (hytte 1 200, fredagsmiddag 450, lørdags- og søndagsfrokost 150 kr per person).
+*/
+
+/* ---------- Felles grunnlag (samme tokens og tekstur som mockups/front-page-2.html) ---------- */
+:root {
+  color-scheme: light only;
+  --frame-bg: #DDDAD3; --frame-ink: #2B2620; --frame-muted: #4F473D;
+  --g: #5A6C48; --d: #344628; --dh: #2C3A20; --k: #EBE4D5; --tx: #3B372F; --mu: #5E594F; --t: #F5EEDF;
+  --field: #F7F2E7; --fb: #5E594F; --div: #C8BFAE;
+  --err: #7C3B1D; --ok: #3D5A2A; --warn: #765012;
+  --nav-h: 52px;
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.09 0 0 0 0.455  0.09 0 0 0 0.455  0.09 0 0 0 0.455  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55; overflow-wrap: break-word; }
+.intro { max-width: 760px; margin: 0 auto; padding: 40px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .6em; }
+.intro p { margin: 0 0 .8em; }
+.wide { max-width: 1640px; margin: 0 auto; padding: 8px 16px 48px; }
+.tex-green { background-image: var(--grain-green), var(--fibre-green); background-blend-mode: overlay, overlay; }
+.tex-sheet { background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.num { font-variant-numeric: lining-nums; }
+
+/* ---------- Telefonene (rammen er ikke en del av designet) ---------- */
+.mocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 382px), 1fr)); gap: 48px 20px; margin: 24px 0 0; align-items: start; }
+.mock { margin: 0; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+.stack { display: flex; flex-direction: column; align-items: center; gap: 28px; width: 100%; }
+.mock-head { width: 100%; max-width: 382px; margin: 0 0 14px; }
+.mock-head h2 { margin: 0; font-weight: normal; font-size: 1.75rem; line-height: 1.2; }
+.mock-head p { margin: 4px 0 0; color: var(--frame-muted); }
+.phone { width: 382px; max-width: 100%; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { position: relative; width: 360px; max-width: 100%; border-radius: 29px; overflow: hidden; font-family: "EB Garamond", Georgia, serif; font-size: 20px; line-height: 1.5; background-color: var(--g); color: var(--tx); text-align: left; }
+.page { padding: 16px 16px 20px; }
+.mock-note { width: 100%; max-width: 382px; margin: 16px 0 0; }
+.mock-note p { margin: 0 0 .6em; color: var(--frame-muted); }
+.mock-note b { color: var(--frame-ink); }
+footer.end { max-width: 760px; margin: 0 auto; padding: 0 16px 44px; color: var(--frame-muted); font-size: 16px; }
+footer.end p { margin: 0 0 .6em; }
+
+/* ---------- Merkelapper i skissa (ikke en del av designet) ---------- */
+.tag { display: inline-block; padding: 2px 10px; border-radius: 3px; background: #2F2F2F; color: #FFFFFF; font-family: Georgia, serif; font-size: 15px; line-height: 1.4; font-style: normal; font-weight: normal; text-align: left; }
+.forslag { background: #6B4E16; }
+.tagline { display: block; width: fit-content; margin: 6px 0 0; }
+.cutline { position: relative; border-top: 3px dashed #2F2F2F; }
+.cutline span { position: absolute; right: 10px; top: 6px; }
+
+/* ---------- Paneler og tekst ---------- */
+.card { background-color: var(--k); color: var(--tx); border-radius: 3px; }
+.card p { margin: 0; }
+.card + .card { margin-top: 16px; }
+.card a, .linkbtn { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.card a:hover, .linkbtn:hover { text-decoration-thickness: 2px; }
+.panel { padding: 20px 18px; }
+.panel h1 { margin: 0; font-weight: 400; font-size: 32px; line-height: 1.2; text-wrap: balance; }
+.panel h2 { margin: 0; font-weight: 400; font-size: 26px; line-height: 1.3; }
+.progress { margin: 6px 0 0 !important; }
+.lead { margin-top: 12px !important; }
+.linkbtn { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 6px; margin: 0 -6px; border: 0; background: none; font: inherit; cursor: pointer; }
+.linkbtn svg { width: 16px; height: 16px; flex: none; }
+
+/* ---------- Knapper ---------- */
+.btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 52px; padding: 10px 20px; border-radius: 4px; border: 2px solid transparent; background: var(--d); color: var(--t); font-family: inherit; font-size: 21px; line-height: 1.3; text-align: center; cursor: pointer; }
+.btn:hover { background: var(--dh); }
+.card a.btn { color: var(--t); text-decoration: none; }
+.btn2 { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; padding: 8px 18px; border-radius: 4px; border: 1.5px solid var(--d); background: var(--k); color: var(--d); font-family: inherit; font-size: 21px; line-height: 1.3; text-align: center; cursor: pointer; }
+.btn2:hover { border-width: 3px; padding: 6.5px 16.5px; }
+.card a.btn2 { color: var(--d); text-decoration: none; }
+.actions { display: grid; gap: 12px; margin-top: 24px; }
+
+/* ---------- Fokusring: 3 px, 3 px avstand, farge etter flaten den males på ---------- */
+:focus-visible, .is-focus { outline: 3px solid var(--d); outline-offset: 3px; }
+.on-green :focus-visible, .on-green .is-focus { outline-color: var(--t); }
+
+/* ---------- Skjemaelementer ---------- */
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.q { margin-top: 22px; }
+legend, .label { display: block; padding: 0; margin: 0 0 4px; font-size: 20px; font-weight: 600; line-height: 1.4; }
+.hint { margin: 0 0 6px !important; font-style: italic; color: var(--tx); }
+.choice { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 4px 0; cursor: pointer; }
+.choice input { flex: none; width: 26px; height: 26px; margin: 0; accent-color: var(--d); cursor: pointer; }
+.field { display: block; width: 100%; min-height: 44px; padding: 8px 10px; border: 2px solid var(--fb); border-radius: 3px; background: var(--field); color: var(--tx); font: inherit; }
+.field-err { border: 3px solid var(--err); }
+.ferr { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 6px !important; color: var(--err); }
+.ferr svg { flex: none; width: 22px; height: 22px; margin-top: 3px; }
+
+/* ---------- Varsel (notice): 4 px venstrestrek, ikonform + ord bærer tilstanden ---------- */
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; border-left: 4px solid currentColor; border-radius: 3px; }
+.notice svg { flex: none; width: 22px; height: 22px; margin-top: 4px; }
+.notice p { margin: 0; }
+.notice .nh { font-weight: 600; }
+.n-ok { color: var(--ok); } .n-warn { color: var(--warn); } .n-err { color: var(--err); } .n-info { color: var(--tx); }
+
+/* ---------- Totalsum ---------- */
+.total { margin-top: 20px !important; padding-top: 10px; border-top: 1px solid var(--div); text-align: right; font-variant-numeric: lining-nums tabular-nums; }
+.total b { font-weight: 600; }
+
+/* ---------- Bunnfeltet (på alle gjestesider, FR-6) ---------- */
+.foot { background-color: var(--d); color: var(--t); padding: 22px 16px 26px; font-size: 20px; text-align: center; }
+.foot p { margin: 0; }
+.foot a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; }
+.foot .ex { font-size: 18px; font-style: italic; }
+
+@media (max-width: 420px) {
+  .intro h1 { font-size: 1.7rem; }
+  .wide { padding-left: 0; padding-right: 0; }
+  .mock-head, .mock-note { padding: 0 16px; }
+  .phone { width: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .screen { width: 100%; border-radius: 0; }
+}
+@media (forced-colors: active) {
+  .btn, .btn2 { border-color: ButtonText; }
+}
+
+/* ---------- Bare for sjekksida ---------- */
+.notsent { margin-bottom: 18px; }
+.ca { margin: 18px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--div); }
+.ca > li { padding: 8px 0 12px; border-bottom: 1px solid var(--div); }
+.ca-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ca-h h2 { font-size: 20px; font-weight: 600; line-height: 1.4; }
+.ca-h a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; justify-content: flex-end; }
+.ca p { margin: 0 0 2px; font-variant-numeric: lining-nums; }
+.muted { color: var(--mu); }
+.ex { font-style: italic; }
+
+/* ---------- Runde 2 (2026-11-15): dagens stil ----------
+   Papirarket fra forsida og infosidene: farge, tekstur, myk kant og skygge ligger på et lag bak innholdet,
+   så teksten og fokusringene er skarpe. Den rolige grønne teksturen fra mockups/paper-ceremony-5.html.
+   Bunnfeltet uten «Spør oss» (fjernet 2026-11-15). */
+.tex-green { background-image: var(--grain-green); background-blend-mode: overlay; }
+.card { position: relative; isolation: isolate; background: none !important; border-radius: 0; }
+.card::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 5px; background-color: var(--k); background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; filter: url(#edge-b3); }
+.page { padding: 22px 16px 26px; }
+@media (forced-colors: active) { .card::before { filter: none; background: Canvas; border: 1px solid CanvasText; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+  <filter id="edge-b3" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="6" result="wave"/>
+    <feDisplacementMap in="SourceGraphic" in2="wave" scale="8" xChannelSelector="R" yChannelSelector="G" result="wob"/>
+    <feGaussianBlur in="wob" stdDeviation="1.8" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="3" seed="2" result="fn"/>
+    <feColorMatrix in="fn" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="fa"/>
+    <feComposite in="soft" in2="fa" operator="arithmetic" k1="0" k2="1" k3="0.7" k4="-0.35" result="mix"/>
+    <feComponentTransfer in="mix" result="mask"><feFuncA type="linear" slope="6" intercept="-2.4"/></feComponentTransfer>
+    <feComposite in="wob" in2="mask" operator="in" result="sheet"/>
+    <feGaussianBlur in="mask" stdDeviation="3.2" result="sb"/>
+    <feOffset in="sb" dy="2.5" result="so"/>
+    <feFlood flood-color="#141A0C" flood-opacity=".42"/>
+    <feComposite in2="so" operator="in" result="shadow"/>
+    <feMerge><feMergeNode in="shadow"/><feMergeNode in="sheet"/></feMerge>
+  </filter>
+</defs>
+  <symbol id="seal-shape" viewBox="0 0 100 100">
+    <path d="M97.3 50.0C97.6 51.4 97.5 52.8 97.4 54.1C97.2 55.5 96.9 56.9 96.4 58.2C96.0 59.5 95.5 60.8 94.8 62.0C94.1 63.2 93.2 64.3 92.4 65.4C91.5 66.5 90.4 67.4 89.7 68.5C89.0 69.6 88.4 70.7 88.0 71.9C87.5 73.2 87.5 74.6 87.0 75.9C86.5 77.2 86.0 78.5 85.2 79.5C84.3 80.5 83.0 81.2 81.8 81.8C80.6 82.4 79.1 82.8 77.9 83.3C76.7 83.8 75.6 84.4 74.5 85.0C73.4 85.6 72.4 86.4 71.3 86.9C70.2 87.5 69.1 88.0 67.9 88.5C66.8 89.0 65.6 89.3 64.5 89.7C63.3 90.2 62.2 90.8 61.1 91.3C59.9 91.8 58.8 92.4 57.5 92.8C56.3 93.2 55.1 93.4 53.8 93.7C52.6 93.9 51.3 94.1 50.0 94.5C48.7 94.9 47.4 95.5 46.0 96.1C44.6 96.6 43.0 97.5 41.6 97.7C40.1 98.0 38.6 97.9 37.3 97.4C36.0 96.9 34.8 95.7 33.7 94.7C32.7 93.6 31.8 92.2 30.8 91.2C29.8 90.1 28.9 89.1 28.0 88.2C27.0 87.2 26.0 86.4 25.1 85.5C24.2 84.7 23.3 83.7 22.4 82.9C21.5 82.0 20.6 81.2 19.6 80.4C18.6 79.6 17.5 78.9 16.5 78.1C15.6 77.2 14.7 76.3 14.0 75.2C13.4 74.1 13.1 72.8 12.7 71.6C12.3 70.3 12.1 69.1 11.5 67.9C11.0 66.8 10.2 65.8 9.5 64.8C8.7 63.7 7.7 62.7 7.1 61.5C6.6 60.3 6.2 59.0 6.1 57.7C5.9 56.5 6.2 55.1 6.2 53.8C6.3 52.5 6.4 51.3 6.3 50.0C6.2 48.7 5.8 47.4 5.6 46.1C5.4 44.8 5.1 43.4 4.9 42.1C4.8 40.7 4.8 39.3 4.8 37.9C4.8 36.5 4.8 35.0 5.0 33.6C5.2 32.2 5.4 30.7 6.1 29.5C6.7 28.3 7.8 27.2 9.0 26.3C10.2 25.5 12.0 25.0 13.4 24.4C14.8 23.8 16.3 23.4 17.5 22.7C18.6 22.0 19.4 21.2 20.3 20.3C21.2 19.4 21.8 18.4 22.7 17.5C23.6 16.7 24.7 16.0 25.7 15.3C26.7 14.6 27.9 14.2 28.9 13.5C30.0 12.9 31.0 12.2 32.0 11.4C33.1 10.7 34.0 9.8 35.1 9.2C36.2 8.5 37.4 7.9 38.6 7.4C39.8 6.9 41.0 6.5 42.2 6.0C43.5 5.4 44.7 4.8 46.0 4.4C47.3 4.0 48.7 3.5 50.0 3.4C51.3 3.4 52.7 3.8 54.0 4.3C55.3 4.7 56.5 5.7 57.7 6.2C59.0 6.7 60.1 7.2 61.4 7.4C62.7 7.6 64.1 7.3 65.5 7.3C66.9 7.3 68.5 7.2 69.8 7.5C71.1 7.8 72.4 8.5 73.6 9.2C74.7 9.9 75.7 11.0 76.6 12.0C77.6 13.0 78.5 14.0 79.2 15.2C80.0 16.3 80.6 17.6 81.1 18.9C81.6 20.2 81.9 21.7 82.3 22.9C82.7 24.1 83.1 25.3 83.7 26.4C84.4 27.4 85.3 28.2 86.1 29.2C86.9 30.1 87.9 31.0 88.6 32.0C89.2 33.1 89.6 34.3 90.0 35.4C90.4 36.6 90.5 37.9 91.0 39.0C91.5 40.2 92.1 41.3 92.9 42.4C93.6 43.6 94.8 44.8 95.5 46.0C96.3 47.3 97.0 48.6 97.3 50.0Z" fill="currentColor"/>
+    <circle cx="50.4" cy="49.6" r="33" fill="#000" fill-opacity=".10"/>
+    <circle cx="50.4" cy="49.6" r="34.6" fill="none" stroke="#000" stroke-opacity=".30" stroke-width="2.2"/>
+    <circle cx="49.6" cy="50.6" r="36.6" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="1.4"/>
+  </symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12.4l3.3 3.3L17.2 8.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6.4v7.2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.5" fill="currentColor"/></symbol>
+  <symbol id="i-err" viewBox="0 0 24 24"><path d="M12 2.6L22.4 20.8H1.6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v5.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="7.2" r="1.5" fill="currentColor"/><path d="M12 10.6v7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 16 16"><path d="M3 5.5l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="intro">
+  <h1>Sjekk før sending, runde 2</h1>
+  <p>Runde 2 (15. november): samme innhold som skissa fra 11. november, tegnet på nytt i dagens stil, med papirark og bunnfeltet uten «Spør oss».</p>
+  <p>Etter siste steg kommer Sigmund hit. Øverst står det tydelig at svaret ikke er sendt ennå. Under ser han alt han har svart, del for del, med «Endre» ved hver del, og totalen for husstanden. Svaret sendes først når han trykker «Send svaret».</p>
+  <p><span class="tag forslag">forslag</span> Overskriften «Se over svaret før du sender» og de fleste knappetekstene er forslag (se under telefonen). Prisene er eksempelpriser.</p>
+</div>
+
+<section class="wide" aria-label="Sjekksida på en telefon">
+  <div class="mocks">
+
+<figure class="mock" aria-labelledby="h-1">
+  <div class="mock-head"><h2 id="h-1">Sjekksida</h2><p>Sigmund og bestemor, hele helgen</p></div>
+  <div class="phone"><div class="screen tex-green">
+    <div class="page">
+      <form class="card panel tex-sheet" action="#" novalidate>
+        <div class="notice n-warn notsent">
+          <svg aria-hidden="true" focusable="false"><use href="#i-warn"/></svg>
+          <p><span class="nh">Obs:</span> Svaret er ikke sendt ennå.</p>
+        </div>
+        <h1>Se over svaret før du sender</h1>
+
+        <ul class="ca">
+          <li>
+            <div class="ca-h"><h2>Hvem kommer</h2><a href="#">Endre<span class="sr"> hvem som kommer</span></a></div>
+            <p>Sigmund: kommer</p>
+            <p>bestemor: kommer</p>
+          </li>
+          <li>
+            <div class="ca-h"><h2>Dager</h2><a href="#">Endre<span class="sr"> dager</span></a></div>
+            <p>Begge: hele helgen, fredag 26. til søndag 28.&nbsp;mai</p>
+          </li>
+          <li>
+            <div class="ca-h"><h2>Overnatting</h2><a href="#">Endre<span class="sr"> overnatting</span></a></div>
+            <p>Sigmund: hytte hele helgen, 1&nbsp;200&nbsp;kr</p>
+            <p>bestemor: hytte hele helgen, 1&nbsp;200&nbsp;kr</p>
+          </li>
+          <li>
+            <div class="ca-h"><h2>Måltider</h2><a href="#">Endre<span class="sr"> måltider</span></a></div>
+            <p>Sigmund: fredagsmiddag, lørdagsfrokost og søndagsfrokost, 750&nbsp;kr</p>
+            <p>bestemor: fredagsmiddag, lørdagsfrokost og søndagsfrokost, 750&nbsp;kr</p>
+          </li>
+          <li>
+            <div class="ca-h"><h2>Allergier og matbehov</h2><a href="#">Endre<span class="sr"> allergier og matbehov</span></a></div>
+            <p>Sigmund: ingen allergier eller matbehov</p>
+            <p>bestemor: laktose</p>
+            <p>Merknad om bestemor: <span class="muted">Ikke oppgitt</span></p>
+            <p>Samtykke: ja. Du har bekreftet at bestemor vet om det og er enig.</p>
+          </li>
+          <li>
+            <div class="ca-h"><h2>Fjelltur fredag</h2><a href="#">Endre<span class="sr"> fjelltur</span></a></div>
+            <p>Sigmund: kanskje</p>
+            <p>bestemor: nei</p>
+          </li>
+        </ul>
+
+        <p class="total">Totalt for husstanden: <b>3&nbsp;900&nbsp;kr</b> <span class="ex">(eksempelpris)</span></p>
+
+        <div class="actions">
+          <button type="submit" class="btn is-focus">Send svaret</button>
+          <a class="btn2" href="#">Tilbake</a>
+        </div>
+      </form>
+    </div>
+    <div class="foot on-green">
+      <p>Spørsmål? Send oss en melding:</p>
+      <p><a href="#">Rikke&nbsp;<span class="num">900&nbsp;00&nbsp;000</span></a></p>
+      <p><a href="#">Valdemar&nbsp;<span class="num">900&nbsp;00&nbsp;001</span></a></p>
+      <p class="ex">(eksempelnumre)</p>
+      <p><a href="#">Personvern</a></p>
+    </div>
+  </div></div>
+  <figcaption class="mock-note">
+    <p>Varselet øverst har ikon (sirkel med «!»), ordet «Obs:» og tekst, ikke bare farge. Hver del har sin egen «Endre». En skjermleser hører for eksempel «Endre måltider». Etter «Endre» og «Fortsett» kommer han tilbake hit. Merknaden han hoppet over, står som «Ikke oppgitt» i dempet grå. Totalen er nøyaktig den samme som på kvitteringen. Tastaturfokuset står på «Send svaret».</p>
+    <p><b>Forslag (ikke bestemt):</b> «Svaret er ikke sendt ennå.», «Obs:», overskriften, «Endre», «Ikke oppgitt», «Send svaret», «Tilbake» og navnene på delene.</p>
+  </figcaption>
+</figure>
+
+  </div>
+</section>
+
+<footer class="end">
+  <p>Når han trykker «Send svaret», står det «Sender …» på knappen til svaret er mottatt, og et nytt trykk gjør ingenting. Hvis noe går galt, kommer det en feilmelding som sier at ingenting er tapt, med «Prøv igjen» og telefonnumrene deres.</p>
+</footer>
+</body>
+</html>

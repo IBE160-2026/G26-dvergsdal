@@ -13,8 +13,8 @@ These come from the product brief and its addendum. The PRD carries only parts o
   - Palette: sage green, soft white and dark wood. Check that sage green on soft white meets the 4.5:1 text contrast in NFR-5.
   - Elegant but cosy, not overly fancy.
 - **Programme.**
-  - **Friday:** a daytime mountain hike for early arrivals. In the evening, a treasure hunt (rebus), then sauna and hot tub, and Friday dinner (paid).
-  - **Saturday:** breakfast (paid) and optional yoga, then the wedding. The couple hosts lunch and dinner.
+  - **Friday:** a daytime mountain hike for early arrivals. In the evening, Friday dinner (paid), then a rebus, then sauna, hot tub and mingling (order changed 2026-11-15).
+  - **Saturday:** optional yoga, then breakfast (paid), then the wedding in Strandebarm kirke and lunch outside the church, with cider from Hardanger (added 2026-11-15). The couple covers lunch and dinner, drinks with the meal and a little extra; there is no open bar (Rikke, 2026-11-15).
   - **Sunday:** breakfast (paid).
 - **Staying.** The cabins are on the farmyard and are booked for the whole weekend or not at all. Guests are encouraged to stay the whole weekend, but they can come without staying overnight, for example only for the wedding day.
 - **Gifts.** The gift page message from the brief: "we know the wedding may be expensive to attend and we don't expect gifts, but there is a wish list for anyone who wants one". It balances out asking guests to pay for meals and cabins.
@@ -28,20 +28,19 @@ Warm and "koselig" throughout, including error messages.
 - The animation is If time (PRD section 3.3). The static invitation look is required in v1 (FR-7) and has to work well on its own.
 - The guest first sees a green envelope sealed with a wax-style stamp reading "R & V".
 - The envelope opens and unfolds into an invitation, and the unfolded invitation **is** the website.
-- Once the invitation has unfolded, the envelope and the paper outline disappear. There are no folds and no sheet edges, only the content, in the same visual style as the invitation.
+- Once the invitation has unfolded, the envelope and the folds disappear. ~~There are no folds and no sheet edges, only the content, in the same visual style as the invitation.~~ *Changed 2026-11-14 after the UX work:* the unfolded invitation keeps a soft paper edge, and every content panel on the guest pages is a paper sheet with a soft, hand-made edge and a soft shadow. Reason: Rikke wanted the sheets to look like real paper, like the main sheet in inspiration 01, and the invitation to feel more solemn (UX memlog, 2026-11-11, *Sheet edge refined* and *Front page approved*). Still no folds, no backing sheets and no heart shape or lace.
 - The invitation says that Rikke and Valdemar are getting married on Saturday 27 May 2028 and that the named guests are invited (full content: FR-7).
 - The guest should feel invited to scroll down for more information.
 
 ### Front page structure (FR-7, FR-8; agreed 2026-11-07)
 
-1. **Top:** the invitation, with everything FR-7 lists visible without scrolling.
-2. **Below:** short cards (FR-8) with two or three lines each and "Read more":
+1. **Top:** the invitation, with everything FR-7 lists visible without scrolling, under a menu that stays visible and has a "Svar" button (changed 2026-11-11, see FR-7).
+2. **Below:** a short section (FR-8) with one entry per topic, each a picture, one line and "Read more" (changed 2026-11-15, see the PRD change log):
    - Programme
-   - Practical information
-   - Hardingasete and the area
-   - About us
+   - Practical information, which now also covers Hardingasete, the cabins, the area and the directions
+   - Our story (*Vår historie*; called About us until 2026-11-15)
    - Gifts (If time)
-3. **Bottom:** the RSVP button again.
+3. **After the section:** the RSVP panel with the child-free note, the deadline and the RSVP button; both "Svar" links lead here (changed 2026-11-11, see FR-7).
 
 ### Rikke's own wording for the receipt (FR-23; Norwegian original)
 
@@ -63,7 +62,6 @@ This table sets when each item in FR-56 leaves the list.
 |---|---|
 | Household not answered | The household answers, or the couple marks it as handled |
 | Guest with nothing registered for allergies | Allergies or "No allergies" are registered, or the couple marks it as handled |
-| Unanswered question | The couple marks it as answered |
 | "I have paid" report without a matching payment (marked red) | A matching amount is registered, or the couple marks it as handled |
 | Refund owed | The refund is registered |
 | Household marked "Changed" | The couple marks it as seen |
@@ -129,7 +127,12 @@ The resulting scope and changes are in PRD sections 3.4 and 9. This table keeps 
 | Change notices to guests by email or SMS | Out | The site would send messages itself, which the couple doesn't want. The couple sends a message if something important changes. |
 | Storing guest names only, without phone or email (Claude's data-minimisation proposal) | Rejected by Rikke | Contact details make follow-up easier for the couple, who are responsible for following up guests. The privacy page must explain what is stored and why. |
 | Asking a person to confirm allergies someone else entered for them, in their own link (AI GDPR review) | Not planned | The risk was accepted in C2, and FR-29 records who gave each consent. A possible improvement for 2027. |
-| Hiding questions and payments from helpers (AI GDPR review) | Rejected | The "Ask us" form tells guests that the helpers can read questions. |
+| Hiding questions and payments from helpers (AI GDPR review) | Rejected | The "Ask us" form told guests that the helpers can read questions. (The form itself was removed on 2026-11-15.) |
 | Importing the guest list from Excel | Not needed | The couple enters about 35 households by hand. |
 | Cabin and bed allocation on the site | Out | The couple does it outside the site. |
 | A bed limit in the form | Not needed | Hardingasete has far more beds than there are guests (Rikke, 2026-11-07). |
+| *Hardingasete and the area* as its own topic and page (Claude's recommendation in the UX work, to tempt guests to stay the whole weekend) | Rejected by Rikke, 2026-11-15 | Three topics are enough; the place, the cabins and the directions belong with the practical information. |
+| An "Ask us" question form on every guest page (brief, FR-43 to FR-45) | Removed by Rikke, 2026-11-15 | Guests call or message the couple, whose numbers are at the bottom of every guest page. |
+| A "Directions" button next to "Read more" on the front page (Claude's proposal from inspiration 09) | Rejected by Rikke, 2026-11-15 | The directions belong inside the *Practical information* page; the front page has only "Read more". |
+| Info-page parts as closed sheets that open one at a time (Rikke's own idea, rendered by Claude in the UX work) | Rejected by Rikke, 2026-11-15 | It did not look nice and cosy enough; a short row of jump links under the page title does the same job. |
+| Programme icons drawn by Claude as SVG code (Claude's trial in the UX work) | Rejected by Rikke, 2026-11-15 | Rikke made the icons herself in her image tool, so they match her other images. |

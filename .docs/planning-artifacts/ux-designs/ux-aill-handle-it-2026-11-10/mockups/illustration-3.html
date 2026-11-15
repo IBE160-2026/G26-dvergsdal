@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Illustrasjon – 15 eller 16 i toppfeltet</title>
+<!-- Unntak for denne lokale planleggingssida: skriftene lastes fra Google Fonts når sida vises.
+     Den ferdige gjestesida lagrer Imperial Script og EB Garamond selv (selvhostet, PRD 3.2). Begge er SIL Open Font License. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital@0;1&amp;display=swap">
+<style>
+/* ===== ILLUSTRASJON, RUNDE 2: 15 ELLER 16 I TOPPFELTET? =====
+   Endelig palett (bestemt): side #5A6C48 (G4a) · mørk grønn #344628 (knapp, segl, bunnbånd)
+   felt K1 #EBE4D5 · tekst i feltene T2 #3B372F (9,35:1) · kremtekst på grønt #F5EEDF (4,95:1 på side, 8,86:1 på mørk)
+   Skrift: navn og segl i Imperial Script, brødtekst i EB Garamond 20 px.
+   Bildene er referert der de ligger (ux/inspirasjon/), ikke kopiert. Ingen tekst ligger oppå bildene.
+   Rekkefølge i toppfeltet (ønske fra brudeparet): segl øverst, så tegningen, så navnene og resten.
+   15 har papirfarge ca. #EFE7D2 (målt i hjørnene), nesten lik K1. 16 har en vignett som går over i
+   ca. #F8F6E9 i kantene (målt). Begge er lysere enn K1 i alle tre kanaler, så mix-blend-mode: darken
+   gjør papiret/kanten til feltets egen farge, mens strekene og akvarellen står igjen.
+   Ingen animasjon, ingen JS. Ramme rundt telefonene er ikke en del av designet.
+*/
+:root {
+  color-scheme: light;
+  --frame-bg: #DDDAD3; --frame-panel: #E8E5DE; --frame-ink: #2B2620; --frame-muted: #4F473D; --frame-line: #A39C8E;
+  --g: #5A6C48; --d: #344628; --k: #EBE4D5; --tx: #3B372F; --t: #F5EEDF;
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.09 0 0 0 0.455  0.09 0 0 0 0.455  0.09 0 0 0 0.455  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55; overflow-wrap: break-word; }
+code { font-family: Consolas, "Courier New", monospace; font-size: 16px; }
+.intro { max-width: 900px; margin: 0 auto; padding: 40px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .6em; }
+.intro p { margin: 0 0 .8em; }
+.note { font-size: 16px; color: var(--frame-muted); }
+.wide { max-width: 1680px; margin: 0 auto; padding: 8px 16px; }
+.tex-green { background-image: var(--grain-green), var(--fibre-green); background-blend-mode: overlay, overlay; }
+.tex-sheet { background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; }
+
+/* ---------- Telefonene ---------- */
+.mocks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 48px 20px; margin: 24px auto 0; max-width: 840px; }
+.mock { margin: 0; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+@supports (grid-template-rows: subgrid) {
+  .mocks > .mock { display: grid; grid-template-rows: subgrid; grid-row: span 3; row-gap: 0; justify-items: center; align-items: start; }
+}
+.mock-head { width: 100%; max-width: 380px; margin: 0 0 14px; }
+.mock-head h2 { margin: 0; font-weight: normal; font-size: 1.75rem; line-height: 1.2; }
+.mock-head h2 b { margin-right: .25em; }
+.phone { width: 100%; max-width: 380px; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { border-radius: 29px; overflow: hidden; text-align: center; font-family: "EB Garamond", Georgia, serif; font-size: 20px; line-height: 1.5; background-color: var(--g); padding: 22px 16px 18px; }
+.card { background-color: var(--k); color: var(--tx); border-radius: 3px; }
+.card p { margin: 0; }
+.hero { padding: 30px 18px 28px; }
+.seal { position: relative; width: 96px; height: 96px; margin: -6px auto 14px; transform: rotate(-5deg); }
+.seal svg { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--d); filter: drop-shadow(0 1.5px 1.2px rgba(15,18,10,.42)); }
+.seal span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--t); font-family: "Imperial Script", cursive; font-size: 32px; line-height: 1; padding-top: 4px; }
+.card .names { font-family: "Imperial Script", cursive; font-size: 46px; line-height: 1.2; margin-bottom: 2px; }
+.invites { font-style: italic; font-size: 21px; }
+.card .when { margin-top: 18px; font-size: 24px; line-height: 1.35; }
+.card .where { margin-top: 2px; }
+.card .guest { margin-top: 18px; }
+.card .deadline { margin: 14px 0 22px; }
+.ex { font-style: italic; }
+.names, .when, .where, .guest, .deadline, .info-h, .info-t, .lead-in { text-wrap: balance; }
+.btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 52px; padding: 10px 20px; border-radius: 4px; background: var(--d); color: var(--t); font-size: 21px; line-height: 1.3; }
+.lead-in { margin: 0; padding: 26px 10px 24px; color: var(--t); font-style: italic; font-size: 23px; line-height: 1.4; }
+.info { margin: 0; padding: 22px 20px 14px; }
+.card .info-h { margin-bottom: 6px; font-size: 26px; line-height: 1.3; }
+.more { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; margin-top: 4px; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+
+
+/* ---------- Illustrasjonene ---------- */
+.ill { display: block; width: 100%; height: auto; }
+/* 15 og 16 rett på kremfeltet, som trykk på papir. darken (ikke multiply): kantene i begge bildene er
+   lysere enn #EBE4D5 i alle kanaler, så darken gir nøyaktig feltets farge der; multiply ville gjort hele
+   bildet og kanten ca. 3–8 % mørkere og latt en svak rute synes. */
+.paper-ill { mix-blend-mode: darken; }
+.hero .paper-ill { margin: 0 0 14px; }
+
+/* ---------- Under telefonene ---------- */
+.mock-note { width: 100%; max-width: 380px; margin: 16px 0 0; }
+.mock-note p { margin: 0; color: var(--frame-muted); }
+.mock-note b { color: var(--frame-ink); }
+
+footer.end { max-width: 900px; margin: 0 auto; padding: 36px 16px 44px; color: var(--frame-muted); font-size: 16px; }
+footer.end p { margin: 0 0 .6em; }
+@media (max-width: 600px) { .intro h1 { font-size: 1.7rem; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="seal-shape" viewBox="0 0 100 100">
+    <path d="M97.3 50.0C97.6 51.4 97.5 52.8 97.4 54.1C97.2 55.5 96.9 56.9 96.4 58.2C96.0 59.5 95.5 60.8 94.8 62.0C94.1 63.2 93.2 64.3 92.4 65.4C91.5 66.5 90.4 67.4 89.7 68.5C89.0 69.6 88.4 70.7 88.0 71.9C87.5 73.2 87.5 74.6 87.0 75.9C86.5 77.2 86.0 78.5 85.2 79.5C84.3 80.5 83.0 81.2 81.8 81.8C80.6 82.4 79.1 82.8 77.9 83.3C76.7 83.8 75.6 84.4 74.5 85.0C73.4 85.6 72.4 86.4 71.3 86.9C70.2 87.5 69.1 88.0 67.9 88.5C66.8 89.0 65.6 89.3 64.5 89.7C63.3 90.2 62.2 90.8 61.1 91.3C59.9 91.8 58.8 92.4 57.5 92.8C56.3 93.2 55.1 93.4 53.8 93.7C52.6 93.9 51.3 94.1 50.0 94.5C48.7 94.9 47.4 95.5 46.0 96.1C44.6 96.6 43.0 97.5 41.6 97.7C40.1 98.0 38.6 97.9 37.3 97.4C36.0 96.9 34.8 95.7 33.7 94.7C32.7 93.6 31.8 92.2 30.8 91.2C29.8 90.1 28.9 89.1 28.0 88.2C27.0 87.2 26.0 86.4 25.1 85.5C24.2 84.7 23.3 83.7 22.4 82.9C21.5 82.0 20.6 81.2 19.6 80.4C18.6 79.6 17.5 78.9 16.5 78.1C15.6 77.2 14.7 76.3 14.0 75.2C13.4 74.1 13.1 72.8 12.7 71.6C12.3 70.3 12.1 69.1 11.5 67.9C11.0 66.8 10.2 65.8 9.5 64.8C8.7 63.7 7.7 62.7 7.1 61.5C6.6 60.3 6.2 59.0 6.1 57.7C5.9 56.5 6.2 55.1 6.2 53.8C6.3 52.5 6.4 51.3 6.3 50.0C6.2 48.7 5.8 47.4 5.6 46.1C5.4 44.8 5.1 43.4 4.9 42.1C4.8 40.7 4.8 39.3 4.8 37.9C4.8 36.5 4.8 35.0 5.0 33.6C5.2 32.2 5.4 30.7 6.1 29.5C6.7 28.3 7.8 27.2 9.0 26.3C10.2 25.5 12.0 25.0 13.4 24.4C14.8 23.8 16.3 23.4 17.5 22.7C18.6 22.0 19.4 21.2 20.3 20.3C21.2 19.4 21.8 18.4 22.7 17.5C23.6 16.7 24.7 16.0 25.7 15.3C26.7 14.6 27.9 14.2 28.9 13.5C30.0 12.9 31.0 12.2 32.0 11.4C33.1 10.7 34.0 9.8 35.1 9.2C36.2 8.5 37.4 7.9 38.6 7.4C39.8 6.9 41.0 6.5 42.2 6.0C43.5 5.4 44.7 4.8 46.0 4.4C47.3 4.0 48.7 3.5 50.0 3.4C51.3 3.4 52.7 3.8 54.0 4.3C55.3 4.7 56.5 5.7 57.7 6.2C59.0 6.7 60.1 7.2 61.4 7.4C62.7 7.6 64.1 7.3 65.5 7.3C66.9 7.3 68.5 7.2 69.8 7.5C71.1 7.8 72.4 8.5 73.6 9.2C74.7 9.9 75.7 11.0 76.6 12.0C77.6 13.0 78.5 14.0 79.2 15.2C80.0 16.3 80.6 17.6 81.1 18.9C81.6 20.2 81.9 21.7 82.3 22.9C82.7 24.1 83.1 25.3 83.7 26.4C84.4 27.4 85.3 28.2 86.1 29.2C86.9 30.1 87.9 31.0 88.6 32.0C89.2 33.1 89.6 34.3 90.0 35.4C90.4 36.6 90.5 37.9 91.0 39.0C91.5 40.2 92.1 41.3 92.9 42.4C93.6 43.6 94.8 44.8 95.5 46.0C96.3 47.3 97.0 48.6 97.3 50.0Z" fill="currentColor"/>
+    <circle cx="50.4" cy="49.6" r="33" fill="#000" fill-opacity=".10"/>
+    <circle cx="50.4" cy="49.6" r="34.6" fill="none" stroke="#000" stroke-opacity=".30" stroke-width="2.2"/>
+    <circle cx="49.6" cy="50.6" r="36.6" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="1.4"/>
+  </symbol>
+</svg>
+
+<div class="intro">
+  <h1>Illustrasjon – 15, 16, 17 eller 18 i toppfeltet</h1>
+  <p>Her er forsida med seglet øverst og tegningen rett under, før navnene. Den eneste forskjellen på de fire telefonene er tegningen. Svar gjerne med koden: «I5», «I6», «I7» eller «I8».</p>
+  <p class="note">Skriftene lastes fra Google Fonts bare på denne planleggingssida. Den ferdige invitasjonen lagrer skriftene selv, slik at gjestene ikke sender data til andre selskaper.</p>
+</div>
+
+<section class="wide" aria-label="Fire forslag til tegning i toppfeltet">
+  <div class="mocks">
+
+<!-- I5 -->
+<figure class="mock" aria-labelledby="h-i5">
+  <div class="mock-head"><h2 id="h-i5"><b>I5</b>15 – grønn strektegning</h2></div>
+  <div class="phone"><div class="screen tex-green">
+    <div class="card hero tex-sheet">
+      <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      <img class="ill paper-ill" src="../../../ux/egne-bilder/02-Illustration.jpg" alt="Tegning av tunet på Hardingasete i grønn strek på kremfarget papir: det store trehuset med veranda og et lite uthus mellom høye furutrær og løvtrær.">
+      <p class="names">Rikke &amp; Valdemar</p>
+      <p class="invites">inviterer deg til bryllup</p>
+      <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+      <p class="where">Hardingasete i&nbsp;Hardanger</p>
+      <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+      <p>Barnefritt bryllup</p>
+      <p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p>
+      <span class="btn">Svar på invitasjonen</span>
+    </div>
+    <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+    <div class="card info tex-sheet"><p class="info-h">Hardingasete og området</p><p class="info-t">Gamle trehus ved fjorden i&nbsp;Hardanger.</p><span class="more">Les mer</span></div>
+  </div></div>
+  <figcaption class="mock-note"><p><b>I5:</b> Som I3, men med seglet øverst. Den grønne streken står i samme farge som seglet og knappen og ser trykt ut på invitasjonen; tegningen er detaljrik, så de fineste strekene blir tynne på liten skjerm.</p></figcaption>
+</figure>
+
+<!-- I6 -->
+<figure class="mock" aria-labelledby="h-i6">
+  <div class="mock-head"><h2 id="h-i6"><b>I6</b>16 – myk akvarell</h2></div>
+  <div class="phone"><div class="screen tex-green">
+    <div class="card hero tex-sheet">
+      <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      <img class="ill paper-ill" src="../../../ux/egne-bilder/03-Illustration.jpg" alt="Akvarell av tunet på Hardingasete i dempede grønne og brune farger: et lite tømmerhus med klokketårn og det store trehuset med veranda mellom høye furutrær, med lysslynger over tunet og en benk ved grusveien.">
+      <p class="names">Rikke &amp; Valdemar</p>
+      <p class="invites">inviterer deg til bryllup</p>
+      <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+      <p class="where">Hardingasete i&nbsp;Hardanger</p>
+      <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+      <p>Barnefritt bryllup</p>
+      <p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p>
+      <span class="btn">Svar på invitasjonen</span>
+    </div>
+    <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+    <div class="card info tex-sheet"><p class="info-h">Hardingasete og området</p><p class="info-t">Gamle trehus ved fjorden i&nbsp;Hardanger.</p><span class="more">Les mer</span></div>
+  </div></div>
+  <figcaption class="mock-note"><p><b>I6:</b> Mykere og varmere enn 15, og vignetten gjør at bildet glir over i feltet uten synlig kant. Akvarellen har litt flere farger enn olivenpaletten, men de er dempede nok til at seglet og navnene fortsatt står tydeligst.</p></figcaption>
+</figure>
+
+<!-- I7 -->
+<figure class="mock" aria-labelledby="h-i7">
+  <div class="mock-head"><h2 id="h-i7"><b>I7</b>17 – lys, kjølig akvarell</h2></div>
+  <div class="phone"><div class="screen tex-green">
+    <div class="card hero tex-sheet">
+      <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      <img class="ill paper-ill" src="../../../ux/egne-bilder/04-Illustration.jpg" alt="Lys akvarell av tunet på Hardingasete i dempede salvie- og grå toner: et lite tømmerhus med klokketårn og det store trehuset med veranda mellom høye furutrær, med lysslynger og en benk ved grusveien.">
+      <p class="names">Rikke &amp; Valdemar</p>
+      <p class="invites">inviterer deg til bryllup</p>
+      <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+      <p class="where">Hardingasete i&nbsp;Hardanger</p>
+      <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+      <p>Barnefritt bryllup</p>
+      <p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p>
+      <span class="btn">Svar på invitasjonen</span>
+    </div>
+    <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+    <div class="card info tex-sheet"><p class="info-h">Hardingasete og området</p><p class="info-t">Gamle trehus ved fjorden i&nbsp;Hardanger.</p><span class="more">Les mer</span></div>
+  </div></div>
+  <figcaption class="mock-note"><p><b>I7:</b> Samme motiv som 16, men lysere og kjøligere, med mer salvie og mindre gult og brunt. Bakgrunnen er nesten hvit, så kanten smelter inn i kremfeltet.</p></figcaption>
+</figure>
+
+<!-- I8 -->
+<figure class="mock" aria-labelledby="h-i8">
+  <div class="mock-head"><h2 id="h-i8"><b>I8</b>18 – lett, grønn strektegning</h2></div>
+  <div class="phone"><div class="screen tex-green">
+    <div class="card hero tex-sheet">
+      <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+      <img class="ill paper-ill" src="../../../ux/egne-bilder/05-Illustration.jpg" alt="Tegning i grønn strek av tunet på Hardingasete: et lite tømmerhus med klokketårn og det store trehuset med veranda og steintrapp, mellom høye trær.">
+      <p class="names">Rikke &amp; Valdemar</p>
+      <p class="invites">inviterer deg til bryllup</p>
+      <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+      <p class="where">Hardingasete i&nbsp;Hardanger</p>
+      <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+      <p>Barnefritt bryllup</p>
+      <p class="deadline">Svar innen fredag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59 <span class="ex">(eksempeldato)</span></p>
+      <span class="btn">Svar på invitasjonen</span>
+    </div>
+    <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+    <div class="card info tex-sheet"><p class="info-h">Hardingasete og området</p><p class="info-t">Gamle trehus ved fjorden i&nbsp;Hardanger.</p><span class="more">Les mer</span></div>
+  </div></div>
+  <figcaption class="mock-note"><p><b>I8:</b> Strektegning som 15, men lettere og luftigere, med mer luft mellom strekene. Grønnfargen ligger nær seglet og knappen.</p></figcaption>
+</figure>
+
+  </div>
+</section>
+
+<footer class="end">
+  <p>Begge tegningene er laget med KI og vises der de ligger i <code>ux/inspirasjon/</code>, ikke kopiert.</p>
+  <p>Begge er blandet inn i kremfeltet med CSS <code>mix-blend-mode: darken</code>. Papiret i 15 (målt til ca. <code>#EFE7D2</code>) og den lyse vignettkanten i 16 (målt til ca. <code>#F8F6E9</code>) er lysere enn feltet, så de får feltets farge <code>#EBE4D5</code>, mens strekene og akvarellen står igjen. <code>multiply</code> ble vurdert for 16, men den gjør hele bildet litt mørkere og lar en svak kant synes. Ingen tekst ligger oppå bildene, og hvert bilde har alternativ tekst på norsk.</p>
+</footer>
+</body>
+</html>

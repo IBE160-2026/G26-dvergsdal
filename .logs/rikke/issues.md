@@ -13,8 +13,20 @@
 - [x] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — oppdatere pre-prd-discovery.md: krysse av «Start bmad-prd», merke D12/D13 som avklart, D6/D7 erstattet, Q1 besvart for kapasitet og Q9 avgjort (løst 2026-11-08)
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre faglærer om samtykkemodellen er i orden (Q8)
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre to eller tre gjester hvordan det oppleves å betale for mat (Q7)
-- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` og `bmad-architecture` (avgjøre D12, D14, D15), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten
+- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` (ferdig 2026-11-15) og `bmad-architecture` (avgjøre D12, D14, D15), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten
 - [x] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — samle inspirasjon til UX (bilder hun liker og ikke liker, stemningsord, en typisk gjest) før `/bmad-ux` (løst 2026-11-10)
 - [ ] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — vurdere skillen Impeccable når frontend-koden starter
 - [ ] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — avklare kilder og tillatelser for stedsbildene som skal brukes på nettsida
-- [ ] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — velge illustrasjonsstil: KI-illustrasjonen (14) eller enkle grønne strektegninger
+- [x] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — velge illustrasjonsstil: KI-illustrasjonen (14) eller enkle grønne strektegninger (løst 2026-11-11: illustrasjon 17)
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — gå gjennom resterende småendringer i UX, kjøre struktur- og språkgjennomgang, sette DESIGN.md og EXPERIENCE.md til final og lage PR for docs/ux (løst 2026-11-15: status final; PR lages etter push)
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: tekstur på det grønne, kantene på kremfeltene, og forsida under toppfeltet (løst 2026-11-11: kanter og tekstur bestemt; delen under toppfeltet er flyttet til eget punkt)
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare brudeparets åpne spørsmål i EXPERIENCE.md (navn i vanlig tekst, 320 px-mobiler, hvordan hjelpere ser at de bare kan lese, «barnefritt» etter svar) (løst 2026-11-15)
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare om allergier oppgitt uten samtykke (FR-28) skal ha egen markering i admin (løst 2026-11-15: nei, ordlyden «Ingen allergiopplysninger lagret»)
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — føre den godkjente forsida (paper-ceremony-5) inn i DESIGN.md og EXPERIENCE.md, flytte skissa til mockups/ og oppdatere PRD-tillegget om arkkanter med begrunnelse (løst 2026-11-14)
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: delen av forsida under toppfeltet (løst 2026-11-15: «Alt om helgen», hele forsida godkjent)
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 17–20 i inspirasjon.md (løst 2026-11-15: bildene er flyttet til egne-bilder/ og beskrevet i egne-bilder.md)
+- [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe infosidene (Programmet, Praktisk informasjon, Om oss) med plassholdere, én om gangen, og start med Praktisk informasjon (løst 2026-11-15 for Praktisk informasjon og Programmet; Om oss videreført under)
+- [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 21–24 i inspirasjon.md (løst 2026-11-15: egne-bilder.md)
+- [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive den godkjente Programmet-sida inn i DESIGN.md, EXPERIENCE.md og PRD-en (FR-9: rebus, lunsj utenfor kirka med cider, drikke, «alt er frivillig»; programmet i addendumet) (løst 2026-11-15)
+- [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe «Om oss» (teksten ligger i ux/innhold/Vår historie.docx) (løst 2026-11-15)
+- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — fylle inn «[stilling]» i «Vår historie», og rette «morro» og «det det» i Word-fila (skrivefeilene rettet av Rikke 2026-11-15; «[stilling]» gjenstår)

@@ -99,3 +99,12 @@ Bruke på nettsida? kanskje
 Viser: Hardanger hvor vi skal gifte oss
 Farger og stemning: Koselig
 Bruke på nettsida? kanskje
+
+## 18-Kirka.jpg
+Viser: Strandebarm kirke, der vielsen er.
+Farger og stemning: 
+Bruke på nettsida? ja (øverst på arket «Vielsen» på Praktisk informasjon)
+
+---
+
+Brukt i skissene nå (2026-11-15): 01 og 03 på forsida, 03, 12 og 18 på Praktisk informasjon. Teksten under 18 er skrevet av Claude; ret gjerne.

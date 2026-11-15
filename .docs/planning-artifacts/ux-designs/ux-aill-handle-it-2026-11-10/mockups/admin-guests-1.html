@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light only">
+<title>Gjester i admin, runde 1</title>
+<!-- Unntak for denne lokale planleggingssida: skriften lastes fra Google Fonts når sida vises.
+     Den ferdige sida lagrer EB Garamond selv (selvhostet, PRD 3.2). SIL Open Font License. Admin bruker ikke Imperial Script. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;display=swap">
+<style>
+/* ===== GJESTER I ADMIN (A4 + A6), RUNDE 1 (2026-11-15) =====
+   Rikke ba om skisse av «Alle svar» og gjestelista (mock coverage). Forslag: A4 og A6 slått sammen til én side under
+   «Gjester», med en egen side per husstand. Bygger på mockups/admin-rework-1.html (samme admin-meny, paneler, statusmerker).
+   EXPERIENCE.md: A4, A6, Overview table, Status tag, Text field (search), Admin protection tiers (nivå 3), Dialog, Copy.
+   PRD: FR-49, FR-51, FR-57, FR-63. Ingen JS. Navn, numre og tall er oppdiktet. */
+:root {
+  color-scheme: light only;
+  --frame-bg: #DDDAD3; --frame-ink: #2B2620; --frame-muted: #4F473D;
+  --g: #5A6C48; --d: #344628; --dh: #2C3A20; --k: #EBE4D5; --tx: #3B372F; --mu: #5E594F; --t: #F5EEDF;
+  --div: #C8BFAE;
+  --err: #7C3B1D; --ok: #3D5A2A;
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.09 0 0 0 0.455  0.09 0 0 0 0.455  0.09 0 0 0 0.455  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55; overflow-wrap: break-word; }
+.intro { max-width: 760px; margin: 0 auto; padding: 40px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .6em; }
+.intro p { margin: 0 0 .8em; }
+.wide { max-width: 1640px; margin: 0 auto; padding: 8px 16px 48px; }
+.tex-green { background-image: var(--grain-green), var(--fibre-green); background-blend-mode: overlay, overlay; }
+.tex-sheet { background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.num { font-variant-numeric: lining-nums; }
+
+/* ---------- Telefonene (rammen er ikke en del av designet) ---------- */
+.mocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 382px), 382px)); justify-content: center; gap: 48px 40px; margin: 24px 0 0; align-items: start; }
+.mock { margin: 0; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+.mock-head { width: 100%; max-width: 382px; margin: 0 0 14px; }
+.mock-head h2 { margin: 0; font-weight: normal; font-size: 1.75rem; line-height: 1.2; }
+.mock-head p { margin: 4px 0 0; color: var(--frame-muted); }
+.mock-head .tag { vertical-align: middle; }
+.phone { width: 382px; max-width: 100%; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { position: relative; width: 360px; max-width: 100%; border-radius: 29px; overflow: hidden; font-family: "EB Garamond", Georgia, serif; background-color: var(--g); color: var(--tx); text-align: left; }
+.mock-note { width: 100%; max-width: 382px; margin: 16px 0 0; }
+.mock-note p { margin: 0; color: var(--frame-muted); }
+footer.end { max-width: 760px; margin: 0 auto; padding: 0 16px 44px; color: var(--frame-muted); font-size: 16px; }
+footer.end h2 { margin: 0 0 .4em; font-weight: normal; font-size: 1.3rem; color: var(--frame-ink); }
+footer.end p, footer.end ul { margin: 0 0 .8em; }
+footer.end ul { padding-left: 1.2em; }
+footer.end b { color: var(--frame-ink); }
+
+/* ---------- Merkelapper i skissa (ikke en del av designet) ---------- */
+.tag { display: inline-block; padding: 2px 10px; border-radius: 3px; background: #2F2F2F; color: #FFFFFF; font-family: Georgia, serif; font-size: 15px; line-height: 1.4; font-style: normal; font-weight: normal; }
+.forslag { background: #6B4E16; }
+.cutline { position: relative; margin: 14px 0 8px; height: 34px; border-top: 3px dashed var(--t); }
+.cutline span { position: absolute; right: 0; top: 6px; }
+
+/* ---------- Paneler, lenker, knapper ---------- */
+.card { background-color: var(--k); color: var(--tx); border-radius: 3px; }
+.card p { margin: 0; }
+.card a, .linkbtn { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.card a:hover { text-decoration-thickness: 2px; }
+.btn2 { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 6px 14px; border-radius: 4px; border: 1.5px solid var(--d); background: var(--k); color: var(--d); font-family: inherit; font-size: 18px; line-height: 1.3; cursor: pointer; }
+.btn2:hover { border-width: 3px; padding: 4.5px 12.5px; }
+
+/* ---------- Fokusring ---------- */
+:focus-visible { outline: 3px solid var(--d); outline-offset: 3px; }
+.on-green :focus-visible { outline-color: var(--t); }
+
+@media (max-width: 420px) {
+  .intro h1 { font-size: 1.7rem; }
+  .wide { padding-left: 0; padding-right: 0; }
+  .mock-head, .mock-note { padding: 0 16px; }
+  .phone { width: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .screen { width: 100%; border-radius: 0; }
+}
+@media (forced-colors: active) {
+  .btn2 { border-color: ButtonText; }
+}
+
+/* ---------- Admin: samme tokens, tettere, uten pynt ---------- */
+.admin { font-size: 18px; line-height: 1.4; }
+.admin .page { padding: 4px 16px 20px; }
+.anav { display: flex; flex-wrap: wrap; gap: 0 11px; margin: 0; padding: 4px 14px; list-style: none; color: var(--t); font-size: 18px; line-height: 1.2; }
+.anav li { display: flex; }
+.anav a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.anav a[aria-current="page"] { text-decoration-thickness: 2px; }
+.apanel { padding: 12px; }
+.apanel + .apanel { margin-top: 8px; }
+.apanel h2 { margin: 0 0 4px; font-size: 22px; font-weight: 600; line-height: 1.25; }
+.page > .apanel:first-of-type { margin-top: 6px; }
+/* Oppfølgingspanelet skiller seg ut med en mørkegrønn kant øverst (pynt, ikke betydning; overskriften bærer innholdet) */
+.attpanel { border-top: 5px solid var(--d); }
+
+/* Tallrader: etikett til venstre, tall (lenke) til høyre, minst 44 px høye */
+.rows { margin: 0; padding: 0; list-style: none; }
+.rows li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 12px; min-height: 44px; border-top: 1px solid var(--div); font-variant-numeric: lining-nums tabular-nums; }
+.rows li:first-child { border-top: 0; }
+.rows .c { text-align: right; }
+.rows a, .rows .zero { display: inline-flex; align-items: center; justify-content: flex-end; min-height: 44px; min-width: 44px; padding: 0 2px; }
+.rows .lead-row > span:first-child { font-weight: 600; }
+.rows li.sub { padding-left: 18px; border-top-style: dotted; }
+.rows li.minor { color: var(--mu); }
+.ptext { margin-top: 4px !important; font-style: italic; color: var(--mu); }
+
+/* Oppfølgingspunkter: grunn, husstand, én handling */
+.att { margin: 0; padding: 0; list-style: none; }
+.att > li { padding: 10px 0; border-top: 1px solid var(--div); }
+.att > li:first-child { border-top: 0; padding-top: 4px; }
+.att p { margin: 0 0 2px; font-variant-numeric: lining-nums; }
+.att .why { font-weight: 600; }
+.att .btn2 { margin-top: 8px; }
+.stag { display: inline-flex; align-items: center; gap: 6px; margin: 2px 0 4px; padding: 1px 8px; border: 1.5px solid currentColor; border-radius: 3px; font-size: 18px; line-height: 1.4; }
+.stag svg { width: 20px; height: 20px; flex: none; }
+.s-err { color: var(--err); }
+.more { border-top: 1px solid var(--div); }
+.more a { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* Svarfremdrift: teksten bærer tallet, streken er bare en hjelp for øyet (aria-hidden) */
+.prog-text { font-size: 20px; font-weight: 600; font-variant-numeric: lining-nums; }
+.bar { height: 12px; margin: 6px 0 8px; border: 1px solid var(--mu); border-radius: 3px; background: var(--t); overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--d); }
+@media (forced-colors: active) { .bar span { background: CanvasText; } }
+
+/* Tomtilstand: rolig, ikon + ord */
+.okline { display: flex; align-items: center; gap: 10px; margin: 0 !important; color: var(--ok); }
+.okline svg { width: 26px; height: 26px; flex: none; }
+
+/* ---------- Gjester (A4 + A6) ---------- */
+.ah1 { margin: 6px 2px 0; color: var(--t); font-weight: normal; font-size: 28px; line-height: 1.2; }
+.sub-h { margin: 0 2px 10px; color: var(--t); font-variant-numeric: lining-nums; }
+.back { margin: 0; } .back a { display: inline-flex; align-items: center; min-height: 44px; color: var(--t); text-underline-offset: 4px; }
+.back a::before { content: "‹"; margin-right: 6px; text-decoration: none; display: inline-block; }
+.flabel { display: block; margin: 0 0 4px; font-weight: 600; font-size: 18px; }
+.field { display: block; width: 100%; min-height: 44px; padding: 8px 10px; border: 2px solid var(--mu); border-radius: 3px; background: #F7F2E7; color: var(--tx); font: inherit; }
+.wide-btn { display: flex; width: 100%; margin-top: 10px; }
+.hh { margin: 0; padding: 0; list-style: none; }
+.hh > li { padding: 8px 0 10px; border-top: 1px solid var(--div); }
+.hh > li:first-child { border-top: 0; padding-top: 0; }
+.hh-name { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; font-size: 19px; }
+.hh p { margin: 0; font-variant-numeric: lining-nums; }
+.hh .stag { display: flex; width: fit-content; margin: 0 0 4px; }
+.more { padding-top: 8px; font-style: italic; color: var(--mu); }
+.s-warn { color: #765012; } .s-ok { color: var(--ok); } .s-info { color: var(--tx); }
+.meta { margin: 0 0 6px !important; font-style: italic; font-variant-numeric: lining-nums; }
+.person { padding: 8px 0; border-top: 1px solid var(--div); }
+.person h3 { margin: 0 0 2px; font-size: 19px; font-weight: 600; }
+.person p { margin: 0; font-variant-numeric: lining-nums; }
+.person a { display: inline-flex; align-items: center; min-height: 44px; }
+.muted { color: var(--mu); font-style: italic; }
+.apanel .stag { margin: 6px 0 2px; }
+.apanel > p a { display: inline-flex; align-items: center; min-height: 44px; }
+.links { margin: 0; padding: 0; list-style: none; }
+.links li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 6px 0; border-top: 1px solid var(--div); }
+.links li:first-child { border-top: 0; }
+.links li > span:first-child { min-width: 86px; font-weight: 600; }
+.copied { display: inline-flex; align-items: center; gap: 6px; color: var(--ok); }
+.copied svg { width: 20px; height: 20px; }
+.btn-del { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 44px; margin-top: 28px; padding: 6px 14px; border-radius: 4px; border: 1.5px solid var(--err); background: transparent; color: var(--err); font-family: inherit; font-size: 18px; cursor: pointer; }
+/* Dialog over en dempet side */
+.dim .page { min-height: 760px; }
+.scrim { position: absolute; inset: 0; background: rgba(20,26,12,.6); z-index: 4; }
+.dialog { position: absolute; left: 14px; right: 14px; top: 150px; z-index: 5; padding: 16px 14px; }
+.dialog h2 { margin: 0 0 8px; font-size: 22px; font-weight: 600; line-height: 1.25; }
+.dialog p { margin: 0 0 12px !important; }
+.dialog .btn-del { margin-top: 24px; }
+.is-focus { outline: 3px solid var(--d); outline-offset: 3px; }
+/* Admin-sida er flat grønn uten tekstur (DESIGN › Layout › Admin, 2026-11-15) */
+.screen.admin { background-image: none; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 12.4l3.3 3.3L17.2 8.8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-err" viewBox="0 0 24 24"><path d="M12 2.6L22.4 20.8H1.6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v5.6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.6" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6.4v7.2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="17.3" r="1.5" fill="currentColor"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="7.2" r="1.5" fill="currentColor"/><path d="M12 10.6v7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+</svg>
+
+<div class="intro">
+  <h1>Gjester i admin, runde 1</h1>
+  <p>Dokumentene har i dag to sider under menypunktet «Gjester»: «Alle svar» (hva hver husstand har svart) og gjestelista (søke, legge til, endre, fjerne og kopiere lenker). Her er de slått sammen til én side, slik at det bare finnes ett sted å lete.</p>
+  <p>Til venstre lista over alle husstander. De som ikke har svart, står først. Trykker du på en husstand, kommer du til husstandens egen side i midten, med svarene til hver person, betalingen og lenkene. Til høyre ser du hva som skjer hvis du vil fjerne en husstand: du må skrive et ord for å bekrefte, fordi det ikke kan angres.</p>
+  <p><span class="tag">eksempeltall</span> <span class="tag forslag">forslag</span> Navn, numre og tall er oppdiktet. Tekstene er forslag.</p>
+</div>
+
+<section class="wide" aria-label="Gjestesida, en husstand og fjerning">
+  <div class="mocks">
+
+<!-- 1: Lista -->
+<figure class="mock" aria-labelledby="h-1">
+  <div class="mock-head"><h2 id="h-1">1. Alle husstander</h2><p>Fra «Gjester» i menyen, eller «Se hva alle har svart» på oversikten</p></div>
+  <div class="phone"><div class="screen tex-green admin">
+    <nav class="on-green" aria-label="Admin"><ul class="anav">
+      <li><a href="#">Oversikt</a></li><li><a href="#" aria-current="page">Gjester</a></li><li><a href="#">Betalinger</a></li><li><a href="#">Innstillinger</a></li><li><a href="#">Logg ut</a></li>
+    </ul></nav>
+    <div class="page">
+      <h1 class="ah1">Gjester</h1>
+      <p class="sub-h"><span class="num">30</span> husstander · <span class="num">70</span> gjester</p>
+
+      <section class="card apanel tex-sheet" aria-label="Søk og legg til">
+        <label class="flabel" for="g-search">Finn en gjest</label>
+        <input class="field" id="g-search" type="search" placeholder="">
+        <button type="button" class="btn2 wide-btn">Legg til husstand</button>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="g-list">
+        <h2 id="g-list" class="sr">Husstander</h2>
+        <ul class="hh">
+          <li>
+            <a class="hh-name" href="#">Bjørn, Kari og Ida Haugland</a>
+            <span class="stag s-warn"><svg aria-hidden="true" focusable="false"><use href="#i-warn"/></svg>Ikke svart</span>
+            <p>Lenken sendt 2. september.</p>
+          </li>
+          <li>
+            <a class="hh-name" href="#">Synne</a>
+            <span class="stag s-err"><svg aria-hidden="true" focusable="false"><use href="#i-err"/></svg>Stemmer ikke</span>
+            <p>Kommer hele helgen. <span class="num">900&nbsp;kr</span>, meldt betalt <span class="num">900&nbsp;kr</span>, mottatt <span class="num">600&nbsp;kr</span>.</p>
+          </li>
+          <li>
+            <a class="hh-name" href="#">Sigmund og bestemor</a>
+            <span class="stag s-info"><svg aria-hidden="true" focusable="false"><use href="#i-info"/></svg>Endret</span>
+            <p>Begge kommer hele helgen. <span class="num">3&nbsp;900&nbsp;kr</span>, betalt.</p>
+          </li>
+          <li>
+            <a class="hh-name" href="#">Arild, Marie, Filippa og Leone</a>
+            <p>Tre kommer lørdag–søndag, Leone kommer ikke. <span class="num">2&nbsp;400&nbsp;kr</span>, ikke betalt.</p>
+          </li>
+          <li>
+            <a class="hh-name" href="#">Jon og Tone</a>
+            <p>Kommer ikke.</p>
+          </li>
+        </ul>
+        <p class="more">… og <span class="num">25</span> husstander til, i samme rekkefølge: ikke svart, så det som trenger oppfølging, så resten etter navn.</p>
+      </section>
+    </div>
+  </div></div>
+  <figcaption class="mock-note">
+    <p>Én linje per husstand sier det viktigste: hvem som kommer, totalen og betalingen. Merkene «Ikke svart», «Stemmer ikke» og «Endret» har ikon og ord. Søket finner både husstander og enkeltpersoner.</p>
+  </figcaption>
+</figure>
+
+<!-- 2: Én husstand -->
+<figure class="mock" aria-labelledby="h-2">
+  <div class="mock-head"><h2 id="h-2">2. Én husstand</h2><p>Etter trykk på «Sigmund og bestemor»</p></div>
+  <div class="phone"><div class="screen tex-green admin">
+    <nav class="on-green" aria-label="Admin"><ul class="anav">
+      <li><a href="#">Oversikt</a></li><li><a href="#" aria-current="page">Gjester</a></li><li><a href="#">Betalinger</a></li><li><a href="#">Innstillinger</a></li><li><a href="#">Logg ut</a></li>
+    </ul></nav>
+    <div class="page">
+      <p class="back on-green"><a href="#">Alle gjester</a></p>
+      <h1 class="ah1">Sigmund og bestemor</h1>
+
+      <section class="card apanel tex-sheet" aria-labelledby="h-svar">
+        <h2 id="h-svar">Svar</h2>
+        <p class="meta">Sendt av Sigmund 12.&nbsp;oktober kl.&nbsp;<span class="num">14:31</span>. Endret 3.&nbsp;november.</p>
+        <div class="person">
+          <h3>Sigmund</h3>
+          <p>Kommer hele helgen. Hytte.</p>
+          <p>Fredagsmiddag, lørdagsfrokost, søndagsfrokost.</p>
+          <p>Ingen allergier eller matbehov. Fjelltur: kanskje.</p>
+          <p><a href="#">Ring&nbsp;<span class="num">900&nbsp;00&nbsp;002</span></a></p>
+        </div>
+        <div class="person">
+          <h3>bestemor</h3>
+          <p>Kommer hele helgen. Hytte.</p>
+          <p>Fredagsmiddag, lørdagsfrokost, søndagsfrokost.</p>
+          <p>Allergi: laktose (samtykke gitt). Fjelltur: nei.</p>
+          <p class="muted">Ingen telefon lagret.</p>
+        </div>
+        <button type="button" class="btn2 wide-btn">Endre svaret</button>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="h-bet">
+        <h2 id="h-bet">Betaling</h2>
+        <p>Totalt <span class="num">3&nbsp;900&nbsp;kr</span>.</p>
+        <span class="stag s-ok"><svg aria-hidden="true" focusable="false"><use href="#i-ok"/></svg>Betalt</span>
+        <p><a href="#">Se betalingene</a></p>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="h-lenker">
+        <h2 id="h-lenker">Lenker</h2>
+        <ul class="links">
+          <li><span>Sigmund</span><button type="button" class="btn2">Kopier lenke<span class="sr"> til Sigmund</span></button><span class="copied"><svg aria-hidden="true" focusable="false"><use href="#i-ok"/></svg>Kopiert</span></li>
+          <li><span>bestemor</span><button type="button" class="btn2">Kopier lenke<span class="sr"> til bestemor</span></button></li>
+        </ul>
+      </section>
+
+      <section class="card apanel tex-sheet" aria-labelledby="h-hus">
+        <h2 id="h-hus">Husstanden</h2>
+        <button type="button" class="btn2 wide-btn">Endre navn og kontaktinfo</button>
+        <button type="button" class="btn-del">Fjern husstanden</button>
+      </section>
+    </div>
+  </div></div>
+  <figcaption class="mock-note">
+    <p>Alt om én husstand på ett sted: hva hver person har svart, telefonnummer å trykke på, betalingen og lenkene. Rikke har nettopp kopiert Sigmunds lenke. «Fjern husstanden» står helt nederst, langt fra de andre knappene, i rustfarget omriss.</p>
+  </figcaption>
+</figure>
+
+<!-- 3: Fjerne -->
+<figure class="mock" aria-labelledby="h-3">
+  <div class="mock-head"><h2 id="h-3">3. Fjerne en husstand</h2><p>Etter trykk på «Fjern husstanden»</p></div>
+  <div class="phone"><div class="screen tex-green admin dim">
+    <nav class="on-green" aria-label="Admin"><ul class="anav">
+      <li><a href="#">Oversikt</a></li><li><a href="#" aria-current="page">Gjester</a></li><li><a href="#">Betalinger</a></li><li><a href="#">Innstillinger</a></li><li><a href="#">Logg ut</a></li>
+    </ul></nav>
+    <div class="page">
+      <p class="back on-green"><a href="#">Alle gjester</a></p>
+      <h1 class="ah1">Sigmund og bestemor</h1>
+      <section class="card apanel tex-sheet"><h2>Svar</h2><p class="meta">Sendt av Sigmund 12.&nbsp;oktober.</p></section>
+    </div>
+    <div class="scrim" aria-hidden="true"></div>
+    <div class="card dialog tex-sheet" role="alertdialog" aria-labelledby="d-h" aria-describedby="d-what">
+      <h2 id="d-h" tabindex="-1" class="is-focus">Fjerne Sigmund og bestemor?</h2>
+      <p id="d-what">Navnene, svarene, allergiopplysningene og betalingene deres slettes, og lenkene deres slutter å virke. Dette kan ikke angres.</p>
+      <label class="flabel" for="d-word">Skriv FJERN for å bekrefte</label>
+      <input class="field" id="d-word" type="text" value="fjern" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <div class="dlg-actions">
+        <button type="button" class="btn2 wide-btn">Avbryt</button>
+        <button type="button" class="btn-del">Fjern husstanden</button>
+      </div>
+    </div>
+  </div></div>
+  <figcaption class="mock-note">
+    <p>Dialogen sier med vanlige ord hva som forsvinner. Ordet må skrives inn, men store og små bokstaver spiller ingen rolle, så «fjern» holder. Skriver hun feil, står det en feilmelding under feltet. «Avbryt» står først, og «Fjern husstanden» står for seg selv.</p>
+  </figcaption>
+</figure>
+
+  </div>
+</section>
+
+<footer class="end">
+  <h2>Hjelperne</h2>
+  <p>Toastmaster og forlovere ser de samme sidene, med linja «Du kan se alt, men ikke endre noe.» øverst, men uten knappene. De ser heller ikke lenkene (PRD FR-51).</p>
+  <h2>Tekster som er forslag</h2>
+  <p>«Finn en gjest», «Legg til husstand», «Alle gjester», «Endre svaret», «Se betalingene», «Kopier lenke», «Kopiert», «Endre navn og kontaktinfo», «Fjern husstanden», «Fjerne … ?», «Skriv FJERN for å bekrefte», «Avbryt», og linja i lista per husstand.</p>
+</footer>
+</body>
+</html>

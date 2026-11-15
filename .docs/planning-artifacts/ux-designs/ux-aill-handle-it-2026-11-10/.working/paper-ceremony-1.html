@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Papir, høytid og blomster</title>
+<!-- Unntak for denne lokale planleggingssida: skriftene lastes fra Google Fonts når sida vises.
+     Den ferdige gjestesida lagrer Imperial Script og EB Garamond selv (selvhostet, PRD 3.2). Begge er SIL Open Font License. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital@0;1&amp;display=swap">
+<style>
+/* ===== PAPIR, HØYTID OG BLOMSTER – RUNDE 1 =====
+   Rikkes ønsker (2026-11-11): (1) kremfeltene skal se ut som ark, som hovedarket i 01-Vibe;
+   (2) noe gir hyttefølelse – det skal være litt mer høytidelig; (3) diskré blomster/blader
+   (brudeslør, Märtha-lilje, blomstene i 02-Vibe), ikke som i 05-Vibe.
+   Fire telefoner, der hver bygger videre på den forrige. Hver skjerm er 360 px bred.
+   Den stiplede streken ligger 560 px under toppen (slutten av første skjerm).
+*/
+:root {
+  color-scheme: light;
+  --frame-bg: #DDDAD3; --frame-ink: #2B2620; --frame-muted: #4F473D;
+  --g: #5A6C48; --d: #344628; --k: #EBE4D5; --tx: #3B372F; --t: #F5EEDF;
+  --fold: 560px; --nav-h: 52px;
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.09 0 0 0 0.455  0.09 0 0 0 0.455  0.09 0 0 0 0.455  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, "Times New Roman", serif; font-size: 18px; line-height: 1.55; overflow-wrap: break-word; }
+.intro { max-width: 760px; margin: 0 auto; padding: 40px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .6em; }
+.intro p { margin: 0 0 .8em; }
+.wide { max-width: 1640px; margin: 0 auto; padding: 8px 16px 48px; }
+.tex-green { background-image: var(--grain-green), var(--fibre-green); background-blend-mode: overlay, overlay; }
+.tex-green-calm { background-image: var(--grain-green); background-blend-mode: overlay; }
+.tex-sheet { background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; }
+
+/* ---------- Telefonene ---------- */
+.mocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 382px), 1fr)); gap: 48px 20px; margin: 24px 0 0; align-items: start; }
+.mock { margin: 0; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+.mock-head { width: 100%; max-width: 382px; margin: 0 0 14px; }
+.mock-head h2 { margin: 0; font-weight: normal; font-size: 1.6rem; line-height: 1.2; }
+.mock-head .num { display: inline-block; min-width: 1.6em; padding: 0 .35em; margin-right: .3em; border-radius: 3px; background: #2F2F2F; color: #fff; text-align: center; }
+.phone { width: 382px; max-width: 100%; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { position: relative; width: 360px; max-width: 100%; height: 720px; border-radius: 29px; overflow: hidden; text-align: center; font-family: "EB Garamond", Georgia, serif; font-size: 20px; line-height: 1.5; background-color: var(--g); }
+.page { padding: 10px 16px 18px; }
+
+/* ---------- Meny ---------- */
+.stickynav { position: relative; z-index: 3; display: flex; align-items: center; gap: 8px; min-height: var(--nav-h); padding: 4px 10px 4px 14px; background-color: var(--g); box-shadow: 0 2px 6px rgba(20,24,14,.28); }
+.navwords { flex: 1 1 auto; display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 0 11px; color: var(--t); font-size: 18px; line-height: 1.2; }
+.navwords a { display: inline-flex; align-items: center; min-height: 44px; color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.navbtn { flex: none; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 64px; padding: 0 16px; border-radius: 4px; border: 1px solid var(--t); background: var(--d); color: var(--t); font-size: 19px; line-height: 1; text-decoration: none; }
+
+/* ---------- Kremfelt (slik det er nå) ---------- */
+.card { position: relative; background-color: var(--k); color: var(--tx); border-radius: 3px; }
+.card p { margin: 0; }
+.hero { padding: 14px 18px 18px; }
+.seal { position: relative; width: 68px; height: 68px; margin: -4px auto 6px; transform: rotate(-5deg); }
+.seal svg { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--d); filter: drop-shadow(0 1.5px 1.2px rgba(15,18,10,.42)); }
+.seal span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--t); font-family: "Imperial Script", cursive; font-size: 23px; line-height: 1; padding-top: 3px; }
+.card .names { font-family: "Imperial Script", cursive; font-size: 46px; line-height: 1.15; }
+.invites { font-style: italic; font-size: 21px; line-height: 1.3; }
+.card .when { margin-top: 8px; font-size: 24px; line-height: 1.3; }
+.card .guest { margin-top: 8px; }
+.card .deadline { margin: 8px 0 0; line-height: 1.35; }
+.card a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.names, .when, .where, .guest, .deadline, .info-h, .info-t, .lead-in { text-wrap: balance; }
+.lead-in { margin: 0; padding: 22px 10px 20px; color: var(--t); font-style: italic; font-size: 23px; line-height: 1.4; }
+.info { margin: 0 0 16px; padding: 20px 20px 12px; }
+.card .info-h { margin-bottom: 6px; font-size: 26px; line-height: 1.3; }
+.more { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; margin-top: 4px; }
+.ill { display: block; height: auto; mix-blend-mode: darken; }
+.hero .ill { width: calc(100% + 36px); max-width: none; height: 150px; object-fit: cover; object-position: 50% 58%; margin: 0 -18px 8px; }
+
+/* ---------- 2: Ark som i 01 ----------
+   Arkfargen og teksturen ligger i et eget lag bak teksten (::before). Bare det laget får det
+   ujevne «håndlagde» kanten og en svak skygge, så teksten forblir skarp. */
+.paper { background: none; isolation: isolate; border-radius: 0; }
+.paper::before { content: ""; position: absolute; inset: 0; z-index: -1; background-color: var(--k); background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; box-shadow: inset 0 0 0 2px rgba(255,252,244,.55), inset 0 0 0 5px rgba(255,252,244,.18); filter: url(#deckle); }
+.paper.alt::before { filter: url(#deckle-b); }
+
+/* ---------- 3: Mer høytidelig ---------- */
+.formal .stickynav { box-shadow: 0 1px 0 rgba(245,238,223,.22); }
+.formal .navwords { gap: 0 12px; letter-spacing: .02em; }
+.formal .navwords a { text-decoration: none; }
+.formal .navwords a[aria-current] { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+.formal .page { padding-top: 38px; }
+.formal .hero { padding: 38px 22px 20px; }
+.formal .hero .seal { position: absolute; left: 50%; top: -30px; width: 62px; height: 62px; margin: 0 0 0 -31px; transform: rotate(-4deg); z-index: 2; }
+.formal .hero .seal span { font-size: 21px; }
+.formal .hero .ill { width: 270px; height: 124px; margin: 0 auto 6px; object-fit: cover; object-position: 50% 55%;
+  -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 62%, transparent 100%); }
+.formal .names { font-size: 48px; }
+.formal .invites { font-size: 20px; margin-top: 2px; }
+.rule { display: block; width: 150px; height: 12px; margin: 10px auto 8px; color: #6E7A5E; }
+.caps { font-variant-caps: all-small-caps; letter-spacing: .14em; }
+.formal .when { margin-top: 0; font-size: 23px; line-height: 1.3; }
+.formal .where { font-size: 20px; line-height: 1.3; }
+.formal .guest { margin-top: 10px; font-style: italic; }
+.formal .guest b { font-style: normal; font-weight: normal; }
+.formal .deadline { margin-top: 4px; }
+.formal .lead-in { font-family: "Imperial Script", cursive; font-style: normal; font-size: 34px; line-height: 1.2; padding: 26px 10px 22px; }
+.formal .info { padding: 24px 22px 14px; }
+.formal .info-h { font-variant-caps: all-small-caps; letter-spacing: .12em; font-size: 26px; }
+
+/* ---------- 4: Blomster (skisse) ---------- */
+.sprigs { position: absolute; left: 50%; top: -6px; width: 280px; height: 70px; margin-left: -140px; z-index: 1; color: #4E5E3F; pointer-events: none; }
+.sprigs svg { position: absolute; top: 0; width: 112px; height: 60px; }
+.sprigs .l { left: 0; transform: scaleX(-1) rotate(20deg); }
+.sprigs .r { right: 0; transform: rotate(20deg); }
+.corner-sprig { position: absolute; right: 8px; bottom: 6px; width: 74px; height: 40px; color: #4E5E3F; opacity: .9; transform: rotate(-24deg); }
+.flower-rule { display: block; width: 170px; height: 22px; margin: 6px auto 4px; color: #4E5E3F; }
+
+/* ---------- Merkelapper og skjermkant (ikke en del av designet) ---------- */
+.tag { display: inline-block; padding: 2px 10px; border-radius: 3px; background: #6B4E16; color: #FFFFFF; font-family: Georgia, serif; font-size: 15px; line-height: 1.4; font-style: normal; text-align: left; }
+.ptag { position: absolute; z-index: 6; }
+.fold { position: absolute; left: 0; right: 0; top: var(--fold); border-top: 3px dashed #2F2F2F; z-index: 5; }
+.fold span { position: absolute; right: 10px; top: 6px; padding: 2px 10px; border-radius: 3px; background: #2F2F2F; color: #FFFFFF; font-family: Georgia, serif; font-size: 15px; line-height: 1.4; }
+.veil { position: absolute; left: 0; right: 0; bottom: 0; top: var(--fold); background: rgba(232,232,232,.62); z-index: 4; }
+.mock-note { width: 100%; max-width: 382px; margin: 16px 0 0; }
+.mock-note p { margin: 0 0 .6em; color: var(--frame-muted); }
+.mock-note b { color: var(--frame-ink); }
+.mock-note ul { margin: 0 0 .6em; padding-left: 1.2em; color: var(--frame-muted); }
+.mock-note li { margin: 0 0 .3em; }
+.edges { max-width: 1240px; margin: 0 auto; padding: 0 16px 40px; }
+.edges h2 { font-weight: normal; font-size: 1.6rem; margin: 0 0 .5em; }
+.edge-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 20px; }
+.edge-box { background-color: var(--g); padding: 28px; border-radius: 6px; }
+.edge-box .card { padding: 28px 18px; font-family: "EB Garamond", Georgia, serif; font-size: 20px; text-align: center; }
+.edge-box p.cap { margin: 10px 0 0; color: var(--frame-muted); }
+footer.end { max-width: 760px; margin: 0 auto; padding: 0 16px 44px; color: var(--frame-muted); font-size: 16px; }
+footer.end p { margin: 0 0 .6em; }
+
+@media (max-width: 420px) {
+  .intro h1 { font-size: 1.7rem; }
+  .wide { padding-left: 0; padding-right: 0; }
+  .mock-head, .mock-note { padding: 0 16px; }
+  .phone { width: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .screen { width: 100%; border-radius: 0; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- Ujevn papirkant: små, tette ujevnheter (som håndlaget papir i 01) og en svak skygge under arket -->
+    <filter id="deckle" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feDropShadow in="d" dx="0" dy="2" stdDeviation="2" flood-color="#18200F" flood-opacity=".38"/>
+    </filter>
+    <!-- Variant B: grovere, mer «revet» kant -->
+    <filter id="deckle-b" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.07 0.09" numOctaves="4" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="11" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feDropShadow in="d" dx="0" dy="2.5" stdDeviation="2.4" flood-color="#18200F" flood-opacity=".40"/>
+    </filter>
+  </defs>
+  <symbol id="seal-shape" viewBox="0 0 100 100">
+    <path d="M97.3 50.0C97.6 51.4 97.5 52.8 97.4 54.1C97.2 55.5 96.9 56.9 96.4 58.2C96.0 59.5 95.5 60.8 94.8 62.0C94.1 63.2 93.2 64.3 92.4 65.4C91.5 66.5 90.4 67.4 89.7 68.5C89.0 69.6 88.4 70.7 88.0 71.9C87.5 73.2 87.5 74.6 87.0 75.9C86.5 77.2 86.0 78.5 85.2 79.5C84.3 80.5 83.0 81.2 81.8 81.8C80.6 82.4 79.1 82.8 77.9 83.3C76.7 83.8 75.6 84.4 74.5 85.0C73.4 85.6 72.4 86.4 71.3 86.9C70.2 87.5 69.1 88.0 67.9 88.5C66.8 89.0 65.6 89.3 64.5 89.7C63.3 90.2 62.2 90.8 61.1 91.3C59.9 91.8 58.8 92.4 57.5 92.8C56.3 93.2 55.1 93.4 53.8 93.7C52.6 93.9 51.3 94.1 50.0 94.5C48.7 94.9 47.4 95.5 46.0 96.1C44.6 96.6 43.0 97.5 41.6 97.7C40.1 98.0 38.6 97.9 37.3 97.4C36.0 96.9 34.8 95.7 33.7 94.7C32.7 93.6 31.8 92.2 30.8 91.2C29.8 90.1 28.9 89.1 28.0 88.2C27.0 87.2 26.0 86.4 25.1 85.5C24.2 84.7 23.3 83.7 22.4 82.9C21.5 82.0 20.6 81.2 19.6 80.4C18.6 79.6 17.5 78.9 16.5 78.1C15.6 77.2 14.7 76.3 14.0 75.2C13.4 74.1 13.1 72.8 12.7 71.6C12.3 70.3 12.1 69.1 11.5 67.9C11.0 66.8 10.2 65.8 9.5 64.8C8.7 63.7 7.7 62.7 7.1 61.5C6.6 60.3 6.2 59.0 6.1 57.7C5.9 56.5 6.2 55.1 6.2 53.8C6.3 52.5 6.4 51.3 6.3 50.0C6.2 48.7 5.8 47.4 5.6 46.1C5.4 44.8 5.1 43.4 4.9 42.1C4.8 40.7 4.8 39.3 4.8 37.9C4.8 36.5 4.8 35.0 5.0 33.6C5.2 32.2 5.4 30.7 6.1 29.5C6.7 28.3 7.8 27.2 9.0 26.3C10.2 25.5 12.0 25.0 13.4 24.4C14.8 23.8 16.3 23.4 17.5 22.7C18.6 22.0 19.4 21.2 20.3 20.3C21.2 19.4 21.8 18.4 22.7 17.5C23.6 16.7 24.7 16.0 25.7 15.3C26.7 14.6 27.9 14.2 28.9 13.5C30.0 12.9 31.0 12.2 32.0 11.4C33.1 10.7 34.0 9.8 35.1 9.2C36.2 8.5 37.4 7.9 38.6 7.4C39.8 6.9 41.0 6.5 42.2 6.0C43.5 5.4 44.7 4.8 46.0 4.4C47.3 4.0 48.7 3.5 50.0 3.4C51.3 3.4 52.7 3.8 54.0 4.3C55.3 4.7 56.5 5.7 57.7 6.2C59.0 6.7 60.1 7.2 61.4 7.4C62.7 7.6 64.1 7.3 65.5 7.3C66.9 7.3 68.5 7.2 69.8 7.5C71.1 7.8 72.4 8.5 73.6 9.2C74.7 9.9 75.7 11.0 76.6 12.0C77.6 13.0 78.5 14.0 79.2 15.2C80.0 16.3 80.6 17.6 81.1 18.9C81.6 20.2 81.9 21.7 82.3 22.9C82.7 24.1 83.1 25.3 83.7 26.4C84.4 27.4 85.3 28.2 86.1 29.2C86.9 30.1 87.9 31.0 88.6 32.0C89.2 33.1 89.6 34.3 90.0 35.4C90.4 36.6 90.5 37.9 91.0 39.0C91.5 40.2 92.1 41.3 92.9 42.4C93.6 43.6 94.8 44.8 95.5 46.0C96.3 47.3 97.0 48.6 97.3 50.0Z" fill="currentColor"/>
+    <circle cx="50.4" cy="49.6" r="33" fill="#000" fill-opacity=".10"/>
+    <circle cx="50.4" cy="49.6" r="34.6" fill="none" stroke="#000" stroke-opacity=".30" stroke-width="2.2"/>
+    <circle cx="49.6" cy="50.6" r="36.6" fill="none" stroke="#fff" stroke-opacity=".10" stroke-width="1.4"/>
+  </symbol>
+  <!-- Enkel strek med en liten rombe i midten (som skillestreken i 01) -->
+  <symbol id="rule" viewBox="0 0 150 12">
+    <path d="M0 6H62M88 6H150" stroke="currentColor" stroke-width="1"/>
+    <path d="M75 1.5L79.5 6L75 10.5L70.5 6Z" fill="none" stroke="currentColor" stroke-width="1"/>
+    <circle cx="66" cy="6" r="1.1" fill="currentColor"/><circle cx="84" cy="6" r="1.1" fill="currentColor"/>
+  </symbol>
+  <!-- SKISSE: kvist med smale blader og brudeslør (små hvite blomster). Den ekte tegningen lages i bildeverktøyet. -->
+  <symbol id="sprig" viewBox="0 0 100 54">
+    <g fill="none" stroke="currentColor" stroke-width=".9" stroke-linecap="round">
+      <path d="M2 50C24 44 48 34 70 20C80 14 88 9 97 4"/>
+      <path d="M30 40C33 32 37 27 43 22"/><path d="M43 22C45 17 47 14 51 11"/><path d="M43 22C48 21 52 20 56 17"/>
+      <path d="M58 27C61 22 64 18 69 15"/><path d="M69 15C70 11 72 8 75 6"/>
+      <path d="M80 13C84 12 87 13 91 15"/><path d="M84 10C85 7 87 5 89 2"/>
+      <path d="M52 31C57 32 61 34 65 37"/>
+    </g>
+    <g fill="currentColor" fill-opacity=".82">
+      <path d="M10 47C13 42 18 40 22 41C19 45 14 47 10 47Z"/>
+      <path d="M14 48C18 51 23 52 27 50C23 47 18 47 14 48Z"/>
+      <path d="M24 43C25 37 29 34 33 33C32 38 28 42 24 43Z"/>
+      <path d="M36 37C40 38 45 37 48 34C44 33 39 34 36 37Z"/>
+      <path d="M46 32C47 26 50 23 54 22C53 27 50 30 46 32Z"/>
+      <path d="M62 24C66 25 70 24 73 21C69 20 65 21 62 24Z"/>
+    </g>
+    <g fill="#F7F1E4" stroke="currentColor" stroke-width=".7">
+      <circle cx="51" cy="10.5" r="2"/><circle cx="54.5" cy="12.5" r="1.7"/><circle cx="48" cy="12" r="1.5"/><circle cx="52" cy="7.2" r="1.4"/>
+      <circle cx="57" cy="16.5" r="1.8"/><circle cx="59.5" cy="14" r="1.4"/>
+      <circle cx="75.5" cy="5.5" r="2"/><circle cx="78.5" cy="7.5" r="1.5"/><circle cx="73" cy="3.3" r="1.4"/>
+      <circle cx="89.5" cy="2.2" r="1.7"/><circle cx="92" cy="15.5" r="1.8"/><circle cx="94.5" cy="13" r="1.4"/><circle cx="97.5" cy="4" r="1.6"/>
+      <circle cx="66" cy="37.5" r="1.8"/><circle cx="68.5" cy="35.5" r="1.4"/><circle cx="64" cy="39.8" r="1.3"/>
+    </g>
+  </symbol>
+</svg>
+
+<div class="intro">
+  <h1>Papir, høytid og blomster</h1>
+  <p>Fire telefoner, der hver bygger videre på den forrige. Nummer 1 er slik forsida er nå. Nummer 2 gjør kremfeltene om til ark med ujevn kant og en svak skygge, som hovedarket i 01. Nummer 3 prøver å fjerne hyttefølelsen og gjøre det mer høytidelig. Nummer 4 legger til diskré kvister med brudeslør.</p>
+</div>
+
+<section class="wide" aria-label="Fire versjoner av forsida">
+  <div class="mocks">
+
+<!-- 1: Nå -->
+<figure class="mock" aria-labelledby="h-1">
+  <div class="mock-head"><h2 id="h-1"><span class="num">1</span>Slik det er nå</h2></div>
+  <div class="phone"><div class="screen tex-green">
+    <nav class="stickynav tex-green" aria-label="Meny">
+      <div class="navwords"><a href="#h-1">Program</a><a href="#h-1">Praktisk</a><a href="#h-1">Stedet</a><a href="#h-1">Om oss</a></div>
+      <a class="navbtn" href="#h-1">Svar</a>
+    </nav>
+    <div class="page">
+      <div class="card hero tex-sheet">
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+        <img class="ill" src="../../../ux/egne-bilder/04-Illustration.jpg" alt="Lys akvarell av tunet på Hardingasete.">
+        <p class="names">Rikke &amp; Valdemar</p>
+        <p class="invites">inviterer dere til bryllup</p>
+        <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+        <p class="where">Hardingasete i&nbsp;Hardanger</p>
+        <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+        <p class="deadline"><a href="#h-1">Svar</a> innen onsdag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59</p>
+      </div>
+      <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+      <div class="card info tex-sheet"><p class="info-h">Programmet</p><p class="info-t">Vielse, middag og fest – hele lørdagen time for time.</p></div>
+    </div>
+    <div class="veil" aria-hidden="true"></div>
+    <div class="fold" aria-hidden="true"><span>Her slutter skjermen</span></div>
+  </div></div>
+  <figcaption class="mock-note"><p>Rette kanter, flatt på det grønne.</p></figcaption>
+</figure>
+
+<!-- 2: Ark som i 01 -->
+<figure class="mock" aria-labelledby="h-2">
+  <div class="mock-head"><h2 id="h-2"><span class="num">2</span>Ark som i 01</h2></div>
+  <div class="phone"><div class="screen tex-green">
+    <nav class="stickynav tex-green" aria-label="Meny">
+      <div class="navwords"><a href="#h-2">Program</a><a href="#h-2">Praktisk</a><a href="#h-2">Stedet</a><a href="#h-2">Om oss</a></div>
+      <a class="navbtn" href="#h-2">Svar</a>
+    </nav>
+    <div class="page">
+      <div class="card hero paper">
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+        <img class="ill" src="../../../ux/egne-bilder/04-Illustration.jpg" alt="Lys akvarell av tunet på Hardingasete.">
+        <p class="names">Rikke &amp; Valdemar</p>
+        <p class="invites">inviterer dere til bryllup</p>
+        <p class="when">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+        <p class="where">Hardingasete i&nbsp;Hardanger</p>
+        <p class="guest">Invitert: <b>Sigmund og bestemor</b></p>
+        <p class="deadline"><a href="#h-2">Svar</a> innen onsdag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59</p>
+      </div>
+      <p class="lead-in">Vi gleder oss til å feire med dere!</p>
+      <div class="card info paper"><p class="info-h">Programmet</p><p class="info-t">Vielse, middag og fest – hele lørdagen time for time.</p></div>
+    </div>
+    <div class="veil" aria-hidden="true"></div>
+    <div class="fold" aria-hidden="true"><span>Her slutter skjermen</span></div>
+  </div></div>
+  <figcaption class="mock-note">
+    <p><b>Bare kantene er endret:</b> ujevn, håndlaget kant med en lys rand, og en svak skygge så arket ligger <i>oppå</i> det grønne. Fargen er den samme kremfargen.</p>
+  </figcaption>
+</figure>
+
+<!-- 3: Mer høytidelig -->
+<figure class="mock" aria-labelledby="h-3">
+  <div class="mock-head"><h2 id="h-3"><span class="num">3</span>Mer høytidelig</h2></div>
+  <div class="phone"><div class="screen tex-green-calm formal">
+    <nav class="stickynav tex-green-calm" aria-label="Meny">
+      <div class="navwords"><a href="#h-3">Program</a><a href="#h-3">Praktisk</a><a href="#h-3">Stedet</a><a href="#h-3">Om oss</a></div>
+      <a class="navbtn" href="#h-3">Svar</a>
+    </nav>
+    <div class="page">
+      <div class="card hero paper">
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+        <img class="ill" src="../../../ux/egne-bilder/04-Illustration.jpg" alt="Lys akvarell av tunet på Hardingasete.">
+        <p class="names">Rikke &amp; Valdemar</p>
+        <p class="invites">inviterer dere til sitt bryllup</p>
+        <svg class="rule" aria-hidden="true" focusable="false"><use href="#rule"/></svg>
+        <p class="when caps">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+        <p class="where caps">Hardingasete · Hardanger</p>
+        <p class="guest">for <b>Sigmund og bestemor</b></p>
+        <p class="deadline"><a href="#h-3">Svar</a> innen onsdag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59</p>
+      </div>
+      <p class="lead-in">Vi gleder oss til å feire med dere</p>
+      <div class="card info paper"><p class="info-h">Programmet</p><p class="info-t">Vielse, middag og fest – hele lørdagen time for time.</p></div>
+    </div>
+    <div class="veil" aria-hidden="true"></div>
+    <div class="fold" aria-hidden="true"><span>Her slutter skjermen</span></div>
+  </div></div>
+  <figcaption class="mock-note">
+    <p><b>Det vi tror gir hyttefølelse, og hva som er endret:</b></p>
+    <ul>
+      <li>Tegningen gikk ut i kantene som et bilde av en hytte. Nå er den mindre og toner ut mot kantene, som i 01.</li>
+      <li>Seglet ligger over toppkanten og «forsegler» arket.</li>
+      <li>Navnene står over en tynn skillestrek. Dato og sted står med små, sperrede store bokstaver, som i 01. Navnene står fortsatt med skrivebokstaver.</li>
+      <li>Teksten er litt mer høytidelig: «inviterer dere til sitt bryllup», og «Invitert:» er byttet med «for».</li>
+      <li>Menyordene står uten understreking, og det grønne har roligere tekstur (mindre filt og ull).</li>
+    </ul>
+  </figcaption>
+</figure>
+
+<!-- 4: Med blomster (skisse) -->
+<figure class="mock" aria-labelledby="h-4">
+  <div class="mock-head"><h2 id="h-4"><span class="num">4</span>Med blomster (skisse)</h2></div>
+  <div class="phone"><div class="screen tex-green-calm formal">
+    <nav class="stickynav tex-green-calm" aria-label="Meny">
+      <div class="navwords"><a href="#h-4">Program</a><a href="#h-4">Praktisk</a><a href="#h-4">Stedet</a><a href="#h-4">Om oss</a></div>
+      <a class="navbtn" href="#h-4">Svar</a>
+    </nav>
+    <div class="page">
+      <div class="card hero paper">
+        <div class="sprigs" aria-hidden="true">
+          <svg class="l" viewBox="0 0 100 54" focusable="false"><use href="#sprig"/></svg>
+          <svg class="r" viewBox="0 0 100 54" focusable="false"><use href="#sprig"/></svg>
+        </div>
+        <div class="seal"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#seal-shape"/></svg><span>R &amp; V</span></div>
+        <img class="ill" src="../../../ux/egne-bilder/04-Illustration.jpg" alt="Lys akvarell av tunet på Hardingasete.">
+        <p class="names">Rikke &amp; Valdemar</p>
+        <p class="invites">inviterer dere til sitt bryllup</p>
+        <svg class="rule" aria-hidden="true" focusable="false"><use href="#rule"/></svg>
+        <p class="when caps">Lørdag 27.&nbsp;mai&nbsp;2028</p>
+        <p class="where caps">Hardingasete · Hardanger</p>
+        <p class="guest">for <b>Sigmund og bestemor</b></p>
+        <p class="deadline"><a href="#h-4">Svar</a> innen onsdag 1.&nbsp;desember&nbsp;2027 kl.&nbsp;23:59</p>
+      </div>
+      <p class="lead-in">Vi gleder oss til å feire med dere</p>
+      <div class="card info paper"><p class="info-h">Programmet</p><p class="info-t">Vielse, middag og fest – hele lørdagen time for time.</p>
+        <svg class="corner-sprig" viewBox="0 0 100 54" aria-hidden="true" focusable="false"><use href="#sprig"/></svg></div>
+    </div>
+    <span class="tag ptag" style="left:12px; top:682px">Skisse – ekte tegning lages i bildeverktøyet</span>
+    <div class="veil" aria-hidden="true"></div>
+    <div class="fold" aria-hidden="true"><span>Her slutter skjermen</span></div>
+  </div></div>
+  <figcaption class="mock-note">
+    <p><b>To små kvister med smale blader og brudeslør</b> vokser ut fra hver side av seglet, som laurbærkransen rundt monogrammet i 01. En enda mindre kvist ligger i hjørnet på kortene.</p>
+    <p>Blomstene her er en grov strektegning for å vise <i>hvor</i> og <i>hvor store</i>. Den ekte tegningen bør lages i bildeverktøyet, akkurat som tegningen av tunet.</p>
+  </figcaption>
+</figure>
+
+  </div>
+</section>
+
+<section class="edges" aria-labelledby="h-edges">
+  <h2 id="h-edges">To typer papirkant, på nært hold</h2>
+  <div class="edge-row">
+    <div><div class="edge-box tex-green-calm"><div class="card paper">Fin, tett kant<br><i>(brukt i 2–4)</i></div></div><p class="cap">Som hovedarket i 01: små ujevnheter langs hele kanten.</p></div>
+    <div><div class="edge-box tex-green-calm"><div class="card paper alt">Grovere, revet kant</div></div><p class="cap">Mer som de grove arkene i 02.</p></div>
+    <div><div class="edge-box tex-green-calm"><div class="card tex-sheet" style="border-radius:3px">Rett kant<br><i>(slik det er nå)</i></div></div><p class="cap">Til sammenligning.</p></div>
+  </div>
+</section>
+
+<footer class="end">
+  <p>Kantene og skyggen ligger bare på bakgrunnen til arket, så teksten blir like skarp og like lett å lese som før. Kontrasten mellom tekst og krem er den samme.</p>
+</footer>
+</body>
+</html>
