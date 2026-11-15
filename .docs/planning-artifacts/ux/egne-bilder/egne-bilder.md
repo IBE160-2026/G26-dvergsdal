@@ -90,12 +90,12 @@ Brukes på nettsida: Ja. Farget kremhvit (som arkene) rundt bildene i «Alt om h
 ## 12-Us1.jpg
 Tidligere: 24-Us1.jpg
 Viser: Rikke og Valdemar på stranda.
-Brukes på nettsida: Ja. Ved «Om oss» i «Alt om helgen» på invitasjonen, som et utsnitt sentrert på oss to. Bare der, ikke på «Om oss»-sida (Rikke, 2026-11-15). Utklipp: `mockups/us1-utsnitt.jpg`.
+Brukes på nettsida: Ja. Ved «Vår historie» i «Alt om helgen» på invitasjonen, som et utsnitt sentrert på oss to. Bare der, ikke på «Vår historie»-sida (Rikke, 2026-11-15). Utklipp: `mockups/us1-utsnitt.jpg`.
 
 ## 13-Us2.jpg
 Tidligere: 24-Us2.jpg
 Viser: Rikke og Valdemar med utsikt.
-Brukes på nettsida: Ja. Øverst på «Om oss»-sida, i blonderamme (220 px). Ble først prøvd ved «Om oss» på invitasjonen, der bildet fra stranda (12) ble valgt.
+Brukes på nettsida: Ja. Øverst på «Vår historie»-sida (het «Om oss» til 2026-11-15), i blonderamme (220 px). Ble først prøvd ved «Vår historie» på invitasjonen, der bildet fra stranda (12) ble valgt.
 
 ## 14-Icons.jpg
 Viser: Tolv små strektegninger på svart bakgrunn, i et rutenett med fire kolonner og tre rader: fjell med sti, hytte, rebus (ark med spørsmålstegn og blyant), tallerken med kniv og gaffel, stamp med damp, kaffekopp, yoga, veteranbil, giftringer, piknikkurv, to champagneglass og koffert.
