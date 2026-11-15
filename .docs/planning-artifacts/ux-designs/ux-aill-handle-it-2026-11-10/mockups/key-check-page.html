@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light only">
-<title>Sjekk før sending</title>
+<title>Sjekk før sending, runde 2</title>
 <!-- Unntak for denne lokale planleggingssida: skriftene lastes fra Google Fonts når sida vises.
      Den ferdige gjestesida lagrer Imperial Script og EB Garamond selv (selvhostet, PRD 3.2). Begge er SIL Open Font License. -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;display=swap">
@@ -149,10 +149,37 @@ legend, .label { display: block; padding: 0; margin: 0 0 4px; font-size: 20px; f
 .ca p { margin: 0 0 2px; font-variant-numeric: lining-nums; }
 .muted { color: var(--mu); }
 .ex { font-style: italic; }
+
+/* ---------- Runde 2 (2026-11-15): dagens stil ----------
+   Papirarket fra forsida og infosidene: farge, tekstur, myk kant og skygge ligger på et lag bak innholdet,
+   så teksten og fokusringene er skarpe. Den rolige grønne teksturen fra mockups/paper-ceremony-5.html.
+   Bunnfeltet uten «Spør oss» (fjernet 2026-11-15). */
+.tex-green { background-image: var(--grain-green); background-blend-mode: overlay; }
+.card { position: relative; isolation: isolate; background: none !important; border-radius: 0; }
+.card::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 5px; background-color: var(--k); background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; filter: url(#edge-b3); }
+.page { padding: 22px 16px 26px; }
+@media (forced-colors: active) { .card::before { filter: none; background: Canvas; border: 1px solid CanvasText; } }
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+  <filter id="edge-b3" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="6" result="wave"/>
+    <feDisplacementMap in="SourceGraphic" in2="wave" scale="8" xChannelSelector="R" yChannelSelector="G" result="wob"/>
+    <feGaussianBlur in="wob" stdDeviation="1.8" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="3" seed="2" result="fn"/>
+    <feColorMatrix in="fn" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="fa"/>
+    <feComposite in="soft" in2="fa" operator="arithmetic" k1="0" k2="1" k3="0.7" k4="-0.35" result="mix"/>
+    <feComponentTransfer in="mix" result="mask"><feFuncA type="linear" slope="6" intercept="-2.4"/></feComponentTransfer>
+    <feComposite in="wob" in2="mask" operator="in" result="sheet"/>
+    <feGaussianBlur in="mask" stdDeviation="3.2" result="sb"/>
+    <feOffset in="sb" dy="2.5" result="so"/>
+    <feFlood flood-color="#141A0C" flood-opacity=".42"/>
+    <feComposite in2="so" operator="in" result="shadow"/>
+    <feMerge><feMergeNode in="shadow"/><feMergeNode in="sheet"/></feMerge>
+  </filter>
+</defs>
   <symbol id="seal-shape" viewBox="0 0 100 100">
     <path d="M97.3 50.0C97.6 51.4 97.5 52.8 97.4 54.1C97.2 55.5 96.9 56.9 96.4 58.2C96.0 59.5 95.5 60.8 94.8 62.0C94.1 63.2 93.2 64.3 92.4 65.4C91.5 66.5 90.4 67.4 89.7 68.5C89.0 69.6 88.4 70.7 88.0 71.9C87.5 73.2 87.5 74.6 87.0 75.9C86.5 77.2 86.0 78.5 85.2 79.5C84.3 80.5 83.0 81.2 81.8 81.8C80.6 82.4 79.1 82.8 77.9 83.3C76.7 83.8 75.6 84.4 74.5 85.0C73.4 85.6 72.4 86.4 71.3 86.9C70.2 87.5 69.1 88.0 67.9 88.5C66.8 89.0 65.6 89.3 64.5 89.7C63.3 90.2 62.2 90.8 61.1 91.3C59.9 91.8 58.8 92.4 57.5 92.8C56.3 93.2 55.1 93.4 53.8 93.7C52.6 93.9 51.3 94.1 50.0 94.5C48.7 94.9 47.4 95.5 46.0 96.1C44.6 96.6 43.0 97.5 41.6 97.7C40.1 98.0 38.6 97.9 37.3 97.4C36.0 96.9 34.8 95.7 33.7 94.7C32.7 93.6 31.8 92.2 30.8 91.2C29.8 90.1 28.9 89.1 28.0 88.2C27.0 87.2 26.0 86.4 25.1 85.5C24.2 84.7 23.3 83.7 22.4 82.9C21.5 82.0 20.6 81.2 19.6 80.4C18.6 79.6 17.5 78.9 16.5 78.1C15.6 77.2 14.7 76.3 14.0 75.2C13.4 74.1 13.1 72.8 12.7 71.6C12.3 70.3 12.1 69.1 11.5 67.9C11.0 66.8 10.2 65.8 9.5 64.8C8.7 63.7 7.7 62.7 7.1 61.5C6.6 60.3 6.2 59.0 6.1 57.7C5.9 56.5 6.2 55.1 6.2 53.8C6.3 52.5 6.4 51.3 6.3 50.0C6.2 48.7 5.8 47.4 5.6 46.1C5.4 44.8 5.1 43.4 4.9 42.1C4.8 40.7 4.8 39.3 4.8 37.9C4.8 36.5 4.8 35.0 5.0 33.6C5.2 32.2 5.4 30.7 6.1 29.5C6.7 28.3 7.8 27.2 9.0 26.3C10.2 25.5 12.0 25.0 13.4 24.4C14.8 23.8 16.3 23.4 17.5 22.7C18.6 22.0 19.4 21.2 20.3 20.3C21.2 19.4 21.8 18.4 22.7 17.5C23.6 16.7 24.7 16.0 25.7 15.3C26.7 14.6 27.9 14.2 28.9 13.5C30.0 12.9 31.0 12.2 32.0 11.4C33.1 10.7 34.0 9.8 35.1 9.2C36.2 8.5 37.4 7.9 38.6 7.4C39.8 6.9 41.0 6.5 42.2 6.0C43.5 5.4 44.7 4.8 46.0 4.4C47.3 4.0 48.7 3.5 50.0 3.4C51.3 3.4 52.7 3.8 54.0 4.3C55.3 4.7 56.5 5.7 57.7 6.2C59.0 6.7 60.1 7.2 61.4 7.4C62.7 7.6 64.1 7.3 65.5 7.3C66.9 7.3 68.5 7.2 69.8 7.5C71.1 7.8 72.4 8.5 73.6 9.2C74.7 9.9 75.7 11.0 76.6 12.0C77.6 13.0 78.5 14.0 79.2 15.2C80.0 16.3 80.6 17.6 81.1 18.9C81.6 20.2 81.9 21.7 82.3 22.9C82.7 24.1 83.1 25.3 83.7 26.4C84.4 27.4 85.3 28.2 86.1 29.2C86.9 30.1 87.9 31.0 88.6 32.0C89.2 33.1 89.6 34.3 90.0 35.4C90.4 36.6 90.5 37.9 91.0 39.0C91.5 40.2 92.1 41.3 92.9 42.4C93.6 43.6 94.8 44.8 95.5 46.0C96.3 47.3 97.0 48.6 97.3 50.0Z" fill="currentColor"/>
     <circle cx="50.4" cy="49.6" r="33" fill="#000" fill-opacity=".10"/>
@@ -167,7 +194,8 @@ legend, .label { display: block; padding: 0; margin: 0 0 4px; font-size: 20px; f
 </svg>
 
 <div class="intro">
-  <h1>Sjekk før sending</h1>
+  <h1>Sjekk før sending, runde 2</h1>
+  <p>Runde 2 (15. november): samme innhold som skissa fra 11. november, tegnet på nytt i dagens stil, med papirark og bunnfeltet uten «Spør oss».</p>
   <p>Etter siste steg kommer Sigmund hit. Øverst står det tydelig at svaret ikke er sendt ennå. Under ser han alt han har svart, del for del, med «Endre» ved hver del, og totalen for husstanden. Svaret sendes først når han trykker «Send svaret».</p>
   <p><span class="tag forslag">forslag</span> Overskriften «Se over svaret før du sender» og de fleste knappetekstene er forslag (se under telefonen). Prisene er eksempelpriser.</p>
 </div>
@@ -233,7 +261,7 @@ legend, .label { display: block; padding: 0; margin: 0 0 4px; font-size: 20px; f
       <p><a href="#">Rikke&nbsp;<span class="num">900&nbsp;00&nbsp;000</span></a></p>
       <p><a href="#">Valdemar&nbsp;<span class="num">900&nbsp;00&nbsp;001</span></a></p>
       <p class="ex">(eksempelnumre)</p>
-      <p><a href="#">Spør oss</a> <a href="#">Personvern</a></p>
+      <p><a href="#">Personvern</a></p>
     </div>
   </div></div>
   <figcaption class="mock-note">

@@ -41,7 +41,7 @@ sources:
 | G3b | Gifts [If time] | Fourth topic row | Text and links |
 | G4 | RSVP form, stepped | RSVP button, "Se eller endre svar", draft offer | One task per step (FR-13); last-updated header and conflict notice are states of G4. Rendered: [mockups/key-form-steps.html](mockups/key-form-steps.html) |
 | G5 | Check page | Last form step | "Not sent yet", all answers, total, "Endre" per part, "Send svaret" (FR-21). Rendered: [mockups/key-check-page.html](mockups/key-check-page.html) |
-| G6 | Receipt (thank-you page) | After sending | Rikke's text, summary, payment choice, closing line (FR-23, FR-34). Rendered with G7 and the answered G2: [mockups/key-receipt.html](mockups/key-receipt.html) |
+| G6 | Receipt (thank-you page) | After sending | Rikke's text, summary, payment choice, closing line (FR-23, FR-34). Rendered with G7: [mockups/key-receipt.html](mockups/key-receipt.html) |
 | G7 | Payment details | "Betal nå", status block | Amount, Vipps, account, payment message (FR-34, FR-71) |
 | G8 | "Jeg har betalt" report | G7, status block | Report and later correct a payment (FR-35, FR-36) |
 | G9 | Answer view, locked | "Se svaret" after the deadline | Read-only answers; payment, report, info, consent withdrawal still work (FR-42) |
