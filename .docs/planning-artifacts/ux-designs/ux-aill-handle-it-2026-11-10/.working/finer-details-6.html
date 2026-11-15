@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overskriften, runde 6</title>
+<!-- Unntak for denne lokale planleggingssida: skriftene lastes fra Google Fonts når sida vises.
+     Den ferdige gjestesida lagrer Imperial Script og EB Garamond selv (PRD 3.2). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;display=swap">
+<style>
+/* RUNDE 6 (overskriften). Rikke om «ALT OM HELGEN» i små store bokstaver med strek under: «ønsker at det skal stå mer i stil med
+   resten av nettsiden». Tre varianter i stiler som alt finnes på sida, uten strek (liljene rammer inn): H1 som «Svar på
+   invitasjonen» (EB Garamond, vanlig), H2 kursiv som innledningslinja, H3 Imperial Script som navnene (i dag bare for navnene).
+   RUNDE 5. Rikke la inn nye bilder: 21-FlowersTop (bue med midten oppe, til over) og 21-FlowersBottom (midten nede, til under),
+   begge på svart, så ingen snuing trengs; og 23-Frame (tynnere blonderamme, erstatter 22). Klippet fri fra svart
+   (gjennomsiktighet fra lysstyrken, kantene renset for svart); rammen er fortsatt gjort hvit (#FFFCF6).
+   Rettet etter Rikke: «jeg ønsker at rammene er krem/havre som resten av det hvite på nettsiden» → papirkrem #EBE4D5, samme farge som arkene.
+   RUNDE 4. Rikke la inn 21-Flowers (liljer) og 22-Frame (blonderamme) i ux/inspirasjon/:
+   liljene over og under «Alt om helgen», og de skal bue seg mot teksten, så de snus 180 grader når de ligger over;
+   blonderammen rundt bildene. Liljene er klippet fri fra den innbakte rutebakgrunnen; rammen er gjort hvit (#FFFCF6)
+   slik Rikke ønsket i runde 3 (originalen er krem).
+   RUNDE 3. Rikke om runde 2: blomster over og under hele «Alt om helgen»; den vanlige grønne bakgrunnen med tekstur
+   (ikke den glatte); firkantede bilder med hvite blonder rundt som i 09; ikke myk overgang, ikke ovalt.
+   Blondene er tegnet med kode for å vise form og tykkelse (L1 fine, L2 fyldigere).
+   RUNDE 2. Rikke om runde 1: «Liker ingen av de. Lurer også på om vi skal droppe arket bak. Synes A og C blir for harde.»
+   Viser to mykere bildeformer (oval, myk overgang) både på arket og rett på det grønne.
+   Uten ark står krem tekst på det grønne; den delen av det grønne er uten tekstur (krav: liten krem tekst bare på flatt grønt).
+   (Runde 1:) Rikke etter whole-page-1.html: «for enkelt og trist». Ønsker «The finer details» fra 09:
+   en overskrift som sier at nå kommer detaljene, og hver gruppe med et bilde i en fin ramme til venstre
+   og tekst ved siden av, med «Veibeskrivelse» eller «Les mer» der det passer.
+   Tre rammer vises: A frimerke (som 09), B lite papirark (som resten av invitasjonen), C dobbel strek.
+   Bildene er fra ux/stedet/ (kilder og tillatelser er ikke avklart ennå); Om oss har en plassholder. */
+:root {
+  color-scheme: light;
+  --frame-bg: #DDDAD3; --frame-ink: #2B2620; --frame-muted: #4F473D;
+  --g: #5A6C48; --d: #344628; --k: #EBE4D5; --tx: #3B372F; --t: #F5EEDF; --div: #C8BFAE;
+  --grain-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-family: Georgia, serif; font-size: 18px; line-height: 1.55; }
+.intro { max-width: 820px; margin: 0 auto; padding: 36px 16px 8px; }
+.intro h1 { font-weight: normal; font-size: 2rem; line-height: 1.2; margin: 0 0 .5em; }
+.intro p { margin: 0 0 .8em; }
+.mocks { max-width: 1240px; margin: 0 auto; padding: 8px 16px 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 382px), 1fr)); gap: 40px 24px; align-items: start; }
+.mock { margin: 0; display: flex; flex-direction: column; align-items: center; }
+.mock h2 { width: 100%; max-width: 382px; margin: 0 0 12px; font-weight: normal; font-size: 1.5rem; }
+.phone { width: 382px; max-width: 100%; border-radius: 40px; padding: 11px; background: #262521; box-shadow: 0 14px 34px rgba(30,30,24,.30); }
+.screen { width: 360px; max-width: 100%; border-radius: 29px; overflow: hidden; font-family: "EB Garamond", Georgia, serif; font-size: 20px; line-height: 1.45; color: var(--tx); background-color: var(--g); background-image: var(--grain-green); background-blend-mode: overlay; padding: 0 16px 24px; }
+.lead-in { margin: 0; padding: 26px 10px 22px; color: var(--t); font-style: italic; font-size: 24px; line-height: 1.3; text-align: center; }
+.sheet { position: relative; isolation: isolate; }
+.sheet::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 5px; background-color: var(--k); background-image: var(--grain-sheet), var(--fibre-sheet); background-blend-mode: overlay, overlay; filter: url(#edge-b3); }
+.details { padding: 26px 16px 16px; }
+.sec-h { margin: 0 6px; padding-bottom: 10px; border-bottom: 1px solid var(--div); text-align: center; font-weight: normal; font-size: 24px; line-height: 1.3; font-variant-caps: all-small-caps; letter-spacing: .16em; }
+.row { display: flex; gap: 14px; align-items: flex-start; padding: 20px 0 6px; }
+.txt { flex: 1 1 auto; min-width: 0; }
+.txt h3 { margin: 0 0 2px; font-weight: normal; font-size: 22px; line-height: 1.2; }
+.txt p { margin: 0 0 6px; }
+.small-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 14px; margin: 2px 6px 6px 0; border: 1.5px solid var(--d); border-radius: 4px; color: var(--d); text-decoration: none; font-size: 19px; line-height: 1.1; background: transparent; }
+.ph { display: grid; place-items: center; width: 100%; height: 100%; background: #D9D0BE; color: #5E594F; font-style: italic; font-size: 17px; line-height: 1.2; text-align: center; padding: 6px; }
+.pic { flex: none; }
+.pic img, .pic .ph { display: block; width: 100px; height: 100px; object-fit: cover; }
+/* A: frimerke med takket kant, som i 09 */
+.pic-a { --r: 4px; padding: 10px; background: var(--d);
+  -webkit-mask: radial-gradient(var(--r), #0000 97%, #000) round calc(-1.5*var(--r)) calc(-1.5*var(--r)) / calc(3*var(--r)) calc(3*var(--r)), linear-gradient(#000 0 0) no-repeat 50% / calc(100% - 3*var(--r)) calc(100% - 3*var(--r));
+          mask: radial-gradient(var(--r), #0000 97%, #000) round calc(-1.5*var(--r)) calc(-1.5*var(--r)) / calc(3*var(--r)) calc(3*var(--r)), linear-gradient(#000 0 0) no-repeat 50% / calc(100% - 3*var(--r)) calc(100% - 3*var(--r)); }
+.pic-a img, .pic-a .ph { outline: 1px solid rgba(245,238,223,.75); outline-offset: -4px; }
+/* B: lite papirark med samme myke kant som resten */
+.pic-b { position: relative; isolation: isolate; padding: 8px; }
+.pic-b::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 4px; background-color: #F1EADB; filter: url(#edge-b3); }
+/* C: klassisk dobbel strek */
+.pic-c { padding: 4px; border: 1.5px solid var(--d); box-shadow: inset 0 0 0 3px var(--k), inset 0 0 0 4px var(--d); }
+.pic-c img, .pic-c .ph { padding: 0; }
+.rsvp-peek { margin-top: 16px; padding: 24px 22px 18px; text-align: center; }
+.rsvp-peek h3 { margin: 0; font-weight: normal; font-size: 26px; }
+.mock-note { width: 100%; max-width: 382px; margin: 14px 0 0; color: var(--frame-muted); }
+.mock-note b { color: var(--frame-ink); }
+@media (max-width: 420px) {
+  .mocks { padding-left: 0; padding-right: 0; }
+  .mock h2, .mock-note { padding: 0 16px; }
+  .phone { width: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
+  .screen { width: 100%; border-radius: 0; }
+}
+
+.mocks { grid-template-columns: repeat(auto-fit, minmax(min(100%, 382px), 1fr)); max-width: 820px; }
+/* Rett på det grønne: ingen ark, flatt grønt bak teksten, krem tekst */
+.on-green { color: var(--t); padding: 8px 4px 12px; background-color: var(--g); border-radius: 4px; }
+.on-green .sec-h { border-bottom-color: rgba(245,238,223,.45); }
+.on-green .small-btn { color: var(--t); border-color: var(--t); }
+.on-green .ph { background: #6E7D5C; color: var(--t); }
+/* D: ovalt bilde */
+.pic-d img, .pic-d .ph { width: 96px; height: 120px; border-radius: 50%; }
+/* E: myk overgang ut i bakgrunnen */
+.pic-e img, .pic-e .ph { width: 110px; height: 110px; -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 58%, transparent 100%); }
+.on-green .pic-e .ph, .details .pic-e .ph { border-radius: 0; }
+
+.screen { padding-bottom: 26px; }
+.det { color: var(--t); padding: 0 2px 4px; }
+.det .sec-h { border-bottom-color: rgba(245,238,223,.5); }
+.det .small-btn { color: var(--t); border-color: var(--t); }
+.flowers { display: block; width: 230px; margin: 0 auto; }
+.flowers.top { margin-bottom: 4px; }
+.flowers.bottom { margin-top: 10px; transform: scaleY(-1); }
+.lace-pic { position: relative; flex: none; color: #FFFCF6; filter: drop-shadow(0 1px 1.5px rgba(10,14,6,.35)); }
+.lace-pic .lace { display: block; fill: currentColor; }
+.lace-pic img, .lace-pic .ph { position: absolute; display: block; width: 96px; height: 96px; object-fit: cover; }
+.lace-pic .ph { background: #6E7D5C; color: var(--t); }
+.rsvp-peek { margin-top: 18px; }
+
+.lilies { display: block; width: 296px; max-width: 100%; height: auto; margin: 0 auto; }
+.lilies.top { margin-bottom: 8px; }
+.lilies.bottom { margin-top: 14px; }
+.framed { position: relative; flex: none; width: 136px; aspect-ratio: 932 / 901; }
+.framed img.photo, .framed .ph { position: absolute; left: 5.2%; top: 5.3%; width: 89.6%; height: 89.4%; object-fit: cover; }
+.framed .ph { background: #6E7D5C; color: var(--t); }
+.framed img.lace-frame { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 1px 1.5px rgba(10,14,6,.35)); }
+
+.det .sec-h { border-bottom: 0; padding-bottom: 0; letter-spacing: normal; font-variant-caps: normal; }
+.h1 .sec-h { font-size: 32px; line-height: 1.2; }
+.h2 .sec-h { font-style: italic; font-size: 32px; line-height: 1.2; }
+.h3 .sec-h { font-family: "Imperial Script", cursive; font-size: 46px; line-height: 1.1; }
+.mocks { max-width: 1240px; }
+</style><body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <filter id="edge-b3" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="6" result="wave"/>
+    <feDisplacementMap in="SourceGraphic" in2="wave" scale="8" xChannelSelector="R" yChannelSelector="G" result="wob"/>
+    <feGaussianBlur in="wob" stdDeviation="1.8" result="soft"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="3" seed="2" result="fn"/>
+    <feColorMatrix in="fn" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="fa"/>
+    <feComposite in="soft" in2="fa" operator="arithmetic" k1="0" k2="1" k3="0.7" k4="-0.35" result="mix"/>
+    <feComponentTransfer in="mix" result="mask"><feFuncA type="linear" slope="6" intercept="-2.4"/></feComponentTransfer>
+    <feComposite in="wob" in2="mask" operator="in" result="sheet"/>
+    <feGaussianBlur in="mask" stdDeviation="3.2" result="sb"/>
+    <feOffset in="sb" dy="2.5" result="so"/>
+    <feFlood flood-color="#141A0C" flood-opacity=".42"/>
+    <feComposite in2="so" operator="in" result="shadow"/>
+    <feMerge><feMergeNode in="shadow"/><feMergeNode in="sheet"/></feMerge>
+  </filter>
+</defs></svg>
+
+<div class="intro">
+  <h1>Overskriften, runde 6</h1>
+  <p>Tre måter å skrive «Alt om helgen» på, i stiler som alt finnes på nettsida. Ingen strek under; liljene rammer den inn. Bare toppen av delen vises.</p>
+</div>
+<section class="mocks" aria-label="Tre overskrifter">
+  <figure class="mock" aria-labelledby="v1"><h2 id="v1">H1 · Som «Svar på invitasjonen»</h2>
+    <div class="phone"><div class="screen">
+      <p class="lead-in">Vi gleder oss til å feire med dere</p>
+      <div class="det h1">
+        <img class="lilies top" src="lilje-topp-21.png" alt="">
+        <h3 class="sec-h">Alt om helgen</h3>
+        <div class="row"><div class="framed"><img class="photo" src="../../../ux/stedet/01-Venue.jpg" alt=""><img class="lace-frame" src="blonde-23.png" alt=""></div><div class="txt"><h3>Programmet</h3><p>Hele helgen, dag for dag.</p><a class="small-btn" href="#">Les mer</a></div></div>
+        <div class="row"><div class="framed"><img class="photo" src="../../../ux/stedet/13-Area.jpg" alt=""><img class="lace-frame" src="blonde-23.png" alt=""></div><div class="txt"><h3>Praktisk informasjon</h3><p>Reise, parkering og hva dere tar med.</p><a class="small-btn" href="#">Les mer</a></div></div>
+      </div>
+    </div></div>
+    <figcaption class="mock-note"><b>EB Garamond, vanlig, 32 px.</b> Samme stil som overskriftene på arkene og infosidene.</figcaption>
+  </figure>
+  <figure class="mock" aria-labelledby="v2"><h2 id="v2">H2 · Kursiv, som innledningslinja</h2>
+    <div class="phone"><div class="screen">
+      <p class="lead-in">Vi gleder oss til å feire med dere</p>
+      <div class="det h2">
+        <img class="lilies top" src="lilje-topp-21.png" alt="">
+        <h3 class="sec-h">Alt om helgen</h3>
+        <div class="row"><div class="framed"><img class="photo" src="../../../ux/stedet/01-Venue.jpg" alt=""><img class="lace-frame" src="blonde-23.png" alt=""></div><div class="txt"><h3>Programmet</h3><p>Hele helgen, dag for dag.</p><a class="small-btn" href="#">Les mer</a></div></div>
+        <div class="row"><div class="framed"><img class="photo" src="../../../ux/stedet/13-Area.jpg" alt=""><img class="lace-frame" src="blonde-23.png" alt=""></div><div class="txt"><h3>Praktisk informasjon</h3><p>Reise, parkering og hva dere tar med.</p><a class="small-btn" href="#">Les mer</a></div></div>
+      </div>
+    </div></div>
+    <figcaption class="mock-note"><b>EB Garamond kursiv, 32 px.</b> Samme stil som «Vi gleder oss til å feire med dere», bare større.</figcaption>
+  </figure>
+  <figure class="mock" aria-labelledby="v3"><h2 id="v3">H3 · Skrift som navnene</h2>
+    <div class="phone"><div class="screen">
+      <p class="lead-in">Vi gleder oss til å feire med dere</p>
+      <div class="det h3">
+        <img class="lilies top" src="lilje-topp-21.png" alt="">
+        <h3 class="sec-h">Alt om helgen</h3>
+        <div class="row"><div class="framed"><img class="photo" src="../../../ux/stedet/01-Venue.jpg" alt=""><img class="lace-frame" src="blonde-23.png" alt=""></div><div class="txt"><h3>Programmet</h3><p>Hele helgen, dag for dag.</p><a class="small-btn" href="#">Les mer</a></div></div>
+        <div class="row"><div class="framed"><img class="photo" src="../../../ux/stedet/13-Area.jpg" alt=""><img class="lace-frame" src="blonde-23.png" alt=""></div><div class="txt"><h3>Praktisk informasjon</h3><p>Reise, parkering og hva dere tar med.</p><a class="small-btn" href="#">Les mer</a></div></div>
+      </div>
+    </div></div>
+    <figcaption class="mock-note"><b>Imperial Script, 46 px.</b> Samme skrift som «Rikke &amp; Valdemar». I dag er den bare brukt til navnene; velger dere denne, blir det to steder.</figcaption>
+  </figure>
+</section>
+</body>
+</html>
