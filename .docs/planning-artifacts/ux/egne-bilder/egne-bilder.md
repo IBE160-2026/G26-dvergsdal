@@ -96,3 +96,7 @@ Brukes på nettsida: Ja. Ved «Om oss» i «Alt om helgen», som et utsnitt sent
 Tidligere: 24-Us2.jpg
 Viser: Rikke og Valdemar med utsikt.
 Brukes på nettsida: Ikke ennå. Ble prøvd ved «Om oss», men bildet fra stranda (12) ble valgt. Kan passe på «Om oss»-sida.
+
+## 14-Icons.jpg
+Viser: Tolv små strektegninger på svart bakgrunn, i et rutenett med fire kolonner og tre rader: fjell med sti, hytte, rebus (ark med spørsmålstegn og blyant), tallerken med kniv og gaffel, stamp med damp, kaffekopp, yoga, veteranbil, giftringer, piknikkurv, to champagneglass og koffert.
+Brukes på nettsida: Ja. Ett ikon over hver hendelse i tidslinja på Programmet, 56 px. Utklipp: `mockups/ikoner/ikon-01-fjelltur.png` til `ikon-12-avreise.png`, laget med [cutout-ikoner.py](../../ux-designs/ux-aill-handle-it-2026-11-10/.working/cutout-ikoner.py) og farget i samme mørke farge som teksten. Laget av Rikke med en prompt fra Claude (2026-11-15).
