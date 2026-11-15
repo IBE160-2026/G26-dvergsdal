@@ -6,9 +6,9 @@ With a colour argument (hex, no '#') the image is recoloured to that colour and 
 brightness 20 to 200, which suits the one-colour lace frame.
 
 Usage (from this folder):
-  python cutout-liljer-blonde.py ../../../ux/inspirasjon/21-FlowersTop.jpg    ../mockups/lilje-topp-21.png 760
-  python cutout-liljer-blonde.py ../../../ux/inspirasjon/21-FlowersBottom.jpg ../mockups/lilje-bunn-21.png 760
-  python cutout-liljer-blonde.py ../../../ux/inspirasjon/23-Frame.jpg         ../mockups/blonde-23.png 320 EBE4D5
+  python cutout-liljer-blonde.py ../../../ux/egne-bilder/09-FlowersTop.jpg    ../mockups/lilje-topp.png 760
+  python cutout-liljer-blonde.py ../../../ux/egne-bilder/10-FlowersBottom.jpg ../mockups/lilje-bunn.png 760
+  python cutout-liljer-blonde.py ../../../ux/egne-bilder/11-Frame.jpg         ../mockups/blonde.png 320 EBE4D5
 """
 import sys
 

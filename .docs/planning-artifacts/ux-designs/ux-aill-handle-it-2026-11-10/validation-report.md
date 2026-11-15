@@ -122,7 +122,7 @@ The answered state of G2 puts the status block "near the top" without saying whe
 Fix: Add the status block to the numbered front-page order in DESIGN › Layout & Spacing.
 
 **[Visual reference coverage]** — Hero illustration and seal have no specific source file (§ DESIGN › Components › Hero illustration; › Shapes)
-Two downstream assets have no specific path. (1) The hero illustration is named as "image 17", but the file `../../ux/inspirasjon/17-Illustration.jpg` is never linked. (2) The seal outline is "in the renders (`#seal-shape`)", but it appears in nine `.working` files with different versions, and no one file is named.
+Two downstream assets have no specific path. (1) The hero illustration is named as "image 17", but the file `../../ux/egne-bilder/04-Illustration.jpg` is never linked. (2) The seal outline is "in the renders (`#seal-shape`)", but it appears in nine `.working` files with different versions, and no one file is named.
 Fix: Link the image file and name the canonical seal source (for example `mockups/illustration-3.html#seal-shape`), or export the seal to an SVG file.
 
 **[Accessibility reviewer]** — Hint text breaks the spine's own rule, and the 18px floor holds only in the letter (DESIGN § Colors `ink-muted` "Never: … anything the guest must read to act" vs § Components "Text field … hint below in `{typography.small}` `{colors.ink-muted}`"; § Typography)

@@ -201,23 +201,23 @@ components:
     padding: '26px 22px 24px'
     scrollMarginTop: 'nav-height + scroll-gap'
   wax-seal:
-    image: 'mockups/segl-19.png (Rikke, image tool; cut out to transparent PNG)'
+    image: 'mockups/segl.png (Rikke, image tool; cut out to transparent PNG)'
     width: 74px
     position: 'centred over the hero sheet top edge, top -36px'
     shadow: 'drop-shadow 0 2px 2px rgba(12,16,8,.45)'
   hero-illustration:
-    image: 'inspiration 17 (watercolour of the farmyard)'
+    image: 'ux/egne-bilder/04-Illustration.jpg (watercolour of the farmyard, Rikke, image tool)'
     width: 262px
     height: auto
     marginTop: '-12px (its top is empty sky)'
     blend: 'mix-blend-mode: darken; normal under forced-colors'
   flower-divider:
-    image: 'mockups/brudeslor-20.png (gypsophila, Rikke, image tool; cut out to transparent PNG)'
+    image: 'mockups/brudeslor.png (gypsophila, Rikke, image tool; cut out to transparent PNG)'
     width: '224px in the hero; 180px in the RSVP panel'
     blend: 'none (white petals must stay white)'
   lily-garland:
-    imageTop: 'mockups/lilje-topp-21.png (arches with the centre high; above the details heading)'
-    imageBottom: 'mockups/lilje-bunn-21.png (centre low; below the last topic row)'
+    imageTop: 'mockups/lilje-topp.png (arches with the centre high; above the details heading)'
+    imageBottom: 'mockups/lilje-bunn.png (centre low; below the last topic row)'
     width: 296px
     spacing: '8px below the top garland; 14px above the bottom garland'
     blend: 'none'
@@ -233,7 +233,7 @@ components:
     title: '{typography.topic-title}'
     text: '{typography.body}, italic'
   lace-frame:
-    image: 'mockups/blonde-23.png (Rikke, image tool; recoloured to {colors.panel-cream})'
+    image: 'mockups/blonde.png (Rikke, image tool; recoloured to {colors.panel-cream})'
     width: 136px
     aspectRatio: '932 / 901'
     photoWindow: 'left 5.2%, top 5.3%, width 89.6%, height 89.4%; photo object-fit cover, under the frame'
@@ -362,9 +362,9 @@ The visual language follows from that:
 
 - **An envelope-coloured page with paper sheets on it.** Olive-green textured page, and cream sheets with soft, hand-made edges and a soft shadow carrying the content (direction B *Konvolutten*, about half green, half cream). The sheets look like the main sheet in [inspiration 01](../../ux/inspirasjon/01-Vibe.jpg), in the sheet's own colour (memlog, *Sheet edge refined*).
 - **Solemn, not cabin-cosy.** Rikke found the earlier version gave a "hytte" feeling and wanted it more festive (memlog 100). The top sheet is therefore laid out like a formal printed invitation: seal over the top edge, the farmyard drawing, the names, "inviterer dere til sitt bryllup", a flower divider, then date and place in letter-spaced small capitals.
-- **A hand-pressed wax seal** in dark green with *R & V*, made by Rikke in an image tool ([19-Stamp.jpg](../../ux/inspirasjon/19-Stamp.jpg)), lying over the top edge of the invitation; also the browser-tab icon.
-- **Flowers from the wedding, in four fixed places.** A gypsophila (*brudeslør*) divider made by Rikke ([20-Flowers.jpg](../../ux/inspirasjon/20-Flowers.jpg)) in the hero and, smaller, in the RSVP sheet; and two lily garlands, also Rikke's ([21-FlowersTop.jpg](../../ux/inspirasjon/21-FlowersTop.jpg), [21-FlowersBottom.jpg](../../ux/inspirasjon/21-FlowersBottom.jpg)), above and below «Alt om helgen», each bowing towards the text. Never spread over the page, not like [inspiration 05](../../ux/inspirasjon/05-Vibe.jpg).
-- **«The finer details», as in [inspiration 09](../../ux/inspirasjon/09-Example.jpg).** Below the invitation, the topics stand directly on the green page with a picture on the left in a cream lace frame ([23-Frame.jpg](../../ux/inspirasjon/23-Frame.jpg)) and the text beside it. Rikke found plain cards «for enkelt og trist» (memlog, 2026-11-14).
+- **A hand-pressed wax seal** in dark green with *R & V*, made by Rikke in an image tool ([06-Stamp.jpg](../../ux/egne-bilder/06-Stamp.jpg)), lying over the top edge of the invitation; also the browser-tab icon.
+- **Flowers from the wedding, in four fixed places.** A gypsophila (*brudeslør*) divider made by Rikke ([07-Flowers.jpg](../../ux/egne-bilder/07-Flowers.jpg)) in the hero and, smaller, in the RSVP sheet; and two lily garlands, also Rikke's ([09-FlowersTop.jpg](../../ux/egne-bilder/09-FlowersTop.jpg), [10-FlowersBottom.jpg](../../ux/egne-bilder/10-FlowersBottom.jpg)), above and below «Alt om helgen», each bowing towards the text. Never spread over the page, not like [inspiration 05](../../ux/inspirasjon/05-Vibe.jpg).
+- **«The finer details», as in [inspiration 09](../../ux/inspirasjon/09-Example.jpg).** Below the invitation, the topics stand directly on the green page with a picture on the left in a cream lace frame ([11-Frame.jpg](../../ux/egne-bilder/11-Frame.jpg)) and the text beside it. Rikke found plain cards «for enkelt og trist» (memlog, 2026-11-14).
 - **One script moment.** The couple's first names in a formal copperplate-style script (as in [inspiration 09](../../ux/inspirasjon/09-Example.jpg)); everything else in a book serif that reads like a printed invitation.
 - **One illustration.** A soft sage watercolour of Hardingasete in the top sheet, shown whole.
 - **Real paper, not a hint of it.** Visible paper texture on page and sheets, tuned so it never changes the colours and never costs text contrast.
@@ -468,7 +468,7 @@ Phone first (NFR-6). One centred column, maximum `{spacing.content-max}`; a PC s
 Front-page order. The whole front page is approved in [mockups/front-page-3.html](mockups/front-page-3.html) (memlog, 2026-11-15), built on the first screen approved in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html) (memlog, *Front page approved*, 2026-11-11). Both supersede [mockups/front-page-2.html](mockups/front-page-2.html) (PRD FR-7, FR-8):
 
 1. **Nav bar**, sticky (see EXPERIENCE › Accessibility Floor for when it stops sticking): nav words left, the "Svar" button right, `{spacing.nav-height}` tall, flat green.
-2. **Hero sheet**, `{spacing.page-padding-top}` below the nav bar so the seal is never hidden under it: seal over the top edge → illustration 17, whole → names → «inviterer dere til sitt bryllup» → gypsophila divider → date and place in small capitals → «for Sigmund og bestemor» → deadline line *«**Svar** innen 4. januar 2028»*, where "Svar" is a link. The short deadline here has no weekday or time; the full deadline sits above the RSVP button (FR-41 asks for it next to the button). No button and no child-free line in the hero.
+2. **Hero sheet**, `{spacing.page-padding-top}` below the nav bar so the seal is never hidden under it: seal over the top edge → the illustration (egne-bilder 04), whole → names → «inviterer dere til sitt bryllup» → gypsophila divider → date and place in small capitals → «for Sigmund og bestemor» → deadline line *«**Svar** innen 4. januar 2028»*, where "Svar" is a link. The short deadline here has no weekday or time; the full deadline sits above the RSVP button (FR-41 asks for it next to the button). No button and no child-free line in the hero.
 3. Lead-in line on green.
 4. **«Alt om helgen»**, directly on the green: lily garland (top) → italic heading with a cream hairline → three topic rows, each a lace-framed picture on the left and title, one italic line and «Les mer» on the right: *Programmet* (01-Venue), *Praktisk informasjon* (03-Venue, shifted down so the buildings show), *Om oss* (the couple, «Vår historie.») → lily garland (bottom). Gifts would be a fourth row, only if built.
 5. **RSVP sheet** (jump target of both "Svar" links), 20px below the garland: heading "Svar på invitasjonen", a small gypsophila (180px), «Barnefritt bryllup», the full deadline «Svar innen tirsdag 4. januar 2028 kl. 23:59», the primary button.
@@ -548,11 +548,11 @@ Guest sheets have a soft, hand-made edge (Elevation & Depth) over `{rounded.shee
 
 Four organic shapes come from Rikke's own images, not from code:
 
-- The **seal**: an uneven, hand-pressed wax disc with *R & V*, glossy dark green ([19-Stamp.jpg](../../ux/inspirasjon/19-Stamp.jpg), cut out to [mockups/segl-19.png](mockups/segl-19.png)).
-- The **gypsophila divider**: two crossing sprigs with green stems and white flowers ([20-Flowers.jpg](../../ux/inspirasjon/20-Flowers.jpg), cut out to [mockups/brudeslor-20.png](mockups/brudeslor-20.png)).
+- The **seal**: an uneven, hand-pressed wax disc with *R & V*, glossy dark green ([06-Stamp.jpg](../../ux/egne-bilder/06-Stamp.jpg), cut out to [mockups/segl.png](mockups/segl.png)).
+- The **gypsophila divider**: two crossing sprigs with green stems and white flowers ([07-Flowers.jpg](../../ux/egne-bilder/07-Flowers.jpg), cut out to [mockups/brudeslor.png](mockups/brudeslor.png)).
 
-- The **lily garlands**: white lilies, gypsophila and buds on green stems, one arching up for above the heading and one bowing down for below ([21-FlowersTop.jpg](../../ux/inspirasjon/21-FlowersTop.jpg), [21-FlowersBottom.jpg](../../ux/inspirasjon/21-FlowersBottom.jpg), cut out to [mockups/lilje-topp-21.png](mockups/lilje-topp-21.png) and [mockups/lilje-bunn-21.png](mockups/lilje-bunn-21.png)).
-- The **lace frame**: a thin square frame with small fan scallops and eyelets ([23-Frame.jpg](../../ux/inspirasjon/23-Frame.jpg), cut out and recoloured to `panel-cream` in [mockups/blonde-23.png](mockups/blonde-23.png)). Pictures inside it are square-cut, never oval and never faded into the green (rejected in rounds 1–2).
+- The **lily garlands**: white lilies, gypsophila and buds on green stems, one arching up for above the heading and one bowing down for below ([09-FlowersTop.jpg](../../ux/egne-bilder/09-FlowersTop.jpg), [10-FlowersBottom.jpg](../../ux/egne-bilder/10-FlowersBottom.jpg), cut out to [mockups/lilje-topp.png](mockups/lilje-topp.png) and [mockups/lilje-bunn.png](mockups/lilje-bunn.png)).
+- The **lace frame**: a thin square frame with small fan scallops and eyelets ([11-Frame.jpg](../../ux/egne-bilder/11-Frame.jpg), cut out and recoloured to `panel-cream` in [mockups/blonde.png](mockups/blonde.png)). Pictures inside it are square-cut, never oval and never faded into the green (rejected in rounds 1–2).
 
 The seal and gypsophila are cut out with [.working/cutout-segl-brudeslor.py](.working/cutout-segl-brudeslor.py), the lilies and the frame with [.working/cutout-liljer-blonde.py](.working/cutout-liljer-blonde.py) (from black backgrounds; usage in the file). If Rikke replaces an image, run the script again rather than editing the PNGs. Code-drawn sprigs, seals and lace were tried and rejected ("så jalla ut", memlog 101–105; code lace L1/L2, memlog 2026-11-15).
 
@@ -568,7 +568,7 @@ Frontmatter key in brackets where one exists.
 | **Nav "Svar" button** [`nav-svar`] | Right end of the nav bar: `{colors.green-dark}` fill, cream text, **1px `{colors.cream-on-green}` border** (dark green on page-green is only 1.79:1), ≥ 64 × 44px. The one primary-styled control allowed on green. |
 | **Hero sheet** [`hero-panel`] | Centred, in this order: seal over the top edge, illustration, names, invites line, gypsophila divider, date and place in small capitals, «for <household>», short deadline line with the "Svar" link. Rendered in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html). |
 | **Wax seal** [`wax-seal`] | Rikke's seal image, 74px wide, centred with its top 36px above the hero sheet's top edge, drop shadow. Decorative (`alt=""`). The favicon is made from the same image (at 32px and 180px). |
-| **Hero illustration** [`hero-illustration`] | [Image 17](../../ux/inspirasjon/17-Illustration.jpg) (cool sage watercolour of the bell house and main house among pines with string lights), **shown whole** at 262px wide, pulled up 12px under the seal, `mix-blend-mode: darken` so its paper melts into the cream (`normal` under forced colours). Final file has no signature or text and ships with the app. Alternatives I5–I8: [mockups/illustration-3.html](mockups/illustration-3.html) (I7 chosen). The 150px cropped band in front-page-2.html is superseded (Rikke: "kuttet for mye"). |
+| **Hero illustration** [`hero-illustration`] | [Rikke's illustration 04](../../ux/egne-bilder/04-Illustration.jpg) (cool sage watercolour of the bell house and main house among pines with string lights), **shown whole** at 262px wide, pulled up 12px under the seal, `mix-blend-mode: darken` so its paper melts into the cream (`normal` under forced colours). Final file has no signature or text and ships with the app. Alternatives I5–I8: [mockups/illustration-3.html](mockups/illustration-3.html) (I7 chosen). The 150px cropped band in front-page-2.html is superseded (Rikke: "kuttet for mye"). |
 | **Flower divider** [`flower-divider`] | Rikke's gypsophila image, 224px wide in the hero (between invites line and date), 180px above the child-free line in the RSVP sheet. Decorative (`alt=""`), no blend mode. |
 | **Lily garland** [`lily-garland`] | Rikke's lilies, 296px wide: the top image above the details heading, the bottom image below the last topic row; both bow towards the text, so neither is rotated. Decorative (`alt=""`). With the gypsophila, the only flowers on the page. |
 | **Lead-in** [`lead-in`] | One italic line on the textured green, 24px, e.g. «Vi gleder oss til å feire med dere». |
@@ -627,7 +627,7 @@ Frontmatter key in brackets where one exists.
 | Warm olive greens (hue ~85–100°) | Bluish sage greens (round 1), neon or saturated greens |
 | Cream `#F5EEDF` text of 19px or more on the textured green; the 18px nav words only on the flat nav bar | Cream text under 19px on the textured green |
 | State colour plus icon shape plus words | Red/green/brown alone to mean anything (WCAG 1.4.1) |
-| One illustration (17, whole) in the hero, one seal, the gypsophila in two places, the lilies around «Alt om helgen», lace frames around its pictures and the info-page photos — all from Rikke's images | Icons, sprigs, leaves, ornaments sprinkled through the page; flowers, seals or lace drawn in code |
+| One illustration (egne-bilder 04, whole) in the hero, one seal, the gypsophila in two places, the lilies around «Alt om helgen», lace frames around its pictures and the info-page photos — all from Rikke's images | Icons, sprigs, leaves, ornaments sprinkled through the page; flowers, seals or lace drawn in code |
 | Square pictures in the cream lace frame, beside their text on the front page or at the top of their info sheet | Oval pictures, soft fades into the green, stamp or double-line frames, pictures on a sheet of their own |
 | Venue photos as information: in the topic frames and on info pages | Venue photos as style or background texture |
 | Same tokens in admin, denser, no decoration, 44px targets | Seal, illustration or script on admin working screens |

@@ -1,6 +1,6 @@
 """Cut the couple's seal (19) and gypsophila divider (20) out of their cream backgrounds.
 
-Usage: python -I cutout.py <inspirasjon-dir> <out-dir>
+Usage: python -I cutout-segl-brudeslor.py <egne-bilder-dir> <out-dir>  (e.g. ../../../ux/egne-bilder ../mockups)
 Seal: solid body (everything not connected to the black background), feathered edge.
 Flowers: 'colour to alpha' against the flat background, so white petals stay white on any panel.
 """
@@ -19,9 +19,9 @@ def save_scaled(rgba, width, path):
     print(path.name, im.size, path.stat().st_size, "bytes")
 
 # ---- Seal ----
-# Version 2 of 19-Stamp.jpg has a black background (no paper, no shadow). The body is everything
+# Version 2 of 06-Stamp.jpg has a black background (no paper, no shadow). The body is everything
 # not connected to the corner; the edge is feathered by one pixel. The page adds its own drop shadow.
-a = np.asarray(Image.open(src / "19-Stamp.jpg").convert("RGB")).astype(float)
+a = np.asarray(Image.open(src / "06-Stamp.jpg").convert("RGB")).astype(float)
 d = a.max(-1)
 body = Image.fromarray(((d > 28) * 255).astype(np.uint8)).copy()  # copy: floodfill needs a writable image
 ImageDraw.floodfill(body, (0, 0), 128)
@@ -32,10 +32,10 @@ ys, xs = np.where(alpha > 0.02)
 pad = 4
 y0, y1, x0, x1 = max(0, ys.min() - pad), ys.max() + pad, max(0, xs.min() - pad), xs.max() + pad
 rgba = np.dstack([a, alpha * 255])[y0:y1, x0:x1]
-save_scaled(rgba, 200, out / "segl-19.png")
+save_scaled(rgba, 200, out / "segl.png")
 
 # ---- Gypsophila ----
-a = np.asarray(Image.open(src / "20-Flowers.jpg").convert("RGB")).astype(float)
+a = np.asarray(Image.open(src / "07-Flowers.jpg").convert("RGB")).astype(float)
 border = np.concatenate([a[:6].reshape(-1, 3), a[-6:].reshape(-1, 3), a[:, :6].reshape(-1, 3), a[:, -6:].reshape(-1, 3)])
 bg = np.median(border, axis=0)  # the flat background colour, measured from the image edges
 print("flower background", bg)
@@ -51,4 +51,4 @@ ys, xs = np.where(al > 0.03)
 pad = 8
 y0, y1, x0, x1 = max(0, ys.min() - pad), ys.max() + pad, max(0, xs.min() - pad), xs.max() + pad
 rgba = np.dstack([rgb, al * 255])[y0:y1, x0:x1]
-save_scaled(rgba, 640, out / "brudeslor-20.png")
+save_scaled(rgba, 640, out / "brudeslor.png")

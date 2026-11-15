@@ -2,7 +2,7 @@
 
 Inspirasjonsbilder til BMAD UX-arbeidet (`bmad-ux`). Bildene ligger i denne mappa, og hvert bilde har en kort vurdering under: hva som er bra, hva som ikke er det, og hva vi vil ta med inn i bryllupsnettsida.
 
-Bildene brukes bare som inspirasjon og blir ikke brukt på selve nettsida.
+Bildene brukes bare som inspirasjon og blir ikke brukt på selve nettsida. Bildene Rikke har laget selv, og som brukes på nettsida (illustrasjonene, seglet, blomstene, blonderammen og bildene av oss), ligger i [egne-bilder/](../egne-bilder/egne-bilder.md). De ble flyttet dit 2026-11-15, og numrene her ble endret samtidig (11–13 ble 10–12).
 
 ## Slik fyller du ut
 
@@ -62,32 +62,17 @@ Liker: Liker at det i toppen er mulig å trykke seg til spesifike steder i invit
 Liker ikke: Vi skal ikke ha en spesielle kleskode. Invitasjonen har et litt for enkelt og moderne preg. 
 Ta med: "The finer details" opsettet
 
-## 11-Colorsandtextures.jpg
+## 10-Colorsandtextures.jpg
 Liker: Fargene og at det er litt tekstur. Kan være olivengrønn, kan også være sage green. Og kan også være kremhvit. Liker mørkt tre. 
 Liker ikke:
 Ta med: Fargene og at det er litt tekstur. Må ikke være olivengrønn, kan også være sag egreen. Og kan også være kremhvit. Liker mørkt tre. 
 
-## 12-Feeling.jpg
+## 11-Feeling.jpg
 Liker: Kjent norkt bildet som gir den følelsen vi vil gi. Bildet heter brudeferden i Hardanger, og vi skal gifte oss i en fjord i Hardanger. 
 Liker ikke:
 Ta med: Følelsen. 
 
-## 13-Feeling.jpg
+## 12-Feeling.jpg
 Liker: Følelsen dette bildet gir. Koselig, klassisk, varmt, trivelig. Liker godt det mørke treverket. 
 Liker ikke: Dette bildet er bare for å gi den en annen vinkling på hvilken følelse jeg ønkser at invitasjonen skal gi. 
 Ta med: Følelsen dette bildet gir. Koselig, klassisk, varmt, trivelig. 
-
-## 14-Illustration.jpg
-Liker: Har ved hjelp av AI lagd denne illustrasjonen av området vi skal gifte oss. 
-Liker ikke: KLarer ikke bestemme meg for om jeg liker den stilen best eller den som er i noen av de andre bildene med helt enkle illustrasjoner med grønne streker. Liker alle. 
-Ta med: Kanskje?
-
-## 15-Illustration.jpg
-Liker: Har ved hjelp av AI lagd denne illustrasjonen av området vi skal gifte oss. 
-Liker ikke: KLarer ikke bestemme meg for om jeg liker den stilen best eller den som er i noen av de andre bildene med mer maleripreg. Liker alle. 
-Ta med: Kanskje?
-
-## 16-Illustration.jpg
-Liker: Har ved hjelp av AI lagd denne illustrasjonen av området vi skal gifte oss. 
-Liker ikke: KLarer ikke bestemme meg for om jeg liker den stilen best eller den som er i noen av de andre bildene med mer maleripreg eller mer strektegning. Liker alle. 
-Ta med: Kanskje?
