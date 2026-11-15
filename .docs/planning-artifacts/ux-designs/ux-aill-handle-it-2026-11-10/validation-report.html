@@ -1,8 +1,30 @@
 <!DOCTYPE html>
+<!--
+  UX Design Validation Report — skeleton template.
+
+  This file is a starter the synthesis pass fills in directly. There is no
+  substitution engine. The LLM:
+    1. Reads {doc_workspace}/review-rubric.md and every review-{slug}.md from
+       additional reviewers.
+    2. Copies this skeleton.
+    3. Replaces the placeholder content (everything between TEMPLATE markers)
+       with the consolidated review, preserving the structure and CSS.
+    4. Writes the result to {doc_workspace}/validation-report.html.
+    5. Writes a markdown twin to {doc_workspace}/validation-report.md.
+
+  Visual rules the LLM must preserve:
+    - The container width, the color tokens, the typography.
+    - One dimension = one collapsible <section class="dimension">.
+    - Verdict pill uses the verdict-* class matching its judgment.
+    - Severity badge uses the badge-sev-* class matching its level.
+    - Each extra reviewer (accessibility, adversarial, etc.) gets its own
+      collapsible section below the rubric dimensions.
+    - The footer always shows the artifact paths and timestamp.
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>UX Design Validation: AI&#x27;ll handle it</title>
+<title>UX Design Validation: AI'll handle it</title>
 <style>
   :root {
     --bg: #fafaf9;
@@ -179,43 +201,41 @@
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
   }
   footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
-  .nb-summary { border-left-color: var(--verdict-adequate); }
-  .nb-summary h2 { margin: 0 0 8px; font-size: 15px; font-weight: 600; }
-  .nb-summary ul { margin: 0; padding-left: 20px; }
-  .nb-summary li { margin-bottom: 4px; }
-  .finding-note ul, .finding-fix ul { margin: 4px 0 4px; padding-left: 20px; }
-  .finding-note span, .finding-fix span { display: block; }
-  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.88em; background: rgba(120,113,108,0.10); padding: 0 3px; border-radius: 3px; }
 </style>
 </head>
 <body>
   <div class="container">
 
-    <div class="synthesis nb-summary" lang="nb">
-      <h2>Kort oppsummering (norsk)</h2>
-      <ul>
-        <li>Hva er sjekket: to KI-gjennomganger av UX-dokumentene DESIGN.md (utseende) og EXPERIENCE.md (oppførsel). Den ene sjekket at dokumentene er komplette og henger sammen, den andre sjekket tilgjengelighet (WCAG 2.2 AA og eldre brukere som bestefar Sigmund).</li>
-        <li>Antall funn: 1 kritisk, 5 høy, 25 middels og 24 lav (55 i alt). Noen funn går igjen hos begge gjennomgangene, for eksempel forsiden og fokusringen.</li>
-        <li>Viktigst 1 (kritisk): et halvutfylt svar kan forsvinne hvis Messenger-nettleseren laster siden på nytt. Hvert steg bør lagres som et utkast på serveren.</li>
-        <li>Viktigst 2: forsiden lover at alt vises uten å scrolle på mobil, men målingen viser at knappen «Svar på invitasjonen» havner langt under skjermkanten. Det må bestemmes nå.</li>
-        <li>Viktigst 3: papirteksturen på den grønne bakgrunnen gjør den lyse teksten for svak (kontrast), og oppsettet tåler ikke 200 % zoom. I tillegg er det ikke bestemt hvor spørsmålet om ankomst (FR-18) skal stå i skjemaet.</li>
-        <li>Det gis ingen samlet karakter. Neste steg er å ta funnene inn i en oppdatering av DESIGN.md og EXPERIENCE.md.</li>
-      </ul>
-    </div>
-
+    <!-- TEMPLATE: header. Fill ux spec name and ux spec path. No overall grade —
+         per-category verdicts and severity counts below carry the picture. -->
     <header class="report-header">
       <div class="title">
-        <h1>AI&#x27;ll handle it — UX Design Validation Report</h1>
-        <div class="subtitle">.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md · .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md</div>
+        <h1>AI'll handle it — UX Design Validation Report</h1>
+        <div class="subtitle">.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/ (DESIGN.md + EXPERIENCE.md)</div>
       </div>
     </header>
 
+    <!-- TEMPLATE: overall synthesis paragraphs. Lift directly from
+         review-rubric.md "Overall verdict" section; expand if extra reviewers
+         (accessibility, adversarial, etc.) materially shift the picture.
+         Wrap each paragraph in <p>. -->
     <div class="synthesis">
-      <p>The pair is a usable contract. Every colour token has a hex value (light only, which decision D justifies), and all 12 stated contrast ratios recompute exactly. The 30 component names match one to one across DESIGN.md › Components and EXPERIENCE.md › Component Patterns. All six UJ titles are taken verbatim from the PRD, and every memlog decision has landed in a spine. Two high-impact gaps remain before stories can be written. First, the committed hero tokens most likely break FR-7's "no scrolling on a phone" promise. Second, the position of the FR-18 arrival step is still open. Neither is critical. A handful of medium component and token gaps also remain: focus on the primary button, colours for status tags, the consent block, and the admin overview table.</p>
-      <p>The accessibility review shifts the picture. Measured in a rendered harness, it confirms the rubric's hero concern as fact rather than estimate (the button sits at 797px on a 360 × 640 screen), and it adds the report's only critical finding: nothing guarantees that a half-filled household answer survives a reload in the Messenger in-app browser, which puts SM-3 at risk. It also finds that the paper texture pushes the cream-on-green pair below 4.5:1 and that the type rules break at 200 % zoom. Its own verdict is that the spines are not ready to hand to implementation until the critical and high findings are resolved. Several findings overlap between the two reviewers (hero above the fold, focus offset, copy-button failure); they are kept separate below and counted once per reviewer.</p>
-      <p><strong>Findings by severity:</strong> Critical 1 · High 5 · Medium 25 · Low 24 (rubric walker and accessibility reviewer combined; no overall grade).</p>
+      <p>The spine pair is still a usable contract, and today&#x27;s work landed well: every link, image path, source and token reference resolves, DESIGN.md keeps the spec&#x27;s section order, and the new pages (info pages, admin «Gjester» and «Betalinger», no-valid-link and privacy pages) are specified and rendered. The rubric walker found no critical problems. What remains is drift: text that was not updated after today&#x27;s decisions, two PRD requirements (FR-24, FR-57) that describe the UX as it was, and one admin surface (adding or editing a household) that has buttons but no page.</p>
+      <p>The accessibility review shifts the picture a little. The new components were specified with fixed pixel widths, so the 200 % zoom check (180 CSS px) that the spines themselves require now fails for the programme timeline, the front-page topic rows and the framed images. Focus after confirming a dialog goes to a button that no longer exists. Two of the spines&#x27; own rules are broken by new pages: 18px cream text on the textured green in admin, and 40px jump links against the 44px target floor. None of the 2026-11-11 fixes has regressed.</p>
+      <p>Counts (both reviewers): critical 0, high 5, medium 16, low 23. The earlier run of 2026-11-11 is in git history; its reviewer files are review-rubric.md and review-accessibility.md.</p>
     </div>
 
+    <!-- TEMPLATE: dimension summary cards. One per rubric category, in this
+         canonical order (from references/validate.md):
+           1. Flow coverage
+           2. Token completeness
+           3. Component coverage
+           4. State coverage
+           5. Visual reference coverage
+           6. Bloat & overspecification
+           7. Inheritance discipline
+           8. Shape fit
+         The dim-verdict text uses one of: strong | adequate | thin | broken. -->
     <div class="dimension-summary">
       <div class="dim-card">
         <div class="dim-name">Flow coverage</div>
@@ -223,7 +243,7 @@
       </div>
       <div class="dim-card">
         <div class="dim-name">Token completeness</div>
-        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
       </div>
       <div class="dim-card">
         <div class="dim-name">Component coverage</div>
@@ -238,12 +258,12 @@
         <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
       </div>
       <div class="dim-card">
-        <div class="dim-name">Bloat &amp; overspecification</div>
+        <div class="dim-name">Bloat & overspecification</div>
         <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
       </div>
       <div class="dim-card">
         <div class="dim-name">Inheritance discipline</div>
-        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
       </div>
       <div class="dim-card">
         <div class="dim-name">Shape fit</div>
@@ -251,110 +271,94 @@
       </div>
     </div>
 
+    <!-- TEMPLATE: one section per rubric category, same canonical order as the
+         summary cards above. Skip a category entirely if the rubric review
+         marked it n/a for this UX spec. Open the section by default if verdict
+         is thin or broken. -->
     <section class="dimension">
-      <details>
+      <details open>
         <summary>
           <h2>Flow coverage</h2>
           <span class="verdict-pill verdict-adequate">adequate</span>
         </summary>
         <div class="dim-body">
           <div class="dim-judgment">
-            <p>Checked: UJ-1 to UJ-6 from the PRD (§4), plus the v1 guest-flow FRs the flows depend on (FR-7, FR-13 to FR-23, FR-34 to FR-38, FR-41 to FR-43). All six UJs have a Key Flow with a named protagonist, numbered steps, a <strong>Climax</strong> beat and a failure path. The memlog override on the UJ-1 quality bar is applied.</p>
+            <p>Every PRD requirement with a guest or admin surface still traces to an IA surface and a journey. Two FRs (FR-24, FR-57) now describe the UX as it was before today&#x27;s decisions, and need a PRD update with change-log rows.</p>
           </div>
         </div>
         <div class="findings-list">
           <article class="finding">
             <header>
               <span class="badge badge-sev-high">high</span>
-              <h3 class="finding-title">Hero content does not fit above the fold on a phone</h3>
-              <span class="finding-location">EXPERIENCE › Component Patterns › Hero panel; Key Flows › UJ-1 step 1; Open Questions 1; DESIGN › Layout &amp; Spacing front-page order</span>
+              <h3 class="finding-title">R2-01 · FR-24 still says that once a household has answered, the invitation shows the status &quot;near the top&quot;:</h3>
+              <span class="finding-location">PRD FR-24 vs EXPERIENCE › IA › *Receipt vs status block*; DESIGN › Layout › *Answered state*</span>
             </header>
-            <div class="finding-note"><span>UJ-1 step 1 and the FR-7 Hero panel rule promise that names, date, place, invited names, "Barnefritt bryllup", deadline and the button are all visible without scrolling. The committed tokens most likely do not fit. At 360px wide the content box is about 292px (gutter 16 + hero inline padding 18 on each side). Image 17 (1695×928) is then about 160px tall. Adding the nav row (one or two lines at ≥44px), hero padding 30px, seal 96px, names 46px×1.2, invites, date, place, invited, child-free and deadline lines (about 30px each), and the 52px button gives about 670px or more, against roughly 560px of visible viewport at 360×640. This is left as Open Question 1 with no committed rule.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Commit a budget now. Either cap the illustration height (for example <code>hero-illustration.maxHeight</code> ≤ 110px at narrow widths), let the seal shrink at 320–360px, or move the nav words below the hero or onto one line. Then verify with a 360×640 render before the stories are written.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-high">high</span>
-              <h3 class="finding-title">FR-18 expected arrival has no step position</h3>
-              <span class="finding-location">EXPERIENCE › Interaction Primitives › Form step order; Open Questions 3 and 5</span>
-            </header>
-            <div class="finding-note"><span>FR-18 (expected arrival, a v1 guest-flow requirement) has no step position. The step order in Interaction Primitives skips it, and it is listed as open. Form-step stories, the "Steg n av m" count and the check-answers grouping all depend on it.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Decide the position with Rikke (for example per person together with days, or as its own step before the hike), and record the fixed choices including "Vet ikke".</span></div>
+            <div class="finding-note">FR-24 still says that once a household has answered, the invitation shows the status &quot;near the top&quot;: who sent it and when, the total, what has been reported paid, and the deadline. The decision of 2026-11-15 (OQ1) puts only «Svar sendt 12. oktober · Se svaret» in the hero. The full status sheet replaces the RSVP sheet at the bottom of G2. The PRD has no change-log row for this decision, so a story writer reading FR-24 would build a status block at the top. This also weakens plan-to-code traceability, which the course grades.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Update FR-24 (status sent line in the hero, full status sheet in the RSVP sheet&#x27;s place) and add a 2026-11-15 change-log row that cites .working/answered-1.html and the memlog decision.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">FR-14 read as one step instead of two</h3>
-              <span class="finding-location">EXPERIENCE › Interaction Primitives; DESIGN › Components › Progress line; PRD FR-14</span>
+              <h3 class="finding-title">R2-09 · Since A4 and A6 were merged, the &quot;full overview&quot; is a list with one summary line per household, and each person&#x27;s answers are on separate…</h3>
+              <span class="finding-location">PRD FR-57; EXPERIENCE › Key Flows › UJ-4 step 3</span>
             </header>
-            <div class="finding-note"><span>FR-14 defines two steps: first who is coming, then "whole weekend?" with days per person. The memlog and EXPERIENCE make it one step: "who is coming and which days (FR-14)". The DESIGN example "Steg 2 av 6" means a different count depending on which reading is used.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>State explicitly whether step 1 is one screen or two, and update the progress-line example to match.</span></div>
+            <div class="finding-note">Since A4 and A6 were merged, the &quot;full overview&quot; is a list with one summary line per household, and each person&#x27;s answers are on separate household pages. FR-57 still describes one overview with every household&#x27;s and person&#x27;s answers, contact details, total and payment. UJ-4 step 3 says Rikke &quot;can also open the full overview and count for herself&quot;, which the merged list no longer supports. The PRD has no change-log row for the merge.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Update FR-57 (list plus household page) with a change-log row, and reword UJ-4 step 3. The other option is to state that the PC &lt;table&gt; variant shows the per-person answers.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">UJ-2 refund coda has no flow beat</h3>
-              <span class="finding-location">EXPERIENCE › Key Flows › UJ-2, UJ-5</span>
+              <h3 class="finding-title">R2-25 · It is not clear whether «Se betalingene» on the household page opens the A9 list or that household&#x27;s payment page.</h3>
+              <span class="finding-location">EXPERIENCE › IA A9 (&quot;Reached from … A6 «Se betalingene»&quot;)</span>
             </header>
-            <div class="finding-note"><span>The PRD UJ-2 coda (the couple sees "Endret", pays Arild back and registers the refund so the balance is zero) has no flow beat. UJ-5 covers only received payments.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Add a refund step to UJ-5 or a closing line to UJ-2 that points to A9.</span></div>
+            <div class="finding-note">It is not clear whether «Se betalingene» on the household page opens the A9 list or that household&#x27;s payment page. The render implies the household page.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Write &quot;→ A9 household payment page&quot;.</div>
           </article>
         </div>
       </details>
     </section>
-
     <section class="dimension">
       <details>
         <summary>
           <h2>Token completeness</h2>
-          <span class="verdict-pill verdict-adequate">adequate</span>
+          <span class="verdict-pill verdict-strong">strong</span>
         </summary>
         <div class="dim-body">
           <div class="dim-judgment">
-            <p>Checked: all 17 <code>colors</code>, 13 <code>typography</code>, 3 <code>rounded</code> and 17 <code>spacing</code> tokens, 21 frontmatter components, and every <code>{path.to.token}</code> reference in both spines. All references resolve, and every colour has a hex value. There are no dark pairs, which is justified by memlog decision D ("light only"). The 12 contrast pairs recompute to the stated values (9.35, 10.61, 5.50, 8.08, 4.95, 8.86, 10.49, 6.64, 6.16, 5.67, 5.50 and 4.52:1).</p>
+            <p>Every token reference resolves and every colour has a hex value. Small gaps: settled assumptions, the small-phone nav values only in prose, and two unused spacing tokens.</p>
           </div>
         </div>
         <div class="findings-list">
           <article class="finding">
             <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Focus ring merges with the primary button</h3>
-              <span class="finding-location">DESIGN › Colors <code>focus-on-panel</code>; <code>components.button-primary</code>; EXPERIENCE › Accessibility Floor</span>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">R2-17 · Several [ASSUMPTION] tags are settled by approved renders.</h3>
+              <span class="finding-location">DESIGN › Colors scrim, Elevation › Dialogs, Nav bar row, Admin nav row</span>
             </header>
-            <div class="finding-note"><span>The focus ring on cream is <code>focus-on-panel</code> <code>#344628</code>, which is the same value as the primary button fill <code>green-dark</code>. The 3px ring therefore merges with the button (1.00:1) unless there is an offset, and no offset is specified.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Add a <code>focus-offset</code> spacing token (for example 2–3px, so the cream panel shows between button and ring) and state it in Components › Primary button.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Status tags have no status → colour mapping</h3>
-              <span class="finding-location">DESIGN › Components › Status tag; EXPERIENCE › Component Patterns › Status tag</span>
-            </header>
-            <div class="finding-note"><span>The status tag says "outlined text label in the state colour", but nothing maps the payment statuses ("Ingenting å betale", "Ikke betalt", "Delbetalt, 300 kr mangler", "Betalt", "Skal ha tilbake 200 kr") or "Endret" to <code>success</code>, <code>warning</code>, <code>error</code> or <code>ink</code>. Only "Stemmer ikke" → <code>error</code> is given.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Add a status → colour → icon table.</span></div>
+            <div class="finding-note">Several [ASSUMPTION] tags are settled by approved renders. The 60 % scrim is approved in admin-guests-1, admin-payments-1 and privacy-1. Those three renders paint the scrim as rgba(20,26,12,.6) (#141A0C), not the token&#x27;s #344628. The current-page 2px/4px underline is approved in info-praktisk. The admin nav (Oversikt · Gjester · Betalinger · Innstillinger · Logg ut) is approved in two admin renders.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Remove those tags. Decide whether the scrim is #344628 or #141A0C and make the token match.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">No tokens for busy, hover and pressed states</h3>
-              <span class="finding-location">DESIGN frontmatter <code>components</code></span>
+              <h3 class="finding-title">R2-18 · Below 340px the nav uses 8px gaps, padding 8px 10px 8px 12px, and a &quot;Svar&quot; button with 0 12px padding and a 56px minimum width.</h3>
+              <span class="finding-location">DESIGN frontmatter nav-svar.minWidth: 64px, nav-bar.padding, nav-words.gap; DESIGN › Components › Nav &quot;Svar&quot; (&quot;≥ 64 × 44px&quot;); DESIGN › Layout (320px paragraph)</span>
             </header>
-            <div class="finding-note"><span>No visual tokens for the busy state ("Sender …", the button ignores repeat taps) or for hover/pressed on the secondary button, destructive button and text links. Only <code>green-dark-hover</code> exists.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>State whether busy buttons keep their colours, and give hover treatments for the remaining interactive components.</span></div>
+            <div class="finding-note">Below 340px the nav uses 8px gaps, padding 8px 10px 8px 12px, and a &quot;Svar&quot; button with 0 12px padding and a 56px minimum width. These values are only in prose, and the Components row still says ≥ 64px wide.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add small-phone variants to the frontmatter (as gutter-small-phone already is), and make the Components row say &quot;64px (56px below 340px)&quot;.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title"><code>rounded.none</code> unused; choice control lacks radius</h3>
-              <span class="finding-location">DESIGN frontmatter; › Shapes</span>
+              <h3 class="finding-title">R2-22 · panel-gap (16px) and panel-padding (20px) are never referenced.</h3>
+              <span class="finding-location">DESIGN frontmatter spacing.panel-gap, spacing.panel-padding; components.panel.padding, info-sheet, story-sheet</span>
             </header>
-            <div class="finding-note"><span><code>rounded.none</code> is defined but never used. Prose gives choice boxes <code>{rounded.md}</code>, but <code>components.choice-control</code> has no radius, and the radio button is round.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Remove <code>none</code> or use it, and add <code>radius</code> to <code>choice-control</code>.</span></div>
+            <div class="finding-note">panel-gap (16px) and panel-padding (20px) are never referenced. Panel paddings are written out as raw values (&#x27;24px 22px 14px&#x27;, &#x27;22px 22px 12px&#x27;), and the 20px gap between sheets is stated in prose only.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Remove the two tokens, or reference them, for example info-sheet.gap: &#x27;{spacing.5}&#x27;.</div>
           </article>
         </div>
       </details>
     </section>
-
     <section class="dimension">
       <details>
         <summary>
@@ -363,93 +367,145 @@
         </summary>
         <div class="dim-body">
           <div class="dim-judgment">
-            <p>Checked: every component name across both spines. All 30 rows in DESIGN › Components have a matching row in EXPERIENCE › Component Patterns with real behavioural rules. Gaps are components that are used but not named.</p>
+            <p>The new admin pages use pieces with no component row (admin panel, household panels, registration form). Some microcopy rows contradict the approved renders (typed word FJERN, «Se svaret»).</p>
           </div>
         </div>
         <div class="findings-list">
           <article class="finding">
             <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">"One primary button per screen" conflicts with G2</h3>
-              <span class="finding-location">DESIGN › Components › Primary button; EXPERIENCE › Component Patterns › Primary button and Status block</span>
+              <h3 class="finding-title">R2-04 · «Se svaret» means two different things.</h3>
+              <span class="finding-location">DESIGN › Layout › *Answered state*; EXPERIENCE › Voice and Tone (row &quot;See answer (after deadline)&quot;); Component Patterns › Status block</span>
             </header>
-            <div class="finding-note"><span>"One per screen" for the primary button conflicts with G2. The front page has the RSVP button in the hero and again in its own bottom panel (FR-8). Once the guest has answered, the status block adds a second "Se eller endre svar" primary button next to the hero button that becomes "Se eller endre svar" (FR-37).</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Reword the rule as "one distinct primary action per screen; repeats of the same action allowed". Decide whether the hero button or the status block carries "Se eller endre svar" once the guest has answered.</span></div>
+            <div class="finding-note">«Se svaret» means two different things. In the answered hero line, before the deadline, it jumps to the status sheet on G2. Elsewhere it is the after-deadline label that opens the locked answer view G9. The status sheet&#x27;s own button reads «Se eller endre svar» before the deadline. The answered hero line («Svar sendt 12. oktober · Se svaret») is also missing from the microcopy table.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Give the hero link its own row in Voice and Tone (decided, Rikke 2026-11-15). Either rename one of the two uses, or state that the hero link always goes to the status sheet and that only the sheet&#x27;s button goes to G4 or G9.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Consent block has no component row</h3>
-              <span class="finding-location">EXPERIENCE › Consent &amp; Privacy UX; FR-26 to FR-28</span>
+              <h3 class="finding-title">R2-08 · The row marked decided says the typed word is &quot;the household name, or SLETT&quot;.</h3>
+              <span class="finding-location">EXPERIENCE › Voice and Tone, row &quot;Tier-3 typed word&quot; vs row &quot;Admin guests (A4, A6)&quot;</span>
             </header>
-            <div class="finding-note"><span>The consent block has no component row in either spine. It holds the purpose and recipients text before the choice, a Yes/No that starts unanswered, the "Jeg bekrefter at Marie vet om dette og er enig" confirmation, and the withdrawal entry. It is described only in prose, and this is the most sensitive control in the product.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Add a "Consent block" row to both Components tables: visual (panel section, text order, choice control) and behavioural (starts unanswered, never blocks sending, confirmation shown only for others).</span></div>
+            <div class="finding-note">The row marked decided says the typed word is &quot;the household name, or SLETT&quot;. The approved render (mockups/admin-guests-1.html), the memlog decision of 2026-11-15 and the A4/A6 microcopy row all use «Skriv FJERN for å bekrefte». A builder cannot tell which one is right.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Make the tier-3 row say FJERN for removing a household, and state the word for &quot;delete all data&quot; [2027] separately, or drop that part.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">No component for the A4 overview or admin nav</h3>
-              <span class="finding-location">EXPERIENCE › IA A4 and admin navigation; › Responsive &amp; Platform; DESIGN › Layout &amp; Spacing › Admin</span>
+              <h3 class="finding-title">R2-10 · The spines contradict each other.</h3>
+              <span class="finding-location">DESIGN frontmatter components.jump-links.rowHeight: 40px; DESIGN › Components › Jump links (&quot;each ≥ 40px tall&quot;); EXPERIENCE › Accessibility Floor › Targets</span>
             </header>
-            <div class="finding-note"><span>Admin has no component for the A4 full overview (table on PC, stacked rows on phone, unanswered households "stand out", mismatch and "Endret" markers) or for the admin nav row. EXPERIENCE says "same word-row pattern", but DESIGN's Nav words are cream text on <code>page-green</code> with no admin variant.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Add "Overview row / table" and an admin nav variant (or say explicitly that admin reuses Nav words on green).</span></div>
+            <div class="finding-note">The spines contradict each other. The Accessibility Floor requires targets of at least 44 × 44px ({spacing.target-min}) on guest and admin pages, but the jump links are specified at 40px.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Use {spacing.target-min} for the jump-link rows, re-measure the 120px block, or write a documented exception (WCAG 2.5.8 needs only 24px) into the Accessibility Floor.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">R2-12 · The new admin pages use pieces that have no component row or frontmatter key.</h3>
+              <span class="finding-location">DESIGN › Components; DESIGN › Layout (*Gjester*, *Betalinger*); frontmatter components</span>
+            </header>
+            <div class="finding-note">The new admin pages use pieces that have no component row or frontmatter key. The admin panel itself (straight edge, paper texture, admin-panel-padding) has none. Neither do the household-page panels (*Svar*, *Betaling*, *Lenker*, *Husstanden*), the A9 «Til sammen» summary rows, the registration form, and the saved-confirmation panel («Registrert: mottatt 300 kr.» + «Angre»). The admin page title is &quot;cream on the green (28px)&quot;, but there is no 28px type token (heading-page is 32px, admin-heading 22px).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add an admin-panel key and Components row. Add rows (visual and behavioural) for the A9 summary row and the saved confirmation. Add an admin-title type token, or point the title at an existing one.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Several used pieces are not named as components</h3>
-              <span class="finding-location">IA; State Patterns</span>
+              <h3 class="finding-title">R2-19 · The component names have drifted between the spines.</h3>
+              <span class="finding-location">DESIGN › Components vs EXPERIENCE › Component Patterns</span>
             </header>
-            <div class="finding-note"><span>Several pieces are named in IA or states but not as components: the last-updated header (G4b), the typed-confirmation input for tier 3, the multi-line question field (G10) and the admin search field (A6).</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Name them as variants of Text field or Notice in both tables.</span></div>
+            <div class="finding-note">The component names have drifted between the spines. DESIGN calls it &quot;RSVP sheet&quot; and EXPERIENCE calls it &quot;RSVP panel&quot;. EXPERIENCE &quot;Info page&quot; has no DESIGN row. *Back link*, *Outlined button on green* and *Helper read-only line* have no behavioural row; the helper line&#x27;s behaviour lives in State Patterns.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Use one name (&quot;RSVP sheet&quot; matches the paper-sheet language). Add short behavioural rows, or a line saying that visual-only components need none.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">R2-24 · The Info page row says &quot;Back link first, then the jump links&quot;, but *Vår historie* has none (DESIGN says so).</h3>
+              <span class="finding-location">EXPERIENCE › Component Patterns › Info page; IA › Navigation; IA G3</span>
+            </header>
+            <div class="finding-note">The Info page row says &quot;Back link first, then the jump links&quot;, but *Vår historie* has none (DESIGN says so). The Navigation paragraph puts the sticky bar on &quot;G2 and G3&quot; only. The approved G12 render also has it, with no current word, and G12&#x27;s short jump-link labels (Hva vi lagrer · Hvem ser det · Sletting · …) are not in the microcopy table.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Say &quot;jump links where the page has more than one part&quot;. Add G12 to the nav sentence, noting that no word is current. Add a G12 jump-link row to Voice and Tone.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">R2-26 · The irreversible guest-side delete «Slett allergiopplysningene» is a primary button.</h3>
+              <span class="finding-location">DESIGN › Layout (*G12*, withdrawal dialog); DESIGN › Components › Destructive button (&quot;tier 3 only&quot;)</span>
+            </header>
+            <div class="finding-note">The irreversible guest-side delete «Slett allergiopplysningene» is a primary button. The spines have no rule for guest-side irreversible actions, so a builder could just as well use the Destructive style. The safe focus on «Avbryt» is specified.</div>
+            <div class="finding-fix"><strong>Fix:</strong> State that primary is deliberate for the guest-side withdrawal (one confirmation, Rikke&#x27;s approved render), or switch it to Destructive.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">R2-27 · The refund has three phrasings:</h3>
+              <span class="finding-location">EXPERIENCE › Voice and Tone (&quot;Refund owed&quot;, &quot;Admin payments (A9)&quot;); Component Patterns › Status tag</span>
+            </header>
+            <div class="finding-note">The refund has three phrasings: «Skal ha penger tilbake» (count and attention reason), «Skal ha tilbake 200 kr» (tag) and «Skal betales tilbake» (A9 «Til sammen»). Each can be defended, but no rule says which one goes where.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add one line mapping each context to its phrasing, or merge them.</div>
           </article>
         </div>
       </details>
     </section>
-
     <section class="dimension">
-      <details>
+      <details open>
         <summary>
           <h2>State coverage</h2>
           <span class="verdict-pill verdict-adequate">adequate</span>
         </summary>
         <div class="dim-body">
           <div class="dim-judgment">
-            <p>Checked: each G1–G15 and A1–A16 surface against the "Surface coverage" line and the State Patterns table (empty, cold load, focus, error, save failed, locked, conflict, read-only, session expired, static fallback). Coverage is broad and specific.</p>
+            <p>Thin on the newest surfaces: adding or editing a household has no surface, and A9, G11, G12 and the locked front page lack states.</p>
           </div>
         </div>
         <div class="findings-list">
           <article class="finding">
             <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">R2-02 · FR-49 (tier 2:</h3>
+              <span class="finding-location">EXPERIENCE › IA A4 («Legg til husstand»), A6 (*Husstanden*: «Endre navn og kontaktinfo»); State Patterns › Surface coverage</span>
+            </header>
+            <div class="finding-note">FR-49 (tier 2: add, edit and remove households and guests one by one) has entry points but no surface. Nothing says where «Legg til husstand» and «Endre navn og kontaktinfo» lead, which fields they have (household name, one row per person with name, optional phone and email), how a person is added to or removed from a household, what validation applies, or how saving works. Only «Fjern husstanden» (tier 3) is specified. Removing a single guest has no control at all. No render covers this, and Surface coverage has no row for it. A builder cannot build it from the spines.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a surface, for example &quot;A6b Household edit&quot;: fields, per-person rows with «Legg til person» / «Fjern person» (and the tier that applies), validation and errors, the tier-2 dialog for an edit, and the states (new · edit · validation · saved · read-only). Add a microcopy row for it.</div>
+          </article>
+          <article class="finding">
+            <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Status block position on G2 is unstated</h3>
-              <span class="finding-location">EXPERIENCE › IA › Receipt vs status block; DESIGN › Layout &amp; Spacing front-page order</span>
+              <h3 class="finding-title">R2-03 · This row is stale after OQ1 and OQ14.</h3>
+              <span class="finding-location">EXPERIENCE › Component Patterns › Status block</span>
             </header>
-            <div class="finding-note"><span>The answered state of G2 puts the status block "near the top" without saying whether it sits above, inside or below the hero panel. Above the hero it pushes the FR-7 content further below the fold (see Flow coverage).</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Add the status block to the numbered front-page order in DESIGN › Layout &amp; Spacing.</span></div>
+            <div class="finding-note">This row is stale after OQ1 and OQ14. It still ends with &quot;Placement on G2: Open Question 1&quot;, but OQ1 is resolved. It also leaves out what DESIGN › Components › Status block and the memlog now fix: the sheet is centred, has the small gypsophila, and keeps «Barnefritt bryllup» under the heading.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Replace the last sentence with the resolved placement (in the RSVP sheet&#x27;s place, id = target of nav &quot;Svar&quot; and «Se svaret»). Add «Barnefritt bryllup» to the content order.</div>
           </article>
           <article class="finding">
             <header>
-              <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">No failure state for copy buttons</h3>
-              <span class="finding-location">EXPERIENCE › Responsive &amp; Platform; G7; A6</span>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">R2-05 · The locked states of G2 only say that &quot;the button becomes «Se svaret»&quot;.</h3>
+              <span class="finding-location">EXPERIENCE › State Patterns › *Locked after deadline*, *Never answered, after deadline*; Surface coverage G2</span>
             </header>
-            <div class="finding-note"><span>There is no failure state for "Kopier" (G7) or "Kopier lenke" (A6). The clipboard API can fail in Messenger or Facebook in-app browsers, which EXPERIENCE names as a target.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>When copying fails, show the value selected with "Trykk og hold for å kopiere".</span></div>
+            <div class="finding-note">The locked states of G2 only say that &quot;the button becomes «Se svaret»&quot;. They do not say what the hero deadline line («Svar innen 4. januar 2028») or the nav &quot;Svar&quot; button show, or where they point, after the deadline. This matters most for a household that never answered, where the RSVP sheet has no form to open.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the hero line text and the nav &quot;Svar&quot; target for both locked states, for example «Svarfristen gikk ut 4. januar» with the link to the locked sheet.</div>
           </article>
           <article class="finding">
             <header>
-              <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Admin loading behaviour unstated</h3>
-              <span class="finding-location">EXPERIENCE › State Patterns › Loading</span>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">R2-07 · The search field moved to A4 («Finn en gjest») when A4 and A6 were merged, but both spines still place the search variant on A6.</h3>
+              <span class="finding-location">EXPERIENCE › Component Patterns › Text field (&quot;search (A6 …)&quot;); DESIGN › Components › Text field (&quot;search (A6)&quot;); EXPERIENCE › Surface coverage A4, A6</span>
             </header>
-            <div class="finding-note"><span>Loading is defined for guest pages only ("no skeletons or spinners"). Admin loading and slow-list behaviour are unstated.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>One line for admin.</span></div>
+            <div class="finding-note">The search field moved to A4 («Finn en gjest») when A4 and A6 were merged, but both spines still place the search variant on A6. Surface coverage still gives A6 a &quot;search empty&quot; state, and A4, which now has the search, has no search-empty or empty-list state.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Change &quot;A6&quot; to &quot;A4&quot; in both Text field rows. Move &quot;search empty («Fant ingen med det navnet.»)&quot; to the A4 row, and add &quot;no households yet&quot; to A4.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">R2-14 · The new surfaces are thinly covered.</h3>
+              <span class="finding-location">EXPERIENCE › State Patterns › Surface coverage (A9, G11, G12)</span>
+            </header>
+            <div class="finding-note">The new surfaces are thinly covered. A9 lists only &quot;register · undo · read-only&quot;. It has no list-empty state (the State Patterns row &quot;Ingen betalinger registrert ennå.&quot; is not linked to it), and it lacks the tier-2 confirm, amount validation and save-failed states. G12 is listed as &quot;static&quot;, but its last sheet is interactive and the render shows a &quot;nothing stored&quot; row («Ingen allergiopplysninger lagret.»). G11 has no state for a household where nobody has consented allergy data.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Extend the rows: A9 &quot;list · list empty · register · tier-2 confirm · validation · saved + Angre · save failed · read-only&quot;. G12 &quot;static · withdrawal list · nothing stored&quot;. G11 adds &quot;nothing to withdraw&quot;.</div>
           </article>
         </div>
       </details>
     </section>
-
     <section class="dimension">
       <details>
         <summary>
@@ -458,127 +514,80 @@
         </summary>
         <div class="dim-body">
           <div class="dim-judgment">
-            <p>Checked: <code>mockups/</code> (does not exist yet; three links are expected to resolve after promotion from <code>.working/</code>), <code>wireframes/</code> (none), <code>imports/</code> (empty; inspiration and venue folders are referenced in place by memlog decision), and inline links. "Spines win on conflict" is stated in both headers.</p>
+            <p>Every surface Rikke wanted drawn has an approved render. Six approved decisions still live only in .working/.</p>
           </div>
         </div>
         <div class="findings-list">
           <article class="finding">
             <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Hero illustration and seal have no specific source file</h3>
-              <span class="finding-location">DESIGN › Components › Hero illustration; › Shapes</span>
+              <h3 class="finding-title">R2-11 · Six approved decisions rely only on .working/ files:</h3>
+              <span class="finding-location">DESIGN › Layout (*Answered state*, small phones, Elevation › admin edge), DESIGN › Components › Status block, Helper read-only line; EXPERIENCE OQ1–3, OQ15, State Patterns › Helper read-only</span>
             </header>
-            <div class="finding-note"><span>Two downstream assets have no specific path. (1) The hero illustration is named as "image 17", but the file <code>../../ux/egne-bilder/04-Illustration.jpg</code> is never linked. (2) The seal outline is "in the renders (<code>#seal-shape</code>)", but it appears in nine <code>.working</code> files with different versions, and no one file is named.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Link the image file and name the canonical seal source (for example <code>mockups/illustration-3.html#seal-shape</code>), or export the seal to an SVG file.</span></div>
+            <div class="finding-note">Six approved decisions rely only on .working/ files: answered-1.html, helper-view-1.html, small-phone-1.html, admin-edge-1.html, plain-names-1.html and photo-style-1.html. The workspace convention is approved renders in mockups/ and working rounds in .working/. The answered status sheet and the helper line have no render in mockups/, even though the memlog lists them as &quot;mocked&quot;. If .working/ is tidied away for repo hygiene, these links break.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Promote answered-1.html and helper-view-1.html (at least) to mockups/ and update the links. Alternatively, state once in both headers that .working/ files cited as &quot;Rikke chose&quot; are the record of the decision and are kept.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Renders linked only in the header, without captions</h3>
-              <span class="finding-location">DESIGN header, › Brand &amp; Style, › Typography, › Shapes</span>
+              <h3 class="finding-title">R2-20 · This file is cited as the detailed first-screen render, but its nav still reads «Program · Praktisk · Stedet · Om oss», and one card is h…</h3>
+              <span class="finding-location">EXPERIENCE header and DESIGN › Components › Hero sheet → mockups/paper-ceremony-5.html</span>
             </header>
-            <div class="finding-note"><span>DESIGN links the renders only in its header. They are not linked inline at Colors (color-themes-5), Typography (typography-1) or Hero illustration (illustration-3), and the header does not say what each render shows. Inspiration images (01, 03, 08, 09) are cited by number without links.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Move each render link to its section with a one-line caption, and link the cited images.</span></div>
+            <div class="finding-note">This file is cited as the detailed first-screen render, but its nav still reads «Program · Praktisk · Stedet · Om oss», and one card is headed «Om oss». The page title of info-om-oss.html reads «Vår historie (før «Om oss»)». The spines win, but a builder opening the &quot;detailed&quot; render sees a dropped page.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a caption at the citation (&quot;nav words predate 2026-11-15; see front-page-3&quot;), or update the nav in the render.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Final type pairing never rendered together</h3>
-              <span class="finding-location">typography-1; color-themes-5</span>
+              <h3 class="finding-title">R2-21 · The crop of 12-Us1 used as the *Vår historie* topic picture is an orphan in mockups/, and no spine names it.</h3>
+              <span class="finding-location">mockups/us1-utsnitt.jpg; DESIGN › Layout › front-page order item 4</span>
             </header>
-            <div class="finding-note"><span>The final type pairing, Imperial Script with EB Garamond at 20px, was never rendered together (typography-1 pairings: S1+B2, S1+B1@20px, S4+B3). color-themes-5 predates both the illustration and the font choice.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Render the final front page (G4a + K1 + T2 + S4 + B1@20 + I7) as one mockup when promoting to <code>mockups/</code>.</span></div>
+            <div class="finding-note">The crop of 12-Us1 used as the *Vår historie* topic picture is an orphan in mockups/, and no spine names it. The front-page item gives Programmet (01-Venue) and Praktisk (03-Venue) but only &quot;the couple&quot; for *Vår historie*.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Name egne-bilder/12-Us1.jpg (crop mockups/us1-utsnitt.jpg) in item 4.</div>
           </article>
         </div>
       </details>
     </section>
-
     <section class="dimension">
       <details>
         <summary>
-          <h2>Bloat &amp; overspecification</h2>
+          <h2>Bloat & overspecification</h2>
           <span class="verdict-pill verdict-adequate">adequate</span>
         </summary>
         <div class="dim-body">
           <div class="dim-judgment">
-            <p>DESIGN prose carries a fitting editorial voice. Provenance notes in the Colors table ("renderer's own value, not chosen by the couple") are useful for downstream consumers. EXPERIENCE is mostly tables and rules.</p>
+            <p>No finding.</p>
           </div>
         </div>
         <div class="findings-list">
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Consent &amp; Privacy UX restates the requirements</h3>
-              <span class="finding-location">EXPERIENCE › Consent &amp; Privacy UX</span>
-            </header>
-            <div class="finding-note"><span>Consent &amp; Privacy UX largely restates FR-25 to FR-30, FR-43 and NFR-4, although the header says requirements are "not restated here".</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Keep the UX decisions (explanation before Yes/No, withdrawal in two places, confirmation wording) and cite the FRs for the rest.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">"Surface coverage" is one long run-on line</h3>
-              <span class="finding-location">EXPERIENCE › State Patterns</span>
-            </header>
-            <div class="finding-note"><span>The "Surface coverage" paragraph is a single 150-word run-on line, which is hard to source-extract.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Turn it into a Surface | States table.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Decided items live in struck-through Open Questions</h3>
-              <span class="finding-location">EXPERIENCE › Open Questions 6</span>
-            </header>
-            <div class="finding-note"><span>Open Questions keeps struck-through decided items, and the hike "kanskje" decision (memlog: shown separately in the admin summary) lives only there.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Move it into Component Patterns › Admin summary row and drop the struck items.</span></div>
-          </article>
+
         </div>
       </details>
     </section>
-
     <section class="dimension">
       <details>
         <summary>
           <h2>Inheritance discipline</h2>
-          <span class="verdict-pill verdict-strong">strong</span>
+          <span class="verdict-pill verdict-adequate">adequate</span>
         </summary>
         <div class="dim-body">
           <div class="dim-judgment">
-            <p>Checked: all 7 <code>sources</code> paths resolve. UJ-1 to UJ-6 titles match the PRD verbatim. The PRD's English working labels map to bokmål through the microcopy table ("Needs attention" → "Trenger oppfølging", "Changed" → "Endret" and so on), and that wording is used consistently. Component names are identical in both Components tables, and every EXPERIENCE token reference resolves to a DESIGN token.</p>
+            <p>The spines follow the PRD, except that G1 has no privacy link although FR-66 asks for one on every page.</p>
           </div>
         </div>
         <div class="findings-list">
           <article class="finding">
             <header>
-              <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Example deadline has the wrong weekday</h3>
-              <span class="finding-location">EXPERIENCE › State Patterns › Locked after deadline</span>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">R2-13 · G1 has no footer, a deliberate choice under FR-5 (no phone numbers).</h3>
+              <span class="finding-location">EXPERIENCE › IA G1; PRD FR-66</span>
             </header>
-            <div class="finding-note"><span>The example deadline "fredag 1. desember kl. 23:59" has the wrong weekday: 1 December 2027 is a Wednesday.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Correct the weekday, or use a neutral example date.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Frontmatter component keys drift from table names</h3>
-              <span class="finding-location">DESIGN frontmatter vs › Components</span>
-            </header>
-            <div class="finding-note"><span>Frontmatter component keys drift from the table names: <code>panel</code> ↔ Info card, <code>field</code> ↔ Text field, <code>link-more</code> ↔ Text link / "Les mer".</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Name the key in each table row, or align the names.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">EXPERIENCE frontmatter uses <code>title:</code> instead of <code>name:</code></h3>
-              <span class="finding-location">EXPERIENCE frontmatter</span>
-            </header>
-            <div class="finding-note"><span>EXPERIENCE frontmatter uses <code>title:</code> where the examples use <code>name:</code>.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Add <code>name: "AI'll handle it"</code>.</span></div>
+            <div class="finding-note">G1 has no footer, a deliberate choice under FR-5 (no phone numbers). FR-66 says the privacy page &quot;is linked from the bottom of every page&quot;, so G1 now breaks that rule without saying so.</div>
+            <div class="finding-fix"><strong>Fix:</strong> State the exception in the G1 row. Either add a bare «Personvern» link to G1 (it carries no personal data), or narrow FR-66 to valid-link pages in the PRD.</div>
           </article>
         </div>
       </details>
     </section>
-
     <section class="dimension">
       <details>
         <summary>
@@ -587,329 +596,235 @@
         </summary>
         <div class="dim-body">
           <div class="dim-judgment">
-            <p>DESIGN sections are in the locked order: Brand &amp; Style → Colors → Typography → Layout &amp; Spacing → Elevation &amp; Depth → Shapes → Components → Do's and Don'ts. EXPERIENCE has all required defaults. Inspiration &amp; Anti-patterns is present, which the memlog rejects trigger, and Responsive &amp; Platform is present, as triggered by phone, PC and admin. Two invented sections earn their place: Consent &amp; Privacy UX (consumer stakes, health-adjacent data) and Open Questions.</p>
+            <p>Section order and required sections are in place. The remaining items are stale examples left after today&#x27;s renames.</p>
           </div>
         </div>
         <div class="findings-list">
           <article class="finding">
             <header>
-              <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">G4b is an element, not an IA surface</h3>
-              <span class="finding-location">EXPERIENCE › IA</span>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">R2-06 · OQ13 contradicts itself:</h3>
+              <span class="finding-location">EXPERIENCE › Open Questions 13; Key Flows › UJ-4 step 2</span>
             </header>
-            <div class="finding-note"><span>G4b ("Last-updated header + conflict notice") is listed as an IA surface, but it is an element inside G4.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Move it to Component Patterns or State Patterns.</span></div>
+            <div class="finding-note">OQ13 contradicts itself: &quot;The admin label is «Ingen allergiopplysninger lagret» instead of «Ingen allergiopplysninger lagret»&quot;. The old label «Har ikke svart på allergier» was lost in the edit. UJ-4 step 2 still lists the old label (&quot;…ingen, har ikke svart på allergier&quot;), although the memlog says the UJ was updated.</div>
+            <div class="finding-fix"><strong>Fix:</strong> In OQ13 write &quot;instead of «Har ikke svart på allergier»&quot;. In UJ-4 step 2 use «Ingen allergiopplysninger lagret».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">R2-15 · The example is «Vår historie.», which looks like a rename slip.</h3>
+              <span class="finding-location">DESIGN › Typography table, row &quot;Topic text&quot;</span>
+            </header>
+            <div class="finding-note">The example is «Vår historie.», which looks like a rename slip. The topic line is «Fra vi møttes til i dag.» (EXPERIENCE › Voice and Tone; DESIGN › Layout).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Use «Fra vi møttes til i dag.» or «Hele helgen, dag for dag.»</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">R2-16 · The text still says the superseded key-admin-overview.html helper view &quot;is still the only render of read-only admin (see EXPERIENCE Ope…</h3>
+              <span class="finding-location">DESIGN › Layout &amp; Spacing › *Admin home (A2)*</span>
+            </header>
+            <div class="finding-note">The text still says the superseded key-admin-overview.html helper view &quot;is still the only render of read-only admin (see EXPERIENCE Open Question 15)&quot;. OQ15 is resolved, and .working/helper-view-1.html is the render now.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Point to helper-view-1.html (or its promoted copy) and drop the OQ15 reference.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">R2-23 · The example «Sist endret av Arild, 3.</h3>
+              <span class="finding-location">EXPERIENCE › State Patterns › Last updated</span>
+            </header>
+            <div class="finding-note">The example «Sist endret av Arild, 3. mars kl. 18:40» falls after the 4 January 2028 deadline, when guests can no longer change answers (and before the invitations if read as 2027).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Use a date inside the answering window, for example «3. november kl. 18:40».</div>
           </article>
         </div>
       </details>
     </section>
 
+    <!-- TEMPLATE: one section per extra reviewer that ran (accessibility,
+         adversarial, brand-conformance, etc.). Skip this block entirely if
+         only the rubric walker ran. -->
     <section class="reviewer-section">
-      <details>
+      <details open>
         <summary>
           <h2>Accessibility review</h2>
-          <span class="reviewer-source">review-accessibility.md</span>
+          <span class="reviewer-source">review-accessibility-2.md</span>
         </summary>
         <div class="dim-body">
           <div class="dim-judgment">
-            <p>The token table looks compliant, but nearly every guarantee is made on paper and fails when you measure it: the cream-on-green pair has no headroom and the paper texture already pushes it under 4.5:1, the "above the fold" hero sits about 160px below the fold on a 360 × 640 phone, and the layout rules break at the zoom level Sigmund is most likely to use. Worse, the spines never say what happens to a half-filled household answer when the Messenger in-app browser reloads, which puts SM-3 at risk. <strong>Not ready to hand to implementation</strong> until the critical and high findings below are resolved in the spines.</p>
-            <p>How this was checked: contrast was recomputed from the hexes (WCAG 2.x relative luminance) in a scratch script, and every pair in DESIGN.md › Contrast pairs matches to two decimals. A spec-faithful front page was rebuilt from the renders' CSS (render texture, image 17, Imperial Script and EB Garamond, plus the nav-word row that no render includes) and rendered headless in Chrome at 360 × 640, 320 × 568 and 180 × 320 (a 360px phone at 200 % text or zoom); screenshot pixels were sampled for the texture finding. Measurements quoted come from that harness, not from estimates. Key reader: bestefar Sigmund, 78, SMS link on his phone (UJ-1, SM-3, NFR-5).</p>
+            <p>Lens: WCAG 2.2 AA, PRD NFR-5 and older-user usability; key reader bestefar Sigmund, 78, on a phone in Messenger&#x27;s in-app browser at 150–200 % text size. The new pages are semantically well specified (ordered timeline, h2 chapters, decorative icons, status tags with icon and word, dialog roles). Three gaps need fixing before build: reflow at 200 % zoom for the new fixed-width components, focus after confirming a dialog, and the spines&#x27; own contrast and target rules broken by admin text and jump links.</p>
           </div>
         </div>
         <div class="findings-list">
           <article class="finding">
             <header>
-              <span class="badge badge-sev-critical">critical</span>
-              <h3 class="finding-title">An unsent answer does not survive a reload, discarded tab or timeout</h3>
-              <span class="finding-location">EXPERIENCE § State Patterns "Not sent yet"; § Interaction Primitives "One step at a time"; § Responsive &amp; Platform "In-app browsers"</span>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">A2-01 · The two-sided timeline has no narrow-width rule.</h3>
+              <span class="finding-location">DESIGN › frontmatter programme-timeline, programme-icon; Components › Programme timeline; EXPERIENCE › Accessibility Floor (180 × 320 check) · WCAG 1.4.10 Reflow</span>
             </header>
-            <div class="finding-note"><span>Nothing in the spines says an unsent answer survives a reload, a discarded tab or a timeout. The only protection is a leave warning, and the spine itself admits in-app browsers "cannot be relied on" for it. Messenger and Facebook WebViews routinely reload a page when the user switches apps. Sigmund will put the phone down to ask bestemor about her allergies or take a call, then come back to a blank form. No guest-side form or CSRF token lifetime is specified either, so a "Send svaret" after a long pause may fail. Under WCAG 2.2.1 a time limit needs a warning and a way to extend it, and here the user is not even told one exists. This directly threatens SM-3 (completing alone in under 10 minutes).</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Make "Fortsett" persist each step server-side as a household draft (status "ikke sendt"). On reopening the link, show "Du har et svar som ikke er sendt ennå. Fortsett der du slapp" on G2 and in the status block. State that guest pages have no session or token expiry, or that expiry is at least 20 hours, and that an expired submit keeps all input. Add the draft states to the Surface coverage list.</span></div>
+            <div class="finding-note">The two-sided timeline has no narrow-width rule. Spine arithmetic at 180px layout width (Sigmund at 200 %): 180 − 2 × 8 gutter − 2 × 22 sheet padding = 120px, so each half is 60px, and minus the 18px gap to the line each event column is 42px. The 56px icon does not fit, and neither do words like «Hyttene» or «Badstue,» in 20px italic. The 180px render confirms it: «Hyttene er klare» is cut off at the sheet edge, and icons push past their column. The overlap of 36px also assumes events of fixed height.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a narrow layout: below 260px layout width (or whenever an event column would be under ~90px), use one side only, with the line and dots along the left edge, all events left-aligned and no overlap. Icons could optionally go to 40px. State it in Components › Programme timeline and add «the programme at 180px» to the check list in Layout &amp; Spacing.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-high">high</span>
-              <h3 class="finding-title">The paper texture breaks the 4.95:1 cream-on-green pair</h3>
-              <span class="finding-location">DESIGN § Elevation &amp; Depth "Paper texture"; § Contrast pairs; § Components "Nav words", "Lead-in"</span>
+              <h3 class="finding-title">A2-02 · The new components are built from fixed px widths with no max-width rule:</h3>
+              <span class="finding-location">DESIGN › frontmatter topic-row, lace-frame, hero-illustration, lily-garland, flower-divider; Layout &amp; Spacing › Front-page order, Info pages · WCAG 1.4.10 Reflow</span>
             </header>
-            <div class="finding-note"><span>Keeping the <em>average</em> colour unchanged is not enough. Overlay noise lightens individual pixels, and this pair has only 0.45 of headroom. Sampled from the render's own <code>--grain-green</code>/<code>--fibre-green</code> on <code>#5A6C48</code>:</span><ul><li>17.4 % of background pixels give <code>#F5EEDF</code> text less than 4.5:1;</li><li>the 95th percentile is 4.23:1 and the worst pixel is 3.47:1.</li></ul><span>This text is the primary navigation and the lead-in, set in thin EB Garamond (the lead-in is italic). It fails 1.4.3 wherever a glyph lands on a light speck. The panels are fine: ink stays ≥ 7.8:1 and <code>ink-muted</code> ≥ 4.6:1 on the textured cream.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Either take the texture off the green behind text (a <code>page-green</code> band under the nav row and lead-in), or cap the green texture so that no pixel is lighter than <code>#5F7250</code> (≥ 4.5:1 with headroom), or darken <code>page-green</code> by about 2 L* so that the lightest texture pixel still passes. Write the rule "contrast is checked against the lightest texture pixel, not the average" into DESIGN § Contrast pairs.</span></div>
+            <div class="finding-note">The new components are built from fixed px widths with no max-width rule: illustration 262px, lily garland 296px, gypsophila 224/180px, lace frame 136px in topic rows and 220px on info sheets. At 180px the hero content box is 148px and the info-sheet body is 120px, so the illustration and the 220px frame overflow (render: the church photo runs past the sheet edge). The topic row is fixed side by side: 136px frame + 14px gap leaves about 10px for the title, line and «Les mer» (render: title and button clipped off-screen). Sigmund at 200 % cannot open the info pages from the front page.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a general rule in Layout &amp; Spacing: every image is max-width: 100%; height: auto, and stated widths are maximums. Topic row stacks (picture centred above the text) below about 300px layout width. On info sheets use width: min(220px, 100%). Re-run the 180 × 320 check on front-page-3, info-praktisk, info-program and info-om-oss, and record the result as was done for the names.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-high">high</span>
-              <h3 class="finding-title">The "everything above the fold" claim is false</h3>
-              <span class="finding-location">EXPERIENCE § Component Patterns "Hero panel"; § Key Flows UJ-1 step 1; DESIGN § Layout &amp; Spacing front-page order</span>
+              <h3 class="finding-title">A2-03 · Returning focus to the trigger only works on cancel.</h3>
+              <span class="finding-location">EXPERIENCE › Component Patterns › Dialog («… is trapped, and returns to the trigger»); Admin protection tiers (guest consent withdrawal); IA › A9 («After saving: «Registrert: mottatt 300 kr.» with «Angre»»); DESIGN › Layout › Betalinger · WCAG 2.4.3 Focus Order; 4.1.3 Status Messages</span>
             </header>
-            <div class="finding-note"><span>The spine states it as fact in two places. Measured bottom of the "Svar på invitasjonen" button:</span><ul><li><strong>797px</strong> at 360 × 640, so the button and the deadline line are entirely below the fold;</li><li><strong>805px</strong> at 320 × 568;</li><li>about 240px below the fold in a Messenger in-app browser, which leaves roughly 360 × 560 visible;</li><li>over 1 100px at 200 % zoom.</li></ul><span>The nav row alone takes 104px (two lines), and image 17 takes 152px. Open Question 1 suggests "cap illustration height or shrink the seal", but that is not enough. Even removing <em>both</em> leaves the button at about 630px with no margin for the in-app toolbar. Sigmund, who does not scroll speculatively, may never see the deadline or the button.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Decide it now rather than leave it open:</span><ul><li>move the nav row <em>below</em> the hero, or reduce it to a single "Les mer om helgen ↓" line;</li><li>cap the illustration at about 90px tall (<code>object-fit: cover</code>), or move it below the button;</li><li>put the deadline directly above the button;</li><li>re-measure at 360 × 560.</li></ul><span>Rewrite UJ-1 step 1 so it does not promise what the layout cannot deliver.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-high">high</span>
-              <h3 class="finding-title">The reflow rules contradict each other at the zoom level older users actually use</h3>
-              <span class="finding-location">DESIGN § Typography "Imperial Script … never below 32px … shrink to fit at 320px rather than wrap"; § Layout &amp; Spacing; EXPERIENCE § Accessibility Floor; § Responsive &amp; Platform</span>
-            </header>
-            <div class="finding-note"><span>On a phone, "200 % zoom" means Android font scaling (which Chrome now applies as page zoom) or iOS page zoom. That gives a layout viewport of about 180 CSS px, not 320. At 180px:</span><ul><li>the names need 17px to fit, which breaks the 32px floor, yet <code>white-space: nowrap</code> forbids wrapping, so the document becomes 296px wide and scrolls sideways (fails 1.4.10);</li><li>the nav row becomes four lines (192px).</li></ul><span>The render shrinks the names with <code>cqi</code> units. This means zoom does not enlarge them, which conflicts with 1.4.4. Container queries are also unsupported in iOS &lt; 16 and older Android WebViews, and that is exactly Sigmund's old phone, where the fallback is a fixed 46px nowrap line that overflows even at 320px (measured 262px of names in a 237px box). Long bokmål compounds ("Allergiopplysningene", "Hardingasete") will also overflow narrow columns. All type tokens are in px, which ignores the browser font-size setting.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <ul><li>let the names wrap onto two lines (name / "&amp;" / name, as in inspiration 09) below about 300px instead of shrinking;</li><li>drop the "shrink to fit" rule and any <code>cqi</code>/JS fitting;</li><li>specify <code>rem</code> for type tokens, <code>overflow-wrap: anywhere</code> and <code>hyphens: auto</code> (with <code>lang="nb"</code>);</li><li>add 180 × 320 as an explicit check width in § Responsive &amp; Platform.</li></ul></div>
+            <div class="finding-note">Returning focus to the trigger only works on cancel. After confirm the trigger is gone or meaningless. «Trekk samtykket for bestemor» disappears when the data is deleted. «Fjern husstanden» goes away with the household page. After «Registrer 300 kr» the useful place is the new confirmation panel, not the form button. Focus then falls to body, and a screen-reader or keyboard user gets no confirmation and loses their place. If saving is a server round trip, the render&#x27;s role=&quot;status&quot; confirmation is present at page load and not announced, which the spine&#x27;s own Notice rule says («Present at page load = not a live region»). What «Angre» on that confirmation does to focus and announcements is also unspecified.</div>
+            <div class="finding-fix"><strong>Fix:</strong> In Component Patterns › Dialog, split the rule into cancel (return to trigger) and confirm. On confirm, focus goes to the result message: «Allergiopplysningene til bestemor er slettet.», «Registrert: mottatt 300 kr.», or on delete the «Gjester» page with a confirmation line such as «Sigmund og bestemor er fjernet.» (tabindex=&quot;-1&quot;). Whether this happens in place or on a new page, the message receives focus. After «Angre», replace the message with «Angret.» and keep focus there. Add these to Surface coverage (G11 done, A6 deleted, A9 undo).</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Hint text breaks the spine's own rule, and the 18px floor holds only in the letter</h3>
-              <span class="finding-location">DESIGN § Colors <code>ink-muted</code> "Never: … anything the guest must read to act" vs § Components "Text field … hint below in <code>{typography.small}</code> <code>{colors.ink-muted}</code>"; § Typography</span>
+              <h3 class="finding-title">A2-04 · The spine&#x27;s own rule is that cream text under 19px may stand only on the flat nav bar, because the measured worst case on the tex…</h3>
+              <span class="finding-location">DESIGN › Components › Admin nav («Reuses Nav words on the green page»); Layout › Gjester / Betalinger («the count «30 husstander · 70 gjester»», back links «Alle gjester», «Alle betalinger»); Elevation &amp; Depth › Paper texture; Do&#x27;s and Don&#x27;ts · WCAG 1.4.3 Contrast (Minimum)</span>
             </header>
-            <div class="finding-note"><span>Format hints such as "for eksempel 900" are exactly what the guest must read to act, yet they are set in the smallest and lightest style. EB Garamond's x-height is 0.41, so <code>small</code> at 18px renders like about 15px Georgia (the typography render says so itself). That is below the <em>intent</em> of NFR-5's 18px floor, and it also covers the progress line and footer meta.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Set hints in <code>ink</code> at <code>body</code> size, italic if they must be told apart. Raise <code>small</code> to 19–20px, or limit it to text nobody needs to act on (timestamps, "Ikke oppgitt").</span></div>
+            <div class="finding-note">The spine&#x27;s own rule is that cream text under 19px may stand only on the flat nav bar, because the measured worst case on the textured green is 4.50:1 with no headroom. Admin pages are the textured green (Page: «with the calm paper texture»). Yet the admin nav reuses the 18px nav words on it, and the count line and back links are admin-body 18px. The renders do exactly this (.screen.tex-green with 18px cream nav, count and back link). This applies to every admin page.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Pick one: (a) put the admin nav, back link and title area on a flat page-green band, as the guest nav bar does; or (b) set admin cream-on-green text to ≥ 20px (body). Name an Admin back link component, add the count line to the Components table, and add «Cream text under 19px on the admin green» to Don&#x27;ts.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Focus visibility depends on an offset that is never specified</h3>
-              <span class="finding-location">DESIGN § Colors <code>focus-on-panel</code>; § Components "Primary button", "Text field"; EXPERIENCE § Accessibility Floor</span>
+              <h3 class="finding-title">A2-05 · The spines contradict each other.</h3>
+              <span class="finding-location">DESIGN › frontmatter jump-links.rowHeight: 40px; Components › Jump links («each ≥ 40px tall»); EXPERIENCE › Accessibility Floor › Targets («≥ 44 × 44px … on guest and admin pages») · WCAG 2.5.8 passes; NFR-5 fails</span>
             </header>
-            <div class="finding-note"><ul><li><code>focus-on-panel</code> is <code>#344628</code>, the same colour as the primary button fill, so with <code>outline-offset: 0</code> the ring merges into the button (1:1).</li><li>On a text field the ring replaces a 2px <code>#5E594F</code> border with a 3px <code>#344628</code> ring. The two differ by only 1.50:1, so the focused field looks almost the same as an unfocused one.</li><li>Rings drawn past a panel edge land on <code>page-green</code> at 1.79:1.</li></ul></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Add <code>focus-offset: 3px</code> as a token and make it mandatory. On fields, use a ring <em>plus</em> a thicker border, or a 3px ring offset outside a cream gap. Choose the ring colour by the surface the ring is <em>painted on</em>, not by the element's parent. Specify <code>:focus-visible</code> with no <code>outline: none</code> anywhere.</span></div>
+            <div class="finding-note">The spines contradict each other. Jump links are set to 40px high, while the floor (and PRD NFR-5) requires 44px for every guest target. The lines are stacked with no gap, so each word&#x27;s target is 40px tall. UJ-1 step 2 has Sigmund tapping «Komme dit» on exactly this control. The memlog records the visual pick (variant 1) but no decision to make an exception to 44px.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Set rowHeight to 44px (three lines on Praktisk add 12px), or record a deliberate NFR-5 exception in the memlog and the PRD. Do not leave the conflict unresolved.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Field error, hint and consent semantics are left undefined</h3>
-              <span class="finding-location">DESIGN § Components "Text field", "Choice control"; EXPERIENCE § Component Patterns "Text field", "Error summary"; § Consent &amp; Privacy UX</span>
+              <h3 class="finding-title">A2-06 · «Se svaret» means two different things.</h3>
+              <span class="finding-location">EXPERIENCE › Receipt vs status block («Svar sendt 12. oktober · Se svaret»); Microcopy «See answer (after deadline) — Se svaret»; State Patterns › Locked after deadline («Button becomes &quot;Se svaret&quot;»); Component Patterns › Status block · WCAG 3.2.4 Consistent Identification; 2.4.4 Link Purpose</span>
             </header>
-            <div class="finding-note"><span>The spine places the error "between label and field" but never changes the field's visual state: border colour and width stay the same. It also never requires <code>aria-invalid</code>, or <code>aria-describedby</code> linking the hint and error to the input. The consent explanation must be read <em>before</em> Yes/No, but there is no fieldset/legend/describedby structure tying the long text to the radio group. Choice groups get no error placement at all.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Error state = <code>error</code> 3px border plus the error text with icon, <code>aria-invalid="true"</code>, and <code>aria-describedby="hint error"</code>. Every radio group is a <code>fieldset</code>, with the question as <code>legend</code> and the error inside the fieldset. Consent text goes in the fieldset, before the radios, and is referenced from the legend.</span></div>
+            <div class="finding-note">«Se svaret» means two different things. In the answered hero it is a same-page jump to the status block, which shows a summary and another button, «Se eller endre svar». After the deadline, «Se svaret» opens the locked answer view (G9). Sigmund taps «Se svaret» expecting to see his answers and lands on a summary sheet with a differently worded button. For him that is one tap too many and two names for one thing.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Either make the hero link go where its words say (the answer view, same target as the status block button), or name the jump for what it does, e.g. «Svar sendt 12. oktober · Se status». Keep «Se svaret» for the G9 view only. Update the Microcopy table so each label has one meaning.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Feedback on server-rendered pages is planned as if it were a single-page app</h3>
-              <span class="finding-location">EXPERIENCE § Component Patterns "Notice"; § Accessibility Floor "announced via polite live regions"</span>
+              <h3 class="finding-title">A2-07 · The stated fallback cannot happen.</h3>
+              <span class="finding-location">DESIGN › frontmatter paper-sheet.fallback («flat panel-cream … under forced-colors»); Elevation &amp; Depth; Components › Dialog, Programme timeline; EXPERIENCE › Accessibility Floor › Forced colours · WCAG 1.4.11 Non-text Contrast (boundaries); forced colours</span>
             </header>
-            <div class="finding-note"><span>Each step, the check page, the receipt and G8 are full page loads (NFR-7 "server pages"). Live regions do not announce content that is present at load, so "Svaret er sendt" and validation results are silent to screen readers unless focus is managed. The page title is also "identical for every guest" and presumably the same for every step, which fails 2.4.2 in practice.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>On every load, set <code>&lt;title&gt;</code> to "Steg 3 av 6: Måltider – Invitasjon", prefixed with "Feil: " when there are errors. Focus the error summary when there are errors; otherwise let focus start at the top, with the <code>h1</code> as the step question. Keep live regions for in-page changes only (running total, "Kopiert").</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">The step count "Steg n av m" moves under the guest</h3>
-              <span class="finding-location">EXPERIENCE § Component Patterns "Progress line"; DESIGN § Components "Progress line"</span>
-            </header>
-            <div class="finding-note"><span>If m is recalculated as steps appear or disappear, Sigmund sees "Steg 3 av 5" and then "Steg 4 av 6", which undermines the one orientation cue an older user relies on. It is also set in the smallest type (see the hint finding).</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Settle m after step 1, which determines all conditional steps. Show the step name in the progress line ("Steg 2 av 6: Overnatting"), set it at <code>body</code> size, and expose it as the first line under the <code>h1</code>.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Browser Back on POST-driven steps is left unspecified</h3>
-              <span class="finding-location">EXPERIENCE § Interaction Primitives "browser Back equals 'Tilbake' [ASSUMPTION]"</span>
-            </header>
-            <div class="finding-note"><span>With server-submitted steps, Back produces "Bekreft innsending av skjema" prompts or stale pages. Older users press Back constantly.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Require Post/Redirect/Get for every step, so each step has its own GET URL and Back is always safe and shows the saved draft (see the critical finding).</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">The nav-word row has unaddressed semantics and wayfinding problems</h3>
-              <span class="finding-location">DESIGN § Components "Nav words"; EXPERIENCE § Information Architecture "Navigation"</span>
-            </header>
-            <div class="finding-note"><ul><li>Middle-dot separators written as text are read aloud ("midtpunkt") between every link, and they dangle at line starts when the row wraps.</li><li>No render has ever shown the row.</li><li>"Svar" is only about 44px wide at 20px with 6px padding, so NFR-5's 44 × 44 needs explicit inline padding. The spine specifies only height.</li><li>The row has no entry for the invitation itself, so on G3 the current-page marker works but there is no way "home" except "Tilbake til invitasjonen".</li><li>"Svar" (a noun or verb with a changing destination) competes with the primary "Svar på invitasjonen".</li></ul></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Use <code>&lt;nav aria-label="Invitasjonen"&gt;&lt;ul&gt;</code> with the dots generated by CSS <code>::before</code> (<code>aria-hidden</code> by nature). Set an inline padding token so every word is ≥ 44 × 44. Add "Invitasjonen" as the first word on G3. Rename "Svar" to "Ditt svar", or drop it, since the button already exists.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">The couple's names exist only in a hairline script, and there is no defined <code>h1</code></h3>
-              <span class="finding-location">DESIGN § Typography "Imperial Script"; EXPERIENCE § Component Patterns "Hero panel"; § Accessibility Floor "page titles … contain no names"</span>
-            </header>
-            <div class="finding-note"><ul><li>The typography render itself rated Imperial Script "litt tyngre å lese" with "svært tynne oppstreker".</li><li>On G2 the names appear nowhere else on the screen, and the tab title has no names (FR-4). A guest with low vision or cataracts gets the most important fact (whose wedding) only in the least legible type on the page.</li><li>The renders use <code>&lt;p&gt;</code> for both names and card headings, and the spine never fixes the heading outline.</li></ul></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Set the invites line in plain text as "Rikke og Valdemar inviterer deg til bryllup", with the script names as a decorative echo above it (<code>aria-hidden</code>). Alternatively, make the <code>h1</code> the script names with a plain-text accessible name. Fix the outline: <code>h1</code> names/invitation, <code>h2</code> per card, <code>h1</code> = step question on form pages.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Forced colours break three things</h3>
-              <span class="finding-location">DESIGN § Components "Hero illustration" <code>mix-blend-mode: darken</code>, "Choice control", "Primary button"</span>
-            </header>
-            <div class="finding-note"><span>Forced colours (Windows High Contrast, Android high-contrast themes):</span><ul><li>In a dark forced-colour theme the panel background becomes black, and <code>darken</code> takes the minimum of the image and the backdrop, so the illustration turns into a solid black box.</li><li>Custom choice controls whose "selected" state is a <code>green-dark</code> <em>background fill</em> lose that fill, so checked and unchecked look identical.</li><li>Primary buttons that are links with only a background have no visible boundary.</li></ul></div>
-            <div class="finding-fix"><strong>Fix:</strong> <ul><li>bake the panel colour into the shipped JPG instead of blending at runtime; this also guarantees zero colour shift and removes a WebView compatibility risk;</li><li>draw the check/dot as an SVG or <code>::after</code> with <code>currentColor</code>, or use native inputs with <code>accent-color</code>;</li><li>give buttons <code>border: 2px solid transparent</code>;</li><li>add a <code>@media (forced-colors: active)</code> check to § Accessibility Floor.</li></ul></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">"Light only" is a wish with no mechanism behind it</h3>
-              <span class="finding-location">DESIGN § Brand &amp; Style "Light only"; EXPERIENCE § Foundation</span>
-            </header>
-            <div class="finding-note"><span>Samsung Internet's dark mode is a likely default browser for older Android users. It and Chrome's auto-dark force-darken pages that do not opt out. Cream panels go dark, ink goes light, and the <code>darken</code>-blended illustration collapses.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Specify <code>&lt;meta name="color-scheme" content="light only"&gt;</code> and <code>:root { color-scheme: light only; }</code>, test in Samsung Internet with dark mode on, and record the result.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">State colours cannot be told apart</h3>
-              <span class="finding-location">DESIGN § Colors <code>error</code>/<code>success</code>/<code>warning</code>; § Components "Notice", "Status tag"; EXPERIENCE § Component Patterns "Status tag"; IA A4 "unanswered stand out"</span>
-            </header>
-            <div class="finding-note"><span>Icon shape and text must do all the work, and the spine does not say how.</span><ul><li>The three state colours differ from each other by only 1.08–1.17:1 in luminance. To a colour-blind user, or an older eye with yellowed lenses, rust, olive and brown are the same dark brown.</li><li>The notice spec gives one "22px icon" without saying the icons differ in shape.</li><li>"Unanswered stand out" in A4 has no mechanism, which in practice means colour.</li></ul></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Specify distinct icon shapes (error = triangle/!, warning = circle/!, success = check, info = i) and a visible text prefix ("Feil:", "Obs:"). In A4, mark unanswered households with the word "Ikke svart" and sort them first.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">The undo bar fails timing, focus and obscuring checks</h3>
-              <span class="finding-location">EXPERIENCE § Component Patterns "Undo bar", "Attention item"; § Admin protection tiers tier 1; DESIGN § Components "Undo bar"; § Accessibility Floor 2.4.11</span>
-            </header>
-            <div class="finding-note"><ul><li>Ten seconds is not enough for a screen-reader or switch user to hear a polite announcement and travel to a bar at the bottom of the viewport.</li><li>The "can also be unmarked later" escape hatch has no defined location, so the timed bar may be the <em>only</em> undo, which falls under 2.2.1.</li><li>"Merk som håndtert" removes the focused row, so focus drops to <code>&lt;body&gt;</code>.</li><li>A fixed bottom bar is exactly the sticky element the spine bans on guest pages (2.4.11), and at 200 % zoom it covers a large share of a phone screen.</li></ul></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Replace the row in place with "Merket som håndtert. Angre", move focus to "Angre", and keep it until the user leaves the page (no timer). Define where handled items can be found and unmarked (a "Vis håndterte" filter). No fixed bars in admin either.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Admin session expiry loses input, and the spine leaves it open</h3>
-              <span class="finding-location">EXPERIENCE § State Patterns "Session expired"; Open Question 8</span>
-            </header>
-            <div class="finding-note"><span>Logging Rikke out mid-edit with no warning and no extension fails 2.2.1 unless the session lasts ≥ 20 hours.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Decide now: either a ≥ 20-hour idle session, or a warning dialog two minutes before expiry with "Fortsett å være logget inn", plus restoring the unsaved form after logging in again.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Dialog behaviour is underspecified for phones and screen readers</h3>
-              <span class="finding-location">EXPERIENCE § Component Patterns "Dialog"; DESIGN § Components "Dialog"</span>
-            </header>
-            <div class="finding-note"><ul><li>"Focus moves into it" does not say <em>to what</em>. For tier 2 and 3 the consequence sentence must be heard first.</li><li>"Actions right-aligned, safest action first" is ambiguous in DOM versus visual order, and right-aligned side-by-side buttons do not survive 320px or 200 %.</li><li>"Esc = cancel" does not exist on a phone, and scrim taps are unspecified.</li><li>The guest leave-warning dialog has no button wording.</li></ul></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Use <code>role="alertdialog"</code> with <code>aria-labelledby</code> set to the heading and <code>aria-describedby</code> set to the consequence, and focus the safe button (or the heading for tier 3). Stack buttons full-width on narrow screens, safe action first in both DOM and visual order. A scrim tap equals cancel. The leave warning says "Svaret er ikke sendt ennå", with buttons "Bli og fullfør svaret" (primary) and "Gå uten å sende". Let the dialog body scroll at 200 %.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">The "Kopier" buttons on G7 are identical and fragile in in-app browsers</h3>
-              <span class="finding-location">DESIGN § Components "Payment details"; EXPERIENCE § Component Patterns "Payment details"</span>
-            </header>
-            <div class="finding-note"><ul><li>Four buttons all named "Kopier" are ambiguous to screen readers and voice control.</li><li><code>navigator.clipboard</code> is missing or blocked in some Messenger and Facebook WebViews, so the button may silently do nothing while showing nothing.</li><li>"Kopiert inline" has no announcement and no duration.</li></ul></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Accessible names "Kopier kontonummer" and so on (the visible label may stay "Kopier"). Feature-detect, and hide the button when copying is unsupported. Values are always selectable plain text at <code>body</code> size with lining figures. "Kopiert" goes in a polite live region and stays until the next copy.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">The footer phone numbers, the help path for older guests, have no stated targets</h3>
-              <span class="finding-location">DESIGN § Components "Footer band"; EXPERIENCE § Component Patterns "Footer band"</span>
-            </header>
-            <div class="finding-note"><span>In color-themes-5 the two numbers share one paragraph separated by <code>&lt;br&gt;</code> at 27px line height, so two adjacent <code>tel:</code> targets are well under NFR-5's 44px, and a mis-tap calls the wrong person.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Give each contact its own ≥ 44px row: "Ring Rikke 900 00 000" and "Send SMS til Rikke", as separate full-width links. Note that <code>sms:</code> body syntax differs between iOS and Android, so link the number only.</span></div>
-          </article>
-          <article class="finding">
-            <header>
-              <span class="badge badge-sev-medium">medium</span>
-              <h3 class="finding-title">Guest content must not depend on JavaScript in v1, yet the spine defers that guarantee to [2027]</h3>
-              <span class="finding-location">EXPERIENCE § Component Patterns "Hero panel … Renders without JavaScript [2027]"; § State Patterns "Static fallback [2027]"</span>
-            </header>
-            <div class="finding-note"><span>Read literally, the v1 invitation and form may require JS, which old phones and in-app browsers fail on first.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>In v1, all guest pages and form steps are server-rendered HTML that work without JS. JS only adds the running-total update, copy buttons and the envelope. Only the envelope's fallback can wait for [2027].</span></div>
+            <div class="finding-note">The stated fallback cannot happen. Under forced colours panel-cream is replaced by Canvas, the same colour as the page, so sheets, admin panels and dialogs lose their edges (none has a border). The scrim also becomes Canvas at 60 %, so a dialog over it has no visible boundary. The timeline line and dots are drawn as backgrounds and vanish (decorative, but the events then float). The floor&#x27;s forced-colours list covers only the illustration, choice marks and buttons.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Give sheets, admin panels and dialogs a 1px solid transparent border (forced colours paints it CanvasText). Draw the timeline line as a border, not a background. Correct the fallback wording, and add «sheets, panels and dialogs keep an edge» to the Accessibility Floor forced-colours line.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">The illustration's alt text is long and read before the names</h3>
-              <span class="finding-location">EXPERIENCE § Component Patterns "Hero illustration"; illustration-3.html alt for I7, about 200 characters</span>
+              <h3 class="finding-title">A2-08 · A plain #id link to a section moves the scroll position and the sequential-focus start point, but not focus itself.</h3>
+              <span class="finding-location">EXPERIENCE › Component Patterns › Jump links («moves focus to the part … No script needed»); Status block («focus lands on the block&#x27;s heading») · WCAG 2.4.3 Focus Order</span>
             </header>
-            <div class="finding-note"><span>A screen-reader user hears a description of a watercolour before learning whose wedding it is, and the venue is described in text on G3 anyway.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Use <code>alt=""</code> (decorative, since its information is in the text), or a short alt such as "Akvarell av tunet på Hardingasete."</span></div>
+            <div class="finding-note">A plain #id link to a section moves the scroll position and the sequential-focus start point, but not focus itself. Some screen readers stay where they were. The spine promises focus without saying how.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Make the targets focusable without script: tabindex=&quot;-1&quot; on each part&#x27;s section (or link to the h2). Same for #svar / #status. Specify that these targets show no focus ring, or a subtle one.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">The seal is marked decorative but carries live text</h3>
-              <span class="finding-location">EXPERIENCE § Component Patterns "Wax seal" <code>alt=""</code>; renders put "R &amp; V" in a <code>&lt;span&gt;</code></span>
+              <h3 class="finding-title">A2-09 · The programme times, including when the wedding starts, use small (18px), which the spine reserves for text nobody acts on.</h3>
+              <span class="finding-location">DESIGN › frontmatter programme-timeline.time (small); Typography › Small («Only text nobody acts on») · WCAG — (NFR-5 spirit)</span>
             </header>
-            <div class="finding-note"><span>An <code>alt=""</code> on an image does not hide sibling text, so screen readers announce "R og V" before the names.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span><code>aria-hidden="true"</code> on the whole seal container, or render the seal and monogram as one SVG with <code>alt=""</code>.</span></div>
+            <div class="finding-note">The programme times, including when the wedding starts, use small (18px), which the spine reserves for text nobody acts on. 18px meets the floor, but these are the key facts of the page, set in the smallest guest type.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Set times in body (20px) with lining figures, or reword the small rule to allow it.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Four identical visible "Les mer" links, and the card itself is not a target</h3>
-              <span class="finding-location">DESIGN § Components "Info card"; EXPERIENCE § Component Patterns "Info card"</span>
+              <h3 class="finding-title">A2-10 · «Godt å vite» holds the prices and what to bring, but the spines give it only a type style, not a heading level.</h3>
+              <span class="finding-location">DESIGN › frontmatter good-to-know.heading («{typography.body}, italic»); Components › «Godt å vite»; EXPERIENCE › Programme timeline · WCAG 1.3.1 Info and Relationships</span>
             </header>
-            <div class="finding-note"><span>The hidden "om programmet" helps screen readers but not Sigmund, who will tap the heading "Programmet" and get nothing.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Make the visible link text "Les mer om programmet", or make the heading the link with the whole card as the hit area (one link per card).</span></div>
+            <div class="finding-note">«Godt å vite» holds the prices and what to bring, but the spines give it only a type style, not a heading level. The render uses h3, which is right, but nothing requires it.</div>
+            <div class="finding-fix"><strong>Fix:</strong> State h3 «Godt å vite» under each day&#x27;s h2, so screen-reader users can jump to the prices.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">The respondent switch "Bytt" is a link that changes state</h3>
-              <span class="finding-location">DESIGN § Components "Respondent line"; EXPERIENCE § Component Patterns "Text link … never submits data"</span>
+              <h3 class="finding-title">A2-11 · Middle dots and the arrow are real characters in the text.</h3>
+              <span class="finding-location">EXPERIENCE › Microcopy «Vår historie chapters» («Sensommeren 2021 · Trondheim» as h2); Back link «← Tilbake til invitasjonen»; hero «Hardingasete · Hardanger» · WCAG 1.3.1 / reading aloud</span>
             </header>
-            <div class="finding-note"><span>"Bytt" alone does not say what it changes, it sits first on every step, and as a link it contradicts the rule that links never change data.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Use a button with the accessible name "Bytt hvem som svarer" and <code>aria-expanded</code>, give it a ≥ 44px target, and place it after the step question rather than before.</span></div>
+            <div class="finding-note">Middle dots and the arrow are real characters in the text. Screen readers may read them as «midtpunkt» and «venstrepil», which matters most in the nine chapter headings that a user lists by heading. (The jump-link dots are already CSS.)</div>
+            <div class="finding-fix"><strong>Fix:</strong> Wrap decorative · and ← in aria-hidden=&quot;true&quot; spans, or draw them with CSS. Say so once in Component Patterns.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Hover and pressed states give no tap feedback</h3>
-              <span class="finding-location">DESIGN § Colors <code>green-dark-hover</code></span>
+              <h3 class="finding-title">A2-12 · Two issues.</h3>
+              <span class="finding-location">DESIGN › Components › Jump links («no underline», «decorative middle dot between words on the same line») · WCAG 3.2.3 / usability</span>
             </header>
-            <div class="finding-note"><span><code>#2C3A20</code> against <code>#344628</code> is 1.18:1, so on a phone the "did my tap work?" signal is invisible until the "Sender …" text appears, and that appears only on submits.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>The pressed state also gets the 3px offset ring, or an inset cream rule, and every button responds visibly on <code>:active</code>.</span></div>
+            <div class="finding-note">Two issues. (1) Small capitals with no underline and no button shape give Sigmund no sign that the words can be tapped; he relies on them in UJ-1. (2) A dot drawn by li + li::before cannot know where lines wrap. At 320px and 180px the renders show lines that start with «· ANTREKK» and «· LØRDAG».</div>
+            <div class="finding-fix"><strong>Fix:</strong> (1) Add a faint underline or the current-page style on press or focus, or a short lead word «Hopp til:» above. (2) Specify how separators handle wrapping: one list per balanced line, as the renders do, or hide the dot at line starts.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">The lining figures are still an [ASSUMPTION] and may be stripped by subsetting</h3>
-              <span class="finding-location">DESIGN § Typography "Figures"</span>
+              <h3 class="finding-title">A2-13 · The spine contradicts itself.</h3>
+              <span class="finding-location">EXPERIENCE › Microcopy «Tier-3 typed word — the household name, or SLETT — decided» vs «Admin guests» row and memlog 2026-11-15 («typed FJERN») · WCAG 3.3.2 / cognitive</span>
             </header>
-            <div class="finding-note"><span>EB Garamond defaults to old-style figures, which are hard for older eyes to read in "1 450 kr", "23:59" and account numbers. Subsetting tools often drop the <code>lnum</code> and <code>tnum</code> features.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Make lining figures a requirement (<code>font-variant-numeric: lining-nums</code>), keep <code>lnum</code> and <code>tnum</code> in the self-hosted WOFF2 subset, and verify in the built page. Use a non-breaking space in "1 450" so screen readers read one number.</span></div>
+            <div class="finding-note">The spine contradicts itself. Typing a household name such as «Arild, Marie, Filippa og Leone» on a phone keyboard is error-prone. FJERN is the word actually chosen.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Update the tier-3 row to «FJERN» (or one fixed short word for all tier-3 actions).</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">The typed confirmation will fight phone keyboards</h3>
-              <span class="finding-location">EXPERIENCE § Admin protection tiers tier 3; Voice and Tone "Tier-3 typed word"</span>
+              <h3 class="finding-title">A2-14 · The search moved to A4 «Gjester», but the spine still places it on A6.</h3>
+              <span class="finding-location">EXPERIENCE › Text field variants («search (A6, …)»); Surface coverage «A6 · search empty»; IA › A4 · WCAG 4.1.3 Status Messages</span>
             </header>
-            <div class="finding-note"><span>Autocapitalise and autocorrect will turn "SLETT" into "Slett" or a suggestion. Household "names" with "og", commas or æøå invite mismatches, and a disabled destructive button does not explain itself.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Match case-insensitively with trimmed whitespace, set <code>autocapitalize="off" autocorrect="off" spellcheck="false"</code>, show the exact word to type in plain text in the label, and keep the button enabled but validate on press with an inline error.</span></div>
+            <div class="finding-note">The search moved to A4 «Gjester», but the spine still places it on A6. Nor does it say whether results filter live (then a polite count or «Fant ingen med det navnet.» must be announced) or on submit.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Move the search to A4 in both places, and specify submit-based search or a polite live result count.</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">The envelope reveal needs more than reduce-motion</h3>
-              <span class="finding-location">EXPERIENCE § Envelope reveal; DESIGN § Components "Envelope reveal"</span>
+              <h3 class="finding-title">A2-15 · «Angre» on an older registered payment removes a financial record with no confirmation, and the spine gives no way to restore it, althoug…</h3>
+              <span class="finding-location">EXPERIENCE › IA › A9 («Registrert (dated entries, each with «Angre»)»); Admin protection tiers · WCAG 3.3.4 Error Prevention (Data)</span>
             </header>
-            <div class="finding-note"><span>It needs:</span><ul><li>a cap of 5 s or less (2.2.2);</li><li>the static invitation present in the DOM and readable by screen readers underneath, not <code>display: none</code> until the animation ends;</li><li>focus and scroll at the top of G2 afterwards;</li><li>"Hopp over" ≥ 44 × 44, placed on cream or <code>green-dark</code> (not on textured <code>page-green</code>, see the texture finding);</li><li>a fail-safe: no JS or storage means no envelope.</li></ul></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>Add these as acceptance criteria next to the [If time] item.</span></div>
+            <div class="finding-note">«Angre» on an older registered payment removes a financial record with no confirmation, and the spine gives no way to restore it, although tier 2 lists «correct a payment».</div>
+            <div class="finding-fix"><strong>Fix:</strong> Treat «Angre» on a past entry as tier 2 (a dialog naming the new status), or make it reversible in place («Angret. Gjør om»).</div>
           </article>
           <article class="finding">
             <header>
               <span class="badge badge-sev-low">low</span>
-              <h3 class="finding-title">Admin density competes with targets and type size</h3>
-              <span class="finding-location">DESIGN § Layout &amp; Spacing "Admin"; tokens <code>admin-body</code> 18px, <code>admin-gap</code> 8px; EXPERIENCE § Accessibility Floor "admin the same [ASSUMPTION]"</span>
+              <h3 class="finding-title">A2-16 · A link to the privacy page inside the consent step takes Sigmund out of the form mid-answer:</h3>
+              <span class="finding-location">EXPERIENCE › IA › G12 («Reached from … consent text»); Component Patterns › Consent block · WCAG 3.2.2 On Input / context change</span>
             </header>
-            <div class="finding-note"><span>Rows of 18px EB Garamond (about 15px Georgia-equivalent) with 8px gaps and 44px targets will not fit FR-48's "one phone screen" for long lists. Something will give, and the spine does not say what. Stacked mobile tables also lose header associations.</span></div>
-            <div class="finding-fix"><strong>Fix:</strong> <span>State that 44px targets win over density. Stacked rows repeat their labels as visible text ("Betalt: 900 kr"), not as CSS-only headers.</span></div>
+            <div class="finding-note">A link to the privacy page inside the consent step takes Sigmund out of the form mid-answer: the leave dialog appears, and coming back depends on the draft. That conflicts with the spirit of «never navigates away» (FR-19) for in-form explanations.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Since the consent block already holds purpose, recipients and withdrawal, drop the in-form link, or open it as a Read-more disclosure. If it stays, state that returning lands on the same step with answers kept.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A2-17 · The spine does not say what the hero deadline line shows after the deadline.</h3>
+              <span class="finding-location">EXPERIENCE › State Patterns › Locked after deadline, Never answered after deadline; Receipt vs status block · WCAG 3.3.2 / plain language</span>
+            </header>
+            <div class="finding-note">The spine does not say what the hero deadline line shows after the deadline. For a household that never answered, it would still read «Svar innen 4. januar 2028» with a working link after the date has passed.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Specify the hero line for the locked states, e.g. «Svarfristen gikk ut 4. januar · Ring oss» (contacts), and «Svar sendt … · Se svaret» unchanged for households that answered.</div>
           </article>
         </div>
       </details>
     </section>
 
+    <!-- TEMPLATE: mechanical notes — short, bulleted. Skip if there are none. -->
     <div class="mechanical">
       <h3>Mechanical notes</h3>
       <ul>
-        <li><strong>Broken links:</strong> only the three expected ones (<code>mockups/color-themes-5.html</code>, <code>mockups/typography-1.html</code>, <code>mockups/illustration-3.html</code>, linked in both headers, waiting for promotion from <code>.working/</code>). No other broken links. <code>.memlog.md</code>, <code>DESIGN.md</code>, the PRD and its addendum, <code>inspirasjon.md</code> and <code>stedet.md</code> all resolve. <code>imports/</code> is empty, as intended (the memlog references these folders in place).</li>
-        <li><strong>Token references:</strong> every <code>{colors.<em>}</code>, <code>{typography.</em>}</code>, <code>{spacing.<em>}</code>, <code>{rounded.</em>}</code> and <code>{components.*}</code> reference in both files resolves. <code>rounded.none</code> is unused.</li>
-        <li><strong>Contrast:</strong> all 12 stated pairs recompute exactly. Pairs in use but not listed, all of which pass: <code>error</code> on <code>field-surface</code> 7.52:1 and <code>ink-muted</code> on <code>field-surface</code> 6.23:1. <code>green-dark</code> on <code>page-green</code> is 1.79:1, which is correctly the reason for the "primary buttons only on cream" rule.</li>
-        <li><strong>Memlog landing:</strong> every decision and override landed. Earlier entries that were superseded (script reference 01, receipt-focused climax, card style, walnut ink, illustration style open) are correctly not carried. One weak landing: hike "kanskje" exists only in struck-through Open Questions (see Bloat &amp; overspecification).</li>
-        <li><strong>Frontmatter:</strong> DESIGN has name, description, status, created, updated and all token groups. EXPERIENCE has title, status, created, updated and sources, but no <code>name</code>.</li>
-        <li><strong>Mermaid:</strong> none present.</li>
+        <li>Both reviewers found the same five issues: the tier-3 typed word (R2-08 / A2-13), «Se svaret» with two meanings (R2-04 / A2-06), jump links at 40px (R2-10 / A2-05), the search on A6 instead of A4 (R2-07 / A2-14), and the front-page deadline line after the deadline (R2-05 / A2-17). They are counted once per reviewer.</li>
+        <li>Reviewer files: review-rubric-2.md, review-accessibility-2.md (this run); review-rubric.md, review-accessibility.md, review-resolution.md (2026-11-11).</li>
       </ul>
     </div>
 
     <footer class="report-footer">
       <div class="meta">
-        <span>Rubric: .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/review-rubric.md</span>
-        <span>Accessibility: .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/review-accessibility.md</span>
-        <span>DESIGN.md: .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md</span>
-        <span>EXPERIENCE.md: .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md</span>
-        <span>Generated: 2026-11-11T09:05:26Z</span>
+        <span>Rubric: .claude/skills/bmad-ux/references/validate.md</span>
+        <span>Generated: 2026-11-15T22:43</span>
       </div>
     </footer>
   </div>
