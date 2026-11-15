@@ -116,6 +116,7 @@ Microcopy. "Decided" = memlog or the couple kept it in a render; all others are 
 | Vår historie text | The couple's own words, [ux/innhold/Vår historie.docx](../../ux/innhold/V%C3%A5r%20historie.docx); «[stilling]» still to fill in | decided (theirs) |
 | Optional activities | «Yoga er for den som vil. Ta med treningstøy.» · «Badstue og stamp er for den som vil. Ta med badetøy.» | decided |
 | See or change answer | Se eller endre svar | decided |
+| Helper read-only line | Du kan se alt, men ikke endre noe. | decided (Rikke, 2026-11-15) |
 | See answer (after deadline) | Se svaret | proposal |
 | Draft offer | Vil du fortsette der du slapp? · Ja, fortsett · Nei, begynn på nytt | question decided; buttons proposal |
 | Draft notice on G2 | Du har et svar som ikke er sendt ennå. | proposal |
@@ -229,7 +230,7 @@ Behavioural. Visual specs: DESIGN.md › Components (same names).
 | Copy unavailable / failed | G7, A6 | Button hidden when unsupported; on failure the value is selected with «Trykk og hold for å kopiere». |
 | No valid link | G1 | Single calm panel; nothing personal. |
 | Static fallback | G2 | Invitation text and RSVP button appear if scripts or animation fail [2027]; see Open Question 4. |
-| Helper read-only | All admin | Action buttons **hidden**, not greyed (memlog). Forms show values as text. How a helper is told the view is read-only: Open Question 15. |
+| Helper read-only | All admin | Action buttons **hidden**, not greyed (memlog). Forms show values as text. A line under the admin nav says so: «Du kan se alt, men ikke endre noe.» (Rikke, 2026-11-15, [.working/helper-view-1.html](.working/helper-view-1.html)). |
 | Session expired | Admin | Login page with "Du ble logget ut fordi du var borte en stund."; expiry rule is Open Question 5. |
 | Empty | Admin | A2: «Ingenting trenger oppfølging nå» with check icon + «Vis håndterte» (Component Patterns › Attention empty state). Elsewhere: "Ingen betalinger registrert ennå." · drill-down with 0: not a link **[ASSUMPTION — wording]**. |
 | Empty | Guest | Nothing to pay: no payment block, total "0 kr"; allergy step without consent: nothing stored. |
@@ -398,7 +399,7 @@ Failure: wrong amount registered → "Angre"/correct (FR-59).
 3. Logs in as admin; summary matches the expected-results list.
 4. Moves the deadline to yesterday in A12 → dialog repeats the date in words and how many households are locked out.
 5. **Climax:** the guest link now shows "Se svaret", locked; the admin can still edit via A7.
-6. Logs in as helper: no action buttons.
+6. Logs in as helper: no action buttons, and the line «Du kan se alt, men ikke endre noe.» under the nav.
 
 Failure: logs in with wrong password → plain error, slowed retries.
 
@@ -438,4 +439,4 @@ Failure: logs in with wrong password → plain error, slowed retries.
 12. ~~The front page below the hero~~ — **resolved 2026-11-15**: «Alt om helgen» with lilies, lace-framed pictures and three topics; «Barnefritt bryllup» in the RSVP sheet; no «Spør oss» ([mockups/front-page-3.html](mockups/front-page-3.html); DESIGN › Layout & Spacing).
 13. ~~Allergies entered without consent in the admin count~~ — **resolved 2026-11-15**: nothing extra is stored (a marker would hint at a health condition stored without consent). The admin label is «Ingen allergiopplysninger lagret» instead of «Ingen allergiopplysninger lagret», which is true both for guests who skipped the question and for guests who declined consent; the couple asks the guest directly, as the form told the guest to tell them (FR-28).
 14. ~~Child-free line in the answered state~~ — **resolved 2026-11-15**: «Barnefritt bryllup» stays in the status block, under its heading and the small gypsophila, as in the RSVP panel.
-15. **How helpers see they are read-only** (couple): action buttons are hidden, not greyed; should the admin pages also say so, e.g. a line under the nav «Du kan se alt, men ikke endre noe.», or is the missing buttons enough? The only render of the helper view is the superseded `.working/key-admin-overview.html`.
+15. ~~How helpers see they are read-only~~ — **resolved 2026-11-15**: the buttons stay hidden, and a line under the admin nav says «Du kan se alt, men ikke endre noe.» (Rikke chose B in [.working/helper-view-1.html](.working/helper-view-1.html)).
