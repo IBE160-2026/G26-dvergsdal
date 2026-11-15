@@ -27,5 +27,6 @@
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 17–20 i inspirasjon.md (løst 2026-11-15: bildene er flyttet til egne-bilder/ og beskrevet i egne-bilder.md)
 - [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe infosidene (Programmet, Praktisk informasjon, Om oss) med plassholdere, én om gangen, og start med Praktisk informasjon (løst 2026-11-15 for Praktisk informasjon og Programmet; Om oss videreført under)
 - [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 21–24 i inspirasjon.md (løst 2026-11-15: egne-bilder.md)
-- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive den godkjente Programmet-sida inn i DESIGN.md, EXPERIENCE.md og PRD-en (FR-9: rebus, lunsj utenfor kirka med cider, drikke, «alt er frivillig»; programmet i addendumet)
-- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe «Om oss» (teksten ligger i ux/innhold/Vår historie.docx)
+- [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive den godkjente Programmet-sida inn i DESIGN.md, EXPERIENCE.md og PRD-en (FR-9: rebus, lunsj utenfor kirka med cider, drikke, «alt er frivillig»; programmet i addendumet) (løst 2026-11-15)
+- [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe «Om oss» (teksten ligger i ux/innhold/Vår historie.docx) (løst 2026-11-15)
+- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — fylle inn «[stilling]» i «Vår historie», og rette «morro» og «det det» i Word-fila
