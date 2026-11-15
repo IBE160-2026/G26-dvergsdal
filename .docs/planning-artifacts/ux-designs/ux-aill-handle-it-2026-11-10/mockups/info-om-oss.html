@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Om oss, godkjent</title>
+<title>Vår historie, godkjent</title>
 <!-- Unntak for denne lokale planleggingssida: skriftene lastes fra Google Fonts når sida vises.
      Den ferdige gjestesida lagrer Imperial Script og EB Garamond selv (PRD 3.2). -->
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Imperial+Script&amp;family=EB+Garamond:ital,wght@0,400;0,600;1,400&amp;display=swap">
@@ -13,7 +13,8 @@
    Den siste setningen står uten overskrift, som avslutning over navnene. «❤️» fra Word-overskriften er ikke med.
    Runde 3 (Rikke): ny tekst (Word-fila 21:21), «Våren 2027 · Oslo», bildet med utsikt øverst og bildet fra stranda
    bare på invitasjonen. Rettet i skissa: «morro» → «moro», «At det det var» → «At det var», komma og punktum i parentesen. Godkjent av Rikke;
-   rundene som førte hit ligger i .working/info-om-oss-1.html og -2.html. */
+   rundene som førte hit ligger i .working/info-om-oss-1.html og -2.html.
+   Senere samme dag (Rikke): sida og menyordet heter «Vår historie» i stedet for «Om oss», så arket har ingen egen overskrift. */
 :root {
   color-scheme: light;
   --frame-bg: #DDDAD3; --frame-ink: #2B2620; --frame-muted: #4F473D;
@@ -57,9 +58,9 @@ h2.part { margin: 0 0 10px; padding-bottom: 8px; font-weight: normal; font-style
 .story { padding: 22px 22px 18px; margin-top: 20px; }
 .story .framed { margin: 4px auto 16px; }
 .story p { margin: 0 0 12px; }
-.story h3 { display: none; margin: 18px 0 4px; font-weight: normal; font-style: italic; font-size: 20px; line-height: 1.3; color: var(--tx); }
-.chapters .story h3 { display: block; }
-.chapters .story h3:first-of-type { margin-top: 2px; }
+.story h2.ch { display: none; margin: 18px 0 4px; font-weight: normal; font-style: italic; font-size: 20px; line-height: 1.3; color: var(--tx); }
+.chapters .story h2.ch { display: block; }
+.chapters .story h2.ch:first-of-type { margin-top: 2px; }
 .story .mid { display: none; }
 .chapters .story .mid { display: block; }
 .closing { margin: 18px 4px 0 !important; text-align: center; font-style: italic; }
@@ -114,38 +115,37 @@ section[id] { scroll-margin-top: 76px; }
 </defs></svg>
 
 <div class="intro">
-  <h1>Om oss, godkjent 2026-11-15</h1>
+  <h1>Vår historie (før «Om oss»), godkjent 2026-11-15</h1>
   <p>Med den nye teksten din, «Våren 2027 · Oslo», og bildet med utsikt øverst. Bildet fra stranda er bare på invitasjonen, så sida har ett bilde.</p>
   <p>Teksten er din egen, med tydelige skrivefeil rettet (listet nederst). De stiplede strekene viser hvor hver skjerm slutter på en vanlig mobil.</p>
 </div>
 
 <div class="wrap">
 <template id="content">
-  <nav class="nav" aria-label="Meny"><div class="navwords"><a href="#">Program</a><a href="#">Praktisk</a><a href="#" aria-current="page">Om oss</a></div><a class="navbtn" href="#">Svar</a></nav>
+  <nav class="nav" aria-label="Meny"><div class="navwords"><a href="#">Program</a><a href="#">Praktisk</a><a href="#" aria-current="page">Vår historie</a></div><a class="navbtn" href="#">Svar</a></nav>
   <div class="page">
     <a class="back" href="#">← Tilbake til invitasjonen</a>
-    <h1 class="page-h">Om oss</h1>
+    <h1 class="page-h">Vår historie</h1>
     <section class="sheet story">
-      <h2 class="part">Vår historie</h2>
       <div class="part-body">
         <div class="framed"><img class="photo" src="../../../ux/egne-bilder/13-Us2.jpg" alt="Rikke og Valdemar med utsikt."><img class="lace-frame" src="blonde.png" alt=""></div>
-        <h3>Sensommeren 2021 · Trondheim</h3>
+        <h2 class="ch">Sensommeren 2021 · Trondheim</h2>
         <p>Vi møttes sensommeren 2021, da Rikke flyttet til Trondheim for å begynne å studere, og Valdemar begynte sitt andre studieår. Begge hadde blitt valgt inn i Teknologiporten, et verv som jobber med å knytte studenter og næringslivet tettere sammen.</p>
-        <h3>2022 · Trondheim</h3>
+        <h2 class="ch">2022 · Trondheim</h2>
         <p>I starten av 2022 begynte vi å bli bedre kjent, og etter hvert utviklet det seg et godt vennskap. Vi ble begge valgt inn i styret i Teknologiporten og fant raskt tonen, ikke minst sammen med vår gode venn Einar. Vi tre ble en liten trio som tilbrakte stadig mer tid sammen. Høsten 2022 begynte vennskapet mellom oss to å utvikle seg til noe mer. Timingen var imidlertid ikke helt på vår side, og vi bestemte oss for å fortsette som venner.</p>
-        <h3>2023 · Trondheim</h3>
+        <h2 class="ch">2023 · Trondheim</h2>
         <p>Vennskapet vårt, og den lille trioen med Einar, holdt seg sterkt. 2023 fylte vi med mye fest, fyll og moro i Trondheim.</p>
-        <h3>Høsten 2024 · Firenze</h3>
+        <h2 class="ch">Høsten 2024 · Firenze</h2>
         <p>Høsten 2024 pakket trioen vår koffertene og flyttet sammen til Firenze for et år på utveksling. Her bodde vi i kollektiv med to andre nordmenn og fikk leve «la dolce vita» («det søte liv»).</p>
-        <h3>Starten av 2025 · Annecy</h3>
+        <h2 class="ch">Starten av 2025 · Annecy</h2>
         <p>Vi startet året 2025 med en roadtrip gjennom Europa sammen med Einar. På den aller siste kvelden av turen, i den idylliske franske byen Annecy, gikk vennskapet vårt over til litt mer enn vennskap. (At det var noe mer mellom oss enn bare vennskap, hadde ligget i luften lenge.)</p>
-        <h3>Våren 2025 · Italia</h3>
+        <h2 class="ch">Våren 2025 · Italia</h2>
         <p>Våren 2025 blomstret kjærligheten i Italia. Vi spiste utallige gode måltider, utforsket vakre italienske steder og nøt livet i Italia sammen. I begynnelsen av april gikk turen til Comosjøen. På den øverste balkongen i en nydelig villa, med utsikt over innsjøen og en vakker hage, spurte Valdemar om vi skulle bli kjærester.</p>
-        <h3>Høsten 2025 · Trondheim</h3>
+        <h2 class="ch">Høsten 2025 · Trondheim</h2>
         <p>Høsten 2025 gikk turen tilbake til Trondheim for å fullføre studiene. Vi flyttet inn i en koselig liten leilighet ved Studentersamfundet, og hverdagen besto stort sett av skole, jobb, trening, god mat og hyggelige stunder med venner.</p>
-        <h3>Sommeren 2026 · Asia</h3>
+        <h2 class="ch">Sommeren 2026 · Asia</h2>
         <p>Tidlig sommer 2026 leverte vi masteroppgavene, pakket sekkene og satte kursen mot nye eventyr. De neste ni månedene tilbrakte vi på reise i Asia! Vi startet i Indonesia og fortsatte videre til Filippinene, Taiwan og Japan. Deretter ble det en liten avstikker til Singapore før turen gikk videre til Thailand. Julen feiret vi i Hongkong, og det nye året ønsket vi velkommen med reiser i Kina. Eventyret ble rundet av med to fantastiske måneder i Vietnam.</p>
-        <h3>Våren 2027 · Oslo</h3>
+        <h2 class="ch">Våren 2027 · Oslo</h2>
         <p>Etter ni måneder med opplevelser, eventyr og utallige minner vendte vi til slutt hjem til Norge, denne gangen med Oslo som vår nye hjemby. Her startet et nytt kapittel med jobb og voksenliv. Valdemar begynte som Graduate Drilling and Wells Engineer i Aker BP, mens Rikke startet som [stilling] i Volve.</p>
         <p class="closing">Nå gleder vi oss til å gifte oss, og ser virkelig frem til å feire kjærligheten og den store dagen sammen med dere!</p>
         <p class="sign">Rikke &amp; Valdemar</p>

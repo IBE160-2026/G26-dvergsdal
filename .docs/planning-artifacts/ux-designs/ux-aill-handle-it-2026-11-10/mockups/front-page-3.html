@@ -87,6 +87,10 @@ body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-fam
 .mark span { position: absolute; right: 8px; top: 4px; padding: 1px 9px; border-radius: 3px; background: #2F2F2F; color: #FFF; font-family: Georgia, serif; font-size: 14px; line-height: 1.4; }
 .note { max-width: 760px; margin: 0 auto; padding: 0 16px 48px; color: var(--frame-muted); }
 .note b { color: var(--frame-ink); }
+/* Under 340 px: litt mindre luft i menyen, så «Vår historie» står på samme linje (DESIGN › Layout & Spacing). */
+@media (max-width: 340px) {
+  .nav { padding: 8px 10px 8px 12px; } .navwords { gap: 0 8px; } .navbtn { padding: 0 12px; min-width: 56px; }
+}
 @media (max-width: 420px) {
   .wrap { padding: 0 0 40px; }
   .phone { width: 100%; padding: 0; border-radius: 0; background: none; box-shadow: none; }
@@ -120,7 +124,7 @@ body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-fam
 </div>
 
 <div class="wrap"><div class="phone"><div class="screen" id="screen">
-  <nav class="nav" aria-label="Meny"><div class="navwords"><a href="#">Program</a><a href="#">Praktisk</a><a href="#">Om oss</a></div><a class="navbtn" href="#svar">Svar</a></nav>
+  <nav class="nav" aria-label="Meny"><div class="navwords"><a href="#">Program</a><a href="#">Praktisk</a><a href="#">Vår historie</a></div><a class="navbtn" href="#svar">Svar</a></nav>
   <div class="page">
     <div class="sheet hero">
       <img class="seal" src="../mockups/segl.png" alt="">
@@ -141,7 +145,7 @@ body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-fam
         <h3 class="sec-h">Alt om helgen</h3>
         <div class="row"><div class="framed"><img class="photo" src="../../../ux/stedet/01-Venue.jpg" alt=""><img class="lace-frame" src="blonde.png" alt=""></div><div class="txt"><h3>Programmet</h3><p>Hele helgen, dag for dag.</p><a class="small-btn" href="#">Les mer</a></div></div>
         <div class="row"><div class="framed"><img class="photo" src="../../../ux/stedet/03-Venue.jpg" alt="" style="object-position: 50% 82%"><img class="lace-frame" src="blonde.png" alt=""></div><div class="txt"><h3>Praktisk informasjon</h3><p>Reise, hyttene, tunet og området rundt.</p><a class="small-btn" href="#">Les mer</a></div></div>
-        <div class="row"><div class="framed"><img class="photo" src="us1-utsnitt.jpg" alt=""><img class="lace-frame" src="blonde.png" alt=""></div><div class="txt"><h3>Om oss</h3><p>Vår historie.</p><a class="small-btn" href="#">Les mer</a></div></div>
+        <div class="row"><div class="framed"><img class="photo" src="us1-utsnitt.jpg" alt=""><img class="lace-frame" src="blonde.png" alt=""></div><div class="txt"><h3>Vår historie</h3><p>Fra vi møttes til i dag.</p><a class="small-btn" href="#">Les mer</a></div></div>
         <img class="lilies bottom" src="lilje-bunn.png" alt="">
       </div>
 
@@ -162,7 +166,7 @@ body { margin: 0; background: var(--frame-bg); color: var(--frame-ink); font-fam
 </div></div></div>
 
 <div class="note">
-  <p><b>Hver «Les mer»</b> åpner en egen side (Programmet, Praktisk informasjon, Om oss). De sidene er ikke tegnet ennå.</p>
+  <p><b>Hver «Les mer»</b> åpner en egen side (Programmet, Praktisk informasjon, Vår historie). De sidene er ikke tegnet ennå.</p>
   <p><b>Menyordene øverst</b> går til de samme sidene. «Svar» går ned til svarfeltet.</p>
 </div>
 
