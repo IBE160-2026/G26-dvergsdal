@@ -1,7 +1,7 @@
 ---
 name: "AI'll handle it"
 title: "Experience: AI'll handle it"
-status: draft
+status: final
 created: 2026-11-10
 updated: 2026-11-15
 sources:

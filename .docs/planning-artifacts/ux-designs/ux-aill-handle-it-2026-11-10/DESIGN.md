@@ -1,7 +1,7 @@
 ---
 name: "AI'll handle it"
 description: "Rikke & Valdemar's wedding invitation as a website: cream paper sheets with soft hand-made edges on a textured olive-green page, a dark green wax seal, gypsophila and lily garlands, pictures in cream lace frames, a script name line and printed-invitation body text. Light only."
-status: draft
+status: final
 created: 2026-11-10
 updated: 2026-11-15
 colors:
