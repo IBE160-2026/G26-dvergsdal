@@ -90,6 +90,12 @@ typography:
     fontSize: 20px
     fontWeight: '600'
     lineHeight: '1.4'
+  jump-links:
+    fontFamily: 'EB Garamond'
+    fontSize: 19px
+    fontWeight: '400'
+    lineHeight: '1.2'
+    letterSpacing: '0.08em'
   nav-button:
     fontFamily: 'EB Garamond'
     fontSize: 19px
@@ -232,6 +238,29 @@ components:
     aspectRatio: '932 / 901'
     photoWindow: 'left 5.2%, top 5.3%, width 89.6%, height 89.4%; photo object-fit cover, under the frame'
     shadow: 'drop-shadow 0 1px 1.5px rgba(10,14,6,.35)'
+    widthOnInfoSheet: '220px, centred at the top of the sheet body, 6px above and 14px below'
+  info-page-title:
+    foreground: '{colors.cream-on-green}'
+    typography: '{typography.heading-page}, italic, centred'
+    rule: '1px rgba(245,238,223,.5) under the title, 12px below the text, 6px inset'
+  back-link:
+    foreground: '{colors.cream-on-green}'
+    typography: '{typography.body}'
+    underline: '1px, offset 4px'
+    minHeight: '{spacing.target-min}'
+  jump-links:
+    foreground: '{colors.cream-on-green}'
+    typography: '{typography.jump-links}, small capitals'
+    layout: 'centred lines of two or three words, middle dot between words (decorative), no underline'
+    rowHeight: 40px
+  info-sheet:
+    sheet: '{components.paper-sheet}'
+    foreground: '{colors.ink}'
+    padding: '22px 22px 12px'
+    gap: 20px
+    heading: '{typography.heading-card}, italic, left'
+    headingRule: '1px rgba(59,55,47,.35) under the heading, 8px below the text'
+    scrollMarginTop: 'nav-height + scroll-gap'
   button-on-green:
     background: 'transparent'
     foreground: '{colors.cream-on-green}'
@@ -381,7 +410,7 @@ The palette was chosen over six render rounds from colours sampled in the couple
 | `ink-muted` on `panel-cream` / `field-surface` | 5.50 / 6.23:1 | Meta only |
 | `green-dark` on `panel-cream` | 8.08:1 | Secondary button text, focus ring on cream |
 | `cream-on-green` on `page-green` (flat) | **4.95:1** | Nav words in the flat nav bar — the lowest small-text pair; never smaller than 18px |
-| `cream-on-green` on the green texture, averaged over 3 × 3 px | **4.50:1** worst (4.61:1 at 4 × 4 px) | Cream text of **20px or more** on the textured green: the lead-in, the details heading, topic titles and text, the outlined buttons. Single lightest pixel `#6D8358`: 3.61:1. Measured in headless Chrome (see Elevation & Depth) |
+| `cream-on-green` on the green texture, averaged over 3 × 3 px | **4.50:1** worst (4.61:1 at 4 × 4 px) | Cream text of **19px or more** on the textured green: the lead-in, the details heading, topic titles and text, the outlined buttons, and on info pages the title, the back link and the jump links. Single lightest pixel `#6D8358`: 3.61:1. Measured in headless Chrome (see Elevation & Depth) |
 | `cream-on-green` on `green-dark` | 8.86:1 | Buttons, nav "Svar", footer |
 | `cream-on-green` on `green-dark-hover` | 10.49:1 | Pressed button |
 | `error` on `panel-cream` / `field-surface` | 6.64 / 7.52:1 | Error text, destructive button |
@@ -408,11 +437,12 @@ Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so
 | Role | Token | Where |
 |---|---|---|
 | Names | `display-names` | Hero sheet only; `h1` of the front page |
-| Page title | `heading-page` | Info pages, form step question (`h1`), check page heading, receipt heading «Svaret er sendt» (32px, as rendered in the key-screen mockups) |
+| Page title | `heading-page` | Info pages (*italic*, centred, cream on green with a cream hairline under it, like the details heading), form step question (`h1`), check page heading, receipt heading «Svaret er sendt» (32px, as rendered in the key-screen mockups) |
 | Section heading | `heading-section`, *italic* | «Alt om helgen» (`h2`), on green with a cream hairline under it (Rikke: «klassisk inntrykk») |
 | Topic title | `topic-title` | Programmet · Praktisk informasjon · Om oss (`h3`); 21px so «Praktisk informasjon» fits one line beside the frame (166.9px in a 174px column; 22px needed 174.9px) |
 | Topic text | `body`, *italic* | One line under each topic title, e.g. «Vår historie.»; italic so it reads lighter than the title (EB Garamond has no weight below 400) |
-| Card heading | `heading-card` | RSVP sheet and other panel headings (`h2`) |
+| Card heading | `heading-card` | RSVP sheet and other panel headings (`h2`); on info pages *italic* with a thin ink hairline under it (Vielsen, Husregler …) |
+| Jump links | `jump-links`, small capitals | «Hopp til» on info pages: short words such as *Vielsen · Hardingasete*, cream on green |
 | Invites line | `invites`, *italic* | «inviterer dere til sitt bryllup» (du/dere rule) |
 | Date | `date-line`, small capitals | «Lørdag 27. mai 2028» in the hero |
 | Place | `place-line`, small capitals | «Hardingasete · Hardanger» in the hero |
@@ -429,7 +459,7 @@ Type tokens are written in px for readability; build them in `rem` (px ÷ 16) so
 
 **Figures:** amounts, dates, times, phone and account numbers use lining figures (`font-variant-numeric: lining-nums`), tables also tabular (`tabular-nums`); EB Garamond defaults to old-style figures, which older eyes misread. Thousands use a non-breaking space ("1 450 kr") so screen readers read one number.
 
-**Small capitals in two places only:** the date and the place in the hero, set with `font-variant-caps: all-small-caps` and `{typography.date-line.letterSpacing}`, as on a printed invitation (memlog, *Front page approved*). The text stays in normal case in the HTML, so screen readers do not spell it out. No all-caps anywhere, and no small capitals for headings: small-caps «ALT OM HELGEN» was tried and Rikke wanted it «mer i stil med resten av nettsiden» (memlog, 2026-11-15); the section heading is italic instead.
+**Small capitals in three places only:** the date and the place in the hero, set with `font-variant-caps: all-small-caps` and `{typography.date-line.letterSpacing}`, as on a printed invitation (memlog, *Front page approved*), and the jump links on info pages with `{typography.jump-links.letterSpacing}` (Rikke's pick of three, 2026-11-15). The text stays in normal case in the HTML, so screen readers do not spell it out. No all-caps anywhere, and no small capitals for headings: small-caps «ALT OM HELGEN» was tried and Rikke wanted it «mer i stil med resten av nettsiden» (memlog, 2026-11-15); the section heading is italic instead.
 
 ## Layout & Spacing
 
@@ -462,6 +492,17 @@ The whole hero sheet fits above the fold with 8px to spare, so these values are 
 Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal centred with its top 36px above the sheet's top edge; illustration pulled up 12px (its top is empty sky) with 4px below; invites 2px below the names; divider 2px below; 6px above the invited line, 4px above the deadline line. Topic rows: 20px above, 6px below, 14px between frame and text; the «Les mer» target supplies the bottom space. Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero and RSVP sheet is centred, the details heading too; topic text is left-aligned beside its picture; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
 
 Sections are separated by green showing between the sheets and by the lily garlands around «Alt om helgen», which answers inspiration 08's "not one long page on one identical background".
+
+**Info pages** (G3). *Praktisk informasjon* is approved in [mockups/info-praktisk.html](mockups/info-praktisk.html) (memlog, 2026-11-15; rounds in `.working/info-praktisk-1.html` to `-6.html`). Order, under the nav bar with «Praktisk» as the current page:
+
+1. «← Tilbake til invitasjonen», cream link on green, 10px below the nav bar.
+2. Page title, `heading-page` *italic*, centred, with a cream hairline under it. No line of text under the title (Rikke removed it as «overflødig»).
+3. **Jump links**, small capitals in three centred lines, 10px below the hairline (120px in all).
+4. **One paper sheet per part**, 20px apart, left-aligned: italic heading with an ink hairline, then the text; a lace-framed photo (220px) heads the sheets that have one. *Praktisk informasjon*: **Vielsen** (18-Kirka) → **Hardingasete og hyttene** (03-Venue) → **Hvordan komme seg dit** (address, route, bus, parking, «Åpne veibeskrivelse i kart») → **Husregler** → **Antrekk** → **Ta med** → **Området rundt** (12-Area).
+5. «Tilbake til invitasjonen» as an outlined button on green, centred, 14px below the last sheet.
+6. Footer band.
+
+At 360px the page is about 3 530px (six screens) with placeholder text; the jump links are why that is acceptable. Programmet and Om oss follow the same frame; their parts are not designed yet.
 
 **Form step, check page and receipt** (one cream panel per screen on the green page; no nav bar, footer band kept). Rendered at 360px in [mockups/key-form-steps.html](mockups/key-form-steps.html) (steps 1, 3 and 5, an error state and the draft offer), [mockups/key-check-page.html](mockups/key-check-page.html) and [mockups/key-receipt.html](mockups/key-receipt.html) (receipt, payment details, and the answered front page per EXPERIENCE Open Question 1):
 
@@ -497,7 +538,7 @@ Depth appears in exactly five places:
 
 **Paper texture.** Page and sheets carry a fine paper grain: tiling SVG noise layers (fine grain and soft fibre, inline data-URIs, no network) blended with `overlay` around mid-grey, so the **average colour is unchanged**. The green texture is the calmer one approved in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html) (`--grain-green`). Contrast is checked against the worst texture pixel (memlog, *Technical default, measured*):
 
-- **Green:** the grain is finer than a letter stroke, so cream text is checked against the texture averaged over 3 × 3 px: worst **4.50:1** (4.61:1 at 4 × 4 px), 0 % under 4.5:1 (memlog, *Contrast method refined*). So cream text of **20px or more** may sit on the textured green: the lead-in and the whole «Alt om helgen» section. The single lightest pixel (`#6D8358`, 3.61:1) is no longer the test. The nav words (18px) stay on the **flat** nav bar (4.95:1). Re-measure the italic topic text in the build, since italic strokes are thinner.
+- **Green:** the grain is finer than a letter stroke, so cream text is checked against the texture averaged over 3 × 3 px: worst **4.50:1** (4.61:1 at 4 × 4 px), 0 % under 4.5:1 (memlog, *Contrast method refined*). So cream text of **19px or more** may sit on the textured green: the lead-in, the whole «Alt om helgen» section, and the title, back link and jump links of the info pages. The 3 × 3 px box (radius 1px) stays finer than the letter stroke down to 19px (about 1.9px), including the 19px «Les mer» and the small-capital jump links (memlog, 2026-11-15). The single lightest pixel (`#6D8358`, 3.61:1) is no longer the test. The nav words (18px) stay on the **flat** nav bar (4.95:1). Re-measure the italic topic text in the build, since italic strokes are thinner.
 - **Sheet:** the darkest pixel is `#DBCFB4`. Worst cases: `ink` 7.67:1, `ink-muted` 4.51:1, `warning` 4.65:1, `success` 5.05:1, `error` 5.44:1, `green-dark` 6.62:1. All pass.
 - Re-measure on a screenshot of the built page if the texture changes. The texture is decoration: if it fails to load, the flat token colours are the design.
 
@@ -533,8 +574,12 @@ Frontmatter key in brackets where one exists.
 | **Lead-in** [`lead-in`] | One italic line on the textured green, 24px, e.g. «Vi gleder oss til å feire med dere». |
 | **Details section** [`details-section`] | «Alt om helgen» directly on the textured green, no sheet: top garland, `heading-section` *italic* centred with a 1px cream hairline under it, the topic rows, bottom garland. Rendered in [mockups/front-page-3.html](mockups/front-page-3.html); the rounds that led here are in `.working/finer-details-1.html` to `-10.html`. |
 | **Topic row** [`topic-row`] | Lace-framed picture left (136px), text right: `topic-title`, one line of `body` *italic*, then «Les mer» as an outlined button on green. Only «Les mer»; directions and other links live inside the topic's page. Pictures are information (`alt` describes them when they carry content; decorative otherwise **[ASSUMPTION]**). |
-| **Lace frame** [`lace-frame`] | Rikke's lace image in `panel-cream` over a square-cut photo that fills its window, soft drop shadow. Decorative (`alt=""` on the frame). Never oval, never a soft fade, never a stamp or double-line frame (rejected as «for harde»). |
-| **Outlined button on green** [`button-on-green`] | Transparent, 1.5px `cream-on-green` border and text, 4px radius, ≥ 44px tall, `button-small` 19px. Hover/pressed: border 3px; focus ring `focus-on-green`. |
+| **Lace frame** [`lace-frame`] | Rikke's lace image in `panel-cream` over a square-cut photo that fills its window, soft drop shadow; 136px in topic rows, 220px on info sheets. Decorative (`alt=""` on the frame). Never oval, never a soft fade, never a stamp or double-line frame (rejected as «for harde»). |
+| **Info page title** [`info-page-title`] | `heading-page` *italic*, centred, cream on green, 1px cream hairline under it; the page's `h1`. |
+| **Back link** [`back-link`] | «← Tilbake til invitasjonen» at the top of every info page: cream, 20px, underlined, ≥ 44px. At the bottom the same words are an outlined button on green (FR-11). |
+| **Jump links** [`jump-links`] | A `nav` labelled «Hopp til» under the info page title: short words in small capitals, 19px, centred in balanced lines (two or three words each), a decorative middle dot between words on the same line, no underline (they read like the nav words), each ≥ 40px tall. Rendered in [mockups/info-praktisk.html](mockups/info-praktisk.html). A large list with underlined words (round 2) was «rotete og stort»; closed sheets that open (round 3) were «ikke så fint og koselig». |
+| **Info sheet** [`info-sheet`] | One paper sheet per part of an info page: `heading-card` *italic* with a 1px ink hairline under it, then `body` text; facts lead with a 600-weight label («**Adresse:** …»); lists keep their bullets; links are underlined; one outlined dark-green button where a part needs an action («Åpne veibeskrivelse i kart»). An optional lace-framed photo, 220px, centred at the top of the body. Sheets are 20px apart. |
+| **Outlined button on green** [`button-on-green`] | Transparent, 1.5px `cream-on-green` border and text, 4px radius, ≥ 44px tall, `button-small` 19px. Hover/pressed: border 3px; focus ring `focus-on-green`. On a cream sheet the same shape is drawn in `ink` («Åpne veibeskrivelse i kart»). |
 | **RSVP sheet** [`rsvp-panel`] | Paper sheet after «Alt om helgen»: `heading-card` "Svar på invitasjonen", small gypsophila divider, «Barnefritt bryllup» (Rikke removed the rest of the proposed line), the full deadline «Svar innen tirsdag 4. januar 2028 kl. 23:59», primary button. When an unsent draft exists, a warning notice sits above the button. |
 | **Primary button** [`button-primary`] | Full panel width, 52px, cream text on dark green, 2px transparent border (visible outline in forced colours). Only on cream panels — the nav "Svar" is the one exception. **One distinct primary action per screen; repeats of the same action are allowed** (nav "Svar" and RSVP button). Busy: keeps its colours, label becomes "Sender …". |
 | **Secondary button** [`button-secondary`] | Outlined dark green on cream; border 3px on hover/pressed. For "Tilbake", "Betal senere", "Avbryt", "Nei, begynn på nytt". In form steps, check page and receipt it sits **below** the primary button, same full width **[forslag]**. |
@@ -577,13 +622,13 @@ Frontmatter key in brackets where one exists.
 | Primary buttons on cream panels; the nav "Svar" (with its cream border) is the only exception | A dark green button on green without the cream border |
 | The nav bar is the only thing that sticks | Other sticky or fixed bars, on guest or admin pages |
 | Imperial Script for the names only (48px, stacking when needed) | Script for headings, labels, buttons or admin; shrinking the names to fit |
-| Small capitals for the date and place in the hero only | All-caps; small-caps headings |
+| Small capitals for the date and place in the hero and the jump links on info pages | All-caps; small-caps headings |
 | EB Garamond 20px for guest body text, hints in `ink` | Guest text under 18px; hints in `ink-muted` |
 | Warm olive greens (hue ~85–100°) | Bluish sage greens (round 1), neon or saturated greens |
-| Cream `#F5EEDF` text of 20px or more on the textured green; the 18px nav words only on the flat nav bar | Cream text under 20px on the textured green |
+| Cream `#F5EEDF` text of 19px or more on the textured green; the 18px nav words only on the flat nav bar | Cream text under 19px on the textured green |
 | State colour plus icon shape plus words | Red/green/brown alone to mean anything (WCAG 1.4.1) |
-| One illustration (17, whole) in the hero, one seal, the gypsophila in two places, the lilies around «Alt om helgen», lace frames around its pictures — all from Rikke's images | Icons, sprigs, leaves, ornaments sprinkled through the page; flowers, seals or lace drawn in code |
-| Square pictures in the cream lace frame, beside their text | Oval pictures, soft fades into the green, stamp or double-line frames, pictures on their own sheet |
+| One illustration (17, whole) in the hero, one seal, the gypsophila in two places, the lilies around «Alt om helgen», lace frames around its pictures and the info-page photos — all from Rikke's images | Icons, sprigs, leaves, ornaments sprinkled through the page; flowers, seals or lace drawn in code |
+| Square pictures in the cream lace frame, beside their text on the front page or at the top of their info sheet | Oval pictures, soft fades into the green, stamp or double-line frames, pictures on a sheet of their own |
 | Venue photos as information: in the topic frames and on info pages | Venue photos as style or background texture |
 | Same tokens in admin, denser, no decoration, 44px targets | Seal, illustration or script on admin working screens |
 | A plain paper sheet in the envelope reveal; lace only as a frame around pictures | A heart-shaped or lace letter |
