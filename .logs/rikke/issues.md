@@ -13,12 +13,12 @@
 - [x] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — oppdatere pre-prd-discovery.md: krysse av «Start bmad-prd», merke D12/D13 som avklart, D6/D7 erstattet, Q1 besvart for kapasitet og Q9 avgjort (løst 2026-11-08)
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre faglærer om samtykkemodellen er i orden (Q8)
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre to eller tre gjester hvordan det oppleves å betale for mat (Q7)
-- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` og `bmad-architecture` (avgjøre D12, D14, D15), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten
+- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` (ferdig 2026-11-15) og `bmad-architecture` (avgjøre D12, D14, D15), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten
 - [x] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — samle inspirasjon til UX (bilder hun liker og ikke liker, stemningsord, en typisk gjest) før `/bmad-ux` (løst 2026-11-10)
 - [ ] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — vurdere skillen Impeccable når frontend-koden starter
 - [ ] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — avklare kilder og tillatelser for stedsbildene som skal brukes på nettsida
 - [x] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — velge illustrasjonsstil: KI-illustrasjonen (14) eller enkle grønne strektegninger (løst 2026-11-11: illustrasjon 17)
-- [ ] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — gå gjennom resterende småendringer i UX, kjøre struktur- og språkgjennomgang, sette DESIGN.md og EXPERIENCE.md til final og lage PR for docs/ux
+- [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — gå gjennom resterende småendringer i UX, kjøre struktur- og språkgjennomgang, sette DESIGN.md og EXPERIENCE.md til final og lage PR for docs/ux (løst 2026-11-15: status final; PR lages etter push)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: tekstur på det grønne, kantene på kremfeltene, og forsida under toppfeltet (løst 2026-11-11: kanter og tekstur bestemt; delen under toppfeltet er flyttet til eget punkt)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare brudeparets åpne spørsmål i EXPERIENCE.md (navn i vanlig tekst, 320 px-mobiler, hvordan hjelpere ser at de bare kan lese, «barnefritt» etter svar) (løst 2026-11-15)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — avklare om allergier oppgitt uten samtykke (FR-28) skal ha egen markering i admin (løst 2026-11-15: nei, ordlyden «Ingen allergiopplysninger lagret»)
