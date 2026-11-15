@@ -14,7 +14,7 @@ These come from the product brief and its addendum. The PRD carries only parts o
   - Elegant but cosy, not overly fancy.
 - **Programme.**
   - **Friday:** a daytime mountain hike for early arrivals. In the evening, a treasure hunt (rebus), then sauna and hot tub, and Friday dinner (paid).
-  - **Saturday:** breakfast (paid) and optional yoga, then the wedding. The couple hosts lunch and dinner.
+  - **Saturday:** breakfast (paid) and optional yoga, then the wedding in Strandebarm kirke (added 2026-11-15). The couple hosts lunch and dinner.
   - **Sunday:** breakfast (paid).
 - **Staying.** The cabins are on the farmyard and are booked for the whole weekend or not at all. Guests are encouraged to stay the whole weekend, but they can come without staying overnight, for example only for the wedding day.
 - **Gifts.** The gift page message from the brief: "we know the wedding may be expensive to attend and we don't expect gifts, but there is a wish list for anyone who wants one". It balances out asking guests to pay for meals and cabins.
@@ -134,3 +134,4 @@ The resulting scope and changes are in PRD sections 3.4 and 9. This table keeps 
 | *Hardingasete and the area* as its own topic and page (Claude's recommendation in the UX work, to tempt guests to stay the whole weekend) | Rejected by Rikke, 2026-11-15 | Three topics are enough; the place, the cabins and the directions belong with the practical information. |
 | An "Ask us" question form on every guest page (brief, FR-43 to FR-45) | Removed by Rikke, 2026-11-15 | Guests call or message the couple, whose numbers are at the bottom of every guest page. |
 | A "Directions" button next to "Read more" on the front page (Claude's proposal from inspiration 09) | Rejected by Rikke, 2026-11-15 | The directions belong inside the *Practical information* page; the front page has only "Read more". |
+| Info-page parts as closed sheets that open one at a time (Rikke's own idea, rendered by Claude in the UX work) | Rejected by Rikke, 2026-11-15 | It did not look nice and cosy enough; a short row of jump links under the page title does the same job. |
