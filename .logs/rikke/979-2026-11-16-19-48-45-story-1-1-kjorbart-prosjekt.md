@@ -62,6 +62,8 @@ Rikke spurte om hun skulle bruke Vercel for å se nettsiden. Claude frarådet de
 
 Rikke leste Claudes tre tekniske valg og svarte **«ser bra ut. har merget»**. PR #18 er merget (merge-commit `0c27541`), lokal `main` er oppdatert, branchen er slettet, og story 1.1 står som `done` i sprint-status.
 
+Rikke spurte om hun skulle svare ut de åpne punktene nå. Claude svarte at punktene fra story 1.1 hører til story 3.1 og 2027, men pekte på et eldre punkt som story 1.2 trenger: maks 8 personer per husstand. Rikke svarte **«ingen er flere enn 8 nei»**. Bekreftelsen står i endringsloggen i `epics.md`.
+
 Lukket punkt i `issues.md`: «neste BMAD-steg: Story 1.1 med `bmad-build`».
 
 ### Åpne punkter
