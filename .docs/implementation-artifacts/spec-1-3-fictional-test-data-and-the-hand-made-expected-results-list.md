@@ -70,15 +70,15 @@ context:
 **Execution:**
 - [x] `wedding/fixtures/seed.toml` -- settings, users and the households table above as data, keyed by household and guest key, with planned answers, allergies, consents, reports and payments -- FR-68.
 - [x] `wedding/fixtures/expected.toml` -- hand-worked: every FR-54 count (households and people coming/not/unanswered, whole weekend and per day pattern, not staying and beds, each meal incl. Saturday lunch and dinner, each allergy category, the three AD-18 states, hike yes/maybe/no, payment status among coming households), per-household total, payment status, missing/refund amount and report match, per-guest allergy state, and lock cases as offsets from the deadline (day before 12:00 open, deadline 23:59:59 open, next day 00:00:00 locked, +7 days locked) -- FR-69, AD-16.
-- [ ] `wedding/models.py` + `wedding/migrations/0004_*.py` -- `is_test_data` BooleanField default False on `Household` and `User` -- FR-72.
-- [ ] `wedding/services/users.py` -- `create_admin_user(actor, username, password, role)`; system actor only for now (Story 3.1 adds its command), marks test data -- FR-47, AD-10.
-- [ ] `wedding/services/settings.py` -- `update_settings(actor, values: SettingsValues)`; system or couple; validates prices ≥ 0 and field lengths -- FR-64, AD-12.
-- [ ] `wedding/services/testdata.py` -- `reset_test_data(actor)`: system only, deletes test households (guests cascade) and test users; docstring says Story 5.2 voids payments first -- AD-4, AD-16.
-- [ ] `wedding/selectors.py` -- `test_data_conflicts(codes, usernames) -> list[str]` for non-test rows using them.
-- [ ] `wedding/management/commands/seed_testdata.py` -- env guard, load TOML, conflict check, then reset + settings + households + users in one `transaction.atomic()`, then print -- FR-68, FR-72, AD-14.
-- [ ] `tests/test_seed_testdata.py`, `tests/test_seed_files.py`, `tests/test_settings_service.py`, `tests/test_users_service.py` -- every matrix row; NFR-3 checks (emails, phones, MOD11 fails); codes valid and unique; every seed household and guest has an `expected.toml` entry; every FR-68 case present; no household over 8.
-- [ ] `ARCHITECTURE-SPINE.md` -- AD-4 stored list and AD-16: `is_test_data`, with a change note.
-- [ ] `README.md` -- command, test link per guest (open from Story 1.5), logins (usable from Story 3.1), status line.
+- [x] `wedding/models.py` + `wedding/migrations/0004_*.py` -- `is_test_data` BooleanField default False on `Household` and `User` -- FR-72.
+- [x] `wedding/services/users.py` -- `create_admin_user(actor, username, password, role)`; system actor only for now (Story 3.1 adds its command), marks test data -- FR-47, AD-10.
+- [x] `wedding/services/settings.py` -- `update_settings(actor, values: SettingsValues)`; system or couple; validates prices ≥ 0 and field lengths -- FR-64, AD-12.
+- [x] `wedding/services/testdata.py` -- `reset_test_data(actor)`: system only, deletes test households (guests cascade) and test users; docstring says Story 5.2 voids payments first -- AD-4, AD-16.
+- [x] `wedding/selectors.py` -- `test_data_conflicts(codes, usernames) -> list[str]` for non-test rows using them.
+- [x] `wedding/management/commands/seed_testdata.py` -- env guard, load TOML, conflict check, then reset + settings + households + users in one `transaction.atomic()`, then print -- FR-68, FR-72, AD-14.
+- [x] `tests/test_seed_testdata.py`, `tests/test_seed_files.py`, `tests/test_settings_service.py`, `tests/test_users_service.py` -- every matrix row; NFR-3 checks (emails, phones, MOD11 fails); codes valid and unique; every seed household and guest has an `expected.toml` entry; every FR-68 case present; no household over 8.
+- [x] `ARCHITECTURE-SPINE.md` -- AD-4 stored list and AD-16: `is_test_data`, with a change note.
+- [x] `README.md` -- command, test link per guest (open from Story 1.5), logins (usable from Story 3.1), status line.
 
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check`, `uv run djlint --check .` and `uv run manage.py makemigrations --check --dry-run` run, then all pass.
@@ -88,6 +88,7 @@ context:
 
 - **Data files done by the orchestrator (do not edit them):** `seed.toml` (commit 67bad24) and `expected.toml` (55a38e0, after the PRD FR-60 change in 9360654) are committed. Read `seed.toml`'s header for its fields: `[settings]` (with `deadline_days_from_today` instead of a date), `[[users]]` (`username`, `password`, `role`), `[[households]]` (`key`, optional `answered_by`, `payment_report`, `payments`) each with `[[households.guests]]` (`key`, `name`, optional `phone`, `email`, `code`, then answer fields). Story 1.3 loads only settings, users, households and guests' `name`/`phone`/`email`/`code`; ignore the answer and payment fields. `expected.toml` has `[counts.*]`, `[households.<key>]`, `[guests]` and `[[lock]]`; test only its structure against `seed.toml` (same household and guest keys, values from the allowed sets), never numbers computed by code.
 - **Expected-results check:** Claude and an independent subagent agreed on every value; Rikke checked three samples and decided `not_answered` for Mona (see the commit message of 55a38e0).
+- **Small additions while implementing:** `InvalidUser` in `exceptions.py` for refused accounts (blank or taken username, unknown role, no password). The env guard treats an empty `APP_ENV` as unset, like `config/env.py`, and also refuses when the loaded `settings.APP_ENV` is not `local`. `tests/conftest.py` switches tests to Django's MD5 hasher, because each seed run hashes two passwords and the seed tests took 30 s with the real one. `oversikt.md` got the AD-16 marker in Norwegian. With no URL patterns yet, the test links show Django's start page until Story 1.5; the README says so.
 
 ## Spec Change Log
 
