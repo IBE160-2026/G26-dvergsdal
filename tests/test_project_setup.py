@@ -71,6 +71,15 @@ def test_sqlite_options_and_no_atomic_requests():
     assert database["ATOMIC_REQUESTS"] is False
 
 
+def test_static_files_are_self_hosted_through_whitenoise():
+    """AD-15: static files come from the site itself, served by WhiteNoise."""
+    middleware = settings.MIDDLEWARE
+    security = middleware.index("django.middleware.security.SecurityMiddleware")
+    assert middleware[security + 1] == "whitenoise.middleware.WhiteNoiseMiddleware"
+    assert settings.STATIC_ROOT == BASE_DIR / "staticfiles"
+    assert settings.STATICFILES_DIRS == [BASE_DIR / "static"]
+
+
 def test_structural_seed_folders_exist():
     """Structural Seed: the layout every later story builds on."""
     expected = [
