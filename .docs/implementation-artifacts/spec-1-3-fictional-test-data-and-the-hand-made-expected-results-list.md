@@ -68,8 +68,8 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/fixtures/seed.toml` -- settings, users and the households table above as data, keyed by household and guest key, with planned answers, allergies, consents, reports and payments -- FR-68.
-- [ ] `wedding/fixtures/expected.toml` -- hand-worked: every FR-54 count (households and people coming/not/unanswered, whole weekend and per day pattern, not staying and beds, each meal incl. Saturday lunch and dinner, each allergy category, the three AD-18 states, hike yes/maybe/no, payment status among coming households), per-household total, payment status, missing/refund amount and report match, per-guest allergy state, and lock cases as offsets from the deadline (day before 12:00 open, deadline 23:59:59 open, next day 00:00:00 locked, +7 days locked) -- FR-69, AD-16.
+- [x] `wedding/fixtures/seed.toml` -- settings, users and the households table above as data, keyed by household and guest key, with planned answers, allergies, consents, reports and payments -- FR-68.
+- [x] `wedding/fixtures/expected.toml` -- hand-worked: every FR-54 count (households and people coming/not/unanswered, whole weekend and per day pattern, not staying and beds, each meal incl. Saturday lunch and dinner, each allergy category, the three AD-18 states, hike yes/maybe/no, payment status among coming households), per-household total, payment status, missing/refund amount and report match, per-guest allergy state, and lock cases as offsets from the deadline (day before 12:00 open, deadline 23:59:59 open, next day 00:00:00 locked, +7 days locked) -- FR-69, AD-16.
 - [ ] `wedding/models.py` + `wedding/migrations/0004_*.py` -- `is_test_data` BooleanField default False on `Household` and `User` -- FR-72.
 - [ ] `wedding/services/users.py` -- `create_admin_user(actor, username, password, role)`; system actor only for now (Story 3.1 adds its command), marks test data -- FR-47, AD-10.
 - [ ] `wedding/services/settings.py` -- `update_settings(actor, values: SettingsValues)`; system or couple; validates prices ≥ 0 and field lengths -- FR-64, AD-12.
@@ -83,6 +83,15 @@ context:
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check`, `uv run djlint --check .` and `uv run manage.py makemigrations --check --dry-run` run, then all pass.
 - Given `git log`, when the story's commits are read, then `expected.toml` is added in its own commit before the command code, with the method in the message.
+
+## Implementation Notes
+
+- **Data files done by the orchestrator (do not edit them):** `seed.toml` (commit 67bad24) and `expected.toml` (55a38e0, after the PRD FR-60 change in 9360654) are committed. Read `seed.toml`'s header for its fields: `[settings]` (with `deadline_days_from_today` instead of a date), `[[users]]` (`username`, `password`, `role`), `[[households]]` (`key`, optional `answered_by`, `payment_report`, `payments`) each with `[[households.guests]]` (`key`, `name`, optional `phone`, `email`, `code`, then answer fields). Story 1.3 loads only settings, users, households and guests' `name`/`phone`/`email`/`code`; ignore the answer and payment fields. `expected.toml` has `[counts.*]`, `[households.<key>]`, `[guests]` and `[[lock]]`; test only its structure against `seed.toml` (same household and guest keys, values from the allowed sets), never numbers computed by code.
+- **Expected-results check:** Claude and an independent subagent agreed on every value; Rikke checked three samples and decided `not_answered` for Mona (see the commit message of 55a38e0).
+
+## Spec Change Log
+
+## Review Triage Log
 
 ## Design Notes
 
