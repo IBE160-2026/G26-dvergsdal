@@ -46,6 +46,8 @@ Rikke kjørte `/bmad-help` for å se hva som var neste steg. Claude anbefalte St
 
 Rikke ba om **«push og lag PR»**: `docs/epics-review` er pushet, og [PR #17](https://github.com/IBE160-2026/G26-dvergsdal/pull/17) er laget mot `main` med en tabell over commits, beslutninger og hva som bør sjekkes.
 
+Rikke merget PR #17 på GitHub. Lokal `main` er oppdatert med `git pull` og står likt med `origin/main` (merge-commit `501c560`), og den lokale branchen `docs/epics-review` er slettet.
+
 Lukket punkt i `issues.md`: «vurdere en `bmad-review` av epics.md før koden starter».
 
 ### Åpne punkter
