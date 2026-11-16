@@ -2,7 +2,7 @@
 title: "PRD: AI'll handle it"
 status: final
 created: 2026-11-07
-updated: 2026-11-15
+updated: 2026-11-16
 inputs:
   - ../../briefs/brief-aill-handle-it-2026-09-23/brief.md
   - ../../briefs/brief-aill-handle-it-2026-09-23/addendum.md
@@ -593,8 +593,10 @@ The text on the information pages lives in the code in v1, so changing it means 
 
 ### Hardingasete (asked 2026-11-06)
 
-- **Q1: Beds and cabins.** Answered for capacity: Hardingasete has far more beds than there are guests, so the form needs no bed limit (Rikke, 2026-11-07). Outside the site, the couple allocates the cabins.
-- **Q2 to Q4** are still open; see section 8.
+- **Q1: Beds and cabins.** Answered: renting the whole place gives 75 beds (90 with the new sleeping house) from Friday afternoon to Sunday morning, more than there are guests, so the form needs no bed limit (Rikke, 2026-11-07; price sheet 2026-11-16). Outside the site, the couple allocates the cabins.
+- **Q3: Prices.** Answered with the 2026 prices; the 2028 prices come at the end of 2027 ([Hardingasete's answers](../../research/hardingasete/svar-hardingasete-2026-11-16.md)). Accommodation is priced for the whole place, not per bed, so the couple sets the guests' cabin price per person (FR-32, FR-64).
+- **Q4: Paying Hardingasete directly.** No: guests pay the couple, and the couple pays Hardingasete in one payment (2026-11-16). FR-34 is unchanged.
+- **Q2** is partly answered; see section 8.
 
 ### Assumptions
 
@@ -604,9 +606,7 @@ The text on the information pages lives in the code in v1, so changing it means 
 
 | ID | Question | Owner | Blocks the PRD? | Revisit when |
 |---|---|---|---|---|
-| Q2 | When and in which format does Hardingasete need the final numbers? This sets the RSVP deadline (about two weeks before Hardingasete needs the numbers) and what the overview must show. | Rikke | No | Hardingasete replies |
-| Q3 | What are Hardingasete's prices per meal and for the cabin? They are entered as settings (FR-64), and invitations are not sent until they are known (section 3.2). | Rikke | No | Hardingasete replies |
-| Q4 | May guests pay Hardingasete directly? This may change FR-34. | Rikke | No | Hardingasete replies |
+| Q2 | When and in which format does Hardingasete need the final numbers? Partly answered 2026-11-16: at the start of 2028; the exact date and the format are not set. The 2028 prices come before that, at the end of 2027, so invitations can wait for them (section 3.2). | Rikke | No | Hardingasete sets the date |
 | Q7 | How do two or three guests, including older ones, feel about paying for meals? Affects the wording in FR-32. | Rikke | No | Before the UX text is written |
 | Q8 | Is the teacher fine with the consent model differing from the first brief? (The teacher's feedback already asks for an expected-results list checked by automated tests, which FR-69 covers.) | Rikke | No | Next supervision |
 | D12 | In production, should the programme and the practical information be editable in the admin area? Rikke's rule: yes, if the architecture shows it isn't much harder than keeping the text in the code with the update rules in section 3.2. | Architecture | No | bmad-architecture |
@@ -659,3 +659,4 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-15 | From the UX work (the approved *Programme* page, `ux-designs/…/mockups/info-program.html`): FR-9 now says the page tells guests that everything is voluntary, and calls the Friday activity a rebus, not a treasure hunt (Rikke). The programme order and the drinks note are in the addendum. |
 | 2026-11-15 | From the UX work: Rikke renamed *About us* to *Our story* (*Vår historie*, with the line «Fra vi møttes til i dag.») on the front page, in the menu and as the page title; FR-8 changed to match. |
 | 2026-11-15 | From the UX review (review-rubric-2.md R2-01, R2-09): FR-24 now places the status where the RSVP section was, with a sent line and link at the top, as decided in the UX work; FR-57 now describes the overview list plus a page per household, since the overview and the guest list became one admin page (approved render `ux-designs/…/mockups/admin-guests-1.html`). |
+| 2026-11-16 | Hardingasete answered ([answers](../../research/hardingasete/svar-hardingasete-2026-11-16.md)): Q1 closed with the bed numbers, Q3 answered with the 2026 prices (2028 prices at the end of 2027), Q4 answered (guests pay the couple; FR-34 unchanged). Q2 partly answered: final numbers at the start of 2028, after the 2028 prices. Accommodation turned out to be priced for the whole place, so the guests' cabin price is set by the couple. |

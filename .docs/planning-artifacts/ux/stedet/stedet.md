@@ -1,6 +1,6 @@
 # Stedet: lokaler, hytter og Hardanger
 
-Bilder av lokalene, hyttene og området i Hardanger der bryllupet holdes. Bildene er ikke inspirasjon, men viser hvordan stedet ser ut, slik at UX-arbeidet (`bmad-ux`) bygger på det faktiske stedet. Noen av dem kan bli brukt på infosider om området. Kilder og tillatelser avklares når det er bestemt hvilke bilder som skal med.
+Bilder av lokalene, hyttene og området i Hardanger der bryllupet holdes. Bildene er ikke inspirasjon, men viser hvordan stedet ser ut, slik at UX-arbeidet (`bmad-ux`) bygger på det faktiske stedet. Noen av dem kan bli brukt på infosider om området. Rikke har fått tillatelse til å bruke bildene på nettsida (avklart 2026-11-16).
 
 ## Slik fyller du ut
 

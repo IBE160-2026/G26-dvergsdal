@@ -7,7 +7,7 @@
 - [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — diskutere og bestemme C1–C7 og D1–D13 i pre-prd-discovery.md (særlig samtykkemodellen) (C1–C7 løst 2026-11-06; D1–D13 videreført under)
 - [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — spørre Hardingasete om sengeplasser, priser, frister for endelige tall og direkte betaling (løst 2026-11-06, spørsmålene er sendt)
 - [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — oppdatere briefen (samtykke, lenkesporing) med endringslogg (løst 2026-11-06)
-- [ ] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — vente på svar fra Hardingasete, og legge svarene inn i briefen eller PRD-en
+- [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — vente på svar fra Hardingasete, og legge svarene inn i briefen eller PRD-en (løst 2026-11-16: Q1, Q3 og Q4 besvart, Q2 delvis; nøyaktig dato videreført under)
 - [x] 2026-11-06 [research-for-prd](993-2026-11-06-19-10-08-research-for-prd.md) — bestemme D1–D13 i pre-prd-discovery.md, eller ta dem med inn i PRD-en (løst 2026-11-06: D1–D11 bestemt, D12–D13 tas med inn i PRD-en)
 - [x] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — oppdatere briefens endringslogg med det PRD-en endret (hjelpere kan bare se, betaling som beløp, «Jeg har betalt», unik betalingsmelding, ingen e-post ved endring, varsel til gjester satt utenfor) (løst 2026-11-08)
 - [x] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — oppdatere pre-prd-discovery.md: krysse av «Start bmad-prd», merke D12/D13 som avklart, D6/D7 erstattet, Q1 besvart for kapasitet og Q9 avgjort (løst 2026-11-08)
@@ -16,7 +16,7 @@
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` (ferdig 2026-11-15) og `bmad-architecture` (avgjøre D12, D14, D15), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten
 - [x] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — samle inspirasjon til UX (bilder hun liker og ikke liker, stemningsord, en typisk gjest) før `/bmad-ux` (løst 2026-11-10)
 - [ ] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — vurdere skillen Impeccable når frontend-koden starter
-- [ ] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — avklare kilder og tillatelser for stedsbildene som skal brukes på nettsida
+- [x] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — avklare kilder og tillatelser for stedsbildene som skal brukes på nettsida (løst 2026-11-16: Rikke har fått lov)
 - [x] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — velge illustrasjonsstil: KI-illustrasjonen (14) eller enkle grønne strektegninger (løst 2026-11-11: illustrasjon 17)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — gå gjennom resterende småendringer i UX, kjøre struktur- og språkgjennomgang, sette DESIGN.md og EXPERIENCE.md til final og lage PR for docs/ux (løst 2026-11-15: status final; PR lages etter push)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — ta opp igjen: tekstur på det grønne, kantene på kremfeltene, og forsida under toppfeltet (løst 2026-11-11: kanter og tekstur bestemt; delen under toppfeltet er flyttet til eget punkt)
@@ -29,4 +29,7 @@
 - [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive notater for bilde 21–24 i inspirasjon.md (løst 2026-11-15: egne-bilder.md)
 - [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — skrive den godkjente Programmet-sida inn i DESIGN.md, EXPERIENCE.md og PRD-en (FR-9: rebus, lunsj utenfor kirka med cider, drikke, «alt er frivillig»; programmet i addendumet) (løst 2026-11-15)
 - [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe «Om oss» (teksten ligger i ux/innhold/Vår historie.docx) (løst 2026-11-15)
-- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — fylle inn «[stilling]» i «Vår historie», og rette «morro» og «det det» i Word-fila (skrivefeilene rettet av Rikke 2026-11-15; «[stilling]» gjenstår)
+- [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — fylle inn «[stilling]» i «Vår historie», og rette «morro» og «det det» i Word-fila (skrivefeilene rettet av Rikke 2026-11-15; «[stilling]» står som plassholder til stillingen er avklart med jobben, Rikke 2026-11-16)
+- [ ] 2026-11-16 [hardingasete-svar](986-2026-11-16-08-59-23-hardingasete-svar.md) — bestemme hva hver gjest betaler for hytta, siden Hardingasete tar betalt for hele stedet og ikke per seng
+- [x] 2026-11-16 [hardingasete-svar](986-2026-11-16-08-59-23-hardingasete-svar.md) — få nøyaktig dato for endelige tall fra Hardingasete, og finne ut hvordan den passer med 2028-prisene (begge kommer i starten av 2028) (løst 2026-11-16 for kollisjonen: prisene kommer i slutten av 2027; nøyaktig dato videreført under)
+- [ ] 2026-11-16 [hardingasete-svar](986-2026-11-16-08-59-23-hardingasete-svar.md) — få nøyaktig dato for endelige tall fra Hardingasete (starten av 2028), og sette svarfristen omtrent to uker før
