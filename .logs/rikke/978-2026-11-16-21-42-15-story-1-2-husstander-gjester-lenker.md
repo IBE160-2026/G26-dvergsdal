@@ -46,8 +46,9 @@ Rikke startet `/bmad-build` uten argument. Neste story i sprintplanen er 1.2: hv
     - **«En deaktivert konto kommer forbi rollesjekken»:** avvist, fordi Django nekter inaktive brukere å logge inn.
 - **Sluttsjekk:** 106 tester består, og Ruff, djLint og `makemigrations --check` er rene. Sprint-status: 1.2 står på `review` til PR-en er merget.
 - Lukket punktet «neste BMAD-steg: story 1.2» i issues.md.
+- Rikke spurte «hva annbefaler du?». Claude anbefalte å pushe og lage en PR før story 1.3, fordi CI var det eneste som ikke var sjekket (story 1.1 feilet første gang i CI), og fordi 1.3 bygger direkte på 1.2. Rikke svarte «ja». Grenen er pushet, og [PR #19](https://github.com/IBE160-2026/G26-dvergsdal/pull/19) er laget. GitHub Actions er grønn: kjøring 43869509143 (push) og 43869558183 (PR).
 
 ### Åpne punkter
-- GitHub Actions er ikke kjørt for story 1.2. Push grenen, lag en PR og se at kjøringen blir grønn før merge.
+- Gå gjennom og merge [PR #19](https://github.com/IBE160-2026/G26-dvergsdal/pull/19). CI er grønn.
 - Neste BMAD-steg: story 1.3 (testdata og fasit) med `bmad-build`.
 - **Story 1.3 og senere:** testen som reverserer Settings-migrasjonen tømmer databasen etter seg. Nye tester med `transaction=True` som trenger Settings-raden, må derfor bruke `serialized_rollback=True`.
