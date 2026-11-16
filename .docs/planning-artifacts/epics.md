@@ -1,5 +1,5 @@
 ---
-stepsCompleted: [1, 2]
+stepsCompleted: [1, 2, 3]
 inputDocuments:
   - prds/prd-aill-handle-it-2026-11-07/prd.md
   - prds/prd-aill-handle-it-2026-11-07/addendum.md
@@ -671,3 +671,1000 @@ So that I am never stuck without a way to answer.
 **Given** the error pages
 **When** a test requests each of them with a valid and with an unknown code
 **Then** each shows the content described above and sends the guest headers from Story 1.4
+
+## Epic 2: Guests answer for their household
+
+Sigmund and Arild answer for everyone in their household on a phone: who is coming, which days, overnight stay, meals with prices, allergies with consent and the Friday hike. They see the running total, check everything before sending, get a receipt in Rikke's words, choose to pay now or later, and see their household's status on the invitation afterwards. An interrupted answer is offered back when they return.
+
+Deviation from the PRD tiers: FR-29 is pulled forward from tier 2 into Story 2.6 (see the Epic List).
+
+### Story 2.1: Start the answer: who is coming
+
+As bestefar Sigmund,
+I want to press the RSVP button and first mark who in my household is coming,
+So that the rest of the form only asks about the people who come.
+
+**Covers:** FR-12, FR-13, FR-14 (step 1), FR-22, NFR-5, NFR-6, AD-1, AD-7, AD-8, UX-DR16, UX-DR17, UX-DR18, UX-DR19, UX-DR20
+
+**Acceptance Criteria:**
+
+**Given** the RSVP sheet on the front page
+**When** it renders for a household that has not answered
+**Then** it has the primary button «Svar på invitasjonen», which opens the form at `/<code>/svar/`
+
+**Given** the form's first step
+**When** it opens
+**Then** it shows the step question as `h1`, the progress line «Steg 1 av m: <name>» and the respondent line «Jeg er <link owner> · Bytt» (FR-12, FR-13, UX-DR19)
+**And** each household member is a fieldset with «Kommer» and «Kommer ikke», and nothing is selected (FR-14)
+
+**Given** the respondent presses «Bytt»
+**When** they pick another household member
+**Then** that person is recorded as the one answering, and nothing already filled in changes (FR-12)
+
+**Given** step 1 sent with a person left unanswered
+**When** the server validates it
+**Then** the step re-renders with status 200, the error under that person's legend as icon and «Feil: …», and a focused error summary at the top whose links focus each field; the page title starts with «Feil: » (FR-22, UX-DR16, UX-DR18)
+
+**Given** a valid step
+**When** «Fortsett» is pressed
+**Then** the server saves the step in the draft cookie (signed, compressed, `HttpOnly`, `SameSite=Lax`, scoped to `/<code>/svar/`) and redirects to the next step's own address (POST-redirect-GET), and nothing is stored in the database (AD-7, AD-8)
+**And** «Tilbake» and the browser's Back button show the previous step with its answers, without a resubmit prompt (UX-DR20)
+
+**Given** the whole guest flow
+**When** a test runs it
+**Then** no session rows are created and the messages framework is never used (AD-8)
+**And** every step works without JavaScript (AD-1)
+
+### Story 2.2: Which days each person comes
+
+As onkel Arild,
+I want to say whether everyone who comes is there the whole weekend, and otherwise choose the days for each person,
+So that Filippa can come only Saturday and Sunday while the rest of us come all weekend.
+
+**Covers:** FR-14 (step 2), FR-70 (dates), FR-75, AD-2
+
+**Acceptance Criteria:**
+
+**Given** step 2 after at least one person is marked «Kommer»
+**When** it opens
+**Then** it asks whether everyone who is coming is there the whole weekend, Friday to Sunday, and shows each day with its date and what happens that day (FR-14, FR-70)
+
+**Given** the answer «Nei»
+**When** the step continues
+**Then** the respondent chooses the days for each coming person, and a coming person must have at least one day
+
+**Given** nobody is marked «Kommer»
+**When** step 1 is sent
+**Then** the form goes straight to the check page and asks nothing more
+
+**Given** a person changed to «Kommer ikke» or a day removed
+**When** the draft is updated
+**Then** `normalise_answer` in `wedding/rules/` removes that person's or day's later choices, so they never show or count (FR-75)
+
+**Given** answers that change who comes or which days
+**When** the progress line renders
+**Then** the step count m changes; moving forward or back alone never changes it (UX-DR19)
+
+**Given** the rule functions for applicable steps and days
+**When** they are tested
+**Then** the tests pass plain values and cover all household shapes in `seed.toml`
+
+### Story 2.3: Overnight stay, meals and the running total
+
+As bestefar Sigmund,
+I want to choose overnight stay and meals for each coming person with the prices in front of me,
+So that I know what we will pay before I decide.
+
+**Covers:** FR-15, FR-16, FR-32, FR-33, FR-70 (contradictions), FR-73, NFR-2, AD-2, AD-7, AD-12, UX-DR19
+
+**Acceptance Criteria:**
+
+**Given** the overnight step
+**When** it renders
+**Then** each coming person gets yes or no to staying overnight, with the cabin price shown first and the line that a cabin is booked for the whole weekend and both nights are paid (FR-16, FR-32)
+
+**Given** a person present on only one day
+**When** the respondent chooses to stay overnight
+**Then** the step is blocked with an explanation of why (FR-70)
+
+**Given** the meals step
+**When** it renders
+**Then** each coming person is offered only the paid meals on their days (Friday dinner, Saturday breakfast only if present from Friday, Sunday breakfast), each with its price, and Saturday lunch and dinner are not asked about (FR-15, FR-73)
+**And** a short, friendly note explains why guests pay (FR-32)
+
+**Given** any paid step
+**When** it renders, and after every change when JavaScript runs
+**Then** «Totalt for husstanden: <amount>» is calculated by `household_total` in `wedding/rules/` from the answers and the current prices in Settings, as whole kroner (FR-33, AD-12)
+**And** the script update uses `POST /<code>/svar/sum/`, which returns the same rule's result as server-rendered HTML, writes nothing and is announced politely (AD-7)
+
+**Given** `household_total`
+**When** it is tested
+**Then** the tests cover every paid option, removed choices (FR-75), a household paying nothing and the Saturday-only guest without a cabin
+
+### Story 2.4: Allergies and consent
+
+As bestefar Sigmund,
+I want to register bestemor's dietary needs, say that I have none, and give consent for it to be stored,
+So that the kitchen can make safe food, and nothing is stored about our health without our consent.
+
+**Covers:** FR-25, FR-26, FR-27, FR-28, NFR-3, AD-8, AD-18, UX-DR21
+
+**Acceptance Criteria:**
+
+**Given** the allergies step
+**When** it renders
+**Then** each coming person has «Ingen allergier eller matbehov» and the categories gluten, laktose, nøtter, skalldyr, vegetar, veganer and annet, plus a short note field with a maximum length (FR-25)
+**And** the question is optional
+
+**Given** «Ingen allergier eller matbehov» and a category are both ticked for one person
+**When** JavaScript runs, ticking one clears the other; without it, the step comes back with an inline error asking to choose one (UX-DR21)
+
+**Given** the consent block
+**When** it renders
+**Then** the text says what the information is for, who sees it (the couple, toastmaster, maid of honour and best man), that names and allergies go to Hardingasete's kitchen, and that consent can be withdrawn through the same link, before a Ja/Nei choice that starts unanswered (FR-26)
+**And** «Jeg bekrefter at <name> vet om dette og er enig» appears only when information is entered for someone other than the respondent (FR-27)
+
+**Given** allergies entered and consent not given
+**When** the respondent continues
+**Then** the step and later the check page say plainly that the allergy information will not be saved and that the guest can tell the couple directly, and continuing is still allowed (FR-28)
+
+**Given** the draft for the largest household with every allergy field filled to its maximum
+**When** a test measures the cookie
+**Then** it fits in 4 KB (AD-8)
+
+### Story 2.5: The Friday hike and the check page
+
+As bestefar Sigmund,
+I want to answer about the Friday hike and then see everything I have answered before I send it,
+So that I can catch mistakes and know that nothing is sent yet.
+
+**Covers:** FR-17, FR-21, FR-28, UX-DR23
+
+**Acceptance Criteria:**
+
+**Given** at least one person comes on Friday
+**When** the hike step renders
+**Then** each person present on Friday answers yes, no or maybe, and nobody else is asked (FR-17)
+**And** when nobody comes on Friday, the step is skipped and not counted in the progress line
+
+**Given** the last step is done
+**When** the check page opens
+**Then** «Obs: Svaret er ikke sendt ennå.» is at the top, followed by the `h1` «Se over svaret før du sender», one block per part (Hvem kommer · Dager · Overnatting · Måltider · Allergier og matbehov · Fjelltur fredag) with each person's answer, and the household total (FR-21)
+**And** skipped optional answers show «Ikke oppgitt», and allergies entered without consent show the FR-28 warning
+
+**Given** an «Endre» link on the check page
+**When** the respondent uses it
+**Then** it opens that step with the answers filled in, and «Fortsett» returns to the check page; each link has hidden context such as «Endre måltider» (UX-DR23)
+
+**Given** the check page
+**When** it renders
+**Then** «Send svaret» is the primary button, above «Tilbake»
+
+### Story 2.6: Send the answer
+
+As bestefar Sigmund,
+I want my answer saved safely when I press «Send svaret»,
+So that the couple gets it, and I am told clearly if something went wrong.
+
+**Covers:** FR-26, FR-29, FR-68 (answers), FR-74, NFR-1, NFR-2, AD-3, AD-4, AD-9, AD-18, AD-20, UX-DR52
+
+**Acceptance Criteria:**
+
+**Given** this story's migration
+**When** it is applied
+**Then** it creates `HouseholdAnswer` (revision, sent by, sent at), `PersonAnswer`, `Allergy` and `Consent` (when, who gave it, the consent-text version), and nothing derived such as totals (AD-4, FR-29)
+
+**Given** «Send svaret» pressed on a valid draft
+**When** `send_answer` runs with the guest actor
+**Then** it writes the answer in one IMMEDIATE transaction, records the respondent as the sender, increases the revision and deletes the draft cookie (AD-3, AD-9)
+**And** allergy data and «Ingen allergier eller matbehov» are stored only for people with consent, and each consent record stores when, by whom and the text version (FR-26, FR-29, AD-18)
+
+**Given** a re-send where consent is left unanswered
+**When** it is saved
+**Then** existing consented data is kept unchanged; «Ja» gives consent, «Nei» refuses it (AD-18)
+
+**Given** the total recalculated at send differs from the total on the check page
+**When** the send is attempted
+**Then** nothing is written and the check page is shown again with a notice about the new total (AD-7)
+
+**Given** the same submission sent twice (double tap)
+**When** the second POST arrives
+**Then** the earlier result is returned and nothing is written twice (AD-20)
+
+**Given** a write that fails
+**When** the guest is shown the result
+**Then** the error notice says what happened, that nothing is lost, «Prøv igjen», and the couple's phone numbers, and every answer stays in the draft (NFR-1, UX-DR52)
+
+**Given** `send_answer`
+**When** tests run
+**Then** a guest actor cannot write to another household (AD-3), and person and household states follow FR-74 (coming, not coming, not answered; a household is answered once sent)
+**And** `seed_testdata` now loads the answers, allergies and consents in `seed.toml` through `send_answer`
+**And** the manual test plan records one real-browser send, since Django's test client sends no browser headers
+
+### Story 2.7: The receipt and how to pay
+
+As bestefar Sigmund,
+I want a clear thank-you that matches my answer, and to see what we owe and how to pay,
+So that I know the answer arrived and can pay now or later.
+
+**Covers:** FR-23, FR-34, FR-71 (derived message), AD-2, AD-12, UX-DR24, UX-DR25, UX-DR51
+
+**Acceptance Criteria:**
+
+**Given** a successful send
+**When** the receipt opens
+**Then** a success notice holds the `h1` «Svaret er sendt» and «Sendt av <name> <weekday date> kl. <time>.», then Rikke's message for coming (when at least one person comes) or not coming, by the du/dere rule, the summary «Dette har dere svart» and the total (FR-23, UX-DR24)
+
+**Given** a household that owes money
+**When** the receipt renders
+**Then** «Betal nå» is above «Betal senere», and «Du kan nå trygt lukke invitasjonen.» stands directly below them (FR-23, FR-34)
+**And** with nothing owed there are no payment buttons, and the closing line follows the summary
+
+**Given** «Betal nå»
+**When** the payment details open
+**Then** they show the amount, the Vipps number, the account number and the payment message «Bryllup» + the household's names from the derived-message rule, all as selectable text (FR-34, FR-71)
+**And** «Kopier» buttons appear only when the clipboard is available, «Kopiert» is announced politely, and a failed copy selects the value with «Trykk og hold for å kopiere» (UX-DR25)
+
+**Given** «Betal senere»
+**When** it is chosen
+**Then** the guest is told that the same link always shows what is owed and how to pay (FR-34)
+
+**Given** guest pages showing money
+**When** they get an amount
+**Then** they use only `guest_balance(total, report)` and never read payment rows (AD-12)
+
+### Story 2.8: The household's status on the invitation
+
+As tante Marie,
+I want my own link to show that Arild has already answered for us, and when,
+So that I don't answer again or wonder whether it was done.
+
+**Covers:** FR-24, FR-41, UX-DR10
+
+**Acceptance Criteria:**
+
+**Given** a household that has answered
+**When** any member opens their link
+**Then** the hero's deadline line reads «Svar sendt <date> · Se svaret», and the RSVP sheet's place holds the status block (`id="status"`): «Svaret er sendt», the small gypsophila, «Barnefritt bryllup», «Sendt av <name> <weekday date> kl. <time>.», «Totalt for husstanden: …» and «Dere kan endre svaret fram til <weekday date> kl. 23:59.» (FR-24, FR-41, UX-DR10)
+**And** the line «Meldt betalt: …» is added with payment reports (Story 5.1), and «Se eller endre svar» with changing answers (Story 4.1)
+
+**Given** the answered front page
+**When** the guest uses the nav "Svar" or «Se svaret»
+**Then** the page jumps to the status block and focus lands on its heading
+
+### Story 2.9: An interrupted answer is kept on the phone
+
+As bestefar Sigmund,
+I want my half-finished answer to be waiting when the phone rings and Messenger reloads the page,
+So that I don't have to start again.
+
+**Covers:** FR-41 (deadline rule), FR-78, AD-8, AD-11, UX-DR26
+
+**Acceptance Criteria:**
+
+**Given** a draft cookie from an earlier visit
+**When** the guest opens their link
+**Then** the RSVP sheet shows «Du har et svar som ikke er sendt ennå.» (UX-DR26)
+
+**Given** a draft
+**When** the form is opened by any route (either "Svar", the RSVP button, or reloading a step)
+**Then** the draft offer comes first: «Vil du fortsette der du slapp?», when the answer was started, «Ja, fortsett» and «Nei, begynn på nytt» (FR-78)
+**And** «Ja, fortsett» opens the step they left with all answers filled in; «Nei, begynn på nytt» deletes the draft and starts from the sent answer or empty
+
+**Given** the deadline function in `wedding/rules/`
+**When** it is given the deadline date and `now`
+**Then** it says whether `now` is after 23:59:59 Oslo time on that date, and tests cover both sides of the boundary and a winter/summer time change (FR-41, AD-11)
+**And** a draft is not offered after the deadline
+
+## Epic 3: The couple sees the numbers and can trust them
+
+Rikke logs in and sees how many households have answered, the summary in small groups, the people behind every count, a simple overview of every household and the allergy list for Hardingasete. The automated tests prove that every count, total and payment status matches the expected-results list worked out by hand.
+
+### Story 3.1: The couple logs in
+
+As Rikke,
+I want to log in with a username and password, also on my phone,
+So that only we can see the guests' answers.
+
+**Covers:** FR-46 (couple), FR-47, NFR-4, AD-10, AD-13, UX-DR34, UX-DR36
+
+**Acceptance Criteria:**
+
+**Given** `uv run manage.py create_admin <username> --role couple|helper`
+**When** Rikke runs it
+**Then** it creates an admin user with that role and asks for the password; there is no self-registration (FR-47, AD-10)
+
+**Given** the login page under `/admin/`
+**When** Rikke logs in with the right username and password
+**Then** she reaches the admin home; with wrong details she sees a plain error in Norwegian; paste and password managers work (UX-DR36)
+**And** passwords are stored with Django's default password hashing (NFR-4)
+**And** Django's built-in admin site is not mounted at `/admin/`, so the couple's admin area owns that path
+
+**Given** any admin page
+**When** it renders
+**Then** it has the flat green admin frame, the Admin nav (Oversikt · Gjester · Betalinger · Innstillinger) and «Logg ut» (UX-DR34, AD-13)
+**And** an admin page opened without login redirects to the login page
+
+**Given** a logged-in admin
+**When** 20 hours pass without a request
+**Then** the session expires, every request renews it, the session cookie is scoped to `/admin/`, and the login page says «Du ble logget ut fordi du var borte en stund.» (AD-13, UX-DR36)
+
+### Story 3.2: Answer progress and the summary
+
+As Rikke,
+I want to see at once how many households have answered and the numbers Hardingasete will ask for,
+So that I can plan the weekend without counting by hand.
+
+**Covers:** FR-48 (basic), FR-54, FR-73, FR-74, NFR-2, AD-2, AD-12, AD-18, UX-DR39, UX-DR40, UX-DR49
+
+**Acceptance Criteria:**
+
+**Given** the admin home
+**When** it renders
+**Then** the Svar panel shows «Svart: X av Y husstander», a decorative bar (`aria-hidden`), the rows Kommer / Kommer ikke / Ikke svart ennå with persons and households, and «Se hva alle har svart» (FR-54, UX-DR39)
+**And** a place at the top is kept for «Trenger oppfølging» (Story 6.2)
+
+**Given** the summary panels
+**When** they render
+**Then** they come in this order: Når kommer de? (whole weekend; not the whole weekend by day combination) · Overnatting (does not stay overnight; total beds) · Mat (one count per meal, Saturday lunch and dinner counting everyone present on Saturday) · Allergier (med samtykke) (per category, Ingen allergier eller matbehov, Ingen allergiopplysninger lagret) · Fjelltur fredag («n kommer, n kanskje», never added together) · Betaling (husstander som kommer) (FR-54, FR-73, UX-DR40)
+
+**Given** every count
+**When** it is computed
+**Then** it is the length of a list of guest or household ids returned by a rule function in `wedding/rules/`; selectors load facts and never filter on answer content (AD-2)
+**And** `allergy_state` gives each coming guest exactly one of the three AD-18 states, and `payment_status(total, received, refunded)` covers all five FR-60 statuses as a pure function, with received and refunded at 0 until payments exist (Story 5.2)
+
+**Given** the admin home on a 360px phone
+**When** it is used
+**Then** every target is at least 44px and there is no horizontal scroll (FR-48)
+
+### Story 3.3: Every count opens the people behind it
+
+As Rikke,
+I want to tap «Fredag middag 12» and see who the 12 are,
+So that I can trust the numbers I send to Hardingasete.
+
+**Covers:** FR-55, UX-DR41
+
+**Acceptance Criteria:**
+
+**Given** a count above zero on the admin home
+**When** Rikke taps it
+**Then** a page lists exactly the people or households in that rule's id list, with the count as its heading (FR-55)
+
+**Given** a count of zero
+**When** it renders
+**Then** it shows «0» as plain text, not a link (UX-DR41)
+
+**Given** each count on the admin home
+**When** a test opens its drill-down
+**Then** the number of rows equals the count
+
+### Story 3.4: The overview of every household and the allergy list
+
+As Rikke,
+I want one list of all households with who is coming, and a list of allergies I can pass to the kitchen,
+So that I can check any household and send Hardingasete the allergy names and counts.
+
+**Covers:** FR-48 (basic), FR-57 (simple), FR-58, UX-DR42 (list), UX-DR48, UX-DR49
+
+**Acceptance Criteria:**
+
+**Given** the Gjester page
+**When** it renders
+**Then** it shows «N husstander · M gjester» and one row per household with the name, a status tag (text and icon, never colour alone) and one line with who comes and the total; households that have not answered come first and carry «Ikke svart» (FR-57, UX-DR42, UX-DR49)
+**And** with no households it says «Ingen husstander ennå.»
+
+**Given** the allergy list
+**When** it renders
+**Then** it lists the name and categories of every guest with consented allergy data, plus their notes, and nothing for guests without consent (FR-58)
+**And** with nobody on it, it says «Ingen allergier registrert ennå.» (UX-DR48)
+
+**Given** both pages on a 360px phone
+**When** they are used
+**Then** the rows stack with visible labels, targets are at least 44px and there is no horizontal scroll (FR-48)
+
+### Story 3.5: Tests prove the numbers match the expected-results list
+
+As Rikke,
+I want automated tests that compare the admin numbers with the list we worked out by hand,
+So that I, the examiner and the couple can trust that the numbers are right.
+
+**Covers:** FR-69, NFR-2, SM-2, AD-16
+
+**Acceptance Criteria:**
+
+**Given** the seed data loaded by `seed_testdata`
+**When** `uv run pytest` runs the expected-results tests
+**Then** every FR-54 count, each household's total and each guest's allergy state equals `wedding/fixtures/expected.toml`, with `now` passed explicitly (FR-69, AD-16)
+**And** payment statuses and report matches are asserted from Story 5.3, when payments are seeded
+
+**Given** a deliberate change to the expected-results list
+**When** it is committed
+**Then** it is its own commit with the reason in the message (AD-16)
+
+**Given** the README
+**When** Ingrid reads the test section
+**Then** it says what the expected-results tests check and where the hand-worked list is
+
+## Epic 4: Guests change their answer until the deadline locks it
+
+Arild changes his household's answer before the deadline and sees who answered last; Marie never overwrites his answer without seeing it first. After the deadline guests can only see their answer, while the couple can still fill in or change any household's answer with the same form. The couple changes the deadline, prices and contact details in Settings, with a clear confirmation.
+
+### Story 4.1: See or change the answer before the deadline
+
+As onkel Arild,
+I want to open our sent answer, see who answered last and change it,
+So that a change of plans is easy to register.
+
+**Covers:** FR-37, FR-38 (last updated), FR-39, AD-19, UX-DR28
+
+**Acceptance Criteria:**
+
+**Given** a household that has answered, before the deadline
+**When** a member opens the status block
+**Then** it has the primary button «Se eller endre svar», which opens the form with the sent answers filled in (FR-37)
+**And** the top of the form shows the info notice «Sist endret av <name>, <date> kl. <time>» (FR-38, UX-DR28)
+
+**Given** a changed answer is sent
+**When** `send_answer` saves it
+**Then** the household's `changed_at` is set by the one helper in AD-19, and the first answer and payment reports never set it (FR-39)
+
+**Given** the total changed by the new answer
+**When** the receipt and status block render
+**Then** they show the new total
+
+### Story 4.2: No answer is overwritten without anyone seeing it
+
+As tante Marie,
+I want to see Arild's newer answer before mine is sent,
+So that I don't wipe out his changes without knowing.
+
+**Covers:** FR-38, AD-9, AD-18, UX-DR28
+
+**Acceptance Criteria:**
+
+**Given** Marie's draft started at revision n
+**When** Arild sends an answer (revision n+1) and Marie then presses «Send svaret»
+**Then** nothing is written, and Marie sees a warning notice with who sent, when and what differs from her draft (FR-38, AD-9)
+**And** she can review and send again, and that second send is saved
+
+**Given** a draft with a consent «Ja»
+**When** the revision has changed
+**Then** the consent «Ja» is not carried across, and the respondent must answer consent again (AD-18)
+
+**Given** the conflict check
+**When** tests run
+**Then** they cover two members sending in sequence and a draft started before a couple override
+
+### Story 4.3: The answer locks at the deadline
+
+As the couple,
+I want guests' answers to lock at 23:59 on the deadline day,
+So that the numbers we give Hardingasete stay fixed.
+
+**Covers:** FR-42, SM-11, AD-11, UX-DR10 (locked), UX-DR33
+
+**Acceptance Criteria:**
+
+**Given** a guest send that changes answer content after the deadline
+**When** it reaches the service
+**Then** it is refused, using the one deadline function (AD-11)
+**And** consent withdrawal and "I have paid" reports are never refused because of the deadline
+
+**Given** an answered household after the deadline
+**When** a member opens their link
+**Then** the status block has «Se hele svaret», which opens the read-only answer view with «Fristen gikk ut <weekday date> kl. 23:59» and the couple's phone numbers (FR-42, UX-DR33)
+
+**Given** a household that never answered, after the deadline
+**When** a member opens their link
+**Then** the hero line reads «Svarfristen gikk ut <date> · Ring oss», and the RSVP sheet's place shows the deadline message and contacts instead of the RSVP button (UX-DR10)
+
+**Given** the lock
+**When** tests run with `now` just before and just after the deadline
+**Then** both sides behave as described (SM-11)
+
+### Story 4.4: The couple fills in or changes any household's answer
+
+As Rikke,
+I want to fill in or change a household's answer with the same form the guests use, also after the deadline,
+So that I can help Synne when she calls.
+
+**Covers:** FR-63, AD-3, AD-7, AD-10
+
+**Acceptance Criteria:**
+
+**Given** a household's row in Gjester (its household page from Story 6.3 links here too)
+**When** Rikke chooses «Endre svaret»
+**Then** the same form from `wedding/rsvp/` opens at `/admin/husstand/<id>/svar/`, with the household's answers filled in (FR-63, AD-7)
+
+**Given** the deadline has passed
+**When** Rikke sends the answer
+**Then** it is saved, and the admin is recorded as the author (FR-63, AD-3)
+
+**Given** any admin write service
+**When** it is called
+**Then** it calls `require_couple(actor)`, and a test proves a helper actor is refused (AD-10)
+
+### Story 4.5: The couple changes the deadline, prices and contact details
+
+As Rikke,
+I want to change the deadline, prices, our phone numbers and the payment details in the admin area,
+So that real values can be set without changing code.
+
+**Covers:** FR-64, AD-20, UX-DR29, UX-DR47, UX-DR50 (tier 2)
+
+**Acceptance Criteria:**
+
+**Given** the Innstillinger page
+**When** Rikke saves a change
+**Then** a confirmation step (a first POST that writes nothing) shows the change; the second POST saves it (AD-20)
+**And** with JavaScript the confirmation is a dialog with `role="alertdialog"`, focus on the safe button, Esc to cancel and focus back to the trigger; without it, a confirm page (UX-DR29)
+
+**Given** a new deadline
+**When** the confirmation shows
+**Then** it repeats the new deadline in words, and a deadline in the past or within two weeks also says how many households would be locked out (FR-64, UX-DR47)
+
+**Given** a helper
+**When** they open Innstillinger
+**Then** values show as text without save buttons, and the service refuses any write (FR-64, AD-10)
+
+**Given** the examiner moves the deadline to yesterday
+**When** a guest link is opened
+**Then** the answer is locked for the guest, and the couple can still change it (UJ-6)
+
+## Epic 5: Payments are reported, registered and matched
+
+A guest reports "I have paid" and sees what remains or will be refunded if the total changes. The couple registers money received and refunds paid back, can undo a registration, sees each household's computed payment status, and sees mismatched reports in red. The couple can adjust a household's payment message, with a warning for duplicates.
+
+### Story 5.1: The guest reports "I have paid"
+
+As bestefar Sigmund,
+I want to tell the couple that I have paid, how much and how,
+So that they know to look for the money.
+
+**Covers:** FR-35, AD-4, AD-11, AD-12
+
+**Acceptance Criteria:**
+
+**Given** this story's migration
+**When** it is applied
+**Then** it creates `PaymentReport`, one current report per household (AD-4)
+
+**Given** «Jeg har betalt» on the payment details or status block
+**When** the guest opens it
+**Then** the amount is prefilled with what is owed, the method is Vipps or bank, and an optional field says who paid if it was someone else (FR-35)
+**And** amounts accept «900», «900 kr» and «1 450», and errors follow FR-22
+
+**Given** a saved report
+**When** the guest returns
+**Then** they see what they reported and when, can correct it (the correction replaces it), and the status block shows «Meldt betalt: <amount>, <date>.»
+
+**Given** the deadline has passed
+**When** a guest reports or corrects a payment
+**Then** it is still accepted (AD-11)
+
+### Story 5.2: The couple registers money received and refunded
+
+As Rikke,
+I want to register each amount received and each refund, and undo a mistake,
+So that the site knows who has paid.
+
+**Covers:** FR-59, FR-68 (payments), AD-3, AD-4, AD-12, AD-20, UX-DR45 (household page), UX-DR50 (tier 2)
+
+**Acceptance Criteria:**
+
+**Given** this story's migration
+**When** it is applied
+**Then** it creates `Payment` with kind `received` or `refunded`, a positive whole-kroner amount, who registered it and `voided_at` (AD-4)
+
+**Given** a household's payment page
+**When** Rikke registers «Mottatt fra gjesten» or «Betalt tilbake til gjesten» with an amount
+**Then** a tier-2 confirmation names the new status, and after saving the page shows «Registrert: mottatt <amount>.» with «Angre» (FR-59, UX-DR45)
+
+**Given** «Angre» on a registration
+**When** it is used
+**Then** the payment is voided by setting `voided_at`, never deleted; undoing an older entry asks for confirmation first (AD-4, AD-20)
+
+**Given** a household or guest with payments that are not voided
+**When** someone tries to delete it
+**Then** the delete is refused with an explanation (AD-4)
+
+**Given** `seed_testdata`
+**When** it runs
+**Then** it now loads the payments and payment reports in `seed.toml` through the services
+
+### Story 5.3: Payment status and the payments list
+
+As Rikke,
+I want each household's payment status worked out from the money, and mismatches marked,
+So that I know who to remind and who to pay back.
+
+**Covers:** FR-60, FR-61, NFR-2, AD-2, UX-DR45 (list), UX-DR49
+
+**Acceptance Criteria:**
+
+**Given** a household's total, received and refunded amounts
+**When** `payment_status` is computed
+**Then** it is nothing to pay, not paid, part paid (X missing), paid or refund owed (X), shown only to admins (FR-60)
+
+**Given** an "I have paid" report
+**When** received minus refunds is lower than the reported amount
+**Then** the household gets the «Stemmer ikke» tag (error icon and word) in the overview and on the payments list (FR-61, UX-DR49)
+
+**Given** the Betalinger page
+**When** it renders
+**Then** it shows «Til sammen» (Skal betales · Mottatt · Mangler · Skal betales tilbake) and one row per coming household, sorted stemmer ikke → skal ha tilbake → delbetalt → ikke betalt → betalt → ingenting å betale (UX-DR45)
+**And** with no payments it says «Ingen betalinger registrert ennå.»
+
+**Given** the seed data with payments
+**When** the expected-results tests run
+**Then** every payment status, report match and the Betaling summary panel equal `expected.toml`
+
+### Story 5.4: The guest sees what remains or will be refunded
+
+As onkel Arild,
+I want to see what is left to pay, or that the couple will pay me back, after I change our answer,
+So that I always know where we stand.
+
+**Covers:** FR-36, AD-12
+
+**Acceptance Criteria:**
+
+**Given** a payment report and a total that has gone up
+**When** the guest sees the status block, receipt or payment details
+**Then** they read «Du har <amount> igjen å betale» (FR-36)
+
+**Given** a total that has gone down below the reported amount
+**When** the guest sees them
+**Then** they read «Rikke og Valdemar har fått beskjed og betaler tilbake <amount>» (FR-36)
+
+**Given** these guest pages
+**When** they compute the amounts
+**Then** they use only `guest_balance`, never the couple's registered payments (AD-12)
+
+### Story 5.5: The couple adjusts a payment message
+
+As Rikke,
+I want to change a household's payment message and be warned if two households would share one,
+So that every payment can be matched to the right household.
+
+**Covers:** FR-71, AD-4, UX-DR46
+
+**Acceptance Criteria:**
+
+**Given** «Endre betalingsmeldingen» on a household's payment page
+**When** Rikke saves a new message
+**Then** it is stored only because it was adjusted; otherwise the message is derived from the household's names (AD-4)
+
+**Given** a message identical to another household's (derived or adjusted)
+**When** Rikke tries to save it
+**Then** she is warned before saving, and the warning names the other household (FR-71, UX-DR46)
+
+## Epic 6: The couple manages the guest list and follows up
+
+Rikke sees "Needs attention" first when she logs in and marks items as handled. The couple adds, edits and removes households and guests, finds a guest by name and copies their link, and opens each household's own page. Helpers see everything and change nothing, and repeated login attempts are slowed down.
+
+### Story 6.1: Helpers see everything and change nothing
+
+As the toastmaster,
+I want to see the same overview as the couple without any buttons that change things,
+So that I can help with planning without risk of mistakes.
+
+**Covers:** FR-46 (helpers), NFR-4, AD-6, AD-10, UX-DR35
+
+**Acceptance Criteria:**
+
+**Given** a helper logged in
+**When** they open any admin page
+**Then** they see the same information as the couple, action buttons are hidden (not greyed), form values show as text, and the line «Du kan se alt, men ikke endre noe.» stands under the Admin nav (UX-DR35)
+**And** no link codes and no «Kopier lenke» are rendered for them (AD-6)
+
+**Given** a forged POST from a helper to any admin write
+**When** it reaches the service
+**Then** `require_couple` refuses it, and a test covers every admin write service (NFR-4, AD-10)
+
+### Story 6.2: "Needs attention" at the top
+
+As Rikke,
+I want the things I must follow up listed first when I log in,
+So that nothing slips.
+
+**Covers:** FR-56, AD-19, UX-DR37, UX-DR38
+
+**Acceptance Criteria:**
+
+**Given** the admin home
+**When** it renders
+**Then** «Trenger oppfølging (n)» is the first panel, visible without scrolling, listing households that have not answered, coming guests with no allergy information stored, "I have paid" mismatches (first, with «Stemmer ikke»), refunds owed and households marked «Endret» (FR-56, UX-DR37)
+**And** it shows as many items as fit while «Svart: X av Y» stays on the first screen, then «Vis alle n»
+
+**Given** an item
+**When** Rikke presses «Merk som håndtert» (or «Merk som sett» for «Endret»)
+**Then** the row is replaced in place by «Merket som håndtert. Angre», with focus on «Angre» and no timer, and the item leaves the list when the page is left (UX-DR38)
+
+**Given** this story's migration
+**When** it is applied
+**Then** it creates `AttentionMark` (kind, subject, `handled_at`), and attention items are computed by rules with kind, subject and event time (AD-19)
+
+**Given** a handled item whose event happens again later (for example a new change)
+**When** the list is computed
+**Then** the item shows again (AD-19)
+**And** «Vis håndterte» lists handled items and lets Rikke unmark them
+
+**Given** nothing needs attention
+**When** the panel renders
+**Then** it reads «Ingenting trenger oppfølging nå» with a check icon, and «Vis håndterte» below
+
+### Story 6.3: Find a guest and copy their link
+
+As Rikke,
+I want to find Synne by name on my phone and copy her link,
+So that I can send it again when she has lost it.
+
+**Covers:** FR-51, FR-57 (household pages), FR-48, UX-DR42, UX-DR43
+
+**Acceptance Criteria:**
+
+**Given** the Gjester page
+**When** Rikke searches «Finn en gjest» with part of a name
+**Then** matching guests are listed and a polite message says «3 treff» or «Fant ingen med det navnet.» (FR-51, UX-DR42)
+
+**Given** a household page
+**When** it opens
+**Then** it shows the panels Svar (who sent and when, each person's answers, tappable phone and email, «Endre svaret»), Betaling (total, status tag, «Se betalingene»), Lenker («Kopier lenke» per person with «Kopiert») and Husstanden (FR-57, UX-DR43)
+
+**Given** «Kopier lenke»
+**When** the clipboard is unavailable or copying fails
+**Then** the link is shown as selectable text with «Trykk og hold for å kopiere»
+
+**Given** Rikke on a 360px phone
+**When** she finds a guest, copies the link and checks whether they have answered
+**Then** each task fits one screen (FR-48)
+
+### Story 6.4: Add and edit households
+
+As Rikke,
+I want to add a household with its people and change names and contact details,
+So that the guest list is right before invitations go out.
+
+**Covers:** FR-49 (add, edit), AD-3, AD-9, AD-20, UX-DR44
+
+**Acceptance Criteria:**
+
+**Given** «Legg til husstand»
+**When** Rikke fills in one fieldset per person («Navn» required, «Telefon (valgfritt)», «E-post (valgfritt)») and presses «Lagre husstanden»
+**Then** the household and guests are created, and each guest gets their own link (FR-49, UX-DR44)
+**And** «Legg til en person til» adds a fieldset and moves focus to its name field
+
+**Given** «Endre navn og kontaktinfo»
+**When** Rikke presses «Lagre endringene»
+**Then** a tier-2 confirmation names what changes, including that the payment message changes, with the FR-71 duplicate warning
+**And** adding a person raises the household's revision (AD-9)
+
+**Given** a missing name or an invalid email
+**When** the form is sent
+**Then** the error summary and field errors appear, and everything typed is kept
+
+### Story 6.5: Remove a household or a person
+
+As Rikke,
+I want to remove a household or one person, with a confirmation that is hard to do by mistake,
+So that people who are no longer invited disappear from the numbers.
+
+**Covers:** FR-49 (remove), AD-4, AD-9, UX-DR50 (tier 3)
+
+**Acceptance Criteria:**
+
+**Given** «Fjern husstanden» or «Fjern <name> fra husstanden»
+**When** Rikke chooses it
+**Then** a dialog asks her to type FJERN; matching ignores case and surrounding spaces, the field has `autocapitalize="off" autocorrect="off" spellcheck="false"`, and a wrong word gives an inline error (UX-DR50)
+
+**Given** the removal is confirmed
+**When** the service runs
+**Then** the guest's answers, allergies and consent records are deleted with them, the household's revision is raised, and the result message is announced at the top of Gjester (AD-4, AD-9)
+**And** «Fjern <name> fra husstanden» is hidden when only one person is left
+
+**Given** a household or guest with payments that are not voided
+**When** removal is attempted
+**Then** it is refused with an explanation (AD-4)
+
+### Story 6.6: Slow down repeated login attempts
+
+As the couple,
+I want repeated wrong logins to be slowed down,
+So that nobody can guess our passwords.
+
+**Covers:** NFR-4
+
+**Acceptance Criteria:**
+
+**Given** several failed logins for one username or from one address
+**When** the limit is reached
+**Then** further attempts are refused for a while with a plain Norwegian message (NFR-4)
+**And** the limiter is one shared helper on Django's database cache (`createcachetable`, a set `MAX_ENTRIES`), so it can be reused for link codes (Story 8.6)
+
+**Given** a successful login after the wait
+**When** it happens
+**Then** it works normally, and tests cover both sides of the limit
+
+## Epic 7: Guests understand their privacy and get a finished form
+
+Guests can read a privacy page in plain words, withdraw allergy consent for a household member at any time, also after the deadline, open "Read more" inside a step without leaving the form, and get a warning before leaving an unsent answer. The programme and practical information pages get their full text.
+
+### Story 7.1: The privacy page
+
+As a guest,
+I want to read in plain words what is stored about us, why, who sees it and when it is deleted,
+So that I can trust the invitation with our information.
+
+**Covers:** FR-66, NFR-3, UX-DR31
+
+**Acceptance Criteria:**
+
+**Given** «Personvern» in the footer of every guest page, under the sheet on the private-invitation page, and in the consent text
+**When** the guest opens it
+**Then** the page uses the info-page frame with the parts Hva vi lagrer, og hvorfor · Hvem som ser det · Når det slettes · Rettighetene dine · Trekke samtykket (FR-66, UX-DR31)
+
+**Given** the page content
+**When** it is read
+**Then** it covers what is collected and why (including the phone numbers and emails the couple enters), that Rikke and Valdemar are jointly responsible, the legal basis per kind of information from NFR-3, who can see it (and for allergies Hardingasete's kitchen), when it is deleted, the guest's rights including withdrawing consent and complaining to Datatilsynet, and how to contact the couple
+
+**Given** the page opened from the private-invitation page (no valid link)
+**When** it renders
+**Then** it shows only the general parts, without names or a withdrawal list
+
+**Given** the «Personvern» link in the consent block
+**When** the guest returns with «Tilbake»
+**Then** they are back on the same step with their answers kept
+
+### Story 7.2: Withdraw consent
+
+As bestemor,
+I want to withdraw my consent and have my allergy information deleted, also after the deadline,
+So that I decide over my own health information.
+
+**Covers:** FR-30, AD-3, AD-9, AD-11, AD-18, AD-19, UX-DR32
+
+**Acceptance Criteria:**
+
+**Given** the last part of the privacy page, and the answer view next to the allergies
+**When** a household member opens it
+**Then** it lists each person with allergy data stored and «Trekk samtykket for <name>», or «Ingen allergiopplysninger lagret.» (UX-DR31, UX-DR32)
+
+**Given** «Trekk samtykket for bestemor»
+**When** the guest confirms in the dialog («Trekke samtykket for bestemor?», «Avbryt» focused, «Slett allergiopplysningene»)
+**Then** `withdraw_consent` deletes that person's allergy data, records the withdrawal, raises the revision and marks the household changed, and the page says «Allergiopplysningene til bestemor er slettet.» (FR-30, AD-18, AD-19)
+
+**Given** the deadline has passed
+**When** consent is withdrawn
+**Then** it works (AD-11)
+
+**Given** the withdrawal
+**When** the admin pages are opened
+**Then** the person is in «Ingen allergiopplysninger lagret», the household is tagged «Endret», and an old draft can never store the withdrawn allergy again (AD-18)
+
+### Story 7.3: "Read more" inside the form and the leave warning
+
+As bestefar Sigmund,
+I want to read about the cabins without leaving the form, and to be warned if I am about to leave without sending,
+So that I don't lose my place or think I have answered when I haven't.
+
+**Covers:** FR-19, FR-20, AD-7, UX-DR22, UX-DR27
+
+**Acceptance Criteria:**
+
+**Given** a step with more context, such as the cabins and their price
+**When** the guest opens «Les mer om hyttene»
+**Then** it expands in place as a `<details>` element and never navigates away (FR-19, UX-DR22)
+
+**Given** a guest in the form or on the check page with an unsent answer
+**When** they follow an in-page link that leaves the form
+**Then** a dialog says «Svaret er ikke sendt ennå. Det du har fylt ut, er tatt vare på på denne telefonen.» with «Bli og fullfør svaret» and «Gå uten å sende» (FR-20, UX-DR27)
+**And** where the browser supports it, its own leave prompt shows when the tab is closed or reloaded
+
+### Story 7.4: The full text of the programme and practical information
+
+As a guest,
+I want the real times, prices and practical details,
+So that I can plan the weekend.
+
+**Covers:** FR-9, FR-10
+
+**Acceptance Criteria:**
+
+**Given** the couple's final texts and times
+**When** the Programme and Practical information pages render
+**Then** the placeholders are replaced, the programme marks what costs money and what to bring, and practical information covers every FR-10 topic (FR-9, FR-10)
+
+**Given** the full text
+**When** the pages are checked at 360 × 560, 320 × 568 and 180 × 320
+**Then** there is no horizontal scroll and the check is recorded in the manual test plan
+
+## Epic 8: Cut-first extras (tier 3)
+
+The couple can move a guest to another household, replace one guest's link, register consent given by phone, and is warned when a price change affects households that have answered. The admin pages use a PC screen better, and repeated wrong-link attempts are slowed down. Whatever is not done by 10 December moves to [2027], with the reason in the PRD change log.
+
+### Story 8.1: Move a guest to another household
+
+As Rikke,
+I want to move a guest to another household,
+So that the households match how people actually answer.
+
+**Covers:** FR-50, AD-9, UX-DR50 (tier 2)
+
+**Acceptance Criteria:**
+
+**Given** a guest on a household page
+**When** Rikke moves them to another household and confirms the tier-2 dialog
+**Then** the guest keeps their link, both households' revisions are raised, and both totals and counts follow the move (FR-50, AD-9)
+
+### Story 8.2: A new link for one guest
+
+As Rikke,
+I want to deactivate a link that has gone astray and create a new one,
+So that only the right person can open the invitation.
+
+**Covers:** FR-53, AD-6, UX-DR50 (tier 2)
+
+**Acceptance Criteria:**
+
+**Given** a guest on a household page
+**When** Rikke confirms the tier-2 dialog («<name>s gamle lenke slutter å virke. De andre i husstanden beholder sine.»)
+**Then** only that guest gets a new code, the rest of the household keeps theirs, and the old code shows the private-invitation page (FR-53, AD-6)
+
+### Story 8.3: The couple registers consent given by phone
+
+As Rikke,
+I want to register that Synne said yes to the consent text I sent her,
+So that her allergy can be stored correctly.
+
+**Covers:** FR-31, FR-29, UX-DR50 (tier 2)
+
+**Acceptance Criteria:**
+
+**Given** a person on a household page
+**When** Rikke registers consent with the channel and confirms
+**Then** the consent record stores who registered it, the channel, the consent-text version and when, and the person's allergies can then be stored (FR-31)
+
+### Story 8.4: Warning when prices change after households have answered
+
+As Rikke,
+I want to know how many households' totals change before I save new prices,
+So that I can warn them.
+
+**Covers:** FR-65, AD-20
+
+**Acceptance Criteria:**
+
+**Given** households that have answered
+**When** Rikke saves new prices in Innstillinger
+**Then** the confirmation says how many households' totals will change, computed by rules without writing anything (FR-65, AD-20)
+
+### Story 8.5: The admin pages on a PC screen
+
+As Rikke,
+I want the household list and the payments to use the wider screen on my PC,
+So that I can see more at once when I go through everything.
+
+**Covers:** FR-48 (beyond basic)
+
+**Acceptance Criteria:**
+
+**Given** a PC-width screen
+**When** Gjester or Betalinger render
+**Then** the rows may become a real `<table>` with a header row, while the phone layout is unchanged (FR-48)
+
+### Story 8.6: Slow down guessing of link codes
+
+As the couple,
+I want repeated attempts with wrong links to be slowed down,
+So that nobody can find a guest's invitation by trying codes.
+
+**Covers:** NFR-4, AD-6
+
+**Acceptance Criteria:**
+
+**Given** many unknown link codes from one address
+**When** the limit is reached
+**Then** further attempts get the private-invitation page without looking up the code for a while, using the shared limiter from Story 6.6 (NFR-4)
+**And** a valid link from another address is not affected
