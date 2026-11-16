@@ -44,6 +44,8 @@ Rikke kjørte `/bmad-help` for å se hva som var neste steg. Claude anbefalte St
 
 **Tekniske valg Claude tok** (står i endringsloggen i epics.md): maks 8 personer per husstand, 2 punkter i «Trenger oppfølging» før «Vis alle» (fra EXPERIENCE.md-skissa, kan endres etter måling), innloggingssperre ved 5 feil per brukernavn eller 20 per adresse på 15 minutter, og forsinkelse ved 20 ukjente lenkekoder på 15 minutter.
 
+Rikke ba om **«push og lag PR»**: `docs/epics-review` er pushet, og [PR #17](https://github.com/IBE160-2026/G26-dvergsdal/pull/17) er laget mot `main` med en tabell over commits, beslutninger og hva som bør sjekkes.
+
 Lukket punkt i `issues.md`: «vurdere en `bmad-review` av epics.md før koden starter».
 
 ### Åpne punkter
