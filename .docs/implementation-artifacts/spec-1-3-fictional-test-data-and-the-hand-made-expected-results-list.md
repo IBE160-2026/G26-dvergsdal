@@ -2,7 +2,7 @@
 title: 'Story 1.3: Fictional test data and the hand-made expected-results list'
 type: 'feature'
 created: '2026-11-16'
-status: 'in-progress'
+status: 'in-review'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '4445e1032ca59c16cd991d3abfc96699a141228d'
@@ -90,9 +90,38 @@ context:
 - **Expected-results check:** Claude and an independent subagent agreed on every value; Rikke checked three samples and decided `not_answered` for Mona (see the commit message of 55a38e0).
 - **Small additions while implementing:** `InvalidUser` in `exceptions.py` for refused accounts (blank or taken username, unknown role, no password). The env guard treats an empty `APP_ENV` as unset, like `config/env.py`, and also refuses when the loaded `settings.APP_ENV` is not `local`. `tests/conftest.py` switches tests to Django's MD5 hasher, because each seed run hashes two passwords and the seed tests took 30 s with the real one. `oversikt.md` got the AD-16 marker in Norwegian. With no URL patterns yet, the test links show Django's start page until Story 1.5; the README says so.
 
+- **Review pass 1 patches** (8e7b669..13b73ba): rollback test after the reset; env-guard message shows the failing value; selector renamed `seed_conflicts`; `SETTINGS_PK` dropped from the service; `expected.toml` self-tally test; epics FR-60 «Ikke svart» (Stories 3.5, 5.3, coverage); Story 3.1 AC and AD-16 sentence that real admin accounts never use the system actor; reset wording in README, AD-16 and `testdata.py`. Sprint status set to `review` by the orchestrator. After patches: 204 tests pass; Ruff, djLint and `makemigrations --check` clean; `seed_testdata` twice gives the same output.
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+Review pass 1 (2026-11-16): Blind Hunter (B), Edge Case Hunter (E), Verification Gap (V).
+
+| # | Layer | Finding | Verdict | Evidence | Route |
+|---|---|---|---|---|---|
+| 1 | V, B | No test makes a service fail after `reset_test_data` inside the atomic block, so «Ingenting ble endret.» is unverified on the one path where the reset has run | medium | Pre-verified: every "writes nothing" test refuses in the conflict check or env guard, before the reset | patch |
+| 2 | V, B | FR-60 «not answered» reached the PRD but not epics.md (lines 884, 1195, 1722); `payment_status(total, received, refunded)` as planned cannot return it | medium | Story 5.3 is built from the epics and would give `nothing_to_pay` for Mona, against `expected.toml`; EXPERIENCE.md's panel counts coming households only, so it is unaffected | patch (epics only) |
+| 3 | V, B | Env-guard message shows the environment value («» or «local») when it is `settings.APP_ENV` that caused the refusal | low | `require_local_env`: `shown` prefers `environ_value` whenever it is not None; direct correction | patch |
+| 4 | B | Story 3.1's `create_admin` has no actor: `create_admin_user` is system-only and marks every account test data, so reusing `SYSTEM` would make Rikke's real accounts deletable by the next seed | medium | `users.py` sets `is_test_data=True` unconditionally; epics.md:842 plans the command with no actor named | patch (epics Story 3.1 AC + AD-16 note) |
+| 5 | B | Reset deletes a whole test household, including a guest the couple later adds to it (Story 6.4), but README says it never touches what the couple made | low | `Household.objects.filter(is_test_data=True).delete()` cascades to every guest; wording fix is direct | patch (README + AD-16 wording) |
+| 6 | B | Sprint status says `in-progress` while the spec is `in-review` | low | sprint-status.yaml; set to `review` by the orchestrator | patch (orchestrator) |
+| 7 | B | Selector named `test_data_conflicts` is collected by pytest when imported by name | low | pytest collects module-level `test_*` functions from test modules; rename is direct | patch |
+| 8 | B | Nothing checks that `expected.toml` agrees with itself (counts vs its own `[guests]` and `[households]` tables, sub-counts summing) | low | Pure tallies of the file, allowed by AD-16; catches a typo in a later deliberate oracle change | patch |
+| 9 | B | `SETTINGS_PK = 1` duplicated in `services/settings.py` (also in migration 0003 and the model constraint) | low | The migration must not import app code; the service can use `Settings.objects.get()` like guest views will | patch (service only) |
+| 10 | E, B | `_validated` raises `AttributeError` on a non-string text value | low | Only reachable by editing `seed.toml` badly; a traceback there is a loud failure, and a type guard adds a branch | reject |
+| 11 | E | Missing settings row (after `flush`) gives `DoesNotExist` | low | Migration 0003 creates it; `flush` breaks the whole app, not just the seed | reject |
+| 12 | E | Price above the integer maximum overflows | low | Only by editing `seed.toml`; adds a guard | reject |
+| 13 | E | Missing key or wrong type in `seed.toml` gives a traceback | low | Developer-edited fixture; a loud `KeyError` names the key | reject |
+| 14 | E | Negative or huge `deadline_days_from_today` | low | Developer-edited fixture; a test pins it at 30 | reject |
+| 15 | E | Empty households list crashes `max()` | low | `seed.toml` has 7 and a test requires every FR-68 case | reject |
+| 16 | E | Race between `exists()` and `create_user` | false | `transaction_mode: IMMEDIATE` takes the write lock at `BEGIN` (AD-5) | reject |
+| 17 | E | Whitespace-only password accepted | low | Django allows any password; real-account password rules belong to Story 3.1's command and validators | reject |
+| 18 | E | Deadline tests can fail when run across Oslo midnight | low | A one-second window; a fix needs time patching | reject |
+| 19 | B | Seed plausibility (meals vs days, `no_allergies` with categories) not checked | low | Story 2.6d loads the answers through `send_answer`, which validates them | reject |
+| 20 | B | README link table can drift from `seed.toml` | low | Codes are fixed by design (AD-6) and a test pins the `test-<key>` form; a README test adds coupling | reject |
+| 21 | B | Spec decision placed in **Always**; change log empty | low | The fix edits this build's spec | reject |
+| 22 | B | No session log or KI-steering entry yet | false | Written at the end of the session by `sesjonslogg`, as CLAUDE.md requires | reject |
 
 ## Design Notes
 
