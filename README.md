@@ -48,6 +48,14 @@ uv run ruff format --check
 uv run djlint --check .
 ```
 
+Feiler en sjekk, retter disse kommandoene det meste automatisk:
+
+```bash
+uv run ruff check --fix
+uv run ruff format
+uv run djlint --reformat .
+```
+
 Ruff sjekker og formaterer Python-koden, djLint sjekker Django-malene. Det finnes ingen maler før story 1.4a, så djLint melder foreløpig at den ikke fant noe å sjekke, og avslutter uten feil.
 
 Sjekker som ikke kan automatiseres, for eksempel hvordan sidene ser ut på en smal mobilskjerm, står i [docs/manual-test-plan.md](docs/manual-test-plan.md).
@@ -56,12 +64,12 @@ Sjekker som ikke kan automatiseres, for eksempel hvordan sidene ser ut på en sm
 
 Appen trenger ingen innstillinger for å kjøre lokalt: alt har trygge standardverdier, og det trengs ingen `.env`-fil. Innstillingene leses fra miljøvariabler, og alle står med eksempelverdier i [.env.example](.env.example).
 
-| Variabel | Lokal standard | Forklaring |
-|---|---|---|
-| `APP_ENV` | `local` | `local` eller `production`, skrevet nøyaktig slik. Alt annet (for eksempel `prod`) gjør at appen nekter å starte. |
-| `DEBUG` | `true` lokalt, `false` i produksjon | Djangos feilsøkingssider. |
-| `SECRET_KEY` | en fast nøkkel bare for lokal bruk | Signeringsnøkkel. Produksjon må ha sin egen lange, tilfeldige nøkkel. |
-| `ALLOWED_HOSTS` | `localhost,127.0.0.1,[::1]` | Kommaseparerte domenenavn nettsiden svarer på. |
+| Variabel | Standard lokalt | Standard i produksjon | Forklaring |
+|---|---|---|---|
+| `APP_ENV` | `local` | (settes til `production`) | `local` eller `production`, skrevet nøyaktig slik. Alt annet (for eksempel `prod`) gjør at appen nekter å starte. |
+| `DEBUG` | `true` | `false` | Djangos feilsøkingssider. |
+| `SECRET_KEY` | en fast nøkkel bare for lokal bruk | ingen brukbar: den lokale nøkkelen godtas ikke | Signeringsnøkkel. Produksjon må ha sin egen lange, tilfeldige nøkkel. |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1,[::1]` | tom: må settes | Kommaseparerte domenenavn nettsiden svarer på. |
 
 Med `APP_ENV=production` nekter appen å starte hvis `DEBUG` er på, `SECRET_KEY` mangler eller er den lokale nøkkelen, eller `ALLOWED_HOSTS` er tom. Meldingen sier hva som må rettes.
 
@@ -107,7 +115,7 @@ uv run --env-file .env manage.py runserver
 └── CLAUDE.md                 Laster inn AGENTS.md og sensorveiledningen, og krever sesjonslogg
 ```
 
-Hvorfor koden er delt slik, står i arkitekturen under. Mappene `rules/`, `services/`, `rsvp/` og `fixtures/` er tomme til historiene som trenger dem.
+Hvorfor koden er delt slik, står i arkitekturen under. Mappene `rules/`, `services/`, `rsvp/`, `management/commands/` og `fixtures/` er tomme til historiene som trenger dem.
 
 `.docs/` og `docs/` har forskjellige roller: `.docs/` er det BMad-verktøyene lager (stien er satt i `_bmad/config.toml`), mens `docs/` er fast referansestoff.
 
