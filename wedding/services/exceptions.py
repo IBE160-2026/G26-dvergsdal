@@ -25,3 +25,15 @@ class InvalidHousehold(ServiceError):
     """FR-49, AD-8: the household or one of its guests is not valid."""
 
     default_message = "Husstanden ble ikke lagret."
+
+
+class InvalidUser(ServiceError):
+    """FR-47, AD-10: the admin account is not valid, for example a taken username."""
+
+    default_message = "Brukeren ble ikke lagret."
+
+
+class InvalidSettings(ServiceError):
+    """FR-64, AD-12: a setting is not valid, for example a negative price."""
+
+    default_message = "Innstillingene ble ikke lagret."
