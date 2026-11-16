@@ -2,7 +2,7 @@
 title: 'Story 1.2: Households, guests and personal links'
 type: 'feature'
 created: '2026-11-16'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '7276cbe082a37bc0fd6bc6bf3456b525e3e526f1'
