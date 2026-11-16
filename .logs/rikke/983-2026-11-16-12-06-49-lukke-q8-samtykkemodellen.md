@@ -21,6 +21,7 @@ Rikke kjørte `/bmad-help` for å finne ut hva som er neste steg etter arkitektu
   - [prd.md](../../.docs/planning-artifacts/prds/prd-aill-handle-it-2026-11-07/prd.md): Q8 i §8 er strøket og merket «Closed 2026-11-16», og endringsloggen har fått en ny rad.
   - [pre-prd-discovery.md](../../.docs/planning-artifacts/research/user-voice-wedding-website-pre-prd-2026-11-06/pre-prd-discovery.md): Q8 er merket som lukket, med henvisning til PRD §8.
 - Punktet «spørre faglærer om samtykkemodellen er i orden (Q8)» er lukket i `issues.md`.
+- Rikke ba om push (`git push -u origin docs/lukke-q8`). Branchen ligger nå på GitHub og er klar for pull request.
 
 ### Åpne punkter
 Ingen nye. Neste BMAD-steg (epics og stories) står allerede i `issues.md`.
