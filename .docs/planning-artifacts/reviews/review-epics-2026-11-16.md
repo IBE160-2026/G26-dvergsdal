@@ -3,7 +3,7 @@
 - **Content:** [`../epics.md`](../epics.md), the epics and stories document (class: docs that define behavior), reviewed before Story 1.1 starts.
 - **Tool:** `bmad-review` with four lenses. Adversarial, edge-case-hunter and structure ran independently. Prose ran on top of the structure findings. Verification-gap was skipped because it applies only to code.
 - **Machine-readable findings:** [`review-epics-2026-11-16.json`](review-epics-2026-11-16.json) holds the adversarial and edge-case findings. The editorial lenses use their own table shape, given below.
-- **Status:** Findings only. Nothing has been changed in `epics.md` yet. The decisions on each finding are recorded in the session log.
+- **Status:** All findings handled on 2026-11-16, on the branch `docs/epics-review`. See [Outcome](#outcome) at the end.
 
 | Lens | Findings |
 |---|---|
@@ -284,3 +284,26 @@ Kept as written: British spelling, Norwegian kinship titles and Norwegian microc
 | 18 | "### NonFunctional Requirements" | "### Non-functional Requirements" | Hyphenation |
 
 Minor: slashes such as "allergies/dietary needs"; a hyphen instead of an en dash in the title; Story 1.4 "the page at 360 × 560" without saying which page; Story 2.9's draft-after-deadline clause is loosely tied to its Given.
+
+## Outcome
+
+Rikke chose to fix every finding, including the structure and prose rows, before Story 1.1. Each finding is fixed in [`../epics.md`](../epics.md), and the commits on `docs/epics-review` name the finding IDs they fix. The architecture and the PRD were changed where a finding reached them, with reasons in the architecture's `.memlog.md` and the PRD change log.
+
+**Decided by Rikke**
+
+- A person's days must follow each other, so Friday and Sunday without Saturday is not possible (A12, E4). Also in PRD FR-14, FR-15 and FR-70.
+
+**Fixed differently than the finding suggested, and why**
+
+- **A18, E46 (link-code throttling):** the finding suggested always resolving valid codes and limiting only unknown ones. That would let a guesser through as soon as a guess hits, so the limit would protect nothing. Story 8.6 delays every code request from a limited address instead. NFR-4 says "slowed", and a family on shared Wi-Fi still gets in.
+- **E9 (allergies changed on a re-send with consent unanswered):** the check page warns that the changes are not saved, instead of requiring a consent answer. FR-28 says a guest can always send without consent.
+- **E27 (seed allow list):** a misspelled `APP_ENV` refuses, but an unset one still means `local`, because AD-14 requires the app to run with no `.env`. Claude's first wording, that a missing value refuses, would have stopped the examiner's seed. It was caught before the epics were changed.
+- **E31 (CSRF on a form step):** the step is shown again with what the guest typed, and nothing is saved. That keeps the EXPERIENCE.md promise that input is kept, instead of telling the guest to type the step again.
+- **E10 (revision without an answer):** the revision moved to `Household`, which exists from Story 1.2, instead of creating an empty `HouseholdAnswer`.
+- **Structure row 2 (UX-DR inventory):** condensed as suggested. The trade-off is that the builder opens DESIGN.md or EXPERIENCE.md for details the acceptance criteria do not repeat.
+
+**Errors in Claude's own fixes, caught during the work**
+
+- The first FR-to-story trace matched "NFR-1" as "FR-1" and listed wrong stories. The script was fixed and run again from the committed file before anything was committed.
+- The first wording of the seed allow list (see E27 above).
+
