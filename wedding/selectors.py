@@ -9,7 +9,7 @@ from collections.abc import Iterable
 from wedding.models import Guest, User
 
 
-def test_data_conflicts(codes: Iterable[str], usernames: Iterable[str]) -> list[str]:
+def seed_conflicts(codes: Iterable[str], usernames: Iterable[str]) -> list[str]:
     """FR-72, AD-16: the seed codes and usernames already used by rows that are not test data.
 
     The seed command stops before writing anything when this is not empty, so it

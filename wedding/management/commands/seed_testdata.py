@@ -24,7 +24,7 @@ from django.utils import timezone
 
 from config.env import validate_app_env
 from wedding.actors import SYSTEM
-from wedding.selectors import test_data_conflicts
+from wedding.selectors import seed_conflicts
 from wedding.services.exceptions import ServiceError
 from wedding.services.households import NewGuest, create_household
 from wedding.services.settings import SettingsValues, update_settings
@@ -66,7 +66,7 @@ class Command(BaseCommand):
         values = settings_values(seed["settings"], deadline)
 
         with transaction.atomic():
-            conflicts = test_data_conflicts(
+            conflicts = seed_conflicts(
                 [guest.code for guests in households for guest in guests],
                 [user["username"] for user in seed["users"]],
             )

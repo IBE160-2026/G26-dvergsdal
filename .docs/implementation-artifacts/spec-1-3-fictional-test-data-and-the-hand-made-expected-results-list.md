@@ -74,7 +74,7 @@ context:
 - [x] `wedding/services/users.py` -- `create_admin_user(actor, username, password, role)`; system actor only for now (Story 3.1 adds its command), marks test data -- FR-47, AD-10.
 - [x] `wedding/services/settings.py` -- `update_settings(actor, values: SettingsValues)`; system or couple; validates prices ≥ 0 and field lengths -- FR-64, AD-12.
 - [x] `wedding/services/testdata.py` -- `reset_test_data(actor)`: system only, deletes test households (guests cascade) and test users; docstring says Story 5.2 voids payments first -- AD-4, AD-16.
-- [x] `wedding/selectors.py` -- `test_data_conflicts(codes, usernames) -> list[str]` for non-test rows using them.
+- [x] `wedding/selectors.py` -- `seed_conflicts(codes, usernames) -> list[str]` for non-test rows using them.
 - [x] `wedding/management/commands/seed_testdata.py` -- env guard, load TOML, conflict check, then reset + settings + households + users in one `transaction.atomic()`, then print -- FR-68, FR-72, AD-14.
 - [x] `tests/test_seed_testdata.py`, `tests/test_seed_files.py`, `tests/test_settings_service.py`, `tests/test_users_service.py` -- every matrix row; NFR-3 checks (emails, phones, MOD11 fails); codes valid and unique; every seed household and guest has an `expected.toml` entry; every FR-68 case present; no household over 8.
 - [x] `ARCHITECTURE-SPINE.md` -- AD-4 stored list and AD-16: `is_test_data`, with a change note.

@@ -309,7 +309,7 @@ def test_conflicts_name_only_codes_and_usernames_used_by_real_data():
     real.guests.update(code="test-bestemor000000000")
     User.objects.create_user(username="testhjelper", is_test_data=True)
 
-    conflicts = selectors.test_data_conflicts(
+    conflicts = selectors.seed_conflicts(
         ["test-sigmund0000000000", "test-bestemor000000000", "test-eva00000000000000"],
         ["testpar", "testhjelper", "rikke"],
     )
