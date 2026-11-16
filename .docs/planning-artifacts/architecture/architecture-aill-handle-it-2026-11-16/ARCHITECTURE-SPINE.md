@@ -88,7 +88,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Binds:** NFR-2, FR-24, FR-33, FR-35, FR-59–FR-61, FR-71
 - **Prevents:** a stored total or status disagreeing with the answers and payments behind it, and two stories choosing different shapes for the same fact.
 - **Rule:**
-  - **Stored:** households, guests, per-person answers, allergies and consent records, the household's answer record (`HouseholdAnswer`: revision, sent by, sent at), one current "I have paid" report per household (a correction replaces it), registered payments, settings, `Household.changed_at`, "Needs attention" handled marks, submission ids (AD-20), and the payment message only when the couple has adjusted it.
+  - **Stored:** households, guests, per-person answers, allergies and consent records, the household's revision (`Household.revision`, AD-9), the household's answer record (`HouseholdAnswer`: sent by, sent at), one current "I have paid" report per household (a correction replaces it), registered payments, settings, `Household.changed_at`, "Needs attention" handled marks, submission ids (AD-20), and the payment message only when the couple has adjusted it.
   - **Payments:** each payment row has a kind (`received` or `refunded`) and a positive whole-kroner amount. Undo sets `voided_at`; payment rows are never deleted.
   - **Never stored:** totals, counts, payment status, guest balance, allergy state, lock state, report matches, the derived payment message and its duplicate warning. These are always computed under AD-2.
   - **Deletes:** a household or guest with payments cannot be deleted until the payments are voided. Deleting a guest removes that guest's answers, allergies and consent records.
@@ -132,12 +132,13 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Binds:** FR-26, FR-28, FR-78, UX open question 6
 - **Prevents:** one unit keeping drafts in the session or database while another keeps them in the browser, and allergy data stored before consent.
 - **Rule:**
-  - **The only home:** between steps, answers live only in the draft: a cookie with `signing.dumps(..., compress=True)` set by `set_cookie`, `HttpOnly`, `SameSite=Lax` and `Secure` in production. It is scoped to the form's path (`/<code>/svar/` or the admin override path). No session, hidden fields or database rows hold answers before send.
+  - **The only home:** between steps, answers live only in the draft: a cookie with `signing.dumps(..., compress=True)` set by `set_cookie`, `HttpOnly`, `SameSite=Lax` and `Secure` in production. For guests it is scoped to the guest's own path `/<code>/`, so the front page can see that a draft exists; for the couple's override it is scoped to the admin override path. No session, hidden fields or database rows hold answers before send. *(Changed 2026-11-16 after the epics review, `../../reviews/review-epics-2026-11-16.md` A1/E1: the first rule scoped the guest cookie to `/<code>/svar/`, and browsers never send such a cookie to the front page `/<code>/`, so the draft notice in FR-78 and UX-DR26 could never appear.)*
+  - **A broken draft:** a draft with a bad signature, that fails to decompress or that no longer matches the household (a guest removed, moved or added since it started) is deleted, and the form starts from the sent answer or empty. It never causes a server error.
   - **What it holds:** everything entered, allergies included, plus the household revision it started from and when it was started.
   - **Not stored before send:** the server receives each step but stores nothing until "Send answer". Allergy data is stored only with consent (AD-18).
   - **When it goes away:** it is deleted on "Send answer" and on "Begynn på nytt". Its expiry is only a backstop; the server decides with the deadline function whether a draft may be offered.
   - **Guest pages and sessions:** guest views never read or write `request.session` and never use the messages framework. A test asserts that the whole guest flow creates no session rows.
-  - **Size:** the allergy note has a maximum length, and a test proves the draft for the largest household fits in 4 KB.
+  - **Size:** the allergy note has a maximum length of 200 characters, and a test proves the draft for a household of 8 people with every field filled fits in 4 KB. A household larger than 8 is refused when the couple saves it. *(Changed 2026-11-16 after the epics review, A10/E17: without numbers the 4 KB test could not be written.)*
   - **No cookies:** a browser that blocks cookies also fails Django's CSRF check, and gets the friendly CSRF failure page (AD-15).
 
 ### AD-9: Two senders in one household never overwrite silently
@@ -145,7 +146,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Binds:** FR-38, FR-49, FR-50
 - **Prevents:** one unit doing last-write-wins while another assumes a merge, and an old draft overwriting a newer change.
 - **Rule:**
-  - **Revision:** `HouseholdAnswer.revision` goes up on every send, every couple override, every consent withdrawal and every time a guest is added, moved or removed.
+  - **Revision:** `Household.revision` (0 for a new household) goes up on every send, every couple override, every consent withdrawal and every time a guest is added, moved or removed. *(Changed 2026-11-16 after the epics review, E10: the revision lived on `HouseholdAnswer`, which does not exist before the first send, so adding a guest to a household that had not answered had nowhere to record the change.)*
   - **Sending:** the send service compares the draft's revision with the current one and writes in the same IMMEDIATE transaction.
   - **If the revision changed:** nothing is written. The guest sees the other answer (who, when and what differs) and must send again.
 
@@ -194,7 +195,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   - **Settings:** all settings come from environment variables with safe local defaults, so the app runs with no `.env` file. `.env.example` lists every variable with no real values.
   - **Python:** `.python-version` is `3.14`, and `requires-python` is `>=3.14,<3.15`.
   - **Production:** `APP_ENV` is `local` or `production`. With `production`, the app refuses to start if `DEBUG` is on, `SECRET_KEY` is the default or `ALLOWED_HOSTS` is empty.
-  - **Test data:** the seed command refuses to run in production.
+  - **Test data:** the seed command runs only when `APP_ENV` is `local`; any other or missing value makes it refuse (an allow list, so a misspelled value on a server can never let it through).
 
 ### AD-15: Guest visits and links stay private
 
@@ -253,7 +254,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Rule:**
   - **Confirm:** a confirmation is a first POST that previews the change with rule functions and writes nothing, rendered as server HTML (a script may show it as a dialog). The second POST calls the service.
   - **Undo:** undo is a service that reverses the write, such as voiding a payment, offered after the redirect by the id of what was written.
-  - **Repeat submits:** every write form carries a one-time submission id. Every write service records it in one `Submission` row (the id under a unique constraint, the kind of write and the id of what was written) in the same transaction, whether the write creates rows or only updates them. The repeat check runs first, before the revision check in AD-9, so a repeat returns the earlier result instead of writing again: a double tap on «Send svaret», also on a re-send, shows the receipt and not a conflict with oneself, and a double «Registrer» stores one payment. *(Changed 2026-11-16 after the sprint-planning readiness check: the first rule only covered writes that create a row, so a double tap on a re-send, which only updates `HouseholdAnswer`, would have hit the AD-9 revision check and shown a false conflict.)*
+  - **Repeat submits:** every write form carries a one-time submission id. Every write service records it in one `Submission` row (the id under a unique constraint, the kind of write and the id of what was written) in the same transaction, whether the write creates rows or only updates them. The repeat check runs first, before the revision check in AD-9, so a repeat returns the earlier result instead of writing again: a double tap on «Send svaret», also on a re-send, shows the receipt and not a conflict with oneself, and a double «Registrer» stores one payment. A write that is refused (a revision conflict, a changed total or the deadline) records no `Submission`, so the guest's next try is handled as a new send. *(Changed 2026-11-16 after the sprint-planning readiness check: the first rule only covered writes that create a row, so a double tap on a re-send, which only updates `HouseholdAnswer`, would have hit the AD-9 revision check and shown a false conflict.)*
 
 ## Consistency Conventions
 
@@ -312,7 +313,7 @@ Core entities. Names and relationships only; the code owns the fields. `Settings
 ```mermaid
 erDiagram
   Household ||--|{ Guest : has
-  Household ||--o| HouseholdAnswer : "sent answer and revision"
+  Household ||--o| HouseholdAnswer : "sent answer"
   Guest ||--o| PersonAnswer : "answered for"
   Guest ||--o| Allergy : "stored with consent"
   Guest ||--o{ Consent : "given or withdrawn"
@@ -370,6 +371,6 @@ flowchart TB
 | Change history (FR-40) and deleting all data (FR-67) | Marked [2027] in the PRD. Both go through services (AD-3). The history never stores allergy content | 2027 stories |
 | Invitation sent and "started" (FR-76, FR-77) | Marked [2027]. "Started" is a deliberate POST (pressing Start), never a page load or the draft | 2027 stories |
 | Editable info pages (AD-17) | Production only | 2027 stories |
-| Throttling details | One shared limiter on Django's database cache (`createcachetable`, a set `MAX_ENTRIES`), for failed logins (tier 2) and unknown link codes (tier 3) | The story that builds login |
+| Throttling details | One shared limiter on Django's database cache (`createcachetable`, a set `MAX_ENTRIES`), for failed logins (tier 2) and unknown link codes (tier 3). The numbers are decided in `epics.md` Story 6.6 and Story 8.6; a valid link code is always resolved, so throttling never locks out a real guest | Decided 2026-11-16 (epics review) |
 | Browser tests (for example Playwright) | Django's test client covers the flow without JavaScript. One real-browser form POST is in the manual test plan, because the test client does not send browser headers | If the scripted enhancements grow |
 | A wider PC layout and an English version | "If time" in the PRD (section 3.3) | After the ready date, if ever |
