@@ -341,6 +341,8 @@ From DESIGN.md (visual) and EXPERIENCE.md (behaviour). Surface IDs (G1–G12, A1
 
 The epics follow the PRD's priority tiers (section 3.1a). Epics 1–3 are the usability-test build (tier 1, 27 November 2026); the usability test in the first week of December is a real feedback point, so it is also an epic boundary. Epics 4–7 complete the course version (tier 2, 10 December 2026), in the PRD's tier-2 order. Epic 8 is tier 3, cut first; anything not done by 10 December moves to [2027] with the reason in the PRD change log. NFRs are cross-cutting and apply to every story; the NFR named under each epic is the one it first makes testable.
 
+Epics 2, 4 and 7 all change the RSVP form in `wedding/rsvp/`. Merging them was considered and rejected: the usability test after Epic 3 may change the form, and the PRD's cut order puts Epic 7's parts last in tier 2. Each table is created by the first story that needs it: `User` (1.1), `Household`, `Guest`, `Settings` (1.2), `HouseholdAnswer`, `PersonAnswer`, `Allergy`, `Consent` (2.6), `PaymentReport` (5.1), `Payment` (5.2), `AttentionMark` (6.2), and the cache table for throttling (6.6).
+
 ### Epic 1: The guest opens their link and sees the invitation
 
 Bestefar Sigmund opens his personal link on his phone and sees a real invitation: the names, date, place, his household and the deadline, the three topics and their pages, and the way to answer. A wrong link shows only a calm "private invitation" page. The examiner can install the app, fill it with fictional households and open their test links by following the README.
@@ -565,7 +567,7 @@ As bestefar Sigmund,
 I want my link to open an invitation that shows at once who is getting married, when, where, that bestemor and I are invited and by when to answer,
 So that I understand the invitation without scrolling and always see where to answer.
 
-**Covers:** FR-2, FR-6, FR-7, FR-8, FR-11 (page frame), FR-41 (display), UX-DR6, UX-DR7, UX-DR8, UX-DR9, UX-DR11, UX-DR12 (frame), UX-DR51
+**Covers:** FR-2, FR-6, FR-7, FR-8, FR-11 (page frame), FR-41 (display), NFR-7, UX-DR6, UX-DR7, UX-DR8, UX-DR9, UX-DR11, UX-DR12 (frame), UX-DR51
 
 **Acceptance Criteria:**
 
@@ -599,20 +601,24 @@ So that I understand the invitation without scrolling and always see where to an
 **When** the guest scrolls to the bottom
 **Then** the footer band shows «Spørsmål? Send oss en melding:» and each of the couple's phone numbers from Settings as its own `tel:` link at least 44px tall (FR-6, UX-DR11)
 
+**Given** the front page with its fonts and images
+**When** it is loaded in a browser with a throttled 4G profile and a phone-sized window
+**Then** it is usable in under 3 seconds, and the measurement is recorded in the manual test plan (NFR-7)
+
 ### Story 1.6: Practical information and Our story pages
 
 As a guest,
 I want to read how to get there, where we sleep, the house rules and the couple's own story,
 So that I know what to expect from the weekend before I answer.
 
-**Covers:** FR-10 (page), FR-11, UX-DR12, UX-DR14
+**Covers:** FR-10 (page), FR-11, AD-17, UX-DR12, UX-DR14
 
 **Acceptance Criteria:**
 
 **Given** the Practical information page
 **When** the guest opens it
 **Then** it shows the jump links (a `nav` labelled «Hopp til») and one info sheet per part in this order: Vielsen (Strandebarm kirke with its time), Hardingasete og hyttene, Hvordan komme seg dit, Husregler, Antrekk, Ta med, Området rundt (FR-10)
-**And** the texts are the placeholders from `mockups/info-praktisk.html` until the couple's full text (Story 7.4)
+**And** the texts are the placeholders from `mockups/info-praktisk.html` until the couple's full text (Story 7.4), and they live in the templates, not in the database (AD-17)
 
 **Given** a jump link
 **When** the guest follows it, with keyboard or touch
