@@ -2,9 +2,10 @@
 title: 'Story 1.2: Households, guests and personal links'
 type: 'feature'
 created: '2026-11-16'
-status: 'ready-for-dev'
+status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 0
+baseline_commit: '7276cbe082a37bc0fd6bc6bf3456b525e3e526f1'
 context:
   - '{project-root}/.docs/implementation-artifacts/epic-1-context.md'
   - '{project-root}/.docs/planning-artifacts/architecture/architecture-aill-handle-it-2026-11-16/ARCHITECTURE-SPINE.md'
