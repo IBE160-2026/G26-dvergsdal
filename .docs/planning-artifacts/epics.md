@@ -133,7 +133,7 @@ So that I can assess it without asking Rikke anything.
 **And** one test checks that nothing under `wedding/rules/` imports Django or project modules (AD-2)
 
 **Given** the code checks
-**When** `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check` run, locally and in a GitHub Actions workflow on every push and pull request
+**When** `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` run, locally and in a GitHub Actions workflow on every push and pull request
 **Then** all of them pass
 
 **Given** the repository root
@@ -1860,3 +1860,4 @@ One line per requirement. The full specification is in [DESIGN.md](ux-designs/ux
 |---|---|
 | 2026-11-16 | First version, made with `bmad-create-epics-and-stories`: 8 epics and 48 stories. |
 | 2026-11-16 | After the review in [reviews/review-epics-2026-11-16.md](reviews/review-epics-2026-11-16.md) (adversarial, edge-case, structure and prose lenses). **Rikke decided:** a person's days must follow each other, so Friday and Sunday without Saturday is not possible (also in PRD FR-14, FR-15 and FR-70). **Claude decided, as technical fixes Rikke asked for:** the draft cookie is scoped to `/<code>/` (it could not reach the front page), and the revision moved to `Household` (both also in the architecture); deadline enforcement moved into T1 (Story 2.1 and 2.6a), since FR-41 is T1; consent is per person with the FR-27 confirmation enforced; numbers for the note length, household size, the attention list and throttling; link-code throttling slows instead of blocking, so a family on shared Wi-Fi is never locked out. Story 1.4 is split into 1.4a–1.4c and Story 2.6 into 2.6a–2.6d, so each can be reviewed on its own. Structure: the Epic List comes first, the requirement inventories are shortened to one line each and moved to the end with links to their sources, each FR lists the stories that build it (replacing the FR coverage map), and deferred work in the ACs moved to **Not in this story:** lines. |
+| 2026-11-16 | Story 1.1: the djLint command is `uv run djlint --check .` (with a path). djLint 1.50 needs a path: `djlint --check` alone exits with code 2 and checks nothing, so the AC could never pass as written. Found while writing the Story 1.1 spec; `pyproject.toml` sets `allow_empty_input = true` until Story 1.4a adds the first template, and excludes `.docs/`, whose HTML mockups are not app templates. |

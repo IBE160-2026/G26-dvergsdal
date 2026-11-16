@@ -1,0 +1,34 @@
+# Tests, Ruff and djLint on every push and pull request (Story 1.1, NFR-9).
+# The same commands as in the README, so a green run here means the examiner's
+# run passes too.
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.3.3  # this action publishes no floating major tag
+
+      - name: Install the locked dependencies
+        run: uv sync --locked
+
+      - name: Tests
+        run: uv run pytest
+
+      - name: Ruff lint
+        run: uv run ruff check
+
+      - name: Ruff format
+        run: uv run ruff format --check
+
+      - name: djLint templates
+        run: uv run djlint --check .
