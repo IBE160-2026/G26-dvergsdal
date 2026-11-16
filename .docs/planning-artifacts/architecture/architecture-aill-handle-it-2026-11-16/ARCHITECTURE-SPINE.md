@@ -88,7 +88,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Binds:** NFR-2, FR-24, FR-33, FR-35, FR-59–FR-61, FR-71
 - **Prevents:** a stored total or status disagreeing with the answers and payments behind it, and two stories choosing different shapes for the same fact.
 - **Rule:**
-  - **Stored:** households, guests, per-person answers, allergies and consent records, the household's answer record (`HouseholdAnswer`: revision, sent by, sent at), one current "I have paid" report per household (a correction replaces it), registered payments, settings, `Household.changed_at`, "Needs attention" handled marks, and the payment message only when the couple has adjusted it.
+  - **Stored:** households, guests, per-person answers, allergies and consent records, the household's answer record (`HouseholdAnswer`: revision, sent by, sent at), one current "I have paid" report per household (a correction replaces it), registered payments, settings, `Household.changed_at`, "Needs attention" handled marks, submission ids (AD-20), and the payment message only when the couple has adjusted it.
   - **Payments:** each payment row has a kind (`received` or `refunded`) and a positive whole-kroner amount. Undo sets `voided_at`; payment rows are never deleted.
   - **Never stored:** totals, counts, payment status, guest balance, allergy state, lock state, report matches, the derived payment message and its duplicate warning. These are always computed under AD-2.
   - **Deletes:** a household or guest with payments cannot be deleted until the payments are voided. Deleting a guest removes that guest's answers, allergies and consent records.
@@ -252,7 +252,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Rule:**
   - **Confirm:** a confirmation is a first POST that previews the change with rule functions and writes nothing, rendered as server HTML (a script may show it as a dialog). The second POST calls the service.
   - **Undo:** undo is a service that reverses the write, such as voiding a payment, offered after the redirect by the id of what was written.
-  - **Repeat submits:** every write form carries a one-time submission id. A row created by a write stores it under a unique constraint, and a repeat returns the earlier result instead of writing again.
+  - **Repeat submits:** every write form carries a one-time submission id. Every write service records it in one `Submission` row (the id under a unique constraint, the kind of write and the id of what was written) in the same transaction, whether the write creates rows or only updates them. The repeat check runs first, before the revision check in AD-9, so a repeat returns the earlier result instead of writing again: a double tap on «Send svaret», also on a re-send, shows the receipt and not a conflict with oneself, and a double «Registrer» stores one payment. *(Changed 2026-11-16 after the sprint-planning readiness check: the first rule only covered writes that create a row, so a double tap on a re-send, which only updates `HouseholdAnswer`, would have hit the AD-9 revision check and shown a false conflict.)*
 
 ## Consistency Conventions
 

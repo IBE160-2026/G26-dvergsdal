@@ -180,7 +180,7 @@ From ARCHITECTURE-SPINE.md (AD = architecture decision). There is **no third-par
 - **AD-17:** info-page text lives in templates in v1 (editable plain text is [2027]).
 - **AD-18:** allergy data and "Ingen allergier eller matbehov" stored only with consent; per send, consent per person is unchanged / given / refused (unanswered on re-send = unchanged); a draft never carries a consent "Ja" across a revision change; withdrawal deletes allergy data, bumps revision, marks changed; one rule gives each coming guest exactly one admin state: *Har allergier eller matbehov*, *Ingen allergier eller matbehov* or *Ingen allergiopplysninger lagret*.
 - **AD-19:** `Household.changed_at` set by one helper, called only by changed-answer and consent-withdrawal services; attention items computed by rules with kind, subject and event time; handled marks store kind, subject, `handled_at`, and an item reappears when its event time is later.
-- **AD-20:** confirmations are a preview POST that writes nothing, then a second POST calling the service; undo is a reversing service; every write form carries a one-time submission id stored under a unique constraint so repeats return the earlier result.
+- **AD-20:** confirmations are a preview POST that writes nothing, then a second POST calling the service; undo is a reversing service; every write form carries a one-time submission id; every write service records it in one `Submission` row under a unique constraint in the same transaction, checked before the AD-9 revision check, so repeats (also a double tap on a re-send) return the earlier result.
 - **Conventions:** code and identifiers in English, everything user-facing in Norwegian bokmål (`LANGUAGE_CODE = "nb"`), Norwegian URL paths; naming (singular models, verb services, rule functions named for what they return); every rule function, service and test names its FR/NFR in the docstring; services raise their own exceptions shown per FR-22; one CSS file with DESIGN.md tokens as custom properties, small vanilla JS, self-hosted fonts, no build step.
 - **Throttling:** one shared limiter on Django's database cache (`createcachetable`, set `MAX_ENTRIES`) for failed logins (T2) and unknown link codes (T3).
 - **Manual test plan:** one real-browser form POST is in the manual test plan (Django's test client sends no browser headers).
@@ -341,7 +341,7 @@ From DESIGN.md (visual) and EXPERIENCE.md (behaviour). Surface IDs (G1–G12, A1
 
 The epics follow the PRD's priority tiers (section 3.1a). Epics 1–3 are the usability-test build (tier 1, 27 November 2026); the usability test in the first week of December is a real feedback point, so it is also an epic boundary. Epics 4–7 complete the course version (tier 2, 10 December 2026), in the PRD's tier-2 order. Epic 8 is tier 3, cut first; anything not done by 10 December moves to [2027] with the reason in the PRD change log. NFRs are cross-cutting and apply to every story; the NFR named under each epic is the one it first makes testable.
 
-Epics 2, 4 and 7 all change the RSVP form in `wedding/rsvp/`. Merging them was considered and rejected: the usability test after Epic 3 may change the form, and the PRD's cut order puts Epic 7's parts last in tier 2. Each table is created by the first story that needs it: `User` (1.1), `Household`, `Guest`, `Settings` (1.2), `HouseholdAnswer`, `PersonAnswer`, `Allergy`, `Consent` (2.6), `PaymentReport` (5.1), `Payment` (5.2), `AttentionMark` (6.2), and the cache table for throttling (6.6).
+Epics 2, 4 and 7 all change the RSVP form in `wedding/rsvp/`. Merging them was considered and rejected: the usability test after Epic 3 may change the form, and the PRD's cut order puts Epic 7's parts last in tier 2. Each table is created by the first story that needs it: `User` (1.1), `Household`, `Guest`, `Settings` (1.2), `HouseholdAnswer`, `PersonAnswer`, `Allergy`, `Consent`, `Submission` (2.6), `PaymentReport` (5.1), `Payment` (5.2), `AttentionMark` (6.2), and the cache table for throttling (6.6).
 
 ### Epic 1: The guest opens their link and sees the invitation
 
@@ -858,7 +858,7 @@ So that the couple gets it, and I am told clearly if something went wrong.
 
 **Given** this story's migration
 **When** it is applied
-**Then** it creates `HouseholdAnswer` (revision, sent by, sent at), `PersonAnswer`, `Allergy` and `Consent` (when, who gave it, the consent-text version), and nothing derived such as totals (AD-4, FR-29)
+**Then** it creates `HouseholdAnswer` (revision, sent by, sent at), `PersonAnswer`, `Allergy`, `Consent` (when, who gave it, the consent-text version) and `Submission` (submission id, kind, what was written; AD-20), and nothing derived such as totals (AD-4, FR-29)
 
 **Given** «Send svaret» pressed on a valid draft
 **When** `send_answer` runs with the guest actor
@@ -875,7 +875,7 @@ So that the couple gets it, and I am told clearly if something went wrong.
 
 **Given** the same submission sent twice (double tap)
 **When** the second POST arrives
-**Then** the earlier result is returned and nothing is written twice (AD-20)
+**Then** the earlier result is returned and nothing is written twice; the submission id is checked in `Submission` before the revision check (AD-20)
 
 **Given** a write that fails
 **When** the guest is shown the result
@@ -1118,6 +1118,10 @@ So that a change of plans is easy to register.
 **Given** the total changed by the new answer
 **When** the receipt and status block render
 **Then** they show the new total
+
+**Given** a changed answer sent twice (double tap)
+**When** the second POST arrives
+**Then** the receipt from the first is shown, not a conflict notice about the respondent's own answer, and the revision rises only once (AD-9, AD-20)
 
 ### Story 4.2: No answer is overwritten without anyone seeing it
 
