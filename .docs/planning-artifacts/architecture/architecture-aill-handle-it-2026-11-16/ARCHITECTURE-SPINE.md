@@ -16,7 +16,7 @@ sources:
   - ../../ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md
   - ../../research/hardingasete/svar-hardingasete-2026-11-16.md
   - ../technology.md
-companions: [.memlog.md, reviews/]
+companions: [.memlog.md, reviews/, oversikt.md]
 ---
 
 # Architecture Spine: AI'll handle it
