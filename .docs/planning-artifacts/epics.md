@@ -61,7 +61,7 @@ Requirement IDs are the PRD's own (FR-n, NFR-n), so every story traces back to t
 - FR-26 (T1): Allergy information, including "No allergies or dietary needs", is saved only with consent through a separate Yes/No choice that starts unanswered; the consent text states the purpose, who sees it, that names and allergies go to Hardingasete's kitchen, and that consent can be withdrawn through the link.
 - FR-27 (T1): When entering allergies for others, the respondent confirms that those people know and agree.
 - FR-28 (T1): The RSVP can always be sent without consent; if allergies are entered without consent, the form says before sending that they will not be saved and the guest can tell the couple directly.
-- FR-29 (T2): Consent is stored per person: when, who gave it (the person, another household member or the couple) and which consent text version was shown.
+- FR-29 (T1, moved from T2 on 2026-11-16, see the Epic List): Consent is stored per person: when, who gave it (the person, another household member or the couple) and which consent text version was shown.
 - FR-30 (T2): Consent can be withdrawn through the personal link at any time, also after the deadline; withdrawal deletes that person's allergy information and marks the household "Changed".
 - FR-31 (T3): The couple registers consent for a guest only after sending the consent text and getting a yes; the site records who registered it, the channel, the text version and when.
 

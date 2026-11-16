@@ -463,7 +463,6 @@ Numbers stay fixed, because the memlog and the logs refer to them.
 ### Still open
 
 7. Final bokmål for all microcopy marked "proposal" or **[forslag]** (Rikke).
-8. Why-guests-pay wording (waits for PRD Q7).
 9. Programme times and content placeholders.
 
 ### Resolved
@@ -474,6 +473,7 @@ Numbers stay fixed, because the memlog and the logs refer to them.
 - 4. No-JS guest pages in v1 — resolved 2026-11-16 in the architecture: every guest and admin page, form steps included, works without scripts; scripts only enhance ([ARCHITECTURE-SPINE.md](../../architecture/architecture-aill-handle-it-2026-11-16/ARCHITECTURE-SPINE.md) AD-1, AD-7).
 - 5. Admin session expiry — resolved 2026-11-16 (Rikke): 20 hours without use, renewed by every request; no warning and no restore of unsaved input; «Logg ut» on every admin page (AD-13).
 - 6. Device draft content — resolved 2026-11-16 (Rikke): the draft holds everything entered, allergies included, until send or «Begynn på nytt». Each step passes through the server, which stores nothing before send (AD-8). «Ingen allergier eller matbehov» also needs consent to be stored (AD-18).
+- 8. Why-guests-pay wording — resolved 2026-11-16 (PRD Q7 closed): older guests find paying fine, so FR-32's short, friendly note is enough; its final words are part of question 7.
 - 10. Texture on the green page — resolved 2026-11-11 (DESIGN › Elevation & Depth).
 - 11. Edge treatment of the sheets — resolved 2026-11-11: edge B3 (DESIGN › Elevation & Depth).
 - 12. The front page below the hero — resolved 2026-11-15 ([mockups/front-page-3.html](mockups/front-page-3.html)).
