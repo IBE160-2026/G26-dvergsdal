@@ -117,7 +117,7 @@ def require_local_env(environ_value: str | None, settings_value: str) -> None:
     except ImproperlyConfigured:
         app_env = None
     if app_env != "local" or settings_value != "local":
-        shown = environ_value if environ_value is not None else settings_value
+        shown = environ_value if app_env != "local" else settings_value
         raise CommandError(
             f"seed_testdata kjører bare når APP_ENV ikke er satt eller er «local», men "
             f"APP_ENV er «{shown}». Testdata skal aldri inn på den ekte nettsiden. "

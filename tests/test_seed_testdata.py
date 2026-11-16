@@ -260,9 +260,10 @@ def test_production_settings_are_refused_even_without_app_env_in_the_environment
     """AD-14: the command also checks the loaded settings, not only the variable."""
     settings.APP_ENV = "production"
 
-    with pytest.raises(CommandError, match="APP_ENV"):
+    with pytest.raises(CommandError) as refused:
         seed()
 
+    assert "APP_ENV er «production»" in str(refused.value)
     assert Household.objects.count() == 0
 
 
