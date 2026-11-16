@@ -234,6 +234,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   - **Consent needed for both:** allergy categories and notes, and "Ingen allergier eller matbehov", are stored only with consent.
   - **Three outcomes on any send:** for each person, consent is *unchanged*, *given* or *refused*. An unanswered consent on a re-send means unchanged, so existing consented data is kept. A draft never carries a consent "Ja" across a revision change.
   - **Withdrawal:** it deletes that person's allergy data, bumps the revision and marks the household changed.
+  - **Consent-text version (FR-29):** the consent text lives in one template include, and its version is one constant, `CONSENT_TEXT_VERSION` in `wedding/services/`, set to the date the text last changed (for example `"2026-11-16"`). A change to the text changes the constant in the same commit, and every consent record stores the constant. *(Added 2026-11-16 after the sprint-planning readiness check: FR-29 asked for the version, but nothing said where it lives.)*
   - **Three admin states:** one rule function gives each coming guest exactly one state: *Har allergier eller matbehov*, *Ingen allergier eller matbehov*, or *Ingen allergiopplysninger lagret*. The last is one bucket on purpose: it covers not answered, answered without consent and withdrawn, because telling them apart would store a hint of a health need. Whether the household has answered is shown separately.
 
 ### AD-19: "Changed" and "Needs attention" have one source each
