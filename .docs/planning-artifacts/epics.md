@@ -843,6 +843,7 @@ So that only we can see the guests' answers.
 **When** Rikke runs it
 **Then** it creates an admin user with that role and asks for the password; there is no self-registration (FR-47, AD-10)
 **And** an existing username or a role other than `couple` or `helper` is refused with a message, the `role` field has no blank value, and a user without a valid role gets no admin access
+**And** the command creates real accounts with `is_test_data=False` through its own path, never the system actor: `create_admin_user` is for the seed command only and marks every account it makes as test data (AD-16), and a test shows that `seed_testdata` leaves accounts made by `create_admin` alone
 
 **Given** the login page under `/admin/`
 **When** Rikke logs in with the right username and password
@@ -1869,3 +1870,4 @@ One line per requirement. The full specification is in [DESIGN.md](ux-designs/ux
 | 2026-11-16 | **Rikke confirmed** the household limit of 8 people (Claude's technical choice from the epics review): no household on the guest list is larger. Confirmed before Story 1.2, which builds households. |
 | 2026-11-16 | **Claude decided** (technical; in the Story 1.2 spec Rikke approved): FR-3 is tested at the resolver in Story 1.2, because no guest view exists until Story 1.5. Story 1.5 gets an AC that repeats the test over an HTTP GET, and FR-3 now lists both stories. Found while writing the Story 1.2 spec. |
 | 2026-11-16 | **Rikke decided** while checking `expected.toml` in Story 1.3: a household that has not answered has no payment status and shows «Ikke svart», not «Ingenting å betale» (PRD FR-60, commit 9360654). Story 3.5 and Story 5.3 and the FR-60 line now say so, and `payment_status` is told whether the household has answered. |
+| 2026-11-16 | **Claude decided** (technical, from the Story 1.3 review): Story 3.1's `create_admin` makes real accounts with `is_test_data=False` through its own path and never uses the system actor. Story 1.3's `create_admin_user` is system-only and marks every account as test data, so reusing it would let the next `seed_testdata` delete Rikke's real accounts. Also in AD-16. |
