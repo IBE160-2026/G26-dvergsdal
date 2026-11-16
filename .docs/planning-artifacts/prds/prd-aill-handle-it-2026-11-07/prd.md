@@ -147,6 +147,7 @@ Anything in tier 3 that isn't done by 10 December moves to [2027], and the chang
 - **Real settings.** Real prices, deadline, contact details and payment details entered as settings.
 - **Agreements.** A data processing agreement with the hosting provider. (An email provider is no longer needed, since FR-43 to FR-45 were removed on 2026-11-15.)
 - **Vipps.** A fresh check of Vipps terms and prices.
+- **Django upgrade.** Upgrade from Django 6.1 to 6.2 LTS (out 6 April 2027), because 6.1 loses security support in December 2027 ([issue #13](https://github.com/IBE160-2026/G26-dvergsdal/issues/13), architecture).
 - **Deferred requirements.** The requirements marked [2027] in section 5.
 
 **Keeping the site alive** [review: pre-mortem]
@@ -356,7 +357,7 @@ Some Vipps payments and bank transfers have come in.
 ### 5.4 Allergies and consent
 
 - **FR-25** For each person who is coming, the respondent either enters allergies and dietary needs or chooses "No allergies or dietary needs". Allergies use fixed categories (gluten, lactose, nuts, shellfish, vegetarian, vegan, other) and a short note. No diagnoses. The question is optional. [D10, C2, review]
-- **FR-26** Allergy information is saved only if the respondent gives consent through a separate Yes/No choice that starts unanswered ("I consent to …"). The consent text says: [C1, UJ-4]
+- **FR-26** Allergy information is saved only if the respondent gives consent through a separate Yes/No choice that starts unanswered ("I consent to …"). This includes the choice "No allergies or dietary needs". *Changed 2026-11-16 in the architecture: Rikke wanted it stored without consent only if that meets the privacy rules, and the EU court reads health data broadly, so consent covers it too.* The consent text says: [C1, UJ-4, architecture AD-18]
   - what the information is for;
   - who can see it: the couple, toastmaster, maid of honour and best man;
   - that names and allergies are passed on to Hardingasete's kitchen;
@@ -526,7 +527,7 @@ The text on the information pages lives in the code in v1, so changing it means 
   | Names, households and links | Inviting guests and collecting answers | Legitimate interest | The couple and helpers |
   | Phone numbers and email addresses entered by the couple | Following up guests | Legitimate interest | The couple and helpers |
   | Answers: attendance, days, meals, overnight stay, hike | Planning the weekend and giving numbers to Hardingasete | Legitimate interest | The couple and helpers; numbers go to Hardingasete |
-  | Allergies and dietary needs | Safe food from Hardingasete's kitchen | Explicit consent (GDPR Art. 9(2)(a)) | The couple and helpers; names and allergies go to Hardingasete's kitchen |
+  | Allergies and dietary needs, including "No allergies or dietary needs" | Safe food from Hardingasete's kitchen | Explicit consent (GDPR Art. 9(2)(a)) | The couple and helpers; names and allergies go to Hardingasete's kitchen |
   | Consent records | Showing that consent was given | Legal obligation to prove consent (Art. 7(1)) | The couple |
   | Payments and "I have paid" reports | Keeping track of money | Legitimate interest | The couple and helpers |
 
@@ -609,9 +610,9 @@ The text on the information pages lives in the code in v1, so changing it means 
 | Q2 | When and in which format does Hardingasete need the final numbers? Partly answered 2026-11-16: at the start of 2028; the exact date and the format are not set. The 2028 prices come before that, at the end of 2027, so invitations can wait for them (section 3.2). | Rikke | No | Hardingasete sets the date |
 | Q7 | How do two or three guests, including older ones, feel about paying for meals? Affects the wording in FR-32. | Rikke | No | Before the UX text is written |
 | Q8 | Is the teacher fine with the consent model differing from the first brief? (The teacher's feedback already asks for an expected-results list checked by automated tests, which FR-69 covers.) | Rikke | No | Next supervision |
-| D12 | In production, should the programme and the practical information be editable in the admin area? Rikke's rule: yes, if the architecture shows it isn't much harder than keeping the text in the code with the update rules in section 3.2. | Architecture | No | bmad-architecture |
-| D14 | Store link codes hashed or in plain form? | Architecture | No | bmad-architecture |
-| D15 | Database and technology stack | Architecture | No | bmad-architecture |
+| D12 | ~~In production, should the programme and the practical information be editable in the admin area?~~ Closed 2026-11-16: yes, as plain text per section, couple only, built in 2027; pictures and layout stay in the code (architecture AD-17). | Architecture | No | — |
+| D14 | ~~Store link codes hashed or in plain form?~~ Closed 2026-11-16: plain form, because FR-51 needs the couple to copy a link at any time (architecture AD-6). | Architecture | No | — |
+| D15 | ~~Database and technology stack~~ Closed 2026-11-16: Django 6.1 on Python 3.14 with SQLite, both locally and in production (architecture AD-1, AD-5). | Architecture | No | — |
 | D16 | ~~Email provider in production; it must store data in the EU~~ Closed 2026-11-15: no email is needed after FR-43 to FR-45 were removed. | Rikke | No | — |
 
 ## 9. Changes from the product brief
@@ -660,3 +661,4 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-15 | From the UX work: Rikke renamed *About us* to *Our story* (*Vår historie*, with the line «Fra vi møttes til i dag.») on the front page, in the menu and as the page title; FR-8 changed to match. |
 | 2026-11-15 | From the UX review (review-rubric-2.md R2-01, R2-09): FR-24 now places the status where the RSVP section was, with a sent line and link at the top, as decided in the UX work; FR-57 now describes the overview list plus a page per household, since the overview and the guest list became one admin page (approved render `ux-designs/…/mockups/admin-guests-1.html`). |
 | 2026-11-16 | Hardingasete answered ([answers](../../research/hardingasete/svar-hardingasete-2026-11-16.md)): Q1 closed with the bed numbers, Q3 answered with the 2026 prices (2028 prices at the end of 2027), Q4 answered (guests pay the couple; FR-34 unchanged). Q2 partly answered: final numbers at the start of 2028, after the 2028 prices. Accommodation turned out to be priced for the whole place, so the guests' cabin price is set by the couple. |
+| 2026-11-16 | From the architecture (`architecture/architecture-aill-handle-it-2026-11-16/ARCHITECTURE-SPINE.md`): D12, D14 and D15 closed in section 8. FR-26 and the NFR-3 table now say that "No allergies or dietary needs" is also stored only with consent (Rikke). The Django 6.2 LTS upgrade is added to the setup in section 3.2. |
