@@ -58,10 +58,12 @@ Rikke startet `/bmad-build` uten mer tekst. Claude fant ingen påbegynte specs o
 
 Rikke svarte **«ja»** til å pushe og lage PR. Branchen er pushet, og [PR #18](https://github.com/IBE160-2026/G26-dvergsdal/pull/18) er laget mot `main`. Den første kjøringen i GitHub Actions feilet i oppsettet: `astral-sh/setup-uv@v10` finnes ikke, fordi den bare publiserer fullstendige versjonsnumre. Claude hadde slått opp siste utgivelse under planleggingen uten å sjekke at tagen fantes. Versjonen er låst til `v10.3.3` i `feb0972`, og begge kjøringene på PR-en er grønne.
 
+Rikke spurte om hun skulle bruke Vercel for å se nettsiden. Claude frarådet det: SQLite-fila forsvinner på Vercel, hosting skal velges i 2027 (EU/EØS), og sensor kjører appen lokalt etter README. Rikke kjørte så MT-1 selv i en fersk klone fra GitHub: **«det gikk bra, alt funket»**. Resultatet står i `docs/manual-test-plan.md`.
+
 Lukket punkt i `issues.md`: «neste BMAD-steg: Story 1.1 med `bmad-build`».
 
 ### Åpne punkter
-- Gjenta MT-1 i en nettleser fra en klone fra GitHub, og gå gjennom og merge PR #18.
+- Gå gjennom og merge PR #18.
 - Neste BMAD-steg: story 1.2 (husstander, gjester og personlige lenker) med `bmad-build`.
 - **Story 3.1:** `manage.py createsuperuser` gir en superbruker med rollen `helper`. Kommandoen for adminkontoer (FR-47) må sette rollen bevisst.
 - **2027:** gjøre produksjonsvakten strengere når hosting velges (minimumslengde på `SECRET_KEY`, avvise `ALLOWED_HOSTS=*`) og legge til sikre cookies, HTTPS-innstillinger og `CSRF_TRUSTED_ORIGINS`.
