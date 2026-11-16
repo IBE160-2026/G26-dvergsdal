@@ -13,7 +13,7 @@
 - [x] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — oppdatere pre-prd-discovery.md: krysse av «Start bmad-prd», merke D12/D13 som avklart, D6/D7 erstattet, Q1 besvart for kapasitet og Q9 avgjort (løst 2026-11-08)
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre faglærer om samtykkemodellen er i orden (Q8)
 - [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre to eller tre gjester hvordan det oppleves å betale for mat (Q7)
-- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` (ferdig 2026-11-15) og `bmad-architecture` (avgjøre D12, D14, D15), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten
+- [ ] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` (ferdig 2026-11-15) og `bmad-architecture` (ferdig 2026-11-16: D12, D14 og D15 avgjort), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten
 - [x] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — samle inspirasjon til UX (bilder hun liker og ikke liker, stemningsord, en typisk gjest) før `/bmad-ux` (løst 2026-11-10)
 - [ ] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — vurdere skillen Impeccable når frontend-koden starter
 - [x] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — avklare kilder og tillatelser for stedsbildene som skal brukes på nettsida (løst 2026-11-16: Rikke har fått lov)
@@ -34,3 +34,5 @@
 - [x] 2026-11-16 [hardingasete-svar](986-2026-11-16-08-59-23-hardingasete-svar.md) — få nøyaktig dato for endelige tall fra Hardingasete, og finne ut hvordan den passer med 2028-prisene (begge kommer i starten av 2028) (løst 2026-11-16 for kollisjonen: prisene kommer i slutten av 2027; nøyaktig dato videreført under)
 - [ ] 2026-11-16 [hardingasete-svar](986-2026-11-16-08-59-23-hardingasete-svar.md) — få nøyaktig dato for endelige tall fra Hardingasete (starten av 2028), og sette svarfristen omtrent to uker før
 - [ ] 2026-11-16 [arkitektur](985-2026-11-16-09-15-23-arkitektur.md) — **2027:** oppgradere Django 6.1 til 6.2 LTS (kommer 6. april 2027) før nettsida går live 1. november 2027, fordi 6.1 slutter å få sikkerhetsoppdateringer i desember 2027 ([issue #13](https://github.com/IBE160-2026/G26-dvergsdal/issues/13))
+- [ ] 2026-11-16 [arkitektur](985-2026-11-16-09-15-23-arkitektur.md) — oppdatere uv til 0.13 (`uv self update`) og Python til siste 3.14 (`uv python install 3.14`) før koden starter
+- [ ] 2026-11-16 [arkitektur](985-2026-11-16-09-15-23-arkitektur.md) — **2027:** bestemme hvordan feil på den ekte nettsida skal nå oss uten e-post eller tredjepartstjenester (åpent spørsmål i arkitekturen)
