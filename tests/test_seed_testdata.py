@@ -23,11 +23,8 @@ from wedding.services.exceptions import NotAllowed
 from wedding.services.households import NewGuest, create_household
 from wedding.services.testdata import reset_test_data
 
-SEED = tomllib.loads(
-    (Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml").read_text(
-        encoding="utf-8"
-    )
-)
+SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
+SEED = tomllib.loads(SEED_FILE.read_text(encoding="utf-8"))
 SEED_GUESTS = [guest for household in SEED["households"] for guest in household["guests"]]
 SIGMUNDS_CODE = SEED_GUESTS[0]["code"]
 
@@ -203,6 +200,28 @@ def test_a_conflict_after_an_earlier_run_keeps_the_earlier_test_data():
         seed()
 
     assert SIGMUNDS_CODE in str(refused.value)
+    assert snapshot() == before
+
+
+@pytest.mark.django_db
+def test_a_value_a_service_refuses_undoes_the_reset_too(monkeypatch, tmp_path):
+    """FR-72, AD-3: a refusal after the reset has run rolls everything back, reset included."""
+    seed()
+    before = snapshot()
+    broken = tmp_path / "seed.toml"
+    broken.write_text(
+        SEED_FILE.read_text(encoding="utf-8").replace(
+            "price_cabin_weekend = 1500", "price_cabin_weekend = -1"
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("wedding.management.commands.seed_testdata.SEED_PATH", broken)
+
+    with pytest.raises(CommandError) as refused:
+        seed()
+
+    assert "Prisen for hytte kan ikke være negativ." in str(refused.value)
+    assert "Ingenting ble endret." in str(refused.value)
     assert snapshot() == before
 
 
