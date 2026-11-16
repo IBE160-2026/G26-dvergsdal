@@ -399,3 +399,275 @@ The couple can move a guest to another household, replace one guest's link, regi
 **Also delivers:** AD-6 (new link), AD-9 (revision on move), link-code throttling; UX-DR50 (tier 2 for move, new link and consent); NFR-4 (wrong-link throttling)
 
 **Not in v1 stories:** FR-40, FR-52, FR-62, FR-67, FR-76, FR-77 [2027], and the If-time items in PRD section 3.3.
+
+## Epic 1: The guest opens their link and sees the invitation
+
+Bestefar Sigmund opens his personal link on his phone and sees a real invitation: the names, date, place, his household and the deadline, the three topics and their pages, and the way to answer. A wrong link shows only a calm "private invitation" page. The examiner can install the app, fill it with fictional households and open their test links by following the README.
+
+### Story 1.1: Runnable project with one command for tests and checks
+
+As Ingrid the examiner,
+I want to install and start the app and run its tests with a few copyable commands,
+So that I can assess it without asking Rikke anything.
+
+**Covers:** NFR-8, NFR-9, AD-1, AD-5, AD-10, AD-11 (settings), AD-14, Structural Seed, Consistency Conventions
+
+**Acceptance Criteria:**
+
+**Given** a clean PC with uv installed and no `.env` file
+**When** Ingrid runs `uv sync`, `uv run manage.py migrate` and `uv run manage.py runserver`
+**Then** the app starts on localhost with SQLite and needs none of Rikke's accounts or keys
+**And** `.python-version` is `3.14`, `requires-python` is `>=3.14,<3.15`, Django is 6.1.x, and every dependency is locked in `uv.lock`
+
+**Given** the repository after this story
+**When** the folders are listed
+**Then** they follow the Structural Seed: `config/`, `wedding/` (with empty `rules/`, `services/` and `rsvp/` packages, `selectors.py`, `links.py`, `management/commands/`, `fixtures/`), `guests/`, `dashboard/`, `static/` and `tests/`
+
+**Given** the first migration
+**When** it is applied
+**Then** `AUTH_USER_MODEL` is `wedding.User(AbstractUser)` with a `role` field that is `couple` or `helper` (AD-10)
+**And** settings have `USE_TZ = True`, `TIME_ZONE = "Europe/Oslo"`, `LANGUAGE_CODE = "nb"` and the SQLite options from AD-5 (busy timeout, WAL, `transaction_mode: IMMEDIATE`, no `ATOMIC_REQUESTS`)
+
+**Given** `APP_ENV=production`
+**When** the app starts with `DEBUG` on, the default `SECRET_KEY` or an empty `ALLOWED_HOSTS`
+**Then** it refuses to start with a message naming the problem, and a test proves each of the three cases (AD-14)
+
+**Given** the test setup
+**When** Ingrid runs `uv run pytest`
+**Then** every test runs with that one command (NFR-9)
+**And** one test checks that nothing under `wedding/rules/` imports Django or project modules (AD-2)
+
+**Given** the code checks
+**When** `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check` run, locally and in a GitHub Actions workflow on every push and pull request
+**Then** all of them pass
+
+**Given** the repository root
+**When** Ingrid opens it
+**Then** `.env.example` lists every setting with safe example values and no real ones, `.gitignore` keeps out `.env`, `db.sqlite3`, `.venv`, `__pycache__` and collected static files, and `docs/manual-test-plan.md` exists for checks that are not automated
+**And** `README.md` describes the app, lists prerequisites with versions, gives the exact install, start and test commands, explains the settings, shows the folder structure and links to the planning documents
+
+### Story 1.2: Households, guests and personal links
+
+As the couple,
+I want each guest to have their own unguessable personal link that belongs to their household,
+So that the link is the guest's only login and opens nothing but their own household.
+
+**Covers:** FR-1, FR-2, FR-3, NFR-4 (link codes), AD-3, AD-4, AD-6
+
+**Acceptance Criteria:**
+
+**Given** this story's migration
+**When** it is applied
+**Then** it creates `Household`, `Guest` (name, optional phone and email, link code) and a single-row `Settings` (the couple's contact names and phone numbers, prices as whole-kroner integers, the RSVP deadline as a date, Vipps number and account number), and no other tables
+
+**Given** a household is created through `wedding/services/` with an explicit actor
+**When** its guests are saved
+**Then** each guest gets a code from `secrets.token_urlsafe(16)`: 22 URL-safe characters, unique, indexed and containing no personal data (FR-1, AD-6)
+**And** no code outside `wedding/services/` calls `.save()` or `.delete()` on these models (AD-3)
+
+**Given** a code
+**When** the one resolver in `wedding/links.py` is called
+**Then** a known code returns a guest actor (the guest and their household) and an unknown code returns nothing
+**And** tests cover a valid code, an unknown code and a code of the wrong length
+
+**Given** any GET request with a valid code
+**When** it is handled
+**Then** no database row is created or changed (FR-3), and a test proves it
+
+**Given** two households
+**When** the resolver returns the guest actor for a guest in the first
+**Then** nothing in the actor gives access to the second household (FR-2)
+
+### Story 1.3: Fictional test data and the hand-made expected-results list
+
+As Ingrid the examiner,
+I want one command that fills the database with fictional households and lists a test link for each guest,
+So that I can try the invitation as different guests, and the numbers can later be checked against a list worked out by hand.
+
+**Covers:** FR-47 (test accounts), FR-68, FR-69, FR-72, NFR-3, AD-14, AD-16
+
+**Acceptance Criteria:**
+
+**Given** `wedding/fixtures/seed.toml`
+**When** it is read
+**Then** it describes the people from UJ-1 to UJ-3 (Sigmund and bestemor; Arild, Marie, Filippa and Leone; Synne) and households covering every case in FR-68: declines entirely, comes only on Saturday without a cabin, paid, part paid, owed a refund, an "I have paid" report without a matching payment, not answered, an allergy with consent, an allergy without consent, and a withdrawn consent
+**And** each household's planned answers, allergies, consents, payment reports and payments are written as data in the file
+
+**Given** `wedding/fixtures/expected.toml`
+**When** it is committed, in its own commit before any code that computes these numbers
+**Then** it holds the hand-worked results for the seed data: every FR-54 count, each household's total, payment status and allergy state, and which households are locked at stated `now` values (FR-69, AD-16)
+**And** the commit message explains how the numbers were worked out
+
+**Given** a local database
+**When** Ingrid runs `uv run manage.py seed_testdata`
+**Then** it creates the households and guests with fixed 22-character test codes, the settings (fictional prices, a deadline relative to today so the form is open, the couple's fictional contacts, a Vipps number and an account number with an invalid check digit), and a test couple admin and a test helper
+**And** it creates everything by calling services with the system actor, and prints each guest's test link
+**And** answers and payments in `seed.toml` are loaded by the stories that build their services (Epic 2 and Epic 5)
+
+**Given** the command has already run
+**When** it runs again
+**Then** the old test data is replaced, so the result is always the same
+
+**Given** `APP_ENV=production`
+**When** the command runs
+**Then** it refuses, says why and writes nothing (FR-72)
+
+**Given** the seed data
+**When** it is inspected
+**Then** every person apart from Rikke and Valdemar is fictional, every email is on `example.com` and no phone number can belong to a real person (NFR-3)
+**And** the README lists the command, a test link per guest and the test admin and helper logins
+
+### Story 1.4: The invitation's look and the private-invitation page
+
+As a guest,
+I want every page to look like Rikke and Valdemar's printed invitation, and a wrong link to show only a calm "private invitation" page,
+So that the invitation feels personal, and a stranger with a wrong link learns nothing about the wedding.
+
+**Covers:** FR-4, FR-5, NFR-5, AD-15, UX-DR1, UX-DR2, UX-DR3, UX-DR4, UX-DR5, UX-DR15, UX-DR30, UX-DR53, UX-DR54
+
+**Acceptance Criteria:**
+
+**Given** the stylesheet
+**When** it is loaded
+**Then** one CSS file defines every DESIGN.md colour token, the spacing scale and the radii as custom properties, and every page declares `color-scheme: light only` (UX-DR1)
+**And** Imperial Script and EB Garamond (regular, italic, 600) are served from `static/fonts/` as WOFF2 with æ, ø and å, type is set in `rem`, guest body text is 20px and numbers use lining figures (UX-DR2)
+
+**Given** a guest content panel
+**When** it is rendered
+**Then** it is a paper sheet: cream with paper texture, the soft `edge-b3` edge and shadow on a `::before` layer behind the content, a flat `panel-cream` fallback with 5px corners, and a 1px `CanvasText` border under forced colours (UX-DR3)
+**And** the page is the textured `page-green`, and the texture leaves the average colour unchanged
+
+**Given** Rikke's images
+**When** they are prepared
+**Then** the seal, gypsophila, lily garlands, lace frame, hero illustration 04, venue and couple photos and the twelve programme icons are in `static/img/`, and the favicon is made from the seal (UX-DR4)
+
+**Given** primary, secondary, outlined-on-green and destructive buttons
+**When** they get keyboard focus or are pressed
+**Then** a 3px focus ring at 3px offset shows in the colour for its surface, and no style uses `outline: none` (UX-DR15)
+
+**Given** an unknown or deactivated code, or the bare address `/`
+**When** the page opens
+**Then** it shows one paper sheet on the green with «Dette er en privat invitasjon», the gypsophila and «Virker ikke lenken din? Ta kontakt med brudeparet direkte.», and no names, phone numbers, date, place, seal, nav bar or footer (FR-5, UX-DR30)
+**And** the «Personvern» link under the sheet is added with the privacy page (Story 7.1)
+
+**Given** any guest response, including this page
+**When** its headers and HTML are inspected by a test
+**Then** it sends `noindex` both as a meta tag and as `X-Robots-Tag`, `Referrer-Policy: same-origin`, a page title with no names, and loads nothing from other sites (FR-4, AD-15)
+**And** a logging filter masks link codes in request paths, and a test proves no code is logged
+
+**Given** the page at 360 × 560, 320 × 568 and 180 × 320 CSS px
+**When** it is checked in a browser
+**Then** there is no horizontal scroll, the gutters follow DESIGN.md › Layout & Spacing, and the check is recorded in the manual test plan (UX-DR5, UX-DR53)
+
+### Story 1.5: The invitation front page
+
+As bestefar Sigmund,
+I want my link to open an invitation that shows at once who is getting married, when, where, that bestemor and I are invited and by when to answer,
+So that I understand the invitation without scrolling and always see where to answer.
+
+**Covers:** FR-2, FR-6, FR-7, FR-8, FR-11 (page frame), FR-41 (display), UX-DR6, UX-DR7, UX-DR8, UX-DR9, UX-DR11, UX-DR12 (frame), UX-DR51
+
+**Acceptance Criteria:**
+
+**Given** a valid personal link
+**When** the guest opens `/<code>/`
+**Then** the page shows the sticky nav bar (Program · Praktisk · Vår historie, and the "Svar" button), the hero sheet, the lead-in, «Alt om helgen», the RSVP sheet and the footer band, in that order (FR-7, FR-8)
+**And** it shows only that guest's household and nothing from any other (FR-2)
+
+**Given** the hero sheet
+**When** it renders
+**Then** it holds, in order, the seal over the top edge, the whole illustration, «Rikke & Valdemar» as the page's `h1`, the invites line, the gypsophila, the date and place in small capitals, «for <household names>» and «**Svar** innen <date>» (UX-DR7)
+**And** it uses «deg» when one person is invited and «dere» when two or more are (UX-DR51)
+**And** the whole hero fits above the fold at 360 × 560 and 320 × 568, the names stack instead of shrinking at narrower widths, and the measurement is recorded in the manual test plan
+
+**Given** the nav "Svar" button or the "Svar" link in the deadline line
+**When** the guest activates either, without JavaScript
+**Then** the page jumps to the RSVP sheet (`#svar`), which is not hidden under the sticky bar (UX-DR6, UX-DR9)
+**And** the nav bar is sticky only when the viewport is at least 400px tall, keeps the three words on one line at 320px, and never becomes a menu button
+
+**Given** «Alt om helgen»
+**When** it renders
+**Then** it has the top and bottom lily garlands, the italic heading with its hairline, and three topic rows (Programmet, Praktisk informasjon, Vår historie), each with a lace-framed picture, an `h3`, one italic line and «Les mer» with an accessible name such as «Les mer om programmet» (UX-DR8)
+**And** each «Les mer» and nav word opens that topic's page under `/<code>/`, which in this story has the info-page frame only: back link, italic title with hairline, the bottom back button, and the current nav word marked with `aria-current` (FR-11, UX-DR12)
+
+**Given** the RSVP sheet
+**When** it renders
+**Then** it shows «Svar på invitasjonen», the small gypsophila, «Barnefritt bryllup» and the full deadline with weekday, date and «kl. 23:59» in Norwegian time (FR-41, UX-DR9)
+**And** the RSVP button itself is added with the form (Story 2.1)
+
+**Given** any page under a valid link
+**When** the guest scrolls to the bottom
+**Then** the footer band shows «Spørsmål? Send oss en melding:» and each of the couple's phone numbers from Settings as its own `tel:` link at least 44px tall (FR-6, UX-DR11)
+
+### Story 1.6: Practical information and Our story pages
+
+As a guest,
+I want to read how to get there, where we sleep, the house rules and the couple's own story,
+So that I know what to expect from the weekend before I answer.
+
+**Covers:** FR-10 (page), FR-11, UX-DR12, UX-DR14
+
+**Acceptance Criteria:**
+
+**Given** the Practical information page
+**When** the guest opens it
+**Then** it shows the jump links (a `nav` labelled «Hopp til») and one info sheet per part in this order: Vielsen (Strandebarm kirke with its time), Hardingasete og hyttene, Hvordan komme seg dit, Husregler, Antrekk, Ta med, Området rundt (FR-10)
+**And** the texts are the placeholders from `mockups/info-praktisk.html` until the couple's full text (Story 7.4)
+
+**Given** a jump link
+**When** the guest follows it, with keyboard or touch
+**Then** focus moves to that part's section, and its heading is not hidden under the sticky bar (UX-DR12)
+
+**Given** the Our story page
+**When** the guest opens it
+**Then** it shows one story sheet with the couple's photo in the lace frame, their own text in chapters each opened by an italic time · place line as `h2`, the closing line and «Rikke & Valdemar» as a signature in Imperial Script, with no jump links (UX-DR14)
+**And** the middle dots and the back-link arrow are hidden from screen readers
+
+**Given** either page
+**When** the guest is done reading
+**Then** «← Tilbake til invitasjonen» at the top and the button at the bottom both return to the front page (FR-11)
+
+### Story 1.7: The programme page
+
+As a guest,
+I want to see the weekend day by day, with what costs money and what to bring,
+So that I can decide which days to come before I answer.
+
+**Covers:** FR-9 (page), UX-DR13
+
+**Acceptance Criteria:**
+
+**Given** the Programme page
+**When** the guest opens it
+**Then** it shows the jump links Fredag · Lørdag · Søndag, the line «Alt i programmet er frivillig. Bli med på det dere har lyst til.», and one paper sheet per day with its date line (FR-9)
+
+**Given** a day sheet
+**When** it renders
+**Then** the events are an `ol` in time order, each with Rikke's icon (decorative), the time as a `<time>` element and a short name, alternating sides by CSS only, and «Godt å vite» below with what costs money, what to bring and who covers what (UX-DR13)
+**And** the events and their order are those in EXPERIENCE.md (Friday: Fjelltur, Hyttene er klare, Middag, Rebus, Badstue, stamp og mingling; Saturday: Yoga, Frokost, Vi drar til kirka, Vielsen, Lunsj utenfor kirka, Middag og fest; Sunday: Frokost, Hyttene skal være tomme), with placeholder times until Story 7.4
+
+**Given** a layout narrower than about 260px
+**When** the page renders
+**Then** the timeline becomes one-sided, with every event to the right of the line, and there is no horizontal scroll
+
+### Story 1.8: Error pages that still show how to reach the couple
+
+As a guest whose page fails,
+I want the error page to tell me what happened and how to reach Rikke and Valdemar,
+So that I am never stuck without a way to answer.
+
+**Covers:** FR-5, FR-6, AD-15
+
+**Acceptance Criteria:**
+
+**Given** a valid code
+**When** a page under `/<code>/` returns 404 or 500, or the form check fails (CSRF)
+**Then** the error page explains in plain, warm Norwegian what happened and shows the couple's phone numbers in the footer band (FR-6)
+
+**Given** an unknown code
+**When** any of these errors happens
+**Then** the page shows nothing personal: no names, phone numbers, date or place (FR-5)
+
+**Given** the error pages
+**When** a test requests each of them with a valid and with an unknown code
+**Then** each shows the content described above and sends the guest headers from Story 1.4
