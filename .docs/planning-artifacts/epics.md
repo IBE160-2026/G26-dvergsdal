@@ -341,7 +341,7 @@ From DESIGN.md (visual) and EXPERIENCE.md (behaviour). Surface IDs (G1–G12, A1
 
 The epics follow the PRD's priority tiers (section 3.1a). Epics 1–3 are the usability-test build (tier 1, 27 November 2026); the usability test in the first week of December is a real feedback point, so it is also an epic boundary. Epics 4–7 complete the course version (tier 2, 10 December 2026), in the PRD's tier-2 order. Epic 8 is tier 3, cut first; anything not done by 10 December moves to [2027] with the reason in the PRD change log. NFRs are cross-cutting and apply to every story; the NFR named under each epic is the one it first makes testable.
 
-Epics 2, 4 and 7 all change the RSVP form in `wedding/rsvp/`. Merging them was considered and rejected: the usability test after Epic 3 may change the form, and the PRD's cut order puts Epic 7's parts last in tier 2. Each table is created by the first story that needs it: `User` (1.1), `Household`, `Guest`, `Settings` (1.2), `HouseholdAnswer`, `PersonAnswer`, `Allergy`, `Consent`, `Submission` (2.6), `PaymentReport` (5.1), `Payment` (5.2), `AttentionMark` (6.2), and the cache table for throttling (6.6).
+Epics 2, 4 and 7 all change the RSVP form in `wedding/rsvp/`. Merging them was considered and rejected: the usability test after Epic 3 may change the form, and the PRD's cut order puts Epic 7's parts last in tier 2. Each table is created by the first story that needs it: `User` (1.1), `Household`, `Guest`, `Settings` (1.2), `HouseholdAnswer`, `PersonAnswer` (2.6a), `Allergy`, `Consent` (2.6b), `Submission` (2.6c), `PaymentReport` (5.1), `Payment` (5.2), `AttentionMark` (6.2), and the cache table for throttling (6.6).
 
 ### Epic 1: The guest opens their link and sees the invitation
 
@@ -730,7 +730,7 @@ So that I am never stuck without a way to answer.
 
 Sigmund and Arild answer for everyone in their household on a phone: who is coming, which days, overnight stay, meals with prices, allergies with consent and the Friday hike. They see the running total, check everything before sending, get a receipt in Rikke's words, choose to pay now or later, and see their household's status on the invitation afterwards. An interrupted answer is offered back when they return.
 
-Deviation from the PRD tiers: FR-29 is pulled forward from tier 2 into Story 2.6 (see the Epic List).
+Deviation from the PRD tiers: FR-29 is pulled forward from tier 2 into Story 2.6b (see the Epic List).
 
 ### Story 2.1: Start the answer: who is coming
 
@@ -738,7 +738,7 @@ As bestefar Sigmund,
 I want to press the RSVP button and first mark who in my household is coming,
 So that the rest of the form only asks about the people who come.
 
-**Covers:** FR-12, FR-13, FR-14 (step 1), FR-22, NFR-5, NFR-6, AD-1, AD-7, AD-8, UX-DR16, UX-DR17, UX-DR18, UX-DR19, UX-DR20
+**Covers:** FR-12, FR-13, FR-14 (step 1), FR-22, FR-41 (deadline rule), NFR-5, NFR-6, AD-1, AD-7, AD-8, AD-11, UX-DR16, UX-DR17, UX-DR18, UX-DR19, UX-DR20, UX-DR52 (form check)
 
 **Acceptance Criteria:**
 
@@ -746,10 +746,21 @@ So that the rest of the form only asks about the people who come.
 **When** it renders for a household that has not answered
 **Then** it has the primary button «Svar på invitasjonen», which opens the form at `/<code>/svar/`
 
+**Given** the deadline function in `wedding/rules/`
+**When** it is given the deadline date and `now`
+**Then** it says the deadline has passed from 00:00:00 Oslo time on the day after the deadline date, so 23:59:59.999 is still open, and tests cover both sides of the boundary and a winter/summer time change (FR-41, AD-11)
+**And** after the deadline the form does not open; the guest sees the deadline with weekday and date and the couple's phone numbers instead (the full locked views come in Story 4.3)
+
 **Given** the form's first step
 **When** it opens
-**Then** it shows the step question as `h1`, the progress line «Steg 1 av m: <name>» and the respondent line «Jeg er <link owner> · Bytt» (FR-12, FR-13, UX-DR19)
+**Then** it shows the step question as `h1`, the progress line «Steg 1 av m: <name>» and the respondent line «Jeg er <link owner>» (FR-12, FR-13, UX-DR19)
+**And** before step 1 is answered, m counts every step as if everyone comes the whole weekend; from then on it follows the answers (UX-DR19)
 **And** each household member is a fieldset with «Kommer» and «Kommer ikke», and nothing is selected (FR-14)
+**And** form steps have no nav bar (UX-DR19)
+
+**Given** a household with more than one person
+**When** a step renders
+**Then** the respondent line ends with «· Bytt»; for a household of one, «Bytt» is not shown
 
 **Given** the respondent presses «Bytt»
 **When** they pick another household member
@@ -761,13 +772,21 @@ So that the rest of the form only asks about the people who come.
 
 **Given** a valid step
 **When** «Fortsett» is pressed
-**Then** the server saves the step in the draft cookie (signed, compressed, `HttpOnly`, `SameSite=Lax`, scoped to `/<code>/svar/`) and redirects to the next step's own address (POST-redirect-GET), and nothing is stored in the database (AD-7, AD-8)
+**Then** the server saves the step in the draft cookie (signed, compressed, `HttpOnly`, `SameSite=Lax`, scoped to `/<code>/`) and redirects to the next step's own address (POST-redirect-GET), and nothing is stored in the database (AD-7, AD-8)
 **And** «Tilbake» and the browser's Back button show the previous step with its answers, without a resubmit prompt (UX-DR20)
 
 **Given** the whole guest flow
 **When** a test runs it
 **Then** no session rows are created and the messages framework is never used (AD-8)
 **And** every step works without JavaScript (AD-1)
+
+**Given** a draft cookie with a bad signature, that fails to decompress, or in an old format
+**When** any step opens
+**Then** the cookie is deleted and the form starts empty, and a test proves there is no server error (AD-8)
+
+**Given** a form step whose form check fails (CSRF)
+**When** the guest sees the result
+**Then** the same step is shown again with what they typed filled in, nothing is saved, and a notice says what happened and «Prøv igjen» (UX-DR52)
 
 ### Story 2.2: Which days each person comes
 
@@ -786,6 +805,7 @@ So that Filippa can come only Saturday and Sunday while the rest of us come all 
 **Given** the answer «Nei»
 **When** the step continues
 **Then** the respondent chooses the days for each coming person, and a coming person must have at least one day
+**And** a person's days must follow each other (one day, Friday–Saturday, Saturday–Sunday or all three); Friday and Sunday without Saturday gives a field error that explains why (FR-14, FR-70)
 
 **Given** nobody is marked «Kommer»
 **When** step 1 is sent
@@ -801,7 +821,7 @@ So that Filippa can come only Saturday and Sunday while the rest of us come all 
 
 **Given** the rule functions for applicable steps and days
 **When** they are tested
-**Then** the tests pass plain values and cover all household shapes in `seed.toml`
+**Then** the tests pass plain values, cover all household shapes in `seed.toml`, and list every day combination in one table, including the refused Friday and Sunday
 
 ### Story 2.3: Overnight stay, meals and the running total
 
@@ -820,10 +840,15 @@ So that I know what we will pay before I decide.
 **Given** a person present on only one day
 **When** the respondent chooses to stay overnight
 **Then** the step is blocked with an explanation of why (FR-70)
+**And** overnight stay is offered for two or three days in a row; a table-driven test in `wedding/rules/` covers every allowed day combination
+
+**Given** a person who stays overnight
+**When** their days are later changed to one day, for example through «Endre» on the check page
+**Then** `normalise_answer` removes the overnight stay, so it never shows or counts (FR-75)
 
 **Given** the meals step
 **When** it renders
-**Then** each coming person is offered only the paid meals on their days (Friday dinner, Saturday breakfast only if present from Friday, Sunday breakfast), each with its price, and Saturday lunch and dinner are not asked about (FR-15, FR-73)
+**Then** each coming person is offered only the paid meals on their days (Friday dinner, Saturday breakfast only if present on both Friday and Saturday, Sunday breakfast), each with its price, and Saturday lunch and dinner are not asked about (FR-15, FR-73)
 **And** a short, friendly note explains why guests pay (FR-32)
 
 **Given** any paid step
@@ -847,22 +872,28 @@ So that the kitchen can make safe food, and nothing is stored about our health w
 
 **Given** the allergies step
 **When** it renders
-**Then** each coming person has «Ingen allergier eller matbehov» and the categories gluten, laktose, nøtter, skalldyr, vegetar, veganer and annet, plus a short note field with a maximum length (FR-25)
+**Then** each coming person has «Ingen allergier eller matbehov» and the categories gluten, laktose, nøtter, skalldyr, vegetar, veganer and annet, plus a short note field of at most 200 characters, checked by the server with an FR-22 error (FR-25, AD-8)
 **And** the question is optional
 
-**Given** «Ingen allergier eller matbehov» and a category are both ticked for one person
-**When** JavaScript runs, ticking one clears the other; without it, the step comes back with an inline error asking to choose one (UX-DR21)
+**Given** one person's «Ingen allergier eller matbehov» and a category
+**When** the respondent ticks both
+**Then** with JavaScript, ticking one clears the other; without JavaScript, the step comes back with an inline error asking them to choose one (UX-DR21)
 
 **Given** the consent block
 **When** it renders
-**Then** the text says what the information is for, who sees it (the couple, toastmaster, maid of honour and best man), that names and allergies go to Hardingasete's kitchen, and that consent can be withdrawn through the same link, before a Ja/Nei choice that starts unanswered (FR-26)
-**And** «Jeg bekrefter at <name> vet om dette og er enig» appears only when information is entered for someone other than the respondent (FR-27)
+**Then** the text says what the information is for, who sees it (the couple, toastmaster, maid of honour and best man), that names and allergies go to Hardingasete's kitchen, and that consent can be withdrawn through the same link (FR-26)
+**And** inside each coming person's fieldset there is that person's own Ja/Nei consent choice, which starts unanswered, so consent is given or refused per person (FR-26, FR-29, UX-DR21)
+**And** every fieldset except the respondent's has «Jeg bekrefter at <name> vet om dette og er enig» (FR-27)
+
+**Given** consent «Ja» for someone other than the respondent, with allergy information entered for them
+**When** the confirmation is not ticked
+**Then** the step comes back with a field error on the confirmation (FR-22, FR-27), and a test covers it
 
 **Given** allergies entered and consent not given
 **When** the respondent continues
 **Then** the step and later the check page say plainly that the allergy information will not be saved and that the guest can tell the couple directly, and continuing is still allowed (FR-28)
 
-**Given** the draft for the largest household with every allergy field filled to its maximum
+**Given** the draft for a household of 8 people with every field filled to its maximum
 **When** a test measures the cookie
 **Then** it fits in 4 KB (AD-8)
 
@@ -879,7 +910,10 @@ So that I can catch mistakes and know that nothing is sent yet.
 **Given** at least one person comes on Friday
 **When** the hike step renders
 **Then** each person present on Friday answers yes, no or maybe, and nobody else is asked (FR-17)
-**And** when nobody comes on Friday, the step is skipped and not counted in the progress line
+
+**Given** nobody comes on Friday
+**When** the respondent finishes the previous step
+**Then** the hike step is skipped and not counted in the progress line
 
 **Given** the last step is done
 **When** the check page opens
@@ -889,51 +923,121 @@ So that I can catch mistakes and know that nothing is sent yet.
 **Given** an «Endre» link on the check page
 **When** the respondent uses it
 **Then** it opens that step with the answers filled in, and «Fortsett» returns to the check page; each link has hidden context such as «Endre måltider» (UX-DR23)
+**And** if the change adds a person or a day, «Fortsett» goes to the first later step with questions for them, and the check page comes after that step, so nobody is sent without answers
 
 **Given** the check page
 **When** it renders
 **Then** «Send svaret» is the primary button, above «Tilbake»
 
-### Story 2.6: Send the answer
+### Story 2.6a: Send the answer
 
 As bestefar Sigmund,
-I want my answer saved safely when I press «Send svaret»,
-So that the couple gets it, and I am told clearly if something went wrong.
+I want my answer saved when I press «Send svaret»,
+So that the couple gets it.
 
-**Covers:** FR-26, FR-29, FR-68 (answers), FR-74, NFR-1, NFR-2, AD-3, AD-4, AD-9, AD-18, AD-20, UX-DR52
+**Covers:** FR-41 (sends refused after the deadline), FR-74, NFR-2, AD-3, AD-4, AD-9, UX-DR15 (busy state)
 
 **Acceptance Criteria:**
 
 **Given** this story's migration
 **When** it is applied
-**Then** it creates `HouseholdAnswer` (revision, sent by, sent at), `PersonAnswer`, `Allergy`, `Consent` (when, who gave it, the consent-text version from `CONSENT_TEXT_VERSION`; AD-18) and `Submission` (submission id, kind, what was written; AD-20), and nothing derived such as totals (AD-4, FR-29)
+**Then** it creates `HouseholdAnswer` (sent by, with the sender's name kept as text; sent at) and `PersonAnswer`, and nothing derived such as totals (AD-4)
 
 **Given** «Send svaret» pressed on a valid draft
 **When** `send_answer` runs with the guest actor
-**Then** it writes the answer in one IMMEDIATE transaction, records the respondent as the sender, increases the revision and deletes the draft cookie (AD-3, AD-9)
-**And** allergy data and «Ingen allergier eller matbehov» are stored only for people with consent, and each consent record stores when, by whom and the text version (FR-26, FR-29, AD-18)
+**Then** it writes the answer in one IMMEDIATE transaction, records the respondent as the sender, raises `Household.revision` and deletes the draft cookie (AD-3, AD-9)
+**And** the button shows «Sender …» while the send is under way and ignores more taps (UX-DR15)
 
-**Given** a re-send where consent is left unanswered
-**When** it is saved
-**Then** existing consented data is kept unchanged; «Ja» gives consent, «Nei» refuses it (AD-18)
+**Given** a guest send after the deadline
+**When** it reaches `send_answer`
+**Then** it is refused using the deadline function from Story 2.1, nothing is written, and the guest sees the deadline and the couple's phone numbers (FR-41)
 
-**Given** the total recalculated at send differs from the total on the check page
-**When** the send is attempted
-**Then** nothing is written and the check page is shown again with a notice about the new total (AD-7)
+**Given** `send_answer`
+**When** tests run
+**Then** a guest actor cannot write to another household (AD-3), and person and household states follow FR-74 (coming, not coming, not answered; a household is answered once sent)
+
+### Story 2.6b: Allergies are stored only with consent
+
+As bestemor,
+I want my allergy information stored only when I have said yes, and deleted when I say no,
+So that nothing about my health is kept without my consent.
+
+**Covers:** FR-26, FR-28, FR-29, NFR-3, AD-18
+
+**Acceptance Criteria:**
+
+**Given** this story's migration
+**When** it is applied
+**Then** it creates `Allergy` and `Consent`; each consent row records one event per person (given, refused or withdrawn), when, who gave it (the actor and their name as text) and the consent-text version from `CONSENT_TEXT_VERSION`, so withdrawal in Story 7.2 adds a row without a new migration (FR-29, AD-18)
+
+**Given** a send
+**When** `send_answer` stores the allergy step
+**Then** allergy data and «Ingen allergier eller matbehov» are stored only for people whose consent is «Ja», and each consent is recorded per person (FR-26, FR-29, AD-18)
+
+**Given** a re-send
+**When** a person's consent is left unanswered
+**Then** that person's stored allergy data is kept unchanged (AD-18)
+**And** if the allergy fields were changed, the check page says before sending that the changes are not saved without a consent answer (FR-28)
+
+**Given** a re-send
+**When** a person's consent is «Nei» and allergy data was stored for them
+**Then** that data is deleted and the refusal is recorded (AD-18)
+
+**Given** the consent rules
+**When** tests run
+**Then** they cover «Ja», «Nei» and unanswered, on a first send and on a re-send, for the respondent and for another household member
+
+### Story 2.6c: A send that fails or repeats is safe
+
+As bestefar Sigmund,
+I want a double tap, a changed price or a failed save never to lose or double my answer,
+So that I can trust what I sent, and I am told clearly if something went wrong.
+
+**Covers:** NFR-1, AD-7, AD-9, AD-20, UX-DR52
+
+**Acceptance Criteria:**
+
+**Given** this story's migration
+**When** it is applied
+**Then** it creates `Submission` (submission id, unique; kind; what was written) (AD-20)
 
 **Given** the same submission sent twice (double tap)
 **When** the second POST arrives
 **Then** the earlier result is returned and nothing is written twice; the submission id is checked in `Submission` before the revision check (AD-20)
 
+**Given** a draft started at an older revision than the household's
+**When** it is sent
+**Then** nothing is written and the check page is shown again with a notice that the answer has changed (AD-9)
+
+**Given** the total recalculated at send differs from the total on the check page
+**When** the send is attempted
+**Then** nothing is written and the check page is shown again with a notice about the new total (AD-7)
+
+**Given** a refused send (older revision, changed total or the deadline)
+**When** the guest sends again
+**Then** it is handled as a new send, because a refused send records no `Submission` (AD-20)
+
 **Given** a write that fails
 **When** the guest is shown the result
 **Then** the error notice says what happened, that nothing is lost, «Prøv igjen», and the couple's phone numbers, and every answer stays in the draft (NFR-1, UX-DR52)
 
-**Given** `send_answer`
-**When** tests run
-**Then** a guest actor cannot write to another household (AD-3), and person and household states follow FR-74 (coming, not coming, not answered; a household is answered once sent)
-**And** `seed_testdata` now loads the answers, allergies and consents in `seed.toml` through `send_answer`
-**And** the manual test plan records one real-browser send, since Django's test client sends no browser headers
+### Story 2.6d: Test data with answers, and a real-browser send
+
+As Ingrid the examiner,
+I want the test households to have their answers, allergies and consents after seeding,
+So that the admin numbers have something to count and can be checked against the expected-results list.
+
+**Covers:** FR-68 (answers), AD-16
+
+**Acceptance Criteria:**
+
+**Given** `seed_testdata`
+**When** it runs
+**Then** it loads the answers, allergies and consents in `seed.toml` through `send_answer` with the system actor, and the result matches the households described in the file
+
+**Given** the manual test plan
+**When** this story is done
+**Then** it records one real-browser send, since Django's test client sends no browser headers
 
 ### Story 2.7: The receipt and how to pay
 
@@ -973,7 +1077,7 @@ As tante Marie,
 I want my own link to show that Arild has already answered for us, and when,
 So that I don't answer again or wonder whether it was done.
 
-**Covers:** FR-24, UX-DR10
+**Covers:** FR-24, FR-34 (pay later), UX-DR10
 
 **Acceptance Criteria:**
 
@@ -982,9 +1086,17 @@ So that I don't answer again or wonder whether it was done.
 **Then** the hero's deadline line reads «Svar sendt <date> · Se svaret», and the RSVP sheet's place holds the status block (`id="status"`): «Svaret er sendt», the small gypsophila, «Barnefritt bryllup», «Sendt av <name> <weekday date> kl. <time>.» and «Totalt for husstanden: …» (FR-24, UX-DR10)
 **And** the line «Meldt betalt: …» is added with payment reports (Story 5.1), and «Dere kan endre svaret fram til <weekday date> kl. 23:59.» together with «Se eller endre svar» when changing answers is built (Story 4.1), so the page never promises a change it cannot make
 
+**Given** a household that has answered and owes money
+**When** the status block renders
+**Then** it has a link to «Slik betaler du» with the same payment details as the receipt, so «Betal senere» keeps its promise (FR-34)
+
 **Given** the answered front page
 **When** the guest uses the nav "Svar" or «Se svaret»
 **Then** the page jumps to the status block and focus lands on its heading
+
+**Given** a household that has answered
+**When** a member opens `/<code>/svar/` directly
+**Then** they are sent to the status block, so the answer cannot be overwritten before changing an answer is built (Story 4.1 lifts this)
 
 ### Story 2.9: An interrupted answer is kept on the phone
 
@@ -992,23 +1104,27 @@ As bestefar Sigmund,
 I want my half-finished answer to be waiting when the phone rings and Messenger reloads the page,
 So that I don't have to start again.
 
-**Covers:** FR-41 (deadline rule), FR-78, AD-8, AD-11, UX-DR26
+**Covers:** FR-78, AD-8, AD-11, UX-DR26
 
 **Acceptance Criteria:**
 
 **Given** a draft cookie from an earlier visit
 **When** the guest opens their link
 **Then** the RSVP sheet shows «Du har et svar som ikke er sendt ennå.» (UX-DR26)
+**And** a test sends a GET to `/<code>/` with the draft cookie set at the path the form uses and sees the notice (AD-8)
 
 **Given** a draft
 **When** the form is opened by any route (either "Svar", the RSVP button, or reloading a step)
 **Then** the draft offer comes first: «Vil du fortsette der du slapp?», when the answer was started, «Ja, fortsett» and «Nei, begynn på nytt» (FR-78)
 **And** «Ja, fortsett» opens the step they left with all answers filled in; «Nei, begynn på nytt» deletes the draft and starts from the sent answer or empty
 
-**Given** the deadline function in `wedding/rules/`
-**When** it is given the deadline date and `now`
-**Then** it says whether `now` is after 23:59:59 Oslo time on that date, and tests cover both sides of the boundary and a winter/summer time change (FR-41, AD-11)
-**And** a draft is not offered after the deadline
+**Given** a draft whose household has changed since it was started (a person added, removed or moved)
+**When** «Ja, fortsett» is chosen
+**Then** answers for people no longer in the household are dropped, and the form opens at step 1 so everyone in the household is asked (AD-8)
+
+**Given** a draft cookie after the deadline
+**When** the guest opens their link
+**Then** no draft notice or offer is shown, and the cookie is deleted, using the deadline function from Story 2.1 (AD-11)
 
 ## Epic 3: The couple sees the numbers and can trust them
 
