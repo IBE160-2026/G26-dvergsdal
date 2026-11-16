@@ -1,5 +1,5 @@
 ---
-stepsCompleted: [1, 2, 3]
+stepsCompleted: [1, 2, 3, 4]
 inputDocuments:
   - prds/prd-aill-handle-it-2026-11-07/prd.md
   - prds/prd-aill-handle-it-2026-11-07/addendum.md
