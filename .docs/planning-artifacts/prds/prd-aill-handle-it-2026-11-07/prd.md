@@ -447,6 +447,8 @@ Some Vipps payments and bank transfers have come in.
   - **paid:** the total has been received;
   - **refund owed:** more than the total has been received, and the status shows the amount to refund.
 
+  A household that hasn't answered has no payment status and shows as "Not answered". *(Changed 2026-11-16 in Story 1.3: Rikke decided this while checking the expected-results list, because "nothing to pay" looked wrong for a household that has not answered yet.)*
+
   Only the couple and the helpers see these statuses.
 - **FR-61** An "I have paid" report matches when the amount registered as received, minus refunds, is at least the amount the guest reported. A household whose report doesn't match is marked red in the overview and listed under "Needs attention". [UJ-5, review]
 - **FR-62** Each household has one dated contact note, for example "Contacted 12.01: payment reminder". It shows both in the not-answered list and in the payment overview. [UJ-4, UJ-5] **[2027]**

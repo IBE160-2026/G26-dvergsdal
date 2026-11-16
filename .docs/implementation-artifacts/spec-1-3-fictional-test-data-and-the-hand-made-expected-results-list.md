@@ -23,7 +23,7 @@ context:
 
 **Always:** Prices (2026 level, fictional): cabin 1500, Friday dinner 340, Saturday breakfast 260, Sunday breakfast 260. Deadline = today (Oslo) + 30 days. Contacts Rikke and Valdemar with impossible numbers (`+47 000 00 1xx`); other phones the same form, emails `@example.com`, Vipps `00000`, an account number failing MOD11. Fixed codes `test-<name>` padded with `0` to 22 chars. Logins `testpar` (couple) and `testhjelper` (helper), password `bryllup-test-2028`. Rows the system actor creates are test data (`is_test_data=True` on `Household` and `User`); reset deletes only those. Commit order: `seed.toml` → `expected.toml` alone (message gives the method) → code. Docstrings name FR/AD.
 
-**Decision (Rikke, 2026-11-16):** `expected.toml` is worked out by Claude from the table below, worked out again by a separate subagent that never sees Claude's numbers, differences resolved, and then Rikke checks a few numbers herself before the commit. The commit message records all three steps.
+**Decision (Rikke, 2026-11-16):** `expected.toml` is worked out by Claude from the table below, worked out again by a separate subagent that never sees Claude's numbers, differences resolved, and then Rikke checks a few numbers herself before the commit. The commit message records all three steps. **Decision (Rikke, 2026-11-16):** a household that has not answered has no payment status; it shows as «Ikke svart» (`not_answered` in `expected.toml`), not «Ingenting å betale» (FR-60 updated).
 
 **Never:** no answer, allergy, consent, payment or report tables (Stories 2.6c, 2.6d, 5.2, 7.2) — those parts of `seed.toml` are data only, not loaded; no code that computes counts or totals; no `loaddata`/fixtures JSON; no writes outside `wedding/services/`.
 
