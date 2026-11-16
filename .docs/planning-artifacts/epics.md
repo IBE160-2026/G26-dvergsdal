@@ -1144,7 +1144,7 @@ So that I don't wipe out his changes without knowing.
 
 **Given** the conflict check
 **When** tests run
-**Then** they cover two members sending in sequence and a draft started before a couple override
+**Then** they cover two members sending in sequence (a draft started before a couple override is tested in Story 4.4, which builds the override)
 
 ### Story 4.3: The answer locks at the deadline
 
@@ -1190,6 +1190,10 @@ So that I can help Synne when she calls.
 **Given** the deadline has passed
 **When** Rikke sends the answer
 **Then** it is saved, and the admin is recorded as the author (FR-63, AD-3)
+
+**Given** a guest draft started before the couple's override
+**When** the guest presses «Send svaret»
+**Then** nothing is written and the guest sees the Story 4.2 conflict notice naming the admin as the sender, and a test proves it (FR-38, AD-9)
 
 **Given** any admin write service
 **When** it is called
