@@ -2,7 +2,7 @@
 title: 'Story 1.3: Fictional test data and the hand-made expected-results list'
 type: 'feature'
 created: '2026-11-16'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '4445e1032ca59c16cd991d3abfc96699a141228d'
