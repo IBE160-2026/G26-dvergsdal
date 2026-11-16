@@ -9,6 +9,7 @@ rules assert those (AD-16).
 
 import re
 import tomllib
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -271,6 +272,62 @@ def test_expected_counts_are_whole_numbers_from_zero():
     assert set(counts["hike"]) == {"yes", "maybe", "no"}
     assert set(counts["payment_status_coming"]) == PAYMENT_STATUSES
     assert {"saturday_lunch", "saturday_dinner"} <= set(counts["meals"])
+
+
+def test_expected_counts_agree_with_its_own_households_and_guests():
+    """FR-69: the counts tally the file's own `[households]` and `[guests]` tables.
+
+    Only a tally of what the file already says, so a typo in a later deliberate
+    change to the oracle is caught. No price, meal or rule is computed here.
+    """
+    counts = EXPECTED["counts"]
+    households = EXPECTED["households"]
+    guests = EXPECTED["guests"]
+    members = {
+        household["key"]: [g["key"] for g in household["guests"]] for household in HOUSEHOLDS
+    }
+
+    def is_coming(key):
+        return any(guests[guest]["status"] == "coming" for guest in members[key])
+
+    not_answered = [
+        key for key in households if households[key]["payment_status"] == "not_answered"
+    ]
+    coming = [key for key in households if is_coming(key)]
+    assert all(guests[g]["status"] == "not_answered" for key in not_answered for g in members[key])
+    assert counts["households"] == {
+        "total": len(households),
+        "answered": len(households) - len(not_answered),
+        "coming": len(coming),
+        "not_coming": len(households) - len(not_answered) - len(coming),
+        "not_answered": len(not_answered),
+    }
+
+    people = Counter(guest["status"] for guest in guests.values())
+    assert counts["people"] == {status: people[status] for status in counts["people"]}
+    assert sum(counts["people"].values()) == len(guests)
+
+    states = Counter(
+        guest["allergy_state"] for guest in guests.values() if "allergy_state" in guest
+    )
+    assert counts["allergy_states"] == {state: states[state] for state in counts["allergy_states"]}
+
+    days = counts["days"]
+    assert days["whole_weekend"] + days["not_whole_weekend"] == counts["people"]["coming"]
+    patterns = {
+        name: n for name, n in days.items() if name not in {"whole_weekend", "not_whole_weekend"}
+    }
+    assert sum(patterns.values()) == days["not_whole_weekend"]
+    overnight = counts["overnight"]
+    assert overnight["beds"] + overnight["not_staying"] == counts["people"]["coming"]
+
+    statuses = Counter(households[key]["payment_status"] for key in coming)
+    paid = counts["payment_status_coming"]
+    assert paid == {status: statuses[status] for status in paid}
+    assert sum(paid.values()) == len(coming)
+
+    for key, household in households.items():
+        assert {"total", "received"} <= set(household), key
 
 
 def test_the_lock_cases_are_offsets_from_the_deadline():
