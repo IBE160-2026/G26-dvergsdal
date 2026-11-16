@@ -168,7 +168,7 @@ So that the link is the guest's only login and opens nothing but their own house
 
 **Given** any GET request with a valid code
 **When** it is handled
-**Then** no database row is created or changed (FR-3), and a test proves it
+**Then** no database row is created or changed (FR-3), and a test proves it at the resolver; the same test over an HTTP GET follows in Story 1.5, which adds the first guest view
 
 **Given** two households
 **When** the resolver returns the guest actor for a guest in the first
@@ -305,7 +305,7 @@ As bestefar Sigmund,
 I want my link to open an invitation that shows at once who is getting married, when, where, that bestemor and I are invited and by when to answer,
 So that I understand the invitation without scrolling and always see where to answer.
 
-**Covers:** FR-2, FR-6, FR-7, FR-8, FR-11 (page frame), FR-41 (display), NFR-7, UX-DR6, UX-DR7, UX-DR8, UX-DR9, UX-DR11, UX-DR12 (frame), UX-DR51
+**Covers:** FR-2, FR-3 (over HTTP), FR-6, FR-7, FR-8, FR-11 (page frame), FR-41 (display), NFR-7, UX-DR6, UX-DR7, UX-DR8, UX-DR9, UX-DR11, UX-DR12 (frame), UX-DR51
 **Not in this story:** the RSVP button (Story 2.1)
 
 **Acceptance Criteria:**
@@ -338,6 +338,10 @@ So that I understand the invitation without scrolling and always see where to an
 **Given** any page under a valid link
 **When** the guest scrolls to the bottom
 **Then** the footer band shows «Spørsmål? Send oss en melding:» and each of the couple's phone numbers from Settings as its own `tel:` link at least 44px tall (FR-6, UX-DR11)
+
+**Given** a valid personal link
+**When** the guest opens `/<code>/` and each topic page under it with a GET request
+**Then** no database row is created or changed, and a test proves it over HTTP with Django's test client (FR-3; Story 1.2 tested the resolver on its own)
 
 **Given** the front page with its fonts and images
 **When** it is loaded in a browser with a throttled 4G profile and a phone-sized window
@@ -1625,7 +1629,7 @@ The requirements as the stories use them, summarised from the PRD, which wins on
 
 - FR-1 (T1): Each guest has their own personal link with a long random code that cannot be guessed; the link is the guest's only login (no accounts or passwords). → Story 1.2
 - FR-2 (T1): A link opens the guest's household and nothing else: the invitation, the household's answers, its total and its payment information. → Stories 1.2, 1.5
-- FR-3 (T1): Opening a link never changes anything; only a deliberate action (pressing a button) saves data. → Story 1.2
+- FR-3 (T1): Opening a link never changes anything; only a deliberate action (pressing a button) saves data. → Stories 1.2, 1.5
 - FR-4 (T1): Page titles and link previews are the same for everyone and contain no names. → Story 1.4c
 - FR-5 (T1): Without a valid link (unknown, deactivated or bare address), the site shows only a friendly "private invitation, contact the couple" message with no names, phone numbers, date or place. → Stories 1.4b, 1.8
 - FR-6 (T1): With a valid link, the couple's contact details are on every guest page, including error pages. → Stories 1.5, 1.8
@@ -1862,3 +1866,4 @@ One line per requirement. The full specification is in [DESIGN.md](ux-designs/ux
 | 2026-11-16 | After the review in [reviews/review-epics-2026-11-16.md](reviews/review-epics-2026-11-16.md) (adversarial, edge-case, structure and prose lenses). **Rikke decided:** a person's days must follow each other, so Friday and Sunday without Saturday is not possible (also in PRD FR-14, FR-15 and FR-70). **Claude decided, as technical fixes Rikke asked for:** the draft cookie is scoped to `/<code>/` (it could not reach the front page), and the revision moved to `Household` (both also in the architecture); deadline enforcement moved into T1 (Story 2.1 and 2.6a), since FR-41 is T1; consent is per person with the FR-27 confirmation enforced; numbers for the note length, household size, the attention list and throttling; link-code throttling slows instead of blocking, so a family on shared Wi-Fi is never locked out. Story 1.4 is split into 1.4a–1.4c and Story 2.6 into 2.6a–2.6d, so each can be reviewed on its own. Structure: the Epic List comes first, the requirement inventories are shortened to one line each and moved to the end with links to their sources, each FR lists the stories that build it (replacing the FR coverage map), and deferred work in the ACs moved to **Not in this story:** lines. |
 | 2026-11-16 | Story 1.1: the djLint command is `uv run djlint --check .` (with a path). djLint 1.50 needs a path: `djlint --check` alone exits with code 2 and checks nothing, so the AC could never pass as written. Found while writing the Story 1.1 spec; `pyproject.toml` sets `allow_empty_input = true` until Story 1.4a adds the first template, and excludes `.docs/`, whose HTML mockups are not app templates. |
 | 2026-11-16 | **Rikke confirmed** the household limit of 8 people (Claude's technical choice from the epics review): no household on the guest list is larger. Confirmed before Story 1.2, which builds households. |
+| 2026-11-16 | **Claude decided** (technical; in the Story 1.2 spec Rikke approved): FR-3 is tested at the resolver in Story 1.2, because no guest view exists until Story 1.5. Story 1.5 gets an AC that repeats the test over an HTTP GET, and FR-3 now lists both stories. Found while writing the Story 1.2 spec. |

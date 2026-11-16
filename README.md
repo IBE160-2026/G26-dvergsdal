@@ -6,7 +6,7 @@ Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten
 
 Repoet inneholder applikasjonen og dokumentasjonen av utvikling, testing og kvalitetssikring med KI.
 
-> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Det finnes ingen sider ennå. Siden for ugyldige lenker kommer i story 1.4b og invitasjonens forside i story 1.5, så foreløpig viser `http://127.0.0.1:8000/` Djangos egen startside.
+> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), men det finnes ingen sider ennå. Siden for ugyldige lenker kommer i story 1.4b og invitasjonens forside i story 1.5, så foreløpig viser `http://127.0.0.1:8000/` Djangos egen startside.
 
 ## Forutsetninger
 
@@ -93,6 +93,7 @@ uv run --env-file .env manage.py runserver
 │   ├── services/             Den eneste koden som skriver til databasen
 │   ├── rsvp/                 Svarskjemaet, brukt av både gjester og brudeparet
 │   ├── selectors.py          Lesespørringer for visningene
+│   ├── actors.py             Hvem som handler: gjest, admin eller system
 │   ├── links.py              Gjør en personlig lenkekode om til en gjest
 │   ├── management/commands/  Kommandoer, for eksempel testdata
 │   ├── fixtures/             Testdata og fasit (TOML)
@@ -115,7 +116,7 @@ uv run --env-file .env manage.py runserver
 └── CLAUDE.md                 Laster inn AGENTS.md og sensorveiledningen, og krever sesjonslogg
 ```
 
-Hvorfor koden er delt slik, står i arkitekturen under. Mappene `rules/`, `services/`, `rsvp/`, `management/commands/` og `fixtures/` er tomme til historiene som trenger dem.
+Hvorfor koden er delt slik, står i arkitekturen under. Mappene `rsvp/`, `management/commands/` og `fixtures/` er tomme til historiene som trenger dem.
 
 `.docs/` og `docs/` har forskjellige roller: `.docs/` er det BMad-verktøyene lager (stien er satt i `_bmad/config.toml`), mens `docs/` er fast referansestoff.
 
