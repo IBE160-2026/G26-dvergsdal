@@ -31,4 +31,5 @@
 - [x] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — designe «Om oss» (teksten ligger i ux/innhold/Vår historie.docx) (løst 2026-11-15)
 - [ ] 2026-11-15 [ux](987-2026-11-11-19-53-41-ux.md) — fylle inn «[stilling]» i «Vår historie», og rette «morro» og «det det» i Word-fila (skrivefeilene rettet av Rikke 2026-11-15; «[stilling]» står som plassholder til stillingen er avklart med jobben, Rikke 2026-11-16)
 - [ ] 2026-11-16 [hardingasete-svar](986-2026-11-16-08-59-23-hardingasete-svar.md) — bestemme hva hver gjest betaler for hytta, siden Hardingasete tar betalt for hele stedet og ikke per seng
-- [ ] 2026-11-16 [hardingasete-svar](986-2026-11-16-08-59-23-hardingasete-svar.md) — få nøyaktig dato for endelige tall fra Hardingasete, og finne ut hvordan den passer med 2028-prisene (begge kommer i starten av 2028)
+- [x] 2026-11-16 [hardingasete-svar](986-2026-11-16-08-59-23-hardingasete-svar.md) — få nøyaktig dato for endelige tall fra Hardingasete, og finne ut hvordan den passer med 2028-prisene (begge kommer i starten av 2028) (løst 2026-11-16 for kollisjonen: prisene kommer i slutten av 2027; nøyaktig dato videreført under)
+- [ ] 2026-11-16 [hardingasete-svar](986-2026-11-16-08-59-23-hardingasete-svar.md) — få nøyaktig dato for endelige tall fra Hardingasete (starten av 2028), og sette svarfristen omtrent to uker før
