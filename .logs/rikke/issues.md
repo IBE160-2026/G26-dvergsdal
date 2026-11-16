@@ -40,4 +40,4 @@
 - [ ] 2026-11-16 [epics-og-stories](982-2026-11-16-12-45-37-epics-og-stories.md) — vurdere en `bmad-review` av epics.md før koden starter
 - [ ] 2026-11-16 [epics-og-stories](982-2026-11-16-12-45-37-epics-og-stories.md) — skrive endelig tekst og tider for Programmet og Praktisk informasjon før story 7.4
 - [ ] 2026-11-16 [sprintplanlegging](981-2026-11-16-13-02-49-sprintplanlegging.md) — neste BMAD-steg: Story 1.1 med `bmad-build`
-- [ ] 2026-11-16 [sprintplanlegging](981-2026-11-16-13-02-49-sprintplanlegging.md) — gå gjennom og merge [PR #16](https://github.com/IBE160-2026/G26-dvergsdal/pull/16) (epics, stories og sprintplan)
+- [x] 2026-11-16 [sprintplanlegging](981-2026-11-16-13-02-49-sprintplanlegging.md) — gå gjennom og merge [PR #16](https://github.com/IBE160-2026/G26-dvergsdal/pull/16) (epics, stories og sprintplan) (løst 2026-11-16)
