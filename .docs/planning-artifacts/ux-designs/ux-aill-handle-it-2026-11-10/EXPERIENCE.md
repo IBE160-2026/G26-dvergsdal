@@ -199,9 +199,9 @@ Behavioural. Visual specs: DESIGN.md › Components (same names). Visual-only co
 | Draft offer | See Interaction Primitives › Unsent answer kept (FR-78). |
 | Progress line | "Steg n av m: <step name>" right under the step `h1`. m changes only when an answer that adds or removes steps changes (who comes, which days). Moving forward or back alone never changes it. |
 | Respondent line | Shown on **every form step**, under the progress line. Preset to the link owner (FR-12). "Bytt" is a button (`aria-expanded`, accessible name "Bytt hvem som svarer"), not a link. Switching changes only who is recorded as answering; filled answers stay **[ASSUMPTION]**. |
-| Running total | Recalculated on every change, announced politely; removed choices drop out (FR-75); identical on check page and receipt (FR-33). |
+| Running total | Recalculated by the server on every step, and with scripts also on every change (architecture AD-7), announced politely; removed choices drop out (FR-75); identical on check page and receipt (FR-33). |
 | Read-more disclosure | Expands in place; `aria-expanded`; never navigates away (FR-19). |
-| Consent block | Explanation (purpose, recipients, how to withdraw) comes **before** the Ja/Nei and is inside the fieldset, referenced from the legend. Starts unanswered, never pushed (CM-4). "Jeg bekrefter at Marie vet om dette og er enig" only when answering for others (FR-27). Sending never requires consent (FR-28). The «Personvern» link in the consent text (FR-66) opens G12; «Tilbake» from there returns to the same step with the answers kept (the FR-78 draft). |
+| Consent block | Explanation (purpose, recipients, how to withdraw) comes **before** the Ja/Nei and is inside the fieldset, referenced from the legend. Starts unanswered, never pushed (CM-4). It covers everything on the step, including «Ingen allergier eller matbehov»: nothing from the allergy step is stored without it (architecture AD-18, Rikke 2026-11-16). "Jeg bekrefter at Marie vet om dette og er enig" only when answering for others (FR-27). Sending never requires consent (FR-28). The «Personvern» link in the consent text (FR-66) opens G12; «Tilbake» from there returns to the same step with the answers kept (the FR-78 draft). |
 | Check-answers list | Page `h1` «Se over svaret før du sender», after the «Obs: Svaret er ikke sendt ennå.» notice **[forslag]**. One "Endre" per part; it jumps to that step and returns to the check page after "Fortsett"; each has hidden context ("Endre måltider"). Skipped optional answers show "Ikke oppgitt". |
 | Receipt panel | Success notice with the `h1` «Svaret er sendt» and who sent it when; then the message by answer (coming / not coming), the summary and the total. If something is owed: "Betal nå" / "Betal senere", and the closing line is shown **at once, directly below them** (it does not wait for a choice); "Betal senere" adds that the link always shows what is left to pay. Nothing owed → no payment buttons; the closing line follows the summary (FR-23). The coming message is shown when at least one person in the household comes **[ASSUMPTION]**. |
 | Payment details | Payment message is "Bryllup" + household names (FR-71). "Kopier" buttons are shown only where the clipboard is available; "Kopiert" in a polite live region until the next copy. If a copy fails, the value is selected with «Trykk og hold for å kopiere». Values are always plain selectable text. QR is [If time]. |
@@ -227,7 +227,7 @@ Behavioural. Visual specs: DESIGN.md › Components (same names). Visual-only co
 | Save failed | Any submit | Error notice: what happened, that nothing is lost, "Prøv igjen", and (guest side) the couple's phone numbers. Input kept, also when the cause is an expired form token. |
 | Validation error | G4, G8, admin forms | Inline error with fix hint + focused error summary (FR-22). |
 | Contradiction | G4 | Blocked with an explanation, e.g. staying overnight while coming only one day (FR-70). |
-| Draft on device | G4 | Every change is kept on the device (FR-78); nothing reaches the server before "Send svaret". |
+| Draft on device | G4 | Each step is kept on the device when the guest presses «Fortsett» (FR-78). The server checks every step but stores nothing before "Send svaret" (architecture AD-8). |
 | Draft waiting | G2, G4 entry | G2: warning notice in the RSVP sheet. Opening the form: Draft offer first (Interaction Primitives). |
 | Not sent yet | G5; leaving G4–G5 | Warning notice at top of G5 (FR-21). Leaving: in-page links open the leave dialog, and the browser shows its own leave prompt where supported. In-app browsers may skip that prompt; the device draft covers this case (FR-20, FR-78). |
 | Last updated | Top of G4 when answered | Info notice "Sist endret av Arild, 3. november kl. 18:40" (FR-38). |
@@ -283,10 +283,10 @@ Behavioural. Visual specs: DESIGN.md › Components (same names). Visual-only co
 
 ### Unsent answer kept (FR-78, tier 1)
 
-- Every change in the form is kept **on the guest's own device**, tied to the personal link, so a call, an app switch or a Messenger reload loses nothing.
+- Every step the guest completes is kept **on the guest's own device**, in a cookie tied to the personal link, so a call, an app switch or a Messenger reload loses nothing already moved past (architecture AD-8). Input typed on the current step, before «Fortsett», is not yet kept.
 - When the guest comes back through their link and a draft exists: G2's RSVP sheet shows «Du har et svar som ikke er sendt ennå.» Opening the form by any route (either "Svar", the RSVP button, or a reload of a step) first shows the **Draft offer**: «Vil du fortsette der du slapp?», when it was started, "Ja, fortsett" (to the step they left, all answers filled in) and "Nei, begynn på nytt" (draft deleted; form starts from the household's sent answer, or empty).
 - If someone in the household sent an answer after the draft began, the draft is still offered and the conflict notice appears before sending (FR-38).
-- The draft is deleted when sending succeeds, on "Nei, begynn på nytt", and at the deadline. Where device storage is unavailable (private mode, no scripts) there is no draft and the leave warning is the only guard. What the draft may hold is Open Question 6.
+- The draft is deleted when sending succeeds and on "Nei, begynn på nytt", and is not offered after the deadline. It works without scripts and holds everything entered, allergies included (Open Question 6, resolved). Where cookies are blocked the form cannot be sent at all, since the form protection needs a cookie; the error page then shows the couple's phone numbers.
 - Guest pages have no time limit that loses input (WCAG 2.2.1): a send rejected for any reason keeps every answer, and pressing again works.
 
 ### Admin protection tiers (decided)
@@ -334,7 +334,7 @@ FR-25 to FR-31 and NFR-3/NFR-4 set the rules; the UX decisions are:
 
 - The explanation (purpose, who sees it, how to withdraw) comes **before** the Ja/Nei (research §3.2), inside the consent fieldset (Component Patterns › Consent block).
 - **Withdrawal lives in two places** (memlog): the answer view next to the allergies where consent was given, and the privacy page; it works after the deadline.
-- The unsent draft (FR-78) stays on the guest's device only and is deleted on send; see Open Question 6.
+- The unsent draft (FR-78) is kept on the guest's device and deleted on send. Each step passes through the server, which stores nothing before "Send svaret" and stores allergy information only with consent (Open Question 6, resolved; architecture AD-8, AD-18).
 - Mocks, screenshots and tests use fictional people only (NFR-3).
 
 ## Key Flows
@@ -454,7 +454,7 @@ Failure: logs in with wrong password → plain error, slowed retries.
 | Admin on phone | Quick tasks fit one screen (FR-48); tables become stacked rows with visible labels. |
 | Admin on PC | May use a wider column for A4 (FR-48) **[ASSUMPTION — width not set]**. |
 | In-app browsers | Messenger/Facebook must work, checked on a real old device [2027]; the device draft covers reloads; copy buttons feature-detected. |
-| No JavaScript | Anchors, links and form steps are plain HTML; draft, running-total updates and copy need scripts. Full no-JS guarantee: Open Question 4. |
+| No JavaScript | Every guest and admin page works without scripts, including the form steps, the draft and the confirmations (Open Question 4, resolved; architecture AD-1, AD-7). Running-total updates within a step, the leave warning and copy buttons need scripts. |
 
 ## Open Questions
 
@@ -462,9 +462,6 @@ Numbers stay fixed, because the memlog and the logs refer to them.
 
 ### Still open
 
-4. **No-JS guest pages in v1** (PRD/architecture): PRD 3.2 puts the static fallback in [2027]; should all guest pages and form steps work without scripts in v1, with scripts only enhancing?
-5. **Admin session expiry** (architecture): an idle session of at least 20 hours, or a warning two minutes before expiry with "Fortsett å være logget inn" — and in both cases is unsaved input restored after logging in again?
-6. **Device draft content** (architecture/privacy): may the draft hold allergy categories and notes before consent is given, on a phone others may use? UX default: deleted on send, on "Begynn på nytt" and at the deadline.
 7. Final bokmål for all microcopy marked "proposal" or **[forslag]** (Rikke).
 8. Why-guests-pay wording (waits for PRD Q7).
 9. Programme times and content placeholders.
@@ -474,6 +471,9 @@ Numbers stay fixed, because the memlog and the logs refer to them.
 - 1. Answered state of G2 — resolved 2026-11-15 ([mockups/answered-1.html](mockups/answered-1.html); IA › Receipt vs status block).
 - 2. Small phones — resolved 2026-11-15 ([.working/small-phone-1.html](.working/small-phone-1.html); DESIGN › Layout & Spacing).
 - 3. Plain-text names — resolved 2026-11-15: script only ([.working/plain-names-1.html](.working/plain-names-1.html)).
+- 4. No-JS guest pages in v1 — resolved 2026-11-16 in the architecture: every guest and admin page, form steps included, works without scripts; scripts only enhance ([ARCHITECTURE-SPINE.md](../../architecture/architecture-aill-handle-it-2026-11-16/ARCHITECTURE-SPINE.md) AD-1, AD-7).
+- 5. Admin session expiry — resolved 2026-11-16 (Rikke): 20 hours without use, renewed by every request; no warning and no restore of unsaved input; «Logg ut» on every admin page (AD-13).
+- 6. Device draft content — resolved 2026-11-16 (Rikke): the draft holds everything entered, allergies included, until send or «Begynn på nytt». Each step passes through the server, which stores nothing before send (AD-8). «Ingen allergier eller matbehov» also needs consent to be stored (AD-18).
 - 10. Texture on the green page — resolved 2026-11-11 (DESIGN › Elevation & Depth).
 - 11. Edge treatment of the sheets — resolved 2026-11-11: edge B3 (DESIGN › Elevation & Depth).
 - 12. The front page below the hero — resolved 2026-11-15 ([mockups/front-page-3.html](mockups/front-page-3.html)).
