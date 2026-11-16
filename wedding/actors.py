@@ -37,3 +37,6 @@ class SystemActor:
 
 
 SYSTEM = SystemActor()
+
+# AD-3: the explicit `actor` every service takes.
+Actor = GuestActor | AdminActor | SystemActor

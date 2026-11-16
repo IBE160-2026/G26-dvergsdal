@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.db import transaction
 
-from wedding.actors import SystemActor
+from wedding.actors import Actor, SystemActor
 from wedding.links import is_code_format, new_code
 from wedding.models import PHONE_MAX_LENGTH, Guest, Household
 from wedding.rules.households import household_size_problem
@@ -31,7 +31,7 @@ class NewGuest:
     code: str | None = None
 
 
-def create_household(actor: object, guests: list[NewGuest]) -> Household:
+def create_household(actor: Actor, guests: list[NewGuest]) -> Household:
     """FR-1, FR-49, AD-3, AD-6, AD-8, AD-9: create a household with 1 to 8 guests.
 
     Only the system actor or a couple account may create one (AD-10). Each guest
