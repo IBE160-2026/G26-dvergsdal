@@ -1,7 +1,8 @@
 """Removing the test data the seed command made, so it can run again (FR-72, AD-4, AD-16).
 
-Only rows marked `is_test_data` are removed: households (their guests go with
-them) and admin users. Households and users the couple made are never touched.
+Only rows marked `is_test_data` are removed: households, with everything in
+them (also a guest added to one later), and admin users. Households and users
+the seed did not make are never removed.
 """
 
 from django.db import transaction

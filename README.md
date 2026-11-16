@@ -40,7 +40,7 @@ uv run manage.py runserver
 uv run manage.py seed_testdata
 ```
 
-Kommandoen skriver ut en testlenke per gjest og innloggingene under. Den kan kjøres så ofte du vil: den sletter først testdataene fra forrige kjøring, men aldri husstander eller brukere den ikke har laget selv. Er en lenkekode eller et brukernavn fra `seed.toml` allerede i bruk av slike data, stopper den uten å endre noe. Den kjører bare når `APP_ENV` ikke er satt eller er `local`, så testdata aldri havner på den ekte nettsiden.
+Kommandoen skriver ut en testlenke per gjest og innloggingene under. Den kan kjøres så ofte du vil: den sletter først testhusstandene fra forrige kjøring med alt som er i dem (også en gjest som er lagt til i en testhusstand senere) og testbrukerne, men aldri husstander eller brukere den ikke har laget selv. Er en lenkekode eller et brukernavn fra `seed.toml` allerede i bruk av husstander eller brukere den ikke har laget, stopper den uten å endre noe. Den kjører bare når `APP_ENV` ikke er satt eller er `local`, så testdata aldri havner på den ekte nettsiden.
 
 Alle personene er oppdiktet, bortsett fra Rikke og Valdemar: e-postene er på `example.com`, telefonnumrene begynner med `+47 000`, og kontonummeret har feil kontrollsiffer. Svarfristen settes til 30 dager etter dagen kommandoen kjøres, så svarskjemaet er åpent.
 
