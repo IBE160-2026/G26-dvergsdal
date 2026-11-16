@@ -29,12 +29,13 @@ Lay the foundation of the wedding website and deliver the read-only guest experi
 - **Accessibility (WCAG 2.2 AA):** text contrast ≥ 4.5:1, guest body text 20px (floor 18px), works at 320px width and 200% zoom (about 180 CSS px) with no horizontal scroll, full keyboard use with visible focus, touch targets ≥ 44 × 44px, reduced motion respected, forced-colours mode works.
 - **Performance:** front page usable in under 3 seconds on throttled 4G on a phone.
 - **Runnability:** runs on Windows, macOS or Linux by following the README, with SQLite, no `.env` and none of Rikke's accounts or keys; all tests run with one command.
+- **Household size:** a household has at most 8 people (confirmed by Rikke: no household on the guest list is larger). This keeps a full RSVP draft inside the 4 KB cookie; no seed household may exceed it.
 - **Test data:** only fictional people besides Rikke and Valdemar (`example.com` emails, impossible phone numbers, an account number with an invalid check digit). The seed command refuses unless `APP_ENV` is `local`. The expected-results list is worked out by hand and committed in its own commit before any code that computes those numbers.
 - **Traceability:** every rule function, service and test names the FR/NFR it implements in its docstring.
 
 ## Technical Decisions
 
-- **Stack:** Python 3.14 (`.python-version`, `requires-python >=3.14,<3.15`), uv with `uv.lock`, Django 6.1.x, SQLite, pytest + pytest-django, Ruff (lint + format), djLint, WhiteNoise. No third-party starter; start from `django-admin startproject`. GitHub Actions runs pytest, Ruff and djLint on every push and PR.
+- **Stack:** Python 3.14 (`.python-version`, `requires-python >=3.14,<3.15`), uv with `uv.lock`, Django 6.1.x, SQLite, pytest + pytest-django, Ruff (lint + format), djLint, WhiteNoise. No third-party starter; start from `django-admin startproject`. The checks are `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` (djLint needs the path; without it, it checks nothing and exits with code 2), run locally and by GitHub Actions on every push and PR.
 - **Layout:** `config/` (settings, urls, middleware, logging filter), `wedding/` (`models.py` incl. custom User, `rules/`, `services/`, `rsvp/`, `selectors.py`, `links.py`, `management/commands/`, `fixtures/`), `guests/`, `dashboard/`, `static/` (css, js, fonts, img), `tests/`. `guests` and `dashboard` never import each other.
 - **Functional core:** `wedding/rules/` is pure Python with no Django or project imports, enforced by a test. Rules take plain values (and explicit `now`).
 - **Only services write:** functions in `wedding/services/` are the only code that calls `.save()`/`.delete()`; each is one transaction and takes an explicit actor (guest, admin or system; the system actor is used only by the seed command). Views and commands never write directly.
@@ -64,4 +65,5 @@ Lay the foundation of the wedding website and deliver the read-only guest experi
 - 1.1 comes first: the structure, settings, custom User and CI. 1.2 depends on it, and 1.3 needs the services and resolver from 1.2.
 - 1.4a (tokens and components) and 1.4b (sheet, images, private page) come before the guest pages 1.5–1.8. 1.4c's privacy headers apply to every guest response, including the error pages in 1.8.
 - 1.5 builds the info-page frame that 1.6 and 1.7 fill.
+- The 8-person household cap is enforced when the couple saves a household (Story 6.4) and is what the 4 KB draft test uses (Story 2.4); Epic 1's models and seed must stay consistent with it.
 - Later epics extend this one: the RSVP button and form (Story 2.1); answers, allergies, consents, payments and withdrawn consent added to the seed (2.6d, 5.2, 7.2); expected-results assertions (Epic 3); the «Personvern» link under the private page and the full info texts (Epic 7).
