@@ -10,7 +10,7 @@ Source: Hardingasete's price sheet *Prisar som gjeld for bryllaup på Hardingase
 |---|---|---|
 | Q1 | Beds and cabins | Renting the whole place gives 75 beds in historic cabins, from Friday afternoon to Sunday morning. With the new sleeping house, 90 beds. A smaller option gives 40 beds. Beds are made up and towels are included; rooms are not cleaned during the stay. Fits the rule "the whole weekend or nothing" and the earlier answer that there are more beds than guests (about 70). |
 | Q2 | When the final numbers are needed | At the start of 2028. The exact date is not set yet. The format was not specified. |
-| Q3 | Prices | The 2026 prices are below. The 2028 prices come at the start of 2028; until then the 2026 prices are the best estimate. |
+| Q3 | Prices | The 2026 prices are below. The 2028 prices come at the end of 2027 (corrected by Rikke the same day; first given as the start of 2028); until then the 2026 prices are the best estimate. |
 | Q4 | Can guests pay Hardingasete directly? | No. Guests pay the couple, and the couple pays Hardingasete in one payment. FR-34 stays as it is. |
 
 ## Prices for 2026
@@ -35,5 +35,5 @@ Source: Hardingasete's price sheet *Prisar som gjeld for bryllaup på Hardingase
 - **The cabin is priced for the whole place, not per bed.** The PRD assumed a per-person price from Hardingasete for "the cabin for the whole weekend" (FR-32). In fact, the couple must decide what each guest pays for the cabin, for example a share of the rent. The price is a setting either way (FR-64), so the architecture is not affected. The note in FR-32 ("these are Hardingasete's prices") must be worded with this in mind when the couple sets the price.
 - **The RSVP deadline** is about two weeks before Hardingasete's deadline (D4), so it will be early in 2028. The date is a setting (FR-64).
 - **Invitations wait** for the 2028 prices, as the PRD already says (section 3.2).
-- **Open: the two dates may collide.** The 2028 prices and the deadline for final numbers both come "at the start of 2028". If invitations wait for the prices, guests may have only a few weeks to answer. This is a planning question for the couple, not for the architecture; see Q2 in the PRD, section 8.
+- **The dates fit.** The 2028 prices come at the end of 2027, before the final numbers are due at the start of 2028, so invitations can go out with the real prices and guests still get time to answer. (Claude first flagged a possible collision, based on the prices coming at the start of 2028; Rikke corrected the date.)
 - **Fictional test data** (FR-68) can use prices at the 2026 level, so the totals look realistic without being the real ones.

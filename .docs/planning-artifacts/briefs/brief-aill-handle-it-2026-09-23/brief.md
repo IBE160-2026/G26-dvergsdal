@@ -118,7 +118,7 @@ The honest advantage isn't technology. It's fit. This is built for exactly one w
 - Prices from Hardingasete are known only for 2026, so they must be easy to change.
 - Open: the form of the gift list (static list, external link, or gifts guests can reserve).
 - Open: whether sending email costs anything in production. The course version does not depend on it.
-- Hardingasete answered on 2026-11-16 ([answers](../../research/hardingasete/svar-hardingasete-2026-11-16.md)): 75 beds for the whole weekend (accommodation is the whole weekend or nothing), the 2026 prices (the 2028 prices come at the start of 2028), and guests pay the couple, who pays Hardingasete. Open: the exact date for final numbers, which is at the start of 2028. The RSVP deadline is set about two weeks before it.
+- Hardingasete answered on 2026-11-16 ([answers](../../research/hardingasete/svar-hardingasete-2026-11-16.md)): 75 beds for the whole weekend (accommodation is the whole weekend or nothing), the 2026 prices (the 2028 prices come at the end of 2027), and guests pay the couple, who pays Hardingasete. Open: the exact date for final numbers, which is at the start of 2028. The RSVP deadline is set about two weeks before it.
 
 ## Data and Privacy
 
