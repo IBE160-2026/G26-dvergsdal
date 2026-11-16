@@ -1,0 +1,258 @@
+# Fictional test data for `uv run manage.py seed_testdata` (FR-68, FR-72, NFR-3, AD-16).
+#
+# Everyone except Rikke and Valdemar is made up. Emails are on example.com, and
+# every phone number starts with "+47 000", which no Norwegian subscriber number
+# does. The account number fails the MOD11 check, so no money can reach it.
+#
+# Story 1.3 loads the settings, the users, the households and the guests. The
+# rest is written here as data for the stories that add its tables:
+#   answers, allergies and consents  -> Story 2.6d (through the send service)
+#   payment reports and payments     -> Story 5.2
+#   the withdrawn consent            -> Story 7.2
+# The hand-worked results for exactly this data are in expected.toml (FR-69).
+#
+# Answer fields, per guest (left out when the household has not answered):
+#   coming             true or false
+#   days               ["fri", "sat", "sun"], consecutive (FR-14)
+#   overnight          true or false; the cabin is paid for the whole weekend (FR-16)
+#   meals              any of "friday_dinner", "saturday_breakfast", "sunday_breakfast" (FR-73)
+#   hike               "yes", "no" or "maybe"; only for people present on Friday (FR-17)
+#   no_allergies       true for "Ingen allergier eller matbehov" (FR-25)
+#   allergy_categories any of gluten, lactose, nuts, shellfish, vegetarian, vegan, other
+#   allergy_note       a short note
+#   consent            "yes" or "no"; left out when unanswered (FR-26)
+#   consent_by         guest key of the person who gave the consent (FR-29)
+#   consent_withdrawn  true when the consent was later withdrawn (FR-30)
+
+[settings]
+contact_1_name = "Rikke"
+contact_1_phone = "+47 000 00 101"
+contact_2_name = "Valdemar"
+contact_2_phone = "+47 000 00 102"
+# Whole kroner, at the 2026 price level, but not the real prices (AD-12).
+price_cabin_weekend = 1500
+price_friday_dinner = 340
+price_saturday_breakfast = 260
+price_sunday_breakfast = 260
+# The deadline is set relative to the day the command runs, so the form is open.
+deadline_days_from_today = 30
+vipps_number = "00000"
+account_number = "1234.56.78900"
+
+[[users]]
+username = "testpar"
+password = "bryllup-test-2028"
+role = "couple"
+
+[[users]]
+username = "testhjelper"
+password = "bryllup-test-2028"
+role = "helper"
+
+
+# UJ-1: Sigmund answers for himself and bestemor. Paid in full, report matches.
+[[households]]
+key = "sigmund"
+answered_by = "sigmund"
+payment_report = { amount = 4720, method = "vipps", paid_by = "" }
+payments = [{ kind = "received", amount = 4720 }]
+
+[[households.guests]]
+key = "sigmund"
+name = "Sigmund"
+phone = "+47 000 00 111"
+email = "sigmund@example.com"
+code = "test-sigmund0000000000"
+coming = true
+days = ["fri", "sat", "sun"]
+overnight = true
+meals = ["friday_dinner", "saturday_breakfast", "sunday_breakfast"]
+hike = "no"
+no_allergies = true
+consent = "yes"
+consent_by = "sigmund"
+
+[[households.guests]]
+key = "bestemor"
+name = "bestemor"
+code = "test-bestemor000000000"
+coming = true
+days = ["fri", "sat", "sun"]
+overnight = true
+meals = ["friday_dinner", "saturday_breakfast", "sunday_breakfast"]
+hike = "maybe"
+allergy_categories = ["gluten"]
+consent = "yes"
+consent_by = "sigmund"
+
+
+# UJ-2: Arild answers for four; Leone is not coming and Filippa comes Saturday
+# and Sunday. Part paid, report matches what was received.
+[[households]]
+key = "arild"
+answered_by = "arild"
+payment_report = { amount = 4000, method = "bank", paid_by = "Marie" }
+payments = [{ kind = "received", amount = 4000 }]
+
+[[households.guests]]
+key = "arild"
+name = "Arild"
+phone = "+47 000 00 121"
+email = "arild@example.com"
+code = "test-arild000000000000"
+coming = true
+days = ["fri", "sat", "sun"]
+overnight = true
+meals = ["friday_dinner", "saturday_breakfast", "sunday_breakfast"]
+hike = "yes"
+no_allergies = true
+consent = "yes"
+consent_by = "arild"
+
+[[households.guests]]
+key = "marie"
+name = "Marie"
+phone = "+47 000 00 122"
+code = "test-marie000000000000"
+coming = true
+days = ["fri", "sat", "sun"]
+overnight = true
+meals = ["friday_dinner", "saturday_breakfast", "sunday_breakfast"]
+hike = "yes"
+
+[[households.guests]]
+key = "filippa"
+name = "Filippa"
+email = "filippa@example.com"
+code = "test-filippa0000000000"
+coming = true
+days = ["sat", "sun"]
+overnight = true
+meals = ["sunday_breakfast"]
+allergy_categories = ["vegetarian"]
+consent = "no"
+
+[[households.guests]]
+key = "leone"
+name = "Leone"
+code = "test-leone000000000000"
+coming = false
+
+
+# UJ-3: Synne comes only on Saturday, without a cabin, so there is nothing to
+# pay. She gave consent for a nut allergy and later withdrew it.
+[[households]]
+key = "synne"
+answered_by = "synne"
+
+[[households.guests]]
+key = "synne"
+name = "Synne"
+phone = "+47 000 00 131"
+email = "synne@example.com"
+code = "test-synne000000000000"
+coming = true
+days = ["sat"]
+overnight = false
+meals = []
+allergy_categories = ["nuts"]
+consent = "yes"
+consent_by = "synne"
+consent_withdrawn = true
+
+
+# Declines entirely: nothing to pay.
+[[households]]
+key = "tor"
+answered_by = "tor"
+
+[[households.guests]]
+key = "tor"
+name = "Tor"
+phone = "+47 000 00 141"
+code = "test-tor00000000000000"
+coming = false
+
+[[households.guests]]
+key = "hilde"
+name = "Hilde"
+email = "hilde@example.com"
+code = "test-hilde000000000000"
+coming = false
+
+
+# Owed a refund: received more than the total, after one refund.
+[[households]]
+key = "eva"
+answered_by = "eva"
+payments = [{ kind = "received", amount = 2300 }, { kind = "refunded", amount = 200 }]
+
+[[households.guests]]
+key = "eva"
+name = "Eva"
+phone = "+47 000 00 151"
+email = "eva@example.com"
+code = "test-eva00000000000000"
+coming = true
+days = ["fri", "sat", "sun"]
+overnight = true
+meals = ["friday_dinner"]
+hike = "yes"
+allergy_categories = ["shellfish", "other"]
+allergy_note = "Tåler ikke koriander."
+consent = "yes"
+consent_by = "eva"
+
+
+# An "I have paid" report with no matching payment. Ida chose "no allergies"
+# but said no to consent, so nothing about her is stored.
+[[households]]
+key = "jonas"
+answered_by = "jonas"
+payment_report = { amount = 4200, method = "vipps", paid_by = "" }
+
+[[households.guests]]
+key = "jonas"
+name = "Jonas"
+phone = "+47 000 00 161"
+email = "jonas@example.com"
+code = "test-jonas000000000000"
+coming = true
+days = ["fri", "sat"]
+overnight = true
+meals = ["friday_dinner", "saturday_breakfast"]
+hike = "maybe"
+no_allergies = true
+consent = "yes"
+consent_by = "jonas"
+
+[[households.guests]]
+key = "ida"
+name = "Ida"
+phone = "+47 000 00 162"
+code = "test-ida00000000000000"
+coming = true
+days = ["fri", "sat"]
+overnight = true
+meals = ["friday_dinner", "saturday_breakfast"]
+hike = "no"
+no_allergies = true
+consent = "no"
+
+
+# Has not answered.
+[[households]]
+key = "mona"
+
+[[households.guests]]
+key = "mona"
+name = "Mona"
+phone = "+47 000 00 171"
+email = "mona@example.com"
+code = "test-mona0000000000000"
+
+[[households.guests]]
+key = "geir"
+name = "Geir"
+phone = "+47 000 00 172"
+code = "test-geir0000000000000"
