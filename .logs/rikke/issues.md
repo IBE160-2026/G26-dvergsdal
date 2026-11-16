@@ -57,4 +57,4 @@
 - [ ] 2026-11-16 [story-1-3-testdata-og-fasit](977-2026-11-16-22-58-28-story-1-3-testdata-og-fasit.md) — **story 3.1:** `create_admin` må lage ekte kontoer med `is_test_data=False` gjennom sin egen vei, ikke med systemaktøren, ellers sletter neste `seed_testdata` dem
 - [ ] 2026-11-16 [story-1-3-testdata-og-fasit](977-2026-11-16-22-58-28-story-1-3-testdata-og-fasit.md) — **story 5.3:** `payment_status` må få vite om husstanden har svart, så den kan gi «Ikke svart» (FR-60, Rikkes beslutning)
 - [ ] 2026-11-16 [story-1-3-testdata-og-fasit](977-2026-11-16-22-58-28-story-1-3-testdata-og-fasit.md) — neste BMAD-steg: story 1.4a (fargene, skrifttypene, knappene og meldingene i invitasjonen) med `bmad-build`
-- [ ] 2026-11-16 [story-1-3-testdata-og-fasit](977-2026-11-16-22-58-28-story-1-3-testdata-og-fasit.md) — gå gjennom og merge [PR #20](https://github.com/IBE160-2026/G26-dvergsdal/pull/20)
+- [x] 2026-11-16 [story-1-3-testdata-og-fasit](977-2026-11-16-22-58-28-story-1-3-testdata-og-fasit.md) — gå gjennom og merge [PR #20](https://github.com/IBE160-2026/G26-dvergsdal/pull/20) (løst 2026-11-17, merget av Rikke)

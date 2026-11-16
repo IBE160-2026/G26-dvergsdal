@@ -47,10 +47,9 @@ Rikke startet `/bmad-build` uten mer tekst og valgte story 1.3 (*Fictional test 
 - 204 tester passerer, og Ruff, djLint og `makemigrations --check` er grønne.
 - `seed_testdata` kjørt to ganger ga samme utskrift.
 
-**Push og PR:** Rikke ba om «push og pr». Grenen er pushet, og [PR #20](https://github.com/IBE160-2026/G26-dvergsdal/pull/20) er laget. GitHub Actions er grønn (kjøring 43882272063).
+**Push og PR:** Rikke ba om «push og pr». Grenen er pushet, og [PR #20](https://github.com/IBE160-2026/G26-dvergsdal/pull/20) er laget. GitHub Actions er grønn (kjøring 43882272063). Rikke merget PR #20 («gjort»), og sprint-status ble satt til `done` på `main` (eef8f6b).
 
 ### Åpne punkter
-- Gå gjennom og merge [PR #20](https://github.com/IBE160-2026/G26-dvergsdal/pull/20).
 - **Story 3.1:** `create_admin` må lage ekte kontoer med `is_test_data=False` gjennom sin egen vei, ikke med systemaktøren (krav lagt inn i epics).
 - **Story 5.3:** `payment_status` må få vite om husstanden har svart, så den kan gi «Ikke svart» (krav lagt inn i epics).
 - Neste BMAD-steg: story 1.4a (fargene, skrifttypene, knappene og meldingene i invitasjonen) med `bmad-build`.
