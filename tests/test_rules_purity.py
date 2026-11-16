@@ -11,7 +11,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 RULES_PACKAGE = "wedding.rules"
-FORBIDDEN_TOP_LEVEL = {"django", "config", "guests", "dashboard"}
+FORBIDDEN_TOP_LEVEL = {"django", "config", "guests", "dashboard", "tests"}
 
 
 def _module_name(path: Path, root: Path) -> str:
@@ -28,18 +28,16 @@ def _imported_modules(path: Path, root: Path) -> list[str]:
     is_package = path.name == "__init__.py"
     package = module.split(".") if is_package else module.split(".")[:-1]
     names = []
-    for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"), filename=str(path))):
+    # utf-8-sig: Windows PowerShell 5.1 writes a BOM, which ast.parse rejects.
+    source = path.read_text(encoding="utf-8-sig")
+    for node in ast.walk(ast.parse(source, filename=str(path))):
         if isinstance(node, ast.Import):
             names.extend(alias.name for alias in node.names)
         elif isinstance(node, ast.ImportFrom):
-            if node.level == 0:
-                names.append(node.module or "")
-                continue
-            base = package[: len(package) - (node.level - 1)]
-            if node.module:
-                names.append(".".join([*base, node.module]))
-            else:  # `from .. import selectors` imports the module `wedding.selectors`
-                names.extend(".".join([*base, alias.name]) for alias in node.names)
+            base = [] if node.level == 0 else package[: len(package) - (node.level - 1)]
+            parent = [*base, *([node.module] if node.module else [])]
+            # `from wedding import models` imports `wedding.models`, so name each alias.
+            names.extend(".".join([*parent, alias.name]) for alias in node.names)
     return names
 
 
@@ -81,12 +79,14 @@ def test_scanner_catches_bad_imports(tmp_path):
                 "import math",
                 "from datetime import date",
                 "from wedding.rules import totals",
+                "from wedding import rules",
                 "from . import totals as same_package",
                 "import django",
                 "from django.db import models",
                 "import config.settings",
                 "from guests import views",
                 "from dashboard.views import overview",
+                "from tests import helpers",
                 "from wedding import models as wedding_models",
                 "from wedding.services import send_answer",
                 "from .. import selectors",
@@ -96,19 +96,20 @@ def test_scanner_catches_bad_imports(tmp_path):
                 "    return Guest",
             ]
         ),
-        encoding="utf-8",
+        encoding="utf-8-sig",  # with a BOM, as Windows PowerShell 5.1 writes files
     )
 
     found = forbidden_imports(rules_dir, tmp_path)
 
     assert found == [
         "wedding/rules/bad.py: django",
-        "wedding/rules/bad.py: django.db",
+        "wedding/rules/bad.py: django.db.models",
         "wedding/rules/bad.py: config.settings",
-        "wedding/rules/bad.py: guests",
-        "wedding/rules/bad.py: dashboard.views",
-        "wedding/rules/bad.py: wedding",
-        "wedding/rules/bad.py: wedding.services",
-        "wedding/rules/bad.py: wedding.selectors",
+        "wedding/rules/bad.py: guests.views",
+        "wedding/rules/bad.py: dashboard.views.overview",
+        "wedding/rules/bad.py: tests.helpers",
         "wedding/rules/bad.py: wedding.models",
+        "wedding/rules/bad.py: wedding.services.send_answer",
+        "wedding/rules/bad.py: wedding.selectors",
+        "wedding/rules/bad.py: wedding.models.Guest",
     ]
