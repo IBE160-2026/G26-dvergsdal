@@ -63,7 +63,7 @@ def test_the_schema_migration_adds_only_household_guest_and_settings():
 
 @pytest.mark.django_db(transaction=True, serialized_rollback=True)
 def test_the_settings_data_migration_reverses_and_reapplies():
-    """FR-3: reversing the data migration deletes the row, and applying it again recreates it.
+    """Story 1.2 AC: reversing the data migration deletes the row, and reapplying recreates it.
 
     `serialized_rollback` restores the migrated row before the test, so it starts
     from the same state as a fresh `migrate`.

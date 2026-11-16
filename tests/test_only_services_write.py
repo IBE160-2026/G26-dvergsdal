@@ -1,10 +1,12 @@
-"""Only `wedding/services/` writes to the database (AD-3, Story 1.2).
+"""Only `wedding/services/` calls the ORM write methods (AD-3, Story 1.2).
 
 The test reads every module in `config/`, `wedding/`, `guests/` and `dashboard/`
 with `ast`, skipping `wedding/services/` and migrations, and fails on any call to
-a method that writes through the ORM. It flags the method name on any receiver,
-so it has no allow list; a later false positive (say `dict.update`) is narrowed in
-the story that meets it. The scanner is itself tested on a deliberately bad module.
+one of the ORM write methods in `WRITE_METHODS`. It does not catch other writes,
+such as related-manager `add`/`set` or raw SQL (AD-5 forbids raw SQL). It flags
+the method name on any receiver, so it has no allow list; a later false positive
+(say `dict.update`) is narrowed in the story that meets it. The scanner is itself
+tested on a deliberately bad module.
 """
 
 import ast
@@ -55,7 +57,7 @@ def writer_calls(root: Path) -> list[str]:
 
 
 def test_no_code_outside_the_services_writes():
-    """AD-3: views, commands, selectors, links and settings never write themselves."""
+    """AD-3: no code outside the services calls one of the listed ORM write methods."""
     assert writer_calls(BASE_DIR) == []
 
 
