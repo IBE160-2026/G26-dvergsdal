@@ -144,6 +144,22 @@ def test_zero_config_gives_safe_local_defaults(monkeypatch):
     assert settings["ALLOWED_HOSTS"] == LOCAL_ALLOWED_HOSTS == ["localhost", "127.0.0.1", "[::1]"]
 
 
+def test_env_example_lists_every_setting_and_runs_locally(monkeypatch):
+    """AD-14: `.env.example` names exactly the settings read, and its values start the app."""
+    example = {}
+    for line in (BASE_DIR / ".env.example").read_text(encoding="utf-8").splitlines():
+        if line.strip() and not line.lstrip().startswith("#"):
+            name, _, value = line.partition("=")
+            example[name.strip()] = value.strip()
+    assert sorted(example) == sorted(ENV_VARS)
+
+    settings = load_settings(monkeypatch, **example)
+    assert settings["APP_ENV"] == "local"
+    assert settings["DEBUG"] is True
+    assert settings["SECRET_KEY"] == LOCAL_SECRET_KEY
+    assert settings["ALLOWED_HOSTS"] == LOCAL_ALLOWED_HOSTS
+
+
 def test_production_with_safe_values_starts_with_debug_off(monkeypatch):
     """AD-14, matrix row "Prod, all set": DEBUG unset means off in production."""
     settings = load_settings(
