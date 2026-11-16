@@ -15,8 +15,6 @@ from wedding.models import Settings
 from wedding.services.exceptions import InvalidSettings
 from wedding.services.permissions import require_couple
 
-SETTINGS_PK = 1
-
 TEXT_FIELDS = {
     "contact_1_name": "Navnet på kontaktperson 1",
     "contact_1_phone": "Telefonnummeret til kontaktperson 1",
@@ -62,7 +60,7 @@ def update_settings(actor: Actor, values: SettingsValues) -> Settings:
         if not isinstance(actor, SystemActor):
             require_couple(actor)
         cleaned = _validated(values)
-        settings_row = Settings.objects.get(pk=SETTINGS_PK)
+        settings_row = Settings.objects.get()
         for name, value in cleaned.items():
             setattr(settings_row, name, value)
         settings_row.save(update_fields=list(cleaned))
