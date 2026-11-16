@@ -99,6 +99,7 @@ Commits 5e787cb..475a2b6 on `feat/1-1-kjorbart-prosjekt` (toolchain, settings + 
 - **Not verified:** the GitHub Actions run itself (the branch is not pushed).
 - **Task verification (orchestrator):** diff read against the spec; 42 tests passed, none skipped; every matrix row has a passing test. One fix (6517882): the README linked `architecture/technology.md` as "teknologivalg", but that file is the teacher's reference for another project (Pytagoras: FastAPI, Next.js, Supabase); it now links `oversikt.md`, `ARCHITECTURE-SPINE.md` and `.memlog.md`.
 - **Review pass 1 patches** (d5c5ba9..d2cc723): WhiteNoise/static settings test, `.env.example` load test, `.env.example` SECRET_KEY wording, purity scanner names absolute `from X import a` as `X.a`, forbids `tests` and reads `utf-8-sig`, README production-default column, fixing commands and `management/commands/` as empty. After patches: 44 tests pass, Ruff and djLint exit 0.
+- **CI** (PR #18): the first run failed in setup because `astral-sh/setup-uv@v10` does not exist (the action publishes only full version tags; the Code Map had the release number, not a checked tag). Pinned to `v10.3.3` in feb0972; runs 43855587261 and 43855596237 passed.
 
 ## Spec Change Log
 
