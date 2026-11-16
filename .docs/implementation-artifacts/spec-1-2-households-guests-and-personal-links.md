@@ -1,0 +1,85 @@
+---
+title: 'Story 1.2: Households, guests and personal links'
+type: 'feature'
+created: '2026-11-16'
+status: 'ready-for-dev'
+route: 'dispatch'
+review_loop_iteration: 0
+context:
+  - '{project-root}/.docs/implementation-artifacts/epic-1-context.md'
+  - '{project-root}/.docs/planning-artifacts/architecture/architecture-aill-handle-it-2026-11-16/ARCHITECTURE-SPINE.md'
+---
+
+<frozen-after-approval reason="human-owned intent — do not modify unless human renegotiates">
+
+## Intent
+
+**Problem:** There are no households, guests or links yet, so no guest page and no seed data (Story 1.3) can be built. Each guest needs one unguessable code that opens only their own household (FR-1, FR-2), and opening it must never write (FR-3).
+
+**Approach:** Add `Household`, `Guest` and single-row `Settings` in one migration plus a data migration for the `Settings` row; add actor types, a `create_household` service (the only writer) and the one resolver `resolve_code` in `wedding/links.py`.
+
+## Boundaries & Constraints
+
+**Always:** Code English, user-facing messages Norwegian bokmål. Docstrings name FR/NFR/AD. Codes from `secrets.token_urlsafe(16)` (22 chars, `[A-Za-z0-9_-]`), unique (and so indexed), no personal data. Money is `int` whole kroner. Each service is one `transaction.atomic()` and takes an explicit actor. Household revision starts at 0. At most 8 and at least 1 guest per household (Rikke confirmed 8). Small commits, one concern each.
+
+**Never:** no views, URLs, templates or CSS; no tables beyond `Household`, `Guest`, `Settings`; no stored derived values (no household name field: «for Sigmund og bestemor» is derived from guest names in Story 1.5); no `changed_at` (Epic 4); no `Submission` (Story 2.6c); no seed command or fixtures (Story 1.3); no raw SQL.
+
+## I/O & Edge-Case Matrix
+
+| Scenario | Input / State | Expected Output / Behavior | Error Handling |
+|----------|--------------|---------------------------|----------------|
+| Known code | code of guest A in household 1 | `GuestActor(guest=A, household=1)` | N/A |
+| Unknown code | 22 valid chars, no match | `None` | N/A |
+| Wrong format | 21 or 23 chars, `""`, a char like `+` or `/` | `None`, no database query | N/A |
+| Create, couple | `AdminActor` with role `couple`, 1–8 names | household (revision 0) + guests with fresh distinct codes | N/A |
+| Create, helper | `AdminActor` with role `helper` | nothing written | `NotAllowed` |
+| Create, 0 or 9 guests, or a blank name | system or couple actor | nothing written | `InvalidHousehold` (Norwegian message) |
+| Fixed code | system actor, code in valid format | guest gets that code | N/A |
+| Fixed code refused | couple actor with a code, or system actor with a badly formed code | nothing written | `InvalidHousehold` |
+
+</frozen-after-approval>
+
+## Code Map
+
+- `wedding/models.py` -- has only `User` (role `couple`/`helper`); add the new models here (AD-1: all models in one file).
+- `wedding/migrations/0001_initial.py` -- User only; add `0002` (schema, `makemigrations` output, Ruff-formatted) and `0003` (data). `tests/test_project_setup.py` already runs `makemigrations --check`.
+- `wedding/links.py`, `wedding/services/__init__.py` -- docstring-only placeholders from Story 1.1 that say "arrives in Story 1.2"; update their docstrings.
+- `tests/test_rules_purity.py` -- AST-scanner pattern (`utf-8-sig`, scanner tested on a bad `tmp_path` module) to reuse for the writer scan.
+- No code in `config/`, `wedding/`, `guests/`, `dashboard/` calls `.save/.delete/.create/.update` today (grep, migrations excluded).
+- Prices (PRD FR-32): cabin whole weekend, Friday dinner, Saturday breakfast, Sunday breakfast. Payment details (FR-64): Vipps number, account number.
+
+## Tasks & Acceptance
+
+**Execution:**
+- [ ] `wedding/models.py` -- `Household(revision PositiveIntegerField default 0)`; `Guest(household FK CASCADE related_name="guests", name ≤100, phone blank, email EmailField blank, code CharField(22, unique))`, ordered by id; `Settings` with `contact_1_name/phone`, `contact_2_name/phone`, `price_cabin_weekend`, `price_friday_dinner`, `price_saturday_breakfast`, `price_sunday_breakfast` (PositiveIntegerField), `rsvp_deadline` DateField, `vipps_number`, `account_number` (CharField, blank), and a `CheckConstraint(condition=Q(pk=1))` -- FR-1, FR-49, FR-64, AD-4, AD-9.
+- [ ] `wedding/migrations/0002_*.py`, `0003_settings_row.py` -- schema, then `RunPython` creating `Settings(pk=1)` with placeholders: names Rikke and Valdemar, blank phones/Vipps/account, prices 0, deadline 2028-01-04 (EXPERIENCE.md's example); reverse deletes it.
+- [ ] `wedding/actors.py` -- frozen dataclasses `GuestActor(guest, household)`, `AdminActor(user)` (`is_couple`), `SystemActor`, and `SYSTEM`; no Django writes -- AD-3, AD-6.
+- [ ] `wedding/links.py` -- `CODE_LENGTH`, `is_code_format(code)`, `new_code()`, `resolve_code(code) -> GuestActor | None` (format check before query, `select_related`) -- AD-6, FR-1, FR-2.
+- [ ] `wedding/services/exceptions.py` -- `ServiceError` with a Norwegian `message`, `NotAllowed`, `InvalidHousehold`; `require_couple(actor)` in `wedding/services/permissions.py` -- AD-10.
+- [ ] `wedding/services/households.py` -- `create_household(actor, guests: list[NewGuest]) -> Household`; `NewGuest(name, phone="", email="", code=None)`; system or couple only; validate count, names, fixed codes; atomic -- AD-3, AD-6, FR-49.
+- [ ] `wedding/rules/households.py` -- `MAX_HOUSEHOLD_SIZE = 8`, `household_size_problem(count) -> str | None` (pure) -- AD-8 cap.
+- [ ] `tests/test_links.py`, `tests/test_households.py`, `tests/test_settings_model.py` -- every matrix row; codes distinct across 50 guests; actor of household 1 exposes no household-2 guest; `resolve_code` runs only SELECT queries and changes no row counts (`CaptureQueriesContext`); `Settings` row exists after migrate, a second row is refused, migration reverse works; rule bounds 0/1/8/9.
+- [ ] `tests/test_only_services_write.py` -- AST scan of `config/`, `wedding/`, `guests/`, `dashboard/` (excluding `wedding/services/`, `migrations/`) for calls to `save`, `delete`, `create`, `get_or_create`, `update_or_create`, `bulk_create`, `bulk_update`, `update`; scanner tested on a bad `tmp_path` module -- AD-3.
+- [ ] `ARCHITECTURE-SPINE.md` (Structural Seed + change note), `epics.md` (Story 1.5 AC + change-log row), `README.md` (folder tree) -- record `wedding/actors.py` and the HTTP-level FR-3 test moving to 1.5.
+- [ ] `sprint-status.yaml` -- story 1.2 status as the workflow moves.
+
+**Acceptance Criteria:**
+- Given a fresh database, when `uv run manage.py migrate` runs, then exactly one `Settings` row exists and only `Household`, `Guest`, `Settings` tables were added.
+- Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check`, `uv run djlint --check .` run, then all pass.
+
+## Design Notes
+
+FR-3 is tested at the resolver here because no guest view exists until Story 1.5; Story 1.5 gets an AC to repeat the test over HTTP GET. The writer scan flags every listed method name on any receiver; nothing outside services matches today, so it has no allow list. A later false positive (say `dict.update`) is narrowed in the story that meets it. A random 128-bit code collides with negligible probability, so `new_code()` does not retry; the unique constraint is the backstop.
+
+## Verification
+
+**Commands:**
+- `uv run manage.py migrate && uv run manage.py makemigrations --check --dry-run` -- expected: no changes
+- `uv run pytest` -- expected: all pass
+- `uv run ruff check && uv run ruff format --check && uv run djlint --check .` -- expected: exit 0
+
+## Implementation Notes
+
+## Spec Change Log
+
+## Review Triage Log
