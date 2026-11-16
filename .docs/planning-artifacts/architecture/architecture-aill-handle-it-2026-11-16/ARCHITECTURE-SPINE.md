@@ -5,7 +5,7 @@ purpose: build-substrate
 altitude: feature
 paradigm: 'Functional core, imperative shell in a server-rendered Django monolith'
 scope: 'The whole wedding website: course version v1 (local, mid-December 2026) and production (2027–2028)'
-status: draft
+status: final
 created: '2026-11-16'
 updated: '2026-11-16'
 binds: [FR-1 to FR-78, NFR-1 to NFR-9, PRD D12, PRD D14, PRD D15, UX open questions 4–6]
