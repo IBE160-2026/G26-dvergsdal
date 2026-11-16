@@ -925,14 +925,14 @@ As tante Marie,
 I want my own link to show that Arild has already answered for us, and when,
 So that I don't answer again or wonder whether it was done.
 
-**Covers:** FR-24, FR-41, UX-DR10
+**Covers:** FR-24, UX-DR10
 
 **Acceptance Criteria:**
 
 **Given** a household that has answered
 **When** any member opens their link
-**Then** the hero's deadline line reads «Svar sendt <date> · Se svaret», and the RSVP sheet's place holds the status block (`id="status"`): «Svaret er sendt», the small gypsophila, «Barnefritt bryllup», «Sendt av <name> <weekday date> kl. <time>.», «Totalt for husstanden: …» and «Dere kan endre svaret fram til <weekday date> kl. 23:59.» (FR-24, FR-41, UX-DR10)
-**And** the line «Meldt betalt: …» is added with payment reports (Story 5.1), and «Se eller endre svar» with changing answers (Story 4.1)
+**Then** the hero's deadline line reads «Svar sendt <date> · Se svaret», and the RSVP sheet's place holds the status block (`id="status"`): «Svaret er sendt», the small gypsophila, «Barnefritt bryllup», «Sendt av <name> <weekday date> kl. <time>.» and «Totalt for husstanden: …» (FR-24, UX-DR10)
+**And** the line «Meldt betalt: …» is added with payment reports (Story 5.1), and «Dere kan endre svaret fram til <weekday date> kl. 23:59.» together with «Se eller endre svar» when changing answers is built (Story 4.1), so the page never promises a change it cannot make
 
 **Given** the answered front page
 **When** the guest uses the nav "Svar" or «Se svaret»
@@ -1102,13 +1102,13 @@ As onkel Arild,
 I want to open our sent answer, see who answered last and change it,
 So that a change of plans is easy to register.
 
-**Covers:** FR-37, FR-38 (last updated), FR-39, AD-19, UX-DR28
+**Covers:** FR-37, FR-38 (last updated), FR-39, FR-41 (change window), AD-19, UX-DR10, UX-DR28
 
 **Acceptance Criteria:**
 
 **Given** a household that has answered, before the deadline
 **When** a member opens the status block
-**Then** it has the primary button «Se eller endre svar», which opens the form with the sent answers filled in (FR-37)
+**Then** it has the line «Dere kan endre svaret fram til <weekday date> kl. 23:59.» and the primary button «Se eller endre svar», which opens the form with the sent answers filled in (FR-37, FR-41, UX-DR10)
 **And** the top of the form shows the info notice «Sist endret av <name>, <date> kl. <time>» (FR-38, UX-DR28)
 
 **Given** a changed answer is sent
