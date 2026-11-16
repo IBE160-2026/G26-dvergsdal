@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.3  # this action publishes no floating major tag
 
       - name: Install the locked dependencies
         run: uv sync --locked
