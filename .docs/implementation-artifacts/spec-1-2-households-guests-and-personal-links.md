@@ -52,16 +52,16 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/models.py` -- `Household(revision PositiveIntegerField default 0)`; `Guest(household FK CASCADE related_name="guests", name ≤100, phone blank, email EmailField blank, code CharField(22, unique))`, ordered by id; `Settings` with `contact_1_name/phone`, `contact_2_name/phone`, `price_cabin_weekend`, `price_friday_dinner`, `price_saturday_breakfast`, `price_sunday_breakfast` (PositiveIntegerField), `rsvp_deadline` DateField, `vipps_number`, `account_number` (CharField, blank), and a `CheckConstraint(condition=Q(pk=1))` -- FR-1, FR-49, FR-64, AD-4, AD-9.
-- [ ] `wedding/migrations/0002_*.py`, `0003_settings_row.py` -- schema, then `RunPython` creating `Settings(pk=1)` with placeholders: names Rikke and Valdemar, blank phones/Vipps/account, prices 0, deadline 2028-01-04 (EXPERIENCE.md's example); reverse deletes it.
-- [ ] `wedding/actors.py` -- frozen dataclasses `GuestActor(guest, household)`, `AdminActor(user)` (`is_couple`), `SystemActor`, and `SYSTEM`; no Django writes -- AD-3, AD-6.
-- [ ] `wedding/links.py` -- `CODE_LENGTH`, `is_code_format(code)`, `new_code()`, `resolve_code(code) -> GuestActor | None` (format check before query, `select_related`) -- AD-6, FR-1, FR-2.
-- [ ] `wedding/services/exceptions.py` -- `ServiceError` with a Norwegian `message`, `NotAllowed`, `InvalidHousehold`; `require_couple(actor)` in `wedding/services/permissions.py` -- AD-10.
-- [ ] `wedding/services/households.py` -- `create_household(actor, guests: list[NewGuest]) -> Household`; `NewGuest(name, phone="", email="", code=None)`; system or couple only; validate count, names, fixed codes; atomic -- AD-3, AD-6, FR-49.
-- [ ] `wedding/rules/households.py` -- `MAX_HOUSEHOLD_SIZE = 8`, `household_size_problem(count) -> str | None` (pure) -- AD-8 cap.
-- [ ] `tests/test_links.py`, `tests/test_households.py`, `tests/test_settings_model.py` -- every matrix row; codes distinct across 50 guests; actor of household 1 exposes no household-2 guest; `resolve_code` runs only SELECT queries and changes no row counts (`CaptureQueriesContext`); `Settings` row exists after migrate, a second row is refused, migration reverse works; rule bounds 0/1/8/9.
-- [ ] `tests/test_only_services_write.py` -- AST scan of `config/`, `wedding/`, `guests/`, `dashboard/` (excluding `wedding/services/`, `migrations/`) for calls to `save`, `delete`, `create`, `get_or_create`, `update_or_create`, `bulk_create`, `bulk_update`, `update`; scanner tested on a bad `tmp_path` module -- AD-3.
-- [ ] `ARCHITECTURE-SPINE.md` (Structural Seed + change note), `epics.md` (Story 1.5 AC + change-log row), `README.md` (folder tree) -- record `wedding/actors.py` and the HTTP-level FR-3 test moving to 1.5.
+- [x] `wedding/models.py` -- `Household(revision PositiveIntegerField default 0)`; `Guest(household FK CASCADE related_name="guests", name ≤100, phone blank, email EmailField blank, code CharField(22, unique))`, ordered by id; `Settings` with `contact_1_name/phone`, `contact_2_name/phone`, `price_cabin_weekend`, `price_friday_dinner`, `price_saturday_breakfast`, `price_sunday_breakfast` (PositiveIntegerField), `rsvp_deadline` DateField, `vipps_number`, `account_number` (CharField, blank), and a `CheckConstraint(condition=Q(pk=1))` -- FR-1, FR-49, FR-64, AD-4, AD-9.
+- [x] `wedding/migrations/0002_*.py`, `0003_settings_row.py` -- schema, then `RunPython` creating `Settings(pk=1)` with placeholders: names Rikke and Valdemar, blank phones/Vipps/account, prices 0, deadline 2028-01-04 (EXPERIENCE.md's example); reverse deletes it.
+- [x] `wedding/actors.py` -- frozen dataclasses `GuestActor(guest, household)`, `AdminActor(user)` (`is_couple`), `SystemActor`, and `SYSTEM`; no Django writes -- AD-3, AD-6.
+- [x] `wedding/links.py` -- `CODE_LENGTH`, `is_code_format(code)`, `new_code()`, `resolve_code(code) -> GuestActor | None` (format check before query, `select_related`) -- AD-6, FR-1, FR-2.
+- [x] `wedding/services/exceptions.py` -- `ServiceError` with a Norwegian `message`, `NotAllowed`, `InvalidHousehold`; `require_couple(actor)` in `wedding/services/permissions.py` -- AD-10.
+- [x] `wedding/services/households.py` -- `create_household(actor, guests: list[NewGuest]) -> Household`; `NewGuest(name, phone="", email="", code=None)`; system or couple only; validate count, names, fixed codes; atomic -- AD-3, AD-6, FR-49.
+- [x] `wedding/rules/households.py` -- `MAX_HOUSEHOLD_SIZE = 8`, `household_size_problem(count) -> str | None` (pure) -- AD-8 cap.
+- [x] `tests/test_links.py`, `tests/test_households.py`, `tests/test_settings_model.py` -- every matrix row; codes distinct across 50 guests; actor of household 1 exposes no household-2 guest; `resolve_code` runs only SELECT queries and changes no row counts (`CaptureQueriesContext`); `Settings` row exists after migrate, a second row is refused, migration reverse works; rule bounds 0/1/8/9.
+- [x] `tests/test_only_services_write.py` -- AST scan of `config/`, `wedding/`, `guests/`, `dashboard/` (excluding `wedding/services/`, `migrations/`) for calls to `save`, `delete`, `create`, `get_or_create`, `update_or_create`, `bulk_create`, `bulk_update`, `update`; scanner tested on a bad `tmp_path` module -- AD-3.
+- [x] `ARCHITECTURE-SPINE.md` (Structural Seed + change note), `epics.md` (Story 1.5 AC + change-log row), `README.md` (folder tree) -- record `wedding/actors.py` and the HTTP-level FR-3 test moving to 1.5.
 - [ ] `sprint-status.yaml` -- story 1.2 status as the workflow moves.
 
 **Acceptance Criteria:**
@@ -80,6 +80,13 @@ FR-3 is tested at the resolver here because no guest view exists until Story 1.5
 - `uv run ruff check && uv run ruff format --check && uv run djlint --check .` -- expected: exit 0
 
 ## Implementation Notes
+
+- **Commits:** models and `0002` → `0003` data migration with `test_settings_model.py` → size rule → `actors.py` → `links.py` with `test_links.py` → services with `test_households.py` → writer scan → epics (FR-3 over HTTP in 1.5) → architecture (`actors.py`) → README.
+- **Beyond the matrix, small and inside the intent:** `create_household` also refuses a name over 100 characters (SQLite does not enforce `max_length`) and a fixed code already in use or repeated in the same call, with `InvalidHousehold` instead of a raw `IntegrityError`. Names, phones and emails are stored stripped. Tests added for a code that differs only in letter case and for a failure halfway through (the transaction leaves no household).
+- **Field sizes the spec left open:** phones 30 characters (`PHONE_MAX_LENGTH`), Vipps and account number 20. `Guest.code` is `max_length=22` as a literal, because `links.py` imports the models; a test keeps it equal to `CODE_LENGTH`.
+- **Ruff RUF012:** `Meta.ordering` and `Meta.constraints` are tuples, not lists, so the migration was generated from the tuple form.
+- **Reverse test:** reversing a migration on SQLite needs `django_db(transaction=True)`; `serialized_rollback=True` restores the migrated row first, so the test starts from a fresh `migrate`.
+- **Not done here:** `sprint-status.yaml` is left at `in-progress` for the workflow to move. No session log was written by the implementing sub-agent; the main session logs the story.
 
 ## Spec Change Log
 
