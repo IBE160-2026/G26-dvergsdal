@@ -7,11 +7,13 @@ a fixed link code; everyone else gets a fresh one from `wedding.links.new_code()
 
 from dataclasses import dataclass
 
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.db import transaction
 
 from wedding.actors import SystemActor
 from wedding.links import is_code_format, new_code
-from wedding.models import Guest, Household
+from wedding.models import PHONE_MAX_LENGTH, Guest, Household
 from wedding.rules.households import household_size_problem
 from wedding.services.exceptions import InvalidHousehold
 from wedding.services.permissions import require_couple
@@ -59,7 +61,11 @@ def create_household(actor: object, guests: list[NewGuest]) -> Household:
 
 
 def _validate_guests(guests: list[NewGuest], *, fixed_codes_allowed: bool) -> None:
-    """FR-49, AD-6, AD-8: raise `InvalidHousehold` for the first problem found."""
+    """FR-49, AD-6, AD-8: raise `InvalidHousehold` for the first problem found.
+
+    `objects.create` runs no validators and SQLite ignores `max_length`, so names,
+    phones and emails are checked here.
+    """
     problem = household_size_problem(len(guests))
     if problem:
         raise InvalidHousehold(problem)
@@ -69,6 +75,14 @@ def _validate_guests(guests: list[NewGuest], *, fixed_codes_allowed: bool) -> No
             raise InvalidHousehold("Hver person må ha et navn.")
         if len(name) > NAME_MAX_LENGTH:
             raise InvalidHousehold(f"Et navn kan ha høyst {NAME_MAX_LENGTH} tegn.")
+        if len(guest.phone.strip()) > PHONE_MAX_LENGTH:
+            raise InvalidHousehold(f"Et telefonnummer kan ha høyst {PHONE_MAX_LENGTH} tegn.")
+        email = guest.email.strip()
+        if email:
+            try:
+                validate_email(email)
+            except ValidationError:
+                raise InvalidHousehold(f"«{email}» er ikke en gyldig e-postadresse.") from None
     fixed_codes = [guest.code for guest in guests if guest.code is not None]
     if fixed_codes and not fixed_codes_allowed:
         raise InvalidHousehold("Bare testdata kan ha faste lenkekoder.")

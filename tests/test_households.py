@@ -84,10 +84,13 @@ def test_the_system_actor_creates_a_household():
 
 @pytest.mark.django_db
 def test_phone_and_email_are_stored_and_names_trimmed():
-    """FR-49: name, optional phone and optional email are stored as given, without edge spaces."""
+    """FR-49: name, optional phone and optional email are stored without edge spaces."""
     create_household(
         SYSTEM,
-        [NewGuest("  Sigmund ", phone="00000000", email="sigmund@example.com"), NewGuest("Kari")],
+        [
+            NewGuest("  Sigmund ", phone=" 00000000 ", email=" sigmund@example.com "),
+            NewGuest("Kari"),
+        ],
     )
 
     sigmund, kari = Guest.objects.all()
@@ -170,6 +173,35 @@ def test_an_invalid_household_is_refused_and_nothing_is_written(guests, message,
     assert refused.value.message == message
     assert isinstance(refused.value, ServiceError)
     assert_nothing_written()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("guest", "message"),
+    [
+        (NewGuest("Sigmund", phone="1" * 31), "Et telefonnummer kan ha høyst 30 tegn."),
+        (
+            NewGuest("Sigmund", email=" sigmund.example.com "),
+            "«sigmund.example.com» er ikke en gyldig e-postadresse.",
+        ),
+    ],
+)
+def test_a_too_long_phone_or_a_malformed_email_is_refused(guest, message):
+    """FR-49: the service checks what `objects.create` and SQLite would store silently."""
+    with pytest.raises(InvalidHousehold) as refused:
+        create_household(SYSTEM, [guest])
+
+    assert refused.value.message == message
+    assert_nothing_written()
+
+
+@pytest.mark.django_db
+def test_a_30_character_phone_and_a_valid_email_are_allowed():
+    """FR-49: the phone limit is inclusive, and a well-formed email passes."""
+    create_household(SYSTEM, [NewGuest("Sigmund", phone="1" * 30, email="s@example.com")])
+
+    guest = Guest.objects.get()
+    assert (guest.phone, guest.email) == ("1" * 30, "s@example.com")
 
 
 @pytest.mark.django_db
