@@ -89,4 +89,4 @@ def _validate_guests(guests: list[NewGuest], *, fixed_codes_allowed: bool) -> No
     if not all(is_code_format(code) for code in fixed_codes):
         raise InvalidHousehold("En fast lenkekode må ha 22 tegn: bokstaver, tall, - eller _.")
     if len(set(fixed_codes)) != len(fixed_codes):
-        raise InvalidHousehold("Lenkekoden er allerede i bruk.")
+        raise InvalidHousehold("To personer kan ikke ha samme lenkekode.")

@@ -267,7 +267,7 @@ def test_the_same_fixed_code_twice_in_one_household_is_refused():
             SYSTEM, [NewGuest("Sigmund", code=FIXED_CODE), NewGuest("Bestemor", code=FIXED_CODE)]
         )
 
-    assert refused.value.message == "Lenkekoden er allerede i bruk."
+    assert refused.value.message == "To personer kan ikke ha samme lenkekode."
     assert_nothing_written()
 
 
