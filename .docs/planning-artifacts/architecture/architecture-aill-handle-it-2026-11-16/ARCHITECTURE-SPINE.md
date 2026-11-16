@@ -195,7 +195,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   - **Settings:** all settings come from environment variables with safe local defaults, so the app runs with no `.env` file. `.env.example` lists every variable with no real values.
   - **Python:** `.python-version` is `3.14`, and `requires-python` is `>=3.14,<3.15`.
   - **Production:** `APP_ENV` is `local` or `production`. With `production`, the app refuses to start if `DEBUG` is on, `SECRET_KEY` is the default or `ALLOWED_HOSTS` is empty.
-  - **Test data:** the seed command runs only when `APP_ENV` is `local`; any other or missing value makes it refuse (an allow list, so a misspelled value on a server can never let it through).
+  - **Test data:** the seed command runs only when `APP_ENV` is `local` (the default when it is not set, so the examiner needs no `.env`); any other value, including a misspelled one, makes it refuse (an allow list, so `prod` or `Production` on a server can never let it through).
 
 ### AD-15: Guest visits and links stay private
 
