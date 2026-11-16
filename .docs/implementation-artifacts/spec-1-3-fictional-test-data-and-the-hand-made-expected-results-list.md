@@ -2,9 +2,10 @@
 title: 'Story 1.3: Fictional test data and the hand-made expected-results list'
 type: 'feature'
 created: '2026-11-16'
-status: 'ready-for-dev'
+status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 0
+baseline_commit: '4445e1032ca59c16cd991d3abfc96699a141228d'
 context:
   - '{project-root}/.docs/implementation-artifacts/epic-1-context.md'
   - '{project-root}/.docs/planning-artifacts/architecture/architecture-aill-handle-it-2026-11-16/ARCHITECTURE-SPINE.md'
