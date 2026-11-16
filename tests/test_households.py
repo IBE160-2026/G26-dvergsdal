@@ -83,6 +83,18 @@ def test_the_system_actor_creates_a_household():
 
 
 @pytest.mark.django_db
+def test_only_a_household_the_system_actor_creates_is_test_data():
+    """FR-72, AD-16: the seed command's households are marked, so the reset removes only them."""
+    seeded = create_household(SYSTEM, [NewGuest("Sigmund")])
+    couples = create_household(make_admin(User.Role.COUPLE), [NewGuest("Kari")])
+
+    seeded.refresh_from_db()
+    couples.refresh_from_db()
+    assert seeded.is_test_data is True
+    assert couples.is_test_data is False
+
+
+@pytest.mark.django_db
 def test_phone_and_email_are_stored_and_names_trimmed():
     """FR-49: name, optional phone and optional email are stored without edge spaces."""
     create_household(

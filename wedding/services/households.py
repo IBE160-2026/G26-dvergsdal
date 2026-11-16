@@ -32,12 +32,13 @@ class NewGuest:
 
 
 def create_household(actor: Actor, guests: list[NewGuest]) -> Household:
-    """FR-1, FR-49, AD-3, AD-6, AD-8, AD-9: create a household with 1 to 8 guests.
+    """FR-1, FR-49, FR-72, AD-3, AD-6, AD-8, AD-9: create a household with 1 to 8 guests.
 
     Only the system actor or a couple account may create one (AD-10). Each guest
     gets a fresh, unique link code, except that the system actor may set a fixed
-    code in the same 22-character format. The household starts at revision 0.
-    Everything is written in one transaction, and a refusal raises `NotAllowed` or
+    code in the same 22-character format. The household starts at revision 0, and
+    one the system actor creates is test data (FR-72, AD-16). Everything is
+    written in one transaction, and a refusal raises `NotAllowed` or
     `InvalidHousehold` with nothing written.
     """
     with transaction.atomic():
@@ -48,7 +49,7 @@ def create_household(actor: Actor, guests: list[NewGuest]) -> Household:
         fixed_codes = [guest.code for guest in guests if guest.code is not None]
         if Guest.objects.filter(code__in=fixed_codes).exists():
             raise InvalidHousehold("Lenkekoden er allerede i bruk.")
-        household = Household.objects.create()
+        household = Household.objects.create(is_test_data=is_system)
         for guest in guests:
             Guest.objects.create(
                 household=household,
