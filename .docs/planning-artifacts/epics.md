@@ -454,13 +454,14 @@ As the couple,
 I want each guest to have their own unguessable personal link that belongs to their household,
 So that the link is the guest's only login and opens nothing but their own household.
 
-**Covers:** FR-1, FR-2, FR-3, NFR-4 (link codes), AD-3, AD-4, AD-6
+**Covers:** FR-1, FR-2, FR-3, NFR-4 (link codes), AD-3, AD-4, AD-6, AD-9 (revision field)
 
 **Acceptance Criteria:**
 
 **Given** this story's migration
 **When** it is applied
-**Then** it creates `Household`, `Guest` (name, optional phone and email, link code) and a single-row `Settings` (the couple's contact names and phone numbers, prices as whole-kroner integers, the RSVP deadline as a date, Vipps number and account number), and no other tables
+**Then** it creates `Household` (with `revision`, starting at 0; AD-9), `Guest` (name, optional phone and email, link code) and a single-row `Settings` (the couple's contact names and phone numbers, prices as whole-kroner integers, the RSVP deadline as a date, Vipps number and account number), and no other tables
+**And** a data migration creates the one `Settings` row with safe placeholder values, so a fresh `migrate` without test data already has settings; guest views read it with `.get()` and never create it, so FR-3 holds
 
 **Given** a household is created through `wedding/services/` with an explicit actor
 **When** its guests are saved
@@ -497,35 +498,37 @@ So that I can try the invitation as different guests, and the numbers can later 
 
 **Given** `wedding/fixtures/expected.toml`
 **When** it is committed, in its own commit before any code that computes these numbers
-**Then** it holds the hand-worked results for the seed data: every FR-54 count, each household's total, payment status and allergy state, and which households are locked at stated `now` values (FR-69, AD-16)
+**Then** it holds the hand-worked results for the seed data: every FR-54 count, each household's total, payment status and allergy state, and the lock cases written as offsets from the seeded deadline (for example: 23:59:59 on the deadline date is open, one second later is locked), so they do not depend on the day the tests run (FR-69, AD-16)
 **And** the commit message explains how the numbers were worked out
 
 **Given** a local database
 **When** Ingrid runs `uv run manage.py seed_testdata`
 **Then** it creates the households and guests with fixed 22-character test codes, the settings (fictional prices, a deadline relative to today so the form is open, the couple's fictional contacts, a Vipps number and an account number with an invalid check digit), and a test couple admin and a test helper
 **And** it creates everything by calling services with the system actor, and prints each guest's test link
-**And** answers and payments in `seed.toml` are loaded by the stories that build their services (Epic 2 and Epic 5)
+**And** the rest of `seed.toml` is loaded by the stories that build its services: answers, allergies and consents in Story 2.6d, payment reports and payments in Story 5.2, the withdrawn consent in Story 7.2
 
 **Given** the command has already run
 **When** it runs again
 **Then** the old test data is replaced, so the result is always the same
+**And** the replacing is done by a reset service with the system actor that removes only rows the seed command created; once payments exist it voids them before removing (AD-4), and Story 5.2 repeats this test with payments seeded
+**And** if a username or link code in `seed.toml` is already used by data the seed did not create, the command stops with a clear message and writes nothing
 
-**Given** `APP_ENV=production`
+**Given** `APP_ENV` set to any value other than `local` (the default when it is not set)
 **When** the command runs
-**Then** it refuses, says why and writes nothing (FR-72)
+**Then** it refuses, says why and writes nothing, and tests cover `production` and a misspelled value (FR-72, AD-14)
 
 **Given** the seed data
 **When** it is inspected
 **Then** every person apart from Rikke and Valdemar is fictional, every email is on `example.com` and no phone number can belong to a real person (NFR-3)
 **And** the README lists the command, a test link per guest and the test admin and helper logins
 
-### Story 1.4: The invitation's look and the private-invitation page
+### Story 1.4a: The invitation's colours, type, buttons and notices
 
 As a guest,
-I want every page to look like Rikke and Valdemar's printed invitation, and a wrong link to show only a calm "private invitation" page,
-So that the invitation feels personal, and a stranger with a wrong link learns nothing about the wedding.
+I want the invitation's colours, letters and buttons to look like Rikke and Valdemar's printed invitation and to be easy to read and use,
+So that every page feels personal and works for me, also with the keyboard or high-contrast settings.
 
-**Covers:** FR-4, FR-5, NFR-5, AD-15, UX-DR1, UX-DR2, UX-DR3, UX-DR4, UX-DR5, UX-DR15, UX-DR30, UX-DR53, UX-DR54
+**Covers:** NFR-5, UX-DR1, UX-DR2, UX-DR15, UX-DR17, UX-DR53 (forced colours, focus), UX-DR54
 
 **Acceptance Criteria:**
 
@@ -533,6 +536,32 @@ So that the invitation feels personal, and a stranger with a wrong link learns n
 **When** it is loaded
 **Then** one CSS file defines every DESIGN.md colour token, the spacing scale and the radii as custom properties, and every page declares `color-scheme: light only` (UX-DR1)
 **And** Imperial Script and EB Garamond (regular, italic, 600) are served from `static/fonts/` as WOFF2 with æ, ø and å, type is set in `rem`, guest body text is 20px and numbers use lining figures (UX-DR2)
+
+**Given** primary, secondary, outlined-on-green and destructive buttons
+**When** they get keyboard focus or are pressed
+**Then** a 3px focus ring at 3px offset shows in the colour for its surface, and no style uses `outline: none` (UX-DR15)
+
+**Given** the notice component
+**When** it renders in its four variants
+**Then** success, warning, error and info each have their icon, a 4px left rule and the word prefix («Feil:», «Obs:») where EXPERIENCE.md gives one; guest notices never disappear by themselves, and only notices added after the page has loaded use a live region (UX-DR17)
+
+**Given** forced colours (for example Windows high contrast)
+**When** buttons and notices render
+**Then** button outlines, notice rules and the focus ring stay visible, and the check is recorded in the manual test plan (UX-DR53)
+
+**Given** `prefers-reduced-motion: reduce`
+**When** a link jumps within a page
+**Then** it jumps without smooth scrolling; smooth scrolling is set only under `prefers-reduced-motion: no-preference`, and nothing on the page moves by itself (UX-DR54)
+
+### Story 1.4b: Paper, Rikke's images and the private-invitation page
+
+As a guest,
+I want the pages to be paper sheets on the green with Rikke's own pictures, and a wrong link to show only a calm "private invitation" page,
+So that the invitation feels real, and a stranger with a wrong link learns nothing about the wedding.
+
+**Covers:** FR-5, NFR-5, UX-DR3, UX-DR4, UX-DR5, UX-DR30, UX-DR53 (reflow)
+
+**Acceptance Criteria:**
 
 **Given** a guest content panel
 **When** it is rendered
@@ -542,24 +571,39 @@ So that the invitation feels personal, and a stranger with a wrong link learns n
 **Given** Rikke's images
 **When** they are prepared
 **Then** the seal, gypsophila, lily garlands, lace frame, hero illustration 04, venue and couple photos and the twelve programme icons are in `static/img/`, and the favicon is made from the seal (UX-DR4)
+**And** every decorative image has `alt=""`
 
-**Given** primary, secondary, outlined-on-green and destructive buttons
-**When** they get keyboard focus or are pressed
-**Then** a 3px focus ring at 3px offset shows in the colour for its surface, and no style uses `outline: none` (UX-DR15)
-
-**Given** an unknown or deactivated code, or the bare address `/`
+**Given** an unknown code or the bare address `/`
 **When** the page opens
 **Then** it shows one paper sheet on the green with «Dette er en privat invitasjon», the gypsophila and «Virker ikke lenken din? Ta kontakt med brudeparet direkte.», and no names, phone numbers, date, place, seal, nav bar or footer (FR-5, UX-DR30)
-**And** the «Personvern» link under the sheet is added with the privacy page (Story 7.1)
+**And** with an empty, migrated database and no test data, the page still renders (a test proves it)
 
-**Given** any guest response, including this page
-**When** its headers and HTML are inspected by a test
-**Then** it sends `noindex` both as a meta tag and as `X-Robots-Tag`, `Referrer-Policy: same-origin`, a page title with no names, and loads nothing from other sites (FR-4, AD-15)
-**And** a logging filter masks link codes in request paths, and a test proves no code is logged
-
-**Given** the page at 360 × 560, 320 × 568 and 180 × 320 CSS px
+**Given** the private-invitation page at 360 × 560, 320 × 568 and 180 × 320 CSS px
 **When** it is checked in a browser
 **Then** there is no horizontal scroll, the gutters follow DESIGN.md › Layout & Spacing, and the check is recorded in the manual test plan (UX-DR5, UX-DR53)
+
+### Story 1.4c: Guest pages stay private: headers, link previews and logs
+
+As a guest,
+I want my link and my name to stay out of search engines, link previews and the server's logs,
+So that nobody learns about the wedding or about me from a link that is shared.
+
+**Covers:** FR-4, NFR-4, AD-15
+
+**Acceptance Criteria:**
+
+**Given** any guest response, including the private-invitation page
+**When** its headers and HTML are inspected by a test
+**Then** it sends `noindex` both as a meta tag and as `X-Robots-Tag`, `Referrer-Policy: same-origin`, a page title with no names, and loads nothing from other sites (FR-4, AD-15)
+**And** external links have `rel="noreferrer"`
+
+**Given** a guest link pasted into Messenger, SMS or email
+**When** the preview is built from the page
+**Then** the preview title, description and image (Open Graph tags) are the same for every code and contain no names, and a test compares the previews for two different codes (FR-4)
+
+**Given** a request to a guest page
+**When** it is logged
+**Then** a logging filter masks the link code in the request path, and a test proves no code is logged (AD-15)
 
 ### Story 1.5: The invitation front page
 
@@ -674,9 +718,13 @@ So that I am never stuck without a way to answer.
 **When** any of these errors happens
 **Then** the page shows nothing personal: no names, phone numbers, date or place (FR-5)
 
+**Given** a 500 caused by a database failure
+**When** the error page tries to resolve the code
+**Then** a failed lookup falls back to the page without names, so the error page itself never fails (FR-5)
+
 **Given** the error pages
-**When** a test requests each of them with a valid and with an unknown code
-**Then** each shows the content described above and sends the guest headers from Story 1.4
+**When** a test requests each of them with a valid and with an unknown code, and with an empty, migrated database
+**Then** each shows the content described above and sends the guest headers from Story 1.4c
 
 ## Epic 2: Guests answer for their household
 
