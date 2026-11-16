@@ -1,0 +1,162 @@
+# The expected-results list for seed.toml, worked out by hand (FR-69, AD-16).
+#
+# Every number here was counted from seed.toml and the rules in the PRD, not
+# computed by the app: Claude counted it, a separate agent counted it again
+# without seeing these numbers (the two agreed on every value), and Rikke
+# checked a sample by hand. Tests in later stories load the seed data and assert the
+# app's numbers against this file, passing `now` explicitly:
+#   counts, totals and allergy states -> Story 3.5
+#   payment statuses and report matches -> Story 5.3
+#   Synne's withdrawn consent           -> Story 7.2
+#   the lock cases                      -> Story 4.3
+# Changing this file is a deliberate commit with the reason in the message.
+#
+# Prices from seed.toml: cabin 1500, Friday dinner 340, Saturday breakfast 260,
+# Sunday breakfast 260. The cabin is paid per person who stays overnight (FR-16).
+# Saturday lunch and dinner are paid by the couple and count everyone present on
+# Saturday (FR-73). Allergy data counts only with consent "yes" that has not been
+# withdrawn (FR-26, FR-30, AD-18).
+
+# FR-54, FR-74: who has answered and who is coming.
+[counts.households]
+total = 7
+answered = 6        # all but mona
+coming = 5          # sigmund, arild, synne, eva, jonas
+not_coming = 1      # tor
+not_answered = 1    # mona
+
+[counts.people]
+coming = 9          # Sigmund, bestemor, Arild, Marie, Filippa, Synne, Eva, Jonas, Ida
+not_coming = 3      # Leone, Tor, Hilde
+not_answered = 2    # Mona, Geir
+
+# FR-54: which days the people who are coming are there.
+[counts.days]
+whole_weekend = 5       # Sigmund, bestemor, Arild, Marie, Eva
+not_whole_weekend = 4   # Filippa, Synne, Jonas, Ida
+sat_sun = 1             # Filippa
+sat = 1                 # Synne
+fri_sat = 2             # Jonas, Ida
+
+# FR-54: overnight stays; one bed per person who stays.
+[counts.overnight]
+not_staying = 1     # Synne
+beds = 8            # everyone coming except Synne
+
+# FR-54, FR-73: meals.
+[counts.meals]
+friday_dinner = 7       # Sigmund, bestemor, Arild, Marie, Eva, Jonas, Ida
+saturday_breakfast = 6  # Sigmund, bestemor, Arild, Marie, Jonas, Ida
+saturday_lunch = 9      # everyone present on Saturday
+saturday_dinner = 9     # everyone present on Saturday
+sunday_breakfast = 5    # Sigmund, bestemor, Arild, Marie, Filippa
+
+# FR-54, FR-58: stored allergy categories (with consent only).
+[counts.allergy_categories]
+gluten = 1          # bestemor
+lactose = 0
+nuts = 0            # Synne withdrew her consent
+shellfish = 1       # Eva
+vegetarian = 0      # Filippa did not consent
+vegan = 0
+other = 1           # Eva
+
+# AD-18: one state per person who is coming.
+[counts.allergy_states]
+has_allergies = 2   # bestemor, Eva
+no_allergies = 3    # Sigmund, Arild, Jonas
+nothing_stored = 4  # Marie (unanswered), Filippa (no consent), Synne (withdrawn), Ida (no consent)
+
+# FR-54, FR-17: the Friday hike, asked only of people present on Friday.
+[counts.hike]
+yes = 3             # Arild, Marie, Eva
+maybe = 2           # bestemor, Jonas
+no = 2              # Sigmund, Ida
+
+# FR-54, FR-60: payment status of the households that are coming.
+[counts.payment_status_coming]
+paid = 1            # sigmund
+part_paid = 1       # arild
+not_paid = 1        # jonas
+nothing_to_pay = 1  # synne
+refund_owed = 1     # eva
+
+# FR-33, FR-60, FR-61: each household. `received` is received minus refunded.
+[households.sigmund]
+total = 4720            # 2 x (1500 + 340 + 260 + 260)
+received = 4720
+payment_status = "paid"
+report_matches = true   # reported 4720, received 4720
+
+[households.arild]
+total = 6480            # 2 x 2360 (Arild, Marie) + 1500 + 260 (Filippa)
+received = 4000
+payment_status = "part_paid"
+missing = 2480
+report_matches = true   # reported 4000, received 4000
+
+[households.synne]
+total = 0               # Saturday only: no cabin, no paid meal offered
+received = 0
+payment_status = "nothing_to_pay"
+
+[households.tor]
+total = 0
+received = 0
+payment_status = "nothing_to_pay"
+
+[households.eva]
+total = 1840            # 1500 + 340
+received = 2100         # 2300 received - 200 refunded
+payment_status = "refund_owed"
+refund = 260
+
+[households.jonas]
+total = 4200            # 2 x (1500 + 340 + 260)
+received = 0
+payment_status = "not_paid"
+report_matches = false  # reported 4200, received 0
+
+[households.mona]
+total = 0               # no answer yet
+received = 0
+payment_status = "not_answered"  # no payment status until answered: «Ikke svart» (FR-60)
+
+# FR-74 and AD-18: each guest's status, and the allergy state of those coming.
+[guests]
+sigmund = { status = "coming", allergy_state = "no_allergies" }
+bestemor = { status = "coming", allergy_state = "has_allergies" }
+arild = { status = "coming", allergy_state = "no_allergies" }
+marie = { status = "coming", allergy_state = "nothing_stored" }
+filippa = { status = "coming", allergy_state = "nothing_stored" }
+leone = { status = "not_coming" }
+synne = { status = "coming", allergy_state = "nothing_stored" }
+tor = { status = "not_coming" }
+hilde = { status = "not_coming" }
+eva = { status = "coming", allergy_state = "has_allergies" }
+jonas = { status = "coming", allergy_state = "no_allergies" }
+ida = { status = "coming", allergy_state = "nothing_stored" }
+mona = { status = "not_answered" }
+geir = { status = "not_answered" }
+
+# FR-41, FR-42, AD-11: the lock, as offsets from the seeded deadline date D, in
+# Oslo time. Guests can answer until 23:59:59 on D.
+[[lock]]
+days_after_deadline = -1
+time = "12:00:00"
+locked = false
+
+[[lock]]
+days_after_deadline = 0
+time = "23:59:59"
+locked = false
+
+[[lock]]
+days_after_deadline = 1
+time = "00:00:00"
+locked = true
+
+[[lock]]
+days_after_deadline = 7
+time = "12:00:00"
+locked = true

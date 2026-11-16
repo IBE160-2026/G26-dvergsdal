@@ -84,7 +84,7 @@ sequenceDiagram
 Rikkes viktigste krav er at nettsida *må virke*, og at tallene til Hardingasete må stemme. Derfor:
 
 1. Det finnes en **forventet-resultat-liste**, regnet ut for hånd før koden skrives (FR-69).
-2. Testdataene lages med de samme tjenestene som den ekte nettsida bruker.
+2. Testdataene lages med de samme tjenestene som den ekte nettsida bruker. De er merket som testdata, så kommandoen kan kjøres på nytt og sletter bare det den selv har laget (AD-16, story 1.3).
 3. De automatiske testene sjekker hvert tall, hver sum og hver betalingsstatus mot lista.
 4. Hver telling er lengden av en liste med navn, så tallet og navnene bak det (FR-55) alltid stemmer.
 5. Tester, linter og formatering kjører automatisk på GitHub ved hver push.

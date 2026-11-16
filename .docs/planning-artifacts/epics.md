@@ -843,6 +843,7 @@ So that only we can see the guests' answers.
 **When** Rikke runs it
 **Then** it creates an admin user with that role and asks for the password; there is no self-registration (FR-47, AD-10)
 **And** an existing username or a role other than `couple` or `helper` is refused with a message, the `role` field has no blank value, and a user without a valid role gets no admin access
+**And** the command creates real accounts with `is_test_data=False` through its own path, never the system actor: `create_admin_user` is for the seed command only and marks every account it makes as test data (AD-16), and a test shows that `seed_testdata` leaves accounts made by `create_admin` alone
 
 **Given** the login page under `/admin/`
 **When** Rikke logs in with the right username and password
@@ -881,7 +882,7 @@ So that I can plan the weekend without counting by hand.
 **Given** every count
 **When** it is computed
 **Then** it is the length of a list of guest or household ids returned by a rule function in `wedding/rules/`; selectors load facts and never filter on answer content (AD-2)
-**And** `allergy_state` gives each coming guest exactly one of the three AD-18 states, and `payment_status(total, received, refunded)` covers all five FR-60 statuses as a pure function, with received and refunded at 0 until payments exist (Story 5.2)
+**And** `allergy_state` gives each coming guest exactly one of the three AD-18 states, and `payment_status(answered, total, received, refunded)` covers all five FR-60 statuses and «not answered» for a household that has not answered, as a pure function, with received and refunded at 0 until payments exist (Story 5.2)
 
 **Given** the admin home on a 360px phone
 **When** it is used
@@ -1193,6 +1194,7 @@ So that I know who to remind and who to pay back.
 **Given** a household's total, received and refunded amounts
 **When** `payment_status` is computed
 **Then** it is nothing to pay, not paid, part paid (X missing), paid or refund owed (X), shown only to admins (FR-60)
+**And** a household that has not answered has no payment status and shows «Ikke svart», so `payment_status` is also told whether the household has answered (FR-60)
 
 **Given** an "I have paid" report
 **When** received minus refunds is lower than the reported amount
@@ -1719,7 +1721,7 @@ The requirements as the stories use them, summarised from the PRD, which wins on
 **5.11 Payments**
 
 - FR-59 (T2): The couple registers amounts received and refunds paid back per household; a registration can be corrected or undone. → Story 5.2
-- FR-60 (T2): Payment status is computed from received minus refunds versus total: nothing to pay, not paid, part paid (X missing), paid, refund owed (X); only admins see it. → Story 5.3
+- FR-60 (T2): Payment status is computed from received minus refunds versus total: nothing to pay, not paid, part paid (X missing), paid, refund owed (X); a household that has not answered has no status and shows «Ikke svart»; only admins see it. → Story 5.3
 - FR-61 (T2): An "I have paid" report matches when received minus refunds is at least the reported amount; a mismatch is marked red in the overview and listed under "Needs attention". → Story 5.3
 - FR-62 [2027]: One dated contact note per household, shown in the not-answered list and the payment overview. → not in v1
 
@@ -1867,3 +1869,5 @@ One line per requirement. The full specification is in [DESIGN.md](ux-designs/ux
 | 2026-11-16 | Story 1.1: the djLint command is `uv run djlint --check .` (with a path). djLint 1.50 needs a path: `djlint --check` alone exits with code 2 and checks nothing, so the AC could never pass as written. Found while writing the Story 1.1 spec; `pyproject.toml` sets `allow_empty_input = true` until Story 1.4a adds the first template, and excludes `.docs/`, whose HTML mockups are not app templates. |
 | 2026-11-16 | **Rikke confirmed** the household limit of 8 people (Claude's technical choice from the epics review): no household on the guest list is larger. Confirmed before Story 1.2, which builds households. |
 | 2026-11-16 | **Claude decided** (technical; in the Story 1.2 spec Rikke approved): FR-3 is tested at the resolver in Story 1.2, because no guest view exists until Story 1.5. Story 1.5 gets an AC that repeats the test over an HTTP GET, and FR-3 now lists both stories. Found while writing the Story 1.2 spec. |
+| 2026-11-16 | **Rikke decided** while checking `expected.toml` in Story 1.3: a household that has not answered has no payment status and shows «Ikke svart», not «Ingenting å betale» (PRD FR-60, commit 9360654). Story 3.5 and Story 5.3 and the FR-60 line now say so, and `payment_status` is told whether the household has answered. |
+| 2026-11-16 | **Claude decided** (technical, from the Story 1.3 review): Story 3.1's `create_admin` makes real accounts with `is_test_data=False` through its own path and never uses the system actor. Story 1.3's `create_admin_user` is system-only and marks every account as test data, so reusing it would let the next `seed_testdata` delete Rikke's real accounts. Also in AD-16. |

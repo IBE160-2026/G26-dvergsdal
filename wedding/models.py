@@ -2,7 +2,8 @@
 
 Story 1.1 added the custom `User`, so that it is `AUTH_USER_MODEL` from the very
 first migration (AD-10). Story 1.2 adds households, guests and the single-row
-settings. Each later table comes with the story that needs it.
+settings. Story 1.3 marks the households and users the seed command creates as
+test data (FR-72, AD-16). Each later table comes with the story that needs it.
 
 Only `wedding/services/` writes these models (AD-3), and only facts are stored,
 never derived values such as totals or a household's display name (AD-4).
@@ -27,6 +28,8 @@ class User(AbstractUser):
         HELPER = "helper", "Hjelper"
 
     role = models.CharField("rolle", max_length=10, choices=Role, default=Role.HELPER)
+    # FR-72, AD-16: made by the seed command; only these are removed by the reset.
+    is_test_data = models.BooleanField("testdata", default=False)
 
 
 class Household(models.Model):
@@ -38,6 +41,8 @@ class Household(models.Model):
     """
 
     revision = models.PositiveIntegerField("revisjon", default=0)
+    # FR-72, AD-16: made by the seed command; only these are removed by the reset.
+    is_test_data = models.BooleanField("testdata", default=False)
 
     class Meta:
         ordering = ("id",)

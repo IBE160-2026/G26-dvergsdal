@@ -6,7 +6,7 @@ Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten
 
 Repoet inneholder applikasjonen og dokumentasjonen av utvikling, testing og kvalitetssikring med KI.
 
-> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), men det finnes ingen sider ennå. Siden for ugyldige lenker kommer i story 1.4b og invitasjonens forside i story 1.5, så foreløpig viser `http://127.0.0.1:8000/` Djangos egen startside.
+> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3), men det finnes ingen sider ennå. Siden for ugyldige lenker kommer i story 1.4b og invitasjonens forside i story 1.5, så foreløpig viser `http://127.0.0.1:8000/` Djangos egen startside.
 
 ## Forutsetninger
 
@@ -31,6 +31,46 @@ uv run manage.py runserver
 Åpne <http://127.0.0.1:8000/> i nettleseren. Stopp serveren med `Ctrl+C`.
 
 `uv sync` installerer Python 3.14 og de låste versjonene i `uv.lock`. `migrate` lager den lokale databasen `db.sqlite3`, som git ignorerer.
+
+## Testdata
+
+Én kommando fyller databasen med fiktive husstander, gjester, innstillinger og to testbrukere fra [wedding/fixtures/seed.toml](wedding/fixtures/seed.toml). Kjør den etter `migrate`:
+
+```bash
+uv run manage.py seed_testdata
+```
+
+Kommandoen skriver ut en testlenke per gjest og innloggingene under. Den kan kjøres så ofte du vil: den sletter først testhusstandene fra forrige kjøring med alt som er i dem (også en gjest som er lagt til i en testhusstand senere) og testbrukerne, men aldri husstander eller brukere den ikke har laget selv. Er en lenkekode eller et brukernavn fra `seed.toml` allerede i bruk av husstander eller brukere den ikke har laget, stopper den uten å endre noe. Den kjører bare når `APP_ENV` ikke er satt eller er `local`, så testdata aldri havner på den ekte nettsiden.
+
+Alle personene er oppdiktet, bortsett fra Rikke og Valdemar: e-postene er på `example.com`, telefonnumrene begynner med `+47 000`, og kontonummeret har feil kontrollsiffer. Svarfristen settes til 30 dager etter dagen kommandoen kjøres, så svarskjemaet er åpent.
+
+| Gjest | Husstand | Testlenke |
+|---|---|---|
+| Sigmund | Sigmund og bestemor | <http://127.0.0.1:8000/test-sigmund0000000000/> |
+| bestemor | Sigmund og bestemor | <http://127.0.0.1:8000/test-bestemor000000000/> |
+| Arild | Arild, Marie, Filippa og Leone | <http://127.0.0.1:8000/test-arild000000000000/> |
+| Marie | Arild, Marie, Filippa og Leone | <http://127.0.0.1:8000/test-marie000000000000/> |
+| Filippa | Arild, Marie, Filippa og Leone | <http://127.0.0.1:8000/test-filippa0000000000/> |
+| Leone | Arild, Marie, Filippa og Leone | <http://127.0.0.1:8000/test-leone000000000000/> |
+| Synne | Synne | <http://127.0.0.1:8000/test-synne000000000000/> |
+| Tor | Tor og Hilde | <http://127.0.0.1:8000/test-tor00000000000000/> |
+| Hilde | Tor og Hilde | <http://127.0.0.1:8000/test-hilde000000000000/> |
+| Eva | Eva | <http://127.0.0.1:8000/test-eva00000000000000/> |
+| Jonas | Jonas og Ida | <http://127.0.0.1:8000/test-jonas000000000000/> |
+| Ida | Jonas og Ida | <http://127.0.0.1:8000/test-ida00000000000000/> |
+| Mona | Mona og Geir | <http://127.0.0.1:8000/test-mona0000000000000/> |
+| Geir | Mona og Geir | <http://127.0.0.1:8000/test-geir0000000000000/> |
+
+Åpne lenkene mens `uv run manage.py runserver` kjører. Invitasjonen de åpner, kommer i story 1.5; til da viser de Djangos egen startside, akkurat som `/`.
+
+| Brukernavn | Passord | Rolle |
+|---|---|---|
+| `testpar` | `bryllup-test-2028` | Brudeparet |
+| `testhjelper` | `bryllup-test-2028` | Hjelper |
+
+Innloggingen for brudeparet og hjelperne under `/admin/` kommer i story 3.1.
+
+`seed.toml` inneholder også de planlagte svarene, allergiene, samtykkene og betalingene. De lastes inn i senere stories (2.6d, 5.2 og 7.2). Fasiten for disse dataene, regnet ut for hånd før koden som regner dem ut, ligger i [wedding/fixtures/expected.toml](wedding/fixtures/expected.toml); commit-meldingen til fila forklarer hvordan tallene ble kontrollert.
 
 ## Tester og sjekker
 
@@ -95,8 +135,8 @@ uv run --env-file .env manage.py runserver
 │   ├── selectors.py          Lesespørringer for visningene
 │   ├── actors.py             Hvem som handler: gjest, admin eller system
 │   ├── links.py              Gjør en personlig lenkekode om til en gjest
-│   ├── management/commands/  Kommandoer, for eksempel testdata
-│   ├── fixtures/             Testdata og fasit (TOML)
+│   ├── management/commands/  Kommandoer: seed_testdata fyller inn testdata
+│   ├── fixtures/             Testdata (seed.toml) og fasit (expected.toml)
 │   └── migrations/           Databasemigrasjoner
 ├── guests/                   Gjestesidene under /<kode>/
 ├── dashboard/                Sidene for brudeparet og hjelperne under /admin/
@@ -116,7 +156,7 @@ uv run --env-file .env manage.py runserver
 └── CLAUDE.md                 Laster inn AGENTS.md og sensorveiledningen, og krever sesjonslogg
 ```
 
-Hvorfor koden er delt slik, står i arkitekturen under. Mappene `rsvp/`, `management/commands/` og `fixtures/` er tomme til historiene som trenger dem.
+Hvorfor koden er delt slik, står i arkitekturen under. Mappen `rsvp/` er tom til historiene som trenger den.
 
 `.docs/` og `docs/` har forskjellige roller: `.docs/` er det BMad-verktøyene lager (stien er satt i `_bmad/config.toml`), mens `docs/` er fast referansestoff.
 
