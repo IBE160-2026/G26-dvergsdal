@@ -299,6 +299,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
     services/                 # the only writers (AD-3)
     rsvp/                     # the one RSVP form: steps, forms, templates, draft (AD-7, AD-8)
     selectors.py              # read queries for views
+    actors.py                 # guest, admin and system actors that services take (AD-3)
     links.py                  # the one code -> guest actor resolver (AD-6)
     management/commands/      # seed test data, create admin users
     fixtures/                 # seed data + expected results, TOML (AD-16)
@@ -307,6 +308,8 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   static/                     # css/, js/, fonts/, img/ (all self-hosted)
   tests/                      # pytest: rules, services, guest flow, admin, expected results
 ```
+
+*(Changed 2026-11-16 in Story 1.2: `wedding/actors.py` added. The guest actor is made by `links.py` and the admin and system actors by the views and the seed command, and every service takes one of them (AD-3), so the actor types live in one module that both sides import instead of inside `links.py` or `services/`.)*
 
 Core entities. Names and relationships only; the code owns the fields. `Settings` is a single row with prices, deadline, contacts and payment details.
 
