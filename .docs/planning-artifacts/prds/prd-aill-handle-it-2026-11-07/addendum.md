@@ -82,7 +82,7 @@ The wording shown in admin for each status. The first row that matches applies.
 
 - The final Norwegian wording of every interface text. The PRD quotes English working labels.
 - The order of the form steps after the first two (FR-13, FR-14).
-- The wording that explains why guests pay (FR-32), once Q7 is answered (PRD section 8).
+- ~~The wording that explains why guests pay (FR-32), once Q7 is answered (PRD section 8).~~ Q7 closed 2026-11-16: older guests find paying fine, so a short, friendly note is enough.
 - The exact invitation message (FR-52) [2027].
 - How many weeks pass before a household that hasn't started is listed under "Needs attention", and when the two FR-77 items leave the list (FR-77) [2027].
 

@@ -121,7 +121,7 @@ The course version is built in three tiers, so that the most important part work
 **Tier 1, the usability-test build:**
 
 - **Foundation, built first:** the expected-results list and test data (FR-68, FR-69, FR-72), the admin accounts in the test data (FR-47), and one command to run the app and one to run the tests.
-- **The guest flow:** FR-1 to FR-17, FR-21 to FR-28, FR-32 to FR-34, FR-41, FR-70, FR-71, FR-78 and the rules in FR-73 to FR-75.
+- **The guest flow:** FR-1 to FR-17, FR-21 to FR-29 (FR-29 moved from tier 2 on 2026-11-16, see section 10), FR-32 to FR-34, FR-41, FR-70, FR-71, FR-78 and the rules in FR-73 to FR-75.
 - **A simple admin view:** the couple's login (FR-46), the summary (FR-54, FR-55), a simple full overview (FR-57) and the allergy list (FR-58).
 
 **Tier 2, the complete course version,** in this order:
@@ -130,7 +130,7 @@ The course version is built in three tiers, so that the most important part work
 2. ~~Questions (FR-43 to FR-45).~~ Removed 2026-11-15.
 3. Payments (FR-35, FR-36, FR-59 to FR-61).
 4. "Needs attention", the guest list and the helper role (FR-56, FR-49, FR-51, FR-46).
-5. FR-19, FR-20, FR-29, FR-30, FR-66 and the full text for FR-9 and FR-10.
+5. FR-19, FR-20, FR-30, FR-66 and the full text for FR-9 and FR-10.
 
 **Tier 3, cut first:** FR-50 (moving a guest), FR-53 (a new link), FR-31 (consent registered by the couple), FR-65 (price warning), FR-48 beyond basic responsive pages, and slowing down repeated wrong-link attempts (NFR-4) if the chosen technology doesn't provide it.
 
@@ -608,8 +608,8 @@ The text on the information pages lives in the code in v1, so changing it means 
 | ID | Question | Owner | Blocks the PRD? | Revisit when |
 |---|---|---|---|---|
 | Q2 | When and in which format does Hardingasete need the final numbers? Partly answered 2026-11-16: at the start of 2028; the exact date and the format are not set. The 2028 prices come before that, at the end of 2027, so invitations can wait for them (section 3.2). | Rikke | No | Hardingasete sets the date |
-| Q7 | How do two or three guests, including older ones, feel about paying for meals? Affects the wording in FR-32. | Rikke | No | Before the UX text is written |
-| Q8 | Is the teacher fine with the consent model differing from the first brief? (The teacher's feedback already asks for an expected-results list checked by automated tests, which FR-69 covers.) | Rikke | No | Next supervision |
+| Q7 | ~~How do two or three guests, including older ones, feel about paying for meals? Affects the wording in FR-32.~~ Closed 2026-11-16: Rikke asked older guests, and they find it fine to pay. FR-32 keeps its short, friendly note on why guests pay; no stronger explanation is needed. | Rikke | No | — |
+| Q8 | ~~Is the teacher fine with the consent model differing from the first brief?~~ Closed 2026-11-16 by Rikke without asking the teacher: the change makes the model stricter, not looser (GDPR Art. 7(4): the RSVP no longer depends on consent), and the reason is written down in the brief's addendum and in FR-26 to FR-31. The teacher's feedback had already settled the expected-results list: in the tests and the README (FR-69). | Rikke | No | — |
 | D12 | ~~In production, should the programme and the practical information be editable in the admin area?~~ Closed 2026-11-16: yes, as plain text per section, couple only, built in 2027; pictures and layout stay in the code (architecture AD-17). | Architecture | No | — |
 | D14 | ~~Store link codes hashed or in plain form?~~ Closed 2026-11-16: plain form, because FR-51 needs the couple to copy a link at any time (architecture AD-6). | Architecture | No | — |
 | D15 | ~~Database and technology stack~~ Closed 2026-11-16: Django 6.1 on Python 3.14 with SQLite, both locally and in production (architecture AD-1, AD-5). | Architecture | No | — |
@@ -662,3 +662,5 @@ Decided during the PRD on 2026-11-07. Each change is logged in `.memlog.md`.
 | 2026-11-15 | From the UX review (review-rubric-2.md R2-01, R2-09): FR-24 now places the status where the RSVP section was, with a sent line and link at the top, as decided in the UX work; FR-57 now describes the overview list plus a page per household, since the overview and the guest list became one admin page (approved render `ux-designs/…/mockups/admin-guests-1.html`). |
 | 2026-11-16 | Hardingasete answered ([answers](../../research/hardingasete/svar-hardingasete-2026-11-16.md)): Q1 closed with the bed numbers, Q3 answered with the 2026 prices (2028 prices at the end of 2027), Q4 answered (guests pay the couple; FR-34 unchanged). Q2 partly answered: final numbers at the start of 2028, after the 2028 prices. Accommodation turned out to be priced for the whole place, so the guests' cabin price is set by the couple. |
 | 2026-11-16 | From the architecture (`architecture/architecture-aill-handle-it-2026-11-16/ARCHITECTURE-SPINE.md`): D12, D14 and D15 closed in section 8. FR-26 and the NFR-3 table now say that "No allergies or dietary needs" is also stored only with consent (Rikke). The Django 6.2 LTS upgrade is added to the setup in section 3.2. |
+| 2026-11-16 | Q8 closed by Rikke: the group decides the consent model itself, since the change from the first brief makes it stricter and is explained in the brief's addendum and FR-26 to FR-31. Two PRD reviews had already suggested closing it (`tilbakemelding-prd.md`, `review-sensorveiledning.md` SV-3). |
+| 2026-11-16 | Q7 closed: Rikke asked older guests, and they find it fine to pay, so FR-32 keeps its short note. From the epics and stories (`epics.md`): FR-29 (the consent record) moved from tier 2 to tier 1, because consent is stored in the tier-1 guest flow anyway and adding the record later would change the same table twice. |
