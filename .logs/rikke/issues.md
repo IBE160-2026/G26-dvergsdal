@@ -15,7 +15,7 @@
 - [x] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — spørre to eller tre gjester hvordan det oppleves å betale for mat (Q7) (løst 2026-11-16: eldre gjester synes det er greit, [epics-og-stories](982-2026-11-16-12-45-37-epics-og-stories.md))
 - [x] 2026-11-07 [prd](992-2026-11-07-20-56-52-prd.md) — neste BMAD-steg: `bmad-ux` (ferdig 2026-11-15) og `bmad-architecture` (ferdig 2026-11-16: D12, D14 og D15 avgjort), så epics og stories; nivå 1 ferdig fredag 27. november før brukertesten (løst 2026-11-16: epics og stories ferdige; neste steg videreført under)
 - [x] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — samle inspirasjon til UX (bilder hun liker og ikke liker, stemningsord, en typisk gjest) før `/bmad-ux` (løst 2026-11-10)
-- [ ] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — vurdere skillen Impeccable når frontend-koden starter
+- [x] 2026-11-09 [forberede-ux](990-2026-11-09-21-42-15-forberede-ux.md) — vurdere skillen Impeccable når frontend-koden starter (løst 2026-11-18, [impeccable-skill](975-2026-11-18-20-22-50-impeccable-skill.md))
 - [x] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — avklare kilder og tillatelser for stedsbildene som skal brukes på nettsida (løst 2026-11-16: Rikke har fått lov)
 - [x] 2026-11-10 [ux-grunnlag](989-2026-11-10-22-44-23-ux-grunnlag.md) — velge illustrasjonsstil: KI-illustrasjonen (14) eller enkle grønne strektegninger (løst 2026-11-11: illustrasjon 17)
 - [x] 2026-11-11 [ux](987-2026-11-11-19-53-41-ux.md) — gå gjennom resterende småendringer i UX, kjøre struktur- og språkgjennomgang, sette DESIGN.md og EXPERIENCE.md til final og lage PR for docs/ux (løst 2026-11-15: status final; PR lages etter push)
@@ -63,3 +63,5 @@
 - [x] 2026-11-18 [story-1-4a-farger-skrift-knapper](976-2026-11-18-10-40-36-story-1-4a-farger-skrift-knapper.md) — merge [PR #21](https://github.com/IBE160-2026/G26-dvergsdal/pull/21) på GitHub, og sett story 1.4a til `done` i sprint-status etterpå (løst 2026-11-18)
 - [ ] 2026-11-18 [story-1-4a-farger-skrift-knapper](976-2026-11-18-10-40-36-story-1-4a-farger-skrift-knapper.md) — **story 2.7 eller 4.2:** det første varselet som legges inn med JavaScript må ha en tom live region i siden fra start, og testes med skjermleser (deferred-work.md)
 - [ ] 2026-11-18 [story-1-4a-farger-skrift-knapper](976-2026-11-18-10-40-36-story-1-4a-farger-skrift-knapper.md) — neste BMAD-steg: story 1.4b (papir, Rikkes bilder og siden for ugyldige lenker) med `bmad-build`
+- [ ] 2026-11-18 [impeccable-skill](975-2026-11-18-20-22-50-impeccable-skill.md) — avgjøre om Impeccables eget program skal kjøres (laster ned motoren fra GitHub første gang); uten det mangler den automatiske regelsjekken
+- [ ] 2026-11-18 [impeccable-skill](975-2026-11-18-20-22-50-impeccable-skill.md) — bruke Impeccable (`critique` og `audit`) på `/stil/` og sidene fra story 1.4b, og føre funnene inn i en story eller `deferred-work.md`
