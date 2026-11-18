@@ -1,0 +1,421 @@
+/*
+ * The invitation's stylesheet (Story 1.4a).
+ *
+ * Every value comes from DESIGN.md (frontmatter and Components table); the
+ * tests in tests/test_design_system.py read this file and compare it with
+ * DESIGN.md. No JavaScript, no external URLs, no motion that runs by itself.
+ * Paper texture, the sheet edge and page layouts arrive in Stories 1.4b–1.7.
+ */
+
+/* ---------- Fonts: self-hosted WOFF2, SIL OFL (UX-DR2, AD-15) ----------
+ * Licences and the exact subsetting commands: static/fonts/README.md.
+ * EB Garamond is a variable font, so one file per style covers 400 and 600. */
+
+@font-face {
+  font-family: "Imperial Script";
+  src: url("../fonts/imperial-script-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("../fonts/eb-garamond-roman.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("../fonts/eb-garamond-italic.woff2") format("woff2");
+  font-weight: 400 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---------- Tokens: DESIGN.md frontmatter as custom properties (UX-DR1) ----------
+ * Names and values exactly as in DESIGN.md: --color-<name>, --space-<name>,
+ * --radius-<name>. Type sizes are DESIGN.md's px divided by 16, in rem, so the
+ * phone's text-size setting scales them (NFR-5). Weights are 400 unless a
+ * --font-weight-<role> says otherwise. */
+
+:root {
+  color-scheme: light only;
+
+  --color-page-green: #5A6C48;
+  --color-green-dark: #344628;
+  --color-green-dark-hover: #2C3A20;
+  --color-seal: #344628;
+  --color-panel-cream: #EBE4D5;
+  --color-ink: #3B372F;
+  --color-ink-muted: #5E594F;
+  --color-cream-on-green: #F5EEDF;
+  --color-field-surface: #F7F2E7;
+  --color-field-border: #5E594F;
+  --color-divider: #C8BFAE;
+  --color-focus-on-panel: #344628;
+  --color-focus-on-green: #F5EEDF;
+  --color-error: #7C3B1D;
+  --color-success: #3D5A2A;
+  --color-warning: #765012;
+  --color-scrim: #141A0C;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-gutter: 16px;
+  --space-gutter-narrow: 8px;
+  --space-gutter-small-phone: 12px;
+  --space-hero-padding-inline-small-phone: 10px;
+  --space-page-padding-top: 46px;
+  --space-hero-padding-top: 26px;
+  --space-hero-padding-bottom: 22px;
+  --space-hero-padding-inline: 20px;
+  --space-admin-panel-padding: 12px;
+  --space-admin-gap: 8px;
+  --space-content-max: 480px;
+  --space-target-min: 44px;
+  --space-button-height: 52px;
+  --space-nav-height: 64px;
+  --space-scroll-gap: 12px;
+  --space-focus-width: 3px;
+  --space-focus-offset: 3px;
+
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-sheet: 5px;
+  --radius-full: 9999px;
+
+  --font-script: "Imperial Script", Georgia, serif;
+  --font-serif: "EB Garamond", Georgia, serif;
+
+  --font-size-display-names: 3rem;
+  --line-height-display-names: 1.15;
+  --font-size-signature: 2.5rem;
+  --line-height-signature: 1.1;
+  --font-size-heading-page: 2rem;
+  --line-height-heading-page: 1.2;
+  --font-size-heading-section: 2rem;
+  --line-height-heading-section: 1.2;
+  --font-size-topic-title: 1.3125rem;
+  --line-height-topic-title: 1.2;
+  --font-size-button-small: 1.1875rem;
+  --line-height-button-small: 1.1;
+  --font-size-heading-card: 1.625rem;
+  --line-height-heading-card: 1.3;
+  --font-size-date-line: 1.4375rem;
+  --line-height-date-line: 1.3;
+  --letter-spacing-date-line: 0.14em;
+  --font-size-place-line: 1.25rem;
+  --line-height-place-line: 1.3;
+  --letter-spacing-place-line: 0.14em;
+  --font-size-lead-in: 1.5rem;
+  --line-height-lead-in: 1.4;
+  --font-size-invites: 1.25rem;
+  --line-height-invites: 1.3;
+  --font-size-button: 1.3125rem;
+  --line-height-button: 1.3;
+  --font-size-body: 1.25rem;
+  --line-height-body: 1.5;
+  --font-size-label: 1.25rem;
+  --line-height-label: 1.4;
+  --font-weight-label: 600;
+  --font-size-jump-links: 1.1875rem;
+  --line-height-jump-links: 1.2;
+  --letter-spacing-jump-links: 0.08em;
+  --font-size-nav-button: 1.1875rem;
+  --line-height-nav-button: 1;
+  --font-size-nav-words: 1.125rem;
+  --line-height-nav-words: 1.2;
+  --letter-spacing-nav-words: 0.02em;
+  --font-size-small: 1.125rem;
+  --line-height-small: 1.45;
+  --font-size-admin-heading: 1.375rem;
+  --line-height-admin-heading: 1.25;
+  --font-weight-admin-heading: 600;
+  --font-size-admin-title: 1.75rem;
+  --line-height-admin-title: 1.2;
+  --font-size-admin-body: 1.125rem;
+  --line-height-admin-body: 1.4;
+
+  /* The focus ring takes the colour of the surface it is painted on (UX-DR15).
+   * The page is green; .surface-cream switches it to focus-on-panel. */
+  --focus-color: var(--color-focus-on-green);
+}
+
+/* ---------- Base type (UX-DR2, NFR-5) ----------
+ * EB Garamond 20px for guest text, lining figures (old-style figures are easy
+ * to misread), and long Norwegian compounds may break instead of forcing
+ * sideways scroll. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-page-green);
+  color: var(--color-cream-on-green);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-variant-numeric: lining-nums;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 400;
+}
+
+h1 {
+  font-size: var(--font-size-heading-page);
+  line-height: var(--line-height-heading-page);
+}
+
+h2 {
+  font-size: var(--font-size-heading-card);
+  line-height: var(--line-height-heading-card);
+}
+
+h3 {
+  font-size: var(--font-size-topic-title);
+  line-height: var(--line-height-topic-title);
+}
+
+strong,
+b {
+  font-weight: 600;
+}
+
+/* Links inherit the text colour and are always underlined, never colour alone
+ * (DESIGN.md › Text link). */
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+a:hover,
+a:active {
+  text-decoration-thickness: 2px;
+}
+
+/* Imperial Script for the couple's first names only (DESIGN.md › Typography).
+ * Never hyphenated; the names stack instead of shrinking. */
+.display-names {
+  font-family: var(--font-script);
+  font-size: var(--font-size-display-names);
+  line-height: var(--line-height-display-names);
+  font-weight: 400;
+  hyphens: manual;
+}
+
+/* Tables and amounts that line up use tabular figures as well. */
+.tabular-nums {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Small capitals in three places only: hero date, hero place, jump links. */
+.small-caps {
+  font-variant-caps: all-small-caps;
+}
+
+/* ---------- Surfaces (UX-DR1, UX-DR53) ----------
+ * A flat cream surface in the UX-DR1 tokens: the complete fallback for the
+ * paper sheet that Story 1.4b draws on top of it, and the flat sheet UX-DR53
+ * keeps under forced colours. Text is ink and focus rings turn dark green. */
+
+.surface-cream {
+  background-color: var(--color-panel-cream);
+  color: var(--color-ink);
+  border-radius: var(--radius-sheet);
+  --focus-color: var(--color-focus-on-panel);
+}
+
+/* ---------- Focus ring (UX-DR15, NFR-5) ----------
+ * 3px at 3px offset on keyboard focus and on press (tap feedback), in the
+ * colour for the surface it is painted on. Never removed. */
+
+:focus-visible,
+:where(a, button, input, select, textarea, summary):active {
+  outline: var(--space-focus-width) solid var(--focus-color);
+  outline-offset: var(--space-focus-offset);
+}
+
+/* ---------- Buttons (UX-DR15) ----------
+ * .button is the primary button; modifiers give the secondary, outlined on
+ * green and destructive buttons. Hover and press thicken the outline to 3px;
+ * the padding shrinks by the same amount so the button keeps its size. The
+ * «Sender …» busy state arrives with Story 2.6a. */
+
+.button {
+  --button-border-width: 2px;
+  --button-padding-block: 10px;
+  --button-padding-inline: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: var(--space-button-height);
+  margin: 0;
+  padding: calc(var(--button-padding-block) - var(--button-border-width))
+    calc(var(--button-padding-inline) - var(--button-border-width));
+  border: var(--button-border-width) solid transparent;
+  border-radius: var(--radius-md);
+  background-color: var(--color-green-dark);
+  color: var(--color-cream-on-green);
+  font: inherit;
+  font-size: var(--font-size-button);
+  line-height: var(--line-height-button);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:hover,
+.button:active {
+  background-color: var(--color-green-dark-hover);
+}
+
+.button--secondary,
+.button--destructive {
+  --button-border-width: 1.5px;
+
+  min-height: var(--space-target-min);
+  border-color: currentColor;
+  background-color: var(--color-panel-cream);
+}
+
+.button--secondary {
+  color: var(--color-green-dark);
+}
+
+.button--destructive {
+  color: var(--color-error);
+}
+
+.button--on-green {
+  --button-border-width: 1.5px;
+  --button-padding-block: 4px;
+  --button-padding-inline: 14px;
+
+  display: inline-flex;
+  width: auto;
+  min-height: var(--space-target-min);
+  border-color: currentColor;
+  background-color: transparent;
+  color: var(--color-cream-on-green);
+  font-size: var(--font-size-button-small);
+  line-height: var(--line-height-button-small);
+}
+
+.button--secondary:hover,
+.button--secondary:active,
+.button--destructive:hover,
+.button--destructive:active {
+  --button-border-width: 3px;
+
+  background-color: var(--color-panel-cream);
+}
+
+.button--on-green:hover,
+.button--on-green:active {
+  --button-border-width: 3px;
+
+  background-color: transparent;
+}
+
+/* On a cream sheet the same outlined shape is drawn in ink (DESIGN.md ›
+ * Outlined button on green); the border follows currentColor. */
+.surface-cream .button--on-green {
+  color: var(--color-ink);
+}
+
+/* ---------- Notice (UX-DR17) ----------
+ * Four variants on cream. State is carried by icon shape and the words
+ * «Feil:» / «Obs:», never by colour alone (WCAG 1.4.1): the three state
+ * colours differ by only 1.08–1.17:1. Markup: wedding/components/notice.html. */
+
+.notice {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: var(--space-2) var(--space-3);
+  border-left: 4px solid currentColor;
+  border-radius: var(--radius-sm);
+}
+
+.notice__icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 4px;
+}
+
+.notice__text {
+  margin: 0;
+}
+
+.notice--success {
+  color: var(--color-success);
+}
+
+.notice--warning {
+  color: var(--color-warning);
+}
+
+.notice--error {
+  color: var(--color-error);
+}
+
+.notice--info {
+  color: var(--color-ink);
+}
+
+/* ---------- Forced colours, e.g. Windows high contrast (UX-DR53) ----------
+ * The primary button's transparent border becomes a visible outline, cream
+ * surfaces keep an edge, and the focus ring uses the system text colour. */
+
+@media (forced-colors: active) {
+  :root,
+  .surface-cream {
+    --focus-color: CanvasText;
+  }
+
+  .button {
+    border-color: ButtonText;
+  }
+
+  .surface-cream {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* ---------- Motion (UX-DR54) ----------
+ * Smooth jumps within a page only for people who have not asked for less
+ * motion. Nothing on the site moves by itself. */
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
