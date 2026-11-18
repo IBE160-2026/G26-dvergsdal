@@ -29,4 +29,13 @@ Sensor vurderer sporene av prosessen like mye som sluttproduktet. Det betyr i pr
 - **README er døra inn.** Hold `README.md` oppdatert med beskrivelse, forutsetninger med versjoner, eksakte kommandoer for installasjon, oppstart og tester, miljøvariabler (med `.env.example`), mappestruktur og lenker til planleggingsdokumentene.
 - **Ryddig repo.** Ingen hemmeligheter, `.env`-filer, `node_modules`, byggeartefakter eller løse filer i rotmappen.
 
+## Designskillen Impeccable
+
+`.claude/skills/impeccable/` er [Impeccable](https://github.com/pbakaus/impeccable) v4.9.1 (Apache-2.0), kopiert uendret fra taggen `skill-v4.9.1`. Den brukes til å vurdere og pusse siden etter at en story har bygd den, for eksempel med `critique`, `audit`, `polish`, `harden`, `adapt` og `clarify`.
+
+- **Designet står i planleggingsdokumentene.** Impeccable leter etter `PRODUCT.md` og `DESIGN.md` i rotmappen, men her ligger designet i [DESIGN.md](.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md) og [EXPERIENCE.md](.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md), og produktet i PRD-en. Les dem derfra. Ikke kjør `init` eller `document`, og ikke lag `PRODUCT.md` eller `DESIGN.md` i rotmappen: det ville gitt to versjoner av samme sannhet.
+- **Briefen vinner.** Impeccable foreslår gjerne dristige valg. Farger, skrift, avstander og komponenter følger DESIGN.md. Et forslag som avviker, legges fram for Rikke, og blir det godtatt, oppdateres DESIGN.md først, med begrunnelse.
+- **Endringer går gjennom en story.** Funn fra Impeccable rettes i en `bmad-build`-story eller føres i `deferred-work.md`, slik at hver endring kan spores til et krav.
+- **Uten hook, live-modus og telemetri.** Hooken (som kjører ved hver redigering), `live` og `generate` er ikke satt opp. Telemetri er slått av i `.impeccable/config.json`.
+
 Se også kapittel 5 i sensorveiledningen, *Typiske varseltegn*, og unngå alt som står der.
