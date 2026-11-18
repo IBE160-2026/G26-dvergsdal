@@ -29,6 +29,8 @@ Prompts, ordrett:
   - MT-2 til MT-4 og en ny MT-1-rad i den manuelle testplanen.
 - **Verifisert:** 320 tester består. Ruff, djLint og `makemigrations --check` er grønne. Hver rad i spec-ens testtabell har en test som kjører og består.
 - **Etter økten:** Rikke åpnet `/stil/` og fikk bare Djangos «Installasjonen var vellykket!». Årsaken var at serveren på port 8000 kjørte fra en annen klone (`C:\Test\G26-dvergsdal`, på `main`). Fra riktig mappe virket siden, og Rikke godkjente utseendet («alt ser bra ut, gå videre»). Grenen ble pushet og [PR #21](https://github.com/IBE160-2026/G26-dvergsdal/pull/21) laget. GitHub Actions er grønn.
+- **Merget:** Rikke merget PR #21 (`478ee18`). Story 1.4a er satt til `done` i sprint-status (`aa111ce`).
+- **Manuelle tester:** Rikke kjørte MT-1 (1.4a), MT-2, MT-3 og MT-4 i nettleser, og alle besto. Hun skrev resultatet for MT-2 som «Alt ble sort med lyse kanter og lys tekst». Claude spurte om resten av det testen krever, altså kant på alle knappene, strek og ikon på varslene og fokusring ved `Tab`, før det ble ført som «Bestått». Editoren hennes formaterte også tabellen på nytt, og det ble beholdt.
 - **Bivirkning:** URL-oppsettet er ikke lenger tomt, så `/` og testlenkene viser Djangos «Page not found (404)» til story 1.4b. README og MT-1 er oppdatert.
 - **KI-styring og retting av KI-kode:**
   - Implementeringsagenten oppdaget selv at `:active` på alle elementer ville tegnet fokusringen rundt hele siden ved hvert trykk, og begrenset den til lenker, knapper og skjemafelt.
@@ -44,7 +46,5 @@ Prompts, ordrett:
   - Hele vurderingen står i Review Triage Log i spec-en.
 
 ### Åpne punkter
-- Kjøre MT-2 (høykontrast), MT-3 (redusert bevegelse), MT-4 (fonter) og den nye MT-1-raden i en nettleser, og fylle inn dato og resultat i `docs/manual-test-plan.md`.
-- Merge PR #21 på GitHub, og sett story 1.4a til `done` i sprint-status etterpå.
 - **Story 2.7 eller 4.2:** det første varselet som legges inn med JavaScript må ha en tom live region i siden fra start, og testes med skjermleser (deferred-work.md).
 - Neste BMAD-steg: story 1.4b (papir, Rikkes bilder og siden for ugyldige lenker) med `bmad-build`.
