@@ -22,6 +22,11 @@ DJANGO_SETTINGS_MODULE = "config.settings"
 testpaths = ["tests"]
 pythonpath = ["."]
 addopts = "--strict-markers"
+# WhiteNoise warns «No directory at: …staticfiles» when its middleware starts, because
+# only `collectstatic` creates that folder; in tests the files come from `static/`.
+# WhiteNoise warns with stacklevel=3, so the warning is attributed to the Django
+# module that builds the middleware, and the filter has to name that module.
+filterwarnings = ["ignore:No directory at:UserWarning:django.core.handlers.base"]
 
 [tool.ruff]
 target-version = "py314"
@@ -43,6 +48,4 @@ known-first-party = ["config", "wedding", "guests", "dashboard", "tests"]
 
 [tool.djlint]
 profile = "django"
-# No templates exist until Story 1.4a; without this djLint exits 2 on "No files to check".
-allow_empty_input = true
 extend_exclude = ".docs,_bmad,.claude,.logs,docs,staticfiles"
