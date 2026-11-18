@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+{# Base template for every page: guests, the couple and the RSVP form (Story 1.4a, UX-DR1, NFR-5). #}
+<html lang="nb">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="light only">
+        <title>{% block title %}Invitasjon{% endblock title %}</title>
+        <link rel="stylesheet" href="{% static 'css/site.css' %}">
+        {% block head %}
+        {% endblock head %}
+    </head>
+    <body>
+        {% block content %}
+        {% endblock content %}
+    </body>
+</html>

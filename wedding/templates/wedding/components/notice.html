@@ -1,0 +1,51 @@
+{% comment %}
+Notice (Story 1.4a, UX-DR17, NFR-5). Use on a cream surface:
+
+    {% include "wedding/components/notice.html" with variant="warning" text="Svaret er ikke sendt ennå." only %}
+
+Always end the include with `only`, so a `live` or `variant` in the page's own
+context never leaks in (a notice at load must not become a live region).
+variant: "success", "warning", "error" or "info"; anything else renders as info.
+live:    only for a notice added after the page has loaded. It then becomes a
+         live region: role="alert" for errors, role="status" for the others.
+         A notice present at page load is never a live region.
+Error and warning text get the prefix «Feil:» / «Obs:», and each variant has
+its own icon shape, so the state never depends on colour alone. The notice
+never hides itself.
+{% endcomment %}
+<div class="notice notice--{% if variant == 'success' or variant == 'warning' or variant == 'error' %}{{ variant }}{% else %}info{% endif %}" {% if live %}role="{% if variant == 'error' %}alert{% else %}status{% endif %}"{% endif %}>
+    <svg class="notice__icon"
+         viewBox="0 0 24 24"
+         aria-hidden="true"
+         focusable="false"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="2"
+         stroke-linecap="round"
+         stroke-linejoin="round">
+        {% if variant == "success" %}
+            <circle cx="12" cy="12" r="10" />
+            <path d="M7 12.4l3.3 3.3L17.2 8.8" stroke-width="2.4" />
+        {% elif variant == "warning" %}
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6.4v7.2" stroke-width="2.4" />
+            <circle cx="12" cy="17.3" r="1.5" fill="currentColor" stroke="none" />
+        {% elif variant == "error" %}
+            <path d="M12 2.6L22.4 20.8H1.6z" />
+            <path d="M12 9v5.6" stroke-width="2.4" />
+            <circle cx="12" cy="17.6" r="1.4" fill="currentColor" stroke="none" />
+        {% else %}
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="7.2" r="1.5" fill="currentColor" stroke="none" />
+            <path d="M12 10.6v7" stroke-width="2.4" />
+        {% endif %}
+    </svg>
+    <p class="notice__text">
+        {% if variant == "error" %}
+            Feil:
+        {% elif variant == "warning" %}
+            Obs:
+        {% endif %}
+        {{ text }}
+    </p>
+</div>
