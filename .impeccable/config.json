@@ -1,0 +1,10 @@
+{
+  "telemetry": false,
+  "hook": {
+    "enabled": false,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  }
+}

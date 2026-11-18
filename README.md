@@ -155,11 +155,13 @@ uv run --env-file .env manage.py runserver
 ├── .logs/rikke/              Logg over KI-økter og issues.md med åpne punkter
 ├── .github/workflows/        GitHub Actions: tester og kodesjekker
 ├── _bmad/                    BMad-oppsett og skript
-├── .claude/skills/           BMad-skills og sesjonslogg-skillen som KI-agenten bruker
+├── .claude/skills/           BMad-skills, sesjonslogg-skillen og designskillen Impeccable som KI-agenten bruker
+├── .impeccable/config.json   Innstilling for Impeccable: telemetri av
 ├── manage.py                 Djangos kommandolinjeverktøy
 ├── pyproject.toml, uv.lock   Avhengigheter og verktøyoppsett, låst med uv
 ├── .python-version           Python 3.14
 ├── .env.example              Alle innstillingene med eksempelverdier
+├── .gitattributes            Linjeskift for Impeccable-skriptet (alltid LF)
 ├── AGENTS.md                 Instruksjoner for KI-agenter
 └── CLAUDE.md                 Laster inn AGENTS.md og sensorveiledningen, og krever sesjonslogg
 ```
@@ -185,6 +187,8 @@ Hvorfor koden er delt slik, står i arkitekturen under. Mappen `rsvp/` er tom ti
 ## Fonter og lisenser
 
 Skriftene Imperial Script og EB Garamond ligger i [static/fonts/](static/fonts/) og er lisensiert under SIL Open Font License 1.1. Lisensene ligger ved siden av fontfilene, og [static/fonts/README.md](static/fonts/README.md) viser hvor filene er hentet fra og kommandoene som laget dem.
+
+Designskillen [Impeccable](https://github.com/pbakaus/impeccable) i [.claude/skills/impeccable/](.claude/skills/impeccable/) er lisensiert under Apache-2.0. Lisensen og NOTICE.md ligger i mappen, og [AGENTS.md](AGENTS.md) beskriver hvordan den brukes i prosjektet.
 
 ## Medlemmer
 

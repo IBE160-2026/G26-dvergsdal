@@ -1,0 +1,3 @@
+# The Impeccable launcher is a POSIX sh script; with CRLF line endings sh fails
+# on Windows (Git Bash) and macOS/Linux.
+.claude/skills/impeccable/scripts/impeccable text eol=lf
