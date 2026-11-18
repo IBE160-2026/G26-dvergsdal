@@ -1,0 +1,83 @@
+{% extends "wedding/base.html" %}
+{% load static %}
+{% comment %}
+Style sample /stil/, local only (Story 1.4a). Shows every colour token, both
+fonts, the four buttons and the four notices, for MT-2 to MT-4 in
+docs/manual-test-plan.md. No personal data; the texts are samples from
+EXPERIENCE.md.
+{% endcomment %}
+{% block title %}Stilprøve{% endblock title %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/style-sample.css' %}">
+{% endblock head %}
+{% block content %}
+    <main class="sample">
+        <h1>Stilprøve</h1>
+        <p>
+            Farger, skrift, knapper og varsler for invitasjonen, slik de er beskrevet i DESIGN.md. Siden finnes bare når <code>APP_ENV</code> er <code>local</code>.
+        </p>
+        <p>
+            <a href="#varsler">Hopp til varslene</a>
+        </p>
+        <section class="sample__section" aria-labelledby="farger">
+            <h2 id="farger">Farger</h2>
+            <ul class="sample__swatches">
+                {% for token in colour_tokens %}
+                    <li class="sample__swatch">
+                        <span class="sample__chip sample__chip--{{ token }}"></span>
+                        <code>{{ token }}</code>
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section class="sample__section" aria-labelledby="skrift">
+            <h2 id="skrift">Skrift</h2>
+            <div class="surface-cream sample__panel">
+                <p class="display-names">Rikke &amp; Valdemar</p>
+                <p>EB Garamond, 20 px: Blåbærsyltetøy og rømmegrøt på Hardingasete. ÆØÅ æøå.</p>
+                <p>
+                    <em>Kursiv: inviterer dere til sitt bryllup</em>
+                </p>
+                <p>
+                    <strong>Halvfet (600): Adresse:</strong> Hardingasete, Hardanger
+                </p>
+                <p class="small-caps">Lørdag 27. mai 2028</p>
+                <p>Linjetall: 1 450 kr, 27. mai 2028 kl. 14:30, 0123456789</p>
+                <p class="tabular-nums">
+                    Tabelltall:
+                    <br>
+                    1 111 kr
+                    <br>
+                    9 999 kr
+                </p>
+            </div>
+        </section>
+        <section class="sample__section" aria-labelledby="knapper">
+            <h2 id="knapper">Knapper</h2>
+            <div class="surface-cream sample__panel sample__stack">
+                <p>På kremfarget ark:</p>
+                <button type="button" class="button">Fortsett</button>
+                <button type="button" class="button button--secondary">Tilbake</button>
+                <button type="button" class="button button--destructive">Fjern husstanden</button>
+            </div>
+            <div class="sample__stack sample__on-green">
+                <p>På grønt:</p>
+                <p>
+                    <button type="button" class="button button--on-green">Les mer</button>
+                </p>
+            </div>
+        </section>
+        <section class="sample__section" aria-labelledby="varsler">
+            <h2 id="varsler">Varsler</h2>
+            <div class="surface-cream sample__panel sample__stack">
+                {% include "wedding/components/notice.html" with variant="success" text="Svaret er sendt." only %}
+                {% include "wedding/components/notice.html" with variant="warning" text="Svaret er ikke sendt ennå." only %}
+                {% include "wedding/components/notice.html" with variant="error" text="Velg «Kommer» eller «Kommer ikke» for bestemor." only %}
+                {% include "wedding/components/notice.html" with variant="info" text="Sist endret av Arild, 3. november kl. 18:40." only %}
+            </div>
+            <p>
+                <a href="#farger">Tilbake til fargene</a>
+            </p>
+        </section>
+    </main>
+{% endblock content %}

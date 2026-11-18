@@ -1,0 +1,85 @@
+/*
+ * Layout for the local style sample /stil/ only (Story 1.4a; Rikke's decision
+ * 2026-11-18: a page for seeing the design and running MT-2 to MT-4 in
+ * docs/manual-test-plan.md). Loaded by guests/templates/guests/style_sample.html,
+ * never by the real pages; the components themselves come from site.css.
+ */
+
+.sample {
+  max-width: var(--space-content-max);
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-gutter);
+}
+
+.sample :where(p, ul) {
+  margin: 0;
+}
+
+.sample > * + * {
+  margin-top: var(--space-4);
+}
+
+.sample__section {
+  margin-top: var(--space-7);
+}
+
+.sample__section > * + * {
+  margin-top: var(--space-4);
+}
+
+.sample__panel {
+  padding: var(--space-5);
+}
+
+.sample__panel > :first-child {
+  margin-top: 0;
+}
+
+.sample__stack > * + * {
+  margin-top: var(--space-3);
+}
+
+.sample__on-green {
+  padding: var(--space-5) 0;
+}
+
+.sample__swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.sample__swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.sample__chip {
+  display: block;
+  height: var(--space-target-min);
+  border: 1px solid var(--color-cream-on-green);
+  border-radius: var(--radius-sm);
+}
+
+.sample__chip--page-green { background-color: var(--color-page-green); }
+.sample__chip--green-dark { background-color: var(--color-green-dark); }
+.sample__chip--green-dark-hover { background-color: var(--color-green-dark-hover); }
+.sample__chip--seal { background-color: var(--color-seal); }
+.sample__chip--panel-cream { background-color: var(--color-panel-cream); }
+.sample__chip--ink { background-color: var(--color-ink); }
+.sample__chip--ink-muted { background-color: var(--color-ink-muted); }
+.sample__chip--cream-on-green { background-color: var(--color-cream-on-green); }
+.sample__chip--field-surface { background-color: var(--color-field-surface); }
+.sample__chip--field-border { background-color: var(--color-field-border); }
+.sample__chip--divider { background-color: var(--color-divider); }
+.sample__chip--focus-on-panel { background-color: var(--color-focus-on-panel); }
+.sample__chip--focus-on-green { background-color: var(--color-focus-on-green); }
+.sample__chip--error { background-color: var(--color-error); }
+.sample__chip--success { background-color: var(--color-success); }
+.sample__chip--warning { background-color: var(--color-warning); }
+.sample__chip--scrim { background-color: var(--color-scrim); }
