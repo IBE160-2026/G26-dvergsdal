@@ -2,9 +2,10 @@
 title: "Story 1.4a: The invitation's colours, type, buttons and notices"
 type: 'feature'
 created: '2026-11-18'
-status: 'ready-for-dev'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
+baseline_commit: 'bc8399ecd4cd8f3d92aece313a0d9d3416b75fa2'
 context:
   - '{project-root}/.docs/implementation-artifacts/epic-1-context.md'
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md'
@@ -53,14 +54,14 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `static/fonts/` -- `imperial-script-400.woff2`, `eb-garamond-roman.woff2`, `eb-garamond-italic.woff2` (the variable `wght` fonts, declared `font-weight: 400 800`), `OFL.txt` per family, and `README.md` with source URLs and the exact `uvx --from "fonttools[woff]" pyftsubset …` commands -- UX-DR2, AD-15.
-- [ ] `static/css/site.css` -- `@font-face`; `:root` tokens; base type; `.button` + `--secondary`, `--on-green`, `--destructive`; `.surface-cream` (flat `panel-cream`, sets `--focus-color`); `.notice` + four variants; `forced-colors` and `prefers-reduced-motion` blocks -- UX-DR1, 2, 15, 17, 53, 54.
-- [ ] `wedding/templates/wedding/base.html` -- doctype, `lang="nb"`, viewport and color-scheme meta, CSS link via `{% static %}`, `title`/`content` blocks.
-- [ ] `wedding/templates/wedding/components/notice.html` -- the include from the matrix.
-- [ ] `guests/views.py`, `guests/urls.py`, `guests/templates/guests/style_sample.html`, `config/urls.py` -- `/stil/` sample page, included only when `settings.APP_ENV == "local"`; Norwegian sample texts from EXPERIENCE.md (e.g. «Obs: Svaret er ikke sendt ennå.»); a jump link at the top to a section further down, so MT-3 (smooth vs instant jump) can be checked on it.
-- [ ] `tests/test_design_system.py` -- every DESIGN.md colour, spacing and radius token present with the same value (parsed from the frontmatter); no `outline: none|0`; no `@keyframes`; `scroll-behavior` only under `no-preference`; every `font-size` in rem; font files exist and every `url()` points to a local file; base template renders `lang="nb"` and the color-scheme meta; every matrix row.
-- [ ] `docs/manual-test-plan.md` -- MT-2 forced colours (Windows contrast theme): button outlines, notice rules, focus ring visible; MT-3 reduced motion; MT-4 fonts show æ ø å and lining figures.
-- [ ] `pyproject.toml`, `ARCHITECTURE-SPINE.md`, `README.md` -- djLint note removed; seed updated; README status line, folder note and fonts licence line.
+- [x] `static/fonts/` -- `imperial-script-400.woff2`, `eb-garamond-roman.woff2`, `eb-garamond-italic.woff2` (the variable `wght` fonts, declared `font-weight: 400 800`), `OFL.txt` per family, and `README.md` with source URLs and the exact `uvx --from "fonttools[woff]" pyftsubset …` commands -- UX-DR2, AD-15.
+- [x] `static/css/site.css` -- `@font-face`; `:root` tokens; base type; `.button` + `--secondary`, `--on-green`, `--destructive`; `.surface-cream` (flat `panel-cream`, sets `--focus-color`); `.notice` + four variants; `forced-colors` and `prefers-reduced-motion` blocks -- UX-DR1, 2, 15, 17, 53, 54.
+- [x] `wedding/templates/wedding/base.html` -- doctype, `lang="nb"`, viewport and color-scheme meta, CSS link via `{% static %}`, `title`/`content` blocks.
+- [x] `wedding/templates/wedding/components/notice.html` -- the include from the matrix.
+- [x] `guests/views.py`, `guests/urls.py`, `guests/templates/guests/style_sample.html`, `config/urls.py` -- `/stil/` sample page, included only when `settings.APP_ENV == "local"`; Norwegian sample texts from EXPERIENCE.md (e.g. «Obs: Svaret er ikke sendt ennå.»); a jump link at the top to a section further down, so MT-3 (smooth vs instant jump) can be checked on it.
+- [x] `tests/test_design_system.py` -- every DESIGN.md colour, spacing and radius token present with the same value (parsed from the frontmatter); no `outline: none|0`; no `@keyframes`; `scroll-behavior` only under `no-preference`; every `font-size` in rem; font files exist and every `url()` points to a local file; base template renders `lang="nb"` and the color-scheme meta; every matrix row.
+- [x] `docs/manual-test-plan.md` -- MT-2 forced colours (Windows contrast theme): button outlines, notice rules, focus ring visible; MT-3 reduced motion; MT-4 fonts show æ ø å and lining figures.
+- [x] `pyproject.toml`, `ARCHITECTURE-SPINE.md`, `README.md` -- djLint note removed; seed updated; README status line, folder note and fonts licence line.
 
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` run, then all pass.
@@ -68,9 +69,51 @@ context:
 
 ## Implementation Notes
 
+- **Font sources:** google/fonts at commit `7af0d90b4d532ffa4b041937b560c6df4e7b1e95` (SHA-256 of the downloaded TTFs checked against that commit). Unicode range = Google Fonts' «latin» set plus U+2190–2193 (for «← Tilbake til invitasjonen»); `--layout-features='*'` keeps `lnum`, `tnum`, `smcp`, `c2sc` and the rest. Sizes: Imperial Script 35 KB, EB Garamond roman 114 KB, italic 129 KB. Imperial Script has no arrow glyph; it is only used for the names.
+- **Licence file names:** two `OFL.txt` cannot share `static/fonts/`, so they are `imperial-script-OFL.txt` and `eb-garamond-OFL.txt`.
+- **Typography tokens:** the Approach says «every DESIGN.md token as a custom property», so besides colours, spacing and radii the stylesheet also has `--font-size-<role>` (rem), `--line-height-<role>`, `--letter-spacing-<role>` where DESIGN.md gives one, and `--font-weight-<role>` only where the weight is not 400. The test checks all of them against the frontmatter.
+- **Sample-page layout in its own file:** `static/css/style-sample.css`, loaded only by `/stil/` through the base template's `head` block, so the real stylesheet carries no sample-only rules and the swatches need no inline `style` attributes.
+- **`/stil/` condition lives in `guests/urls.py`:** `config/urls.py` always includes `guests.urls` (the guest pages will live there), and `guests/urls.py` adds `/stil/` only when `APP_ENV` is `local`. Side effect: with a non-empty URLconf, Django no longer shows its «install worked» page at `/`; `/` and the seed test links now show Django's 404 page until Story 1.4b/1.5. README updated; MT-1's recorded expected result («Djangos startside») is history and was left as is.
+- **`:active` focus ring** is limited to `a, button, input, select, textarea, summary` (with `:where()`), because browsers also mark the ancestors of a pressed element as `:active`, which would draw a ring round the whole page on every tap.
+- **Test warning filter:** WhiteNoise warns that `staticfiles/` is missing when the test client first runs the middleware; `pyproject.toml` ignores that one warning, since only `collectstatic` creates the folder.
+- **Verified in a browser (headless Chrome, 600 px wide, all hosts except 127.0.0.1 unresolvable):** both fonts render, æ ø å and small capitals show, and the server log shows only local requests (page, two stylesheets, three fonts). MT-2 to MT-4 still need a person (Windows contrast theme, reduced-motion setting).
+
 ## Spec Change Log
 
 ## Review Triage Log
+
+Review pass 1 (2026-11-18): Blind Hunter (B), Edge Case Hunter (E), Verification Gap (V).
+
+| # | Layer | Finding | Verdict | Evidence | Route |
+|---|---|---|---|---|---|
+| 1 | V | `/stil/` test never checks that `style-sample.css` is loaded through the base template's `head` block | low | Pre-verified: no test references the sample stylesheet or the block; renaming the block passed every test | patch |
+| 2 | V, B, E | MT-1's expected result («Djangos startside») can no longer be reproduced: `/` now gives Django's 404 | low | `config/urls.py` always includes `guests.urls`, so the URLconf is never empty | patch (new MT-1 row, history kept) |
+| 3 | B | Spec says `in-review`, sprint status `in-progress` | low | Orchestrator sets `review` at this step, as in Story 1.3 | patch (orchestrator) |
+| 4 | B | Spec Change Log empty and ticked tasks say «`OFL.txt` per family» | low | Fix edits this build's spec; deviations are in Implementation Notes | reject |
+| 5 | B, E | `/stil/` toggled at import time; test reloads URLconf; an ambient `APP_ENV` flips the local test | low | Test restores the URLconf in `finally`; `APP_ENV=production` refuses to start without a real `SECRET_KEY` and hosts, so CI cannot hit it; the fix is a redesign | reject |
+| 6 | B, E | `COLOUR_TOKENS` and `.sample__chip--*` can drift from DESIGN.md | low | Three hand-written lists, no check; a test is a direct addition | patch |
+| 7 | B | Token tests one-way; a parser that drops keys shrinks the tests silently | low | Parametrised from the parser's output with no count; reverse check is a direct addition | patch |
+| 8 | B, E | Component values (button padding, notice gap) not checked against DESIGN.md `components`; on-green `padding-block` 4px vs DESIGN «0 14px» | low | DESIGN `components` are free-form strings; on-green height is set by `min-height: 44px`, so the 4px is invisible on one line | reject |
+| 9 | B, E | `test_four_buttons_are_styled` matched substrings (`.button` in `.button--secondary`) and no declarations | medium | Deleting the base `.button` rule passed; trivial tests are a warning sign in the grading guide | patch |
+| 10 | B | The `:active` limit (fix of the whole-page ring) has no test | low | A bare `:active` passed the focus test | patch |
+| 11 | B | Warning filter hides «No directory at» from any source | low | Direct narrowing; WhiteNoise's `stacklevel=3` attributes it to `django.core.handlers.base` | patch |
+| 12 | B | Font sources cannot be re-checked: no hashes, no download step, bash-only commands | low | `static/fonts/README.md` had none; recording them is direct | patch |
+| 13 | B | README folder tree misses `style-sample.css` | low | Direct correction | patch |
+| 14 | B | Notice icon fixed at 22px does not grow with text size | low | 22px is the DESIGN.md `notice.icon` value and the spec's Always | reject |
+| 15 | B, E | Empty `text` renders a bare «Feil:» or an empty notice | low | Only reachable by a template bug; a guard adds a branch | reject |
+| 16 | B | No `.logs/` entry for this work | false | Written at the end of the session by `sesjonslogg`, as CLAUDE.md requires | reject |
+| 17 | E | Include without `only` inherits a truthy `live`/`variant` from the page | low | Django `include` passes the parent context; `only` is a direct fix | patch |
+| 18 | E | A `live=True` notice inserted with its text may not be announced | maybe-false | No JS inserts notices yet; settled by a screen-reader test of the first in-page insertion | defer (unverified medium) |
+| 19 | E | Notice on the green page has dark text on olive | low | DESIGN and the include's comment place notices on cream; no page does otherwise | reject |
+| 20 | E | `.button--on-green` on a cream surface is cream on cream | low | DESIGN.md › Outlined button: «On a cream sheet the same shape is drawn in ink»; one-line rule | patch |
+| 21 | E | Disabled buttons keep pointer and hover | low | DESIGN defines no disabled button; busy state is Story 2.6a | reject |
+| 22 | E | Latin Extended-A letters (ł, č) fall back to Georgia | low | Cosmetic in a rare name; needs re-subsetting all fonts | reject |
+| 23 | E | `outline: 0px` passed the outline test (`\b` fails after `0px`) | low | Regex fault; direct fix | patch |
+| 24 | E | `assert sizes` fails any future stylesheet without font sizes | low | Direct fix: apply to `site.css` only | patch |
+| 25 | E | `_without_block` uses `replace`, which could cut identical text elsewhere | low | Needs a byte-identical copy of the block body; unlikely, fix adds code | reject |
+| 26 | E | «Surfaces» section and `style-sample.css` header name no UX-DR/NFR | low | Spec Always requires it; direct addition | patch |
+
+**After patches:** 320 tests pass; Ruff, djLint and `makemigrations --check` clean. The implementer broke a bare `:active`, `outline-width: 0px`, the primary background and the `head` block name in turn, and each was caught by its new test.
 
 ## Design Notes
 
