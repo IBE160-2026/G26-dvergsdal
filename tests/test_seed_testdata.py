@@ -50,10 +50,8 @@ def snapshot():
     )
 
 
-@pytest.fixture(autouse=True)
-def local_env(monkeypatch):
-    """The examiner's machine: no APP_ENV set (NFR-8)."""
-    monkeypatch.delenv("APP_ENV", raising=False)
+# The examiner's machine: no APP_ENV set (NFR-8); `local_env` is in conftest.py.
+pytestmark = pytest.mark.usefixtures("local_env")
 
 
 # First run

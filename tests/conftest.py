@@ -6,13 +6,17 @@ docs recommend; it is never used outside the tests.
 
 `production_urls` rebuilds the URLconf as production sees it (Story 1.4a and 1.4b).
 `assert_loads_only_own_host` checks that a page names no other site (Story 1.4c).
+`local_env` and `seeded` give the examiner's machine and the seeded test data
+(Story 1.5); plain helpers that tests import are in tests/helpers.py.
 """
 
 import importlib
 import re
 from collections.abc import Callable
+from io import StringIO
 
 import pytest
+from django.core.management import call_command
 from django.test import override_settings
 from django.urls import clear_url_caches
 
@@ -23,6 +27,18 @@ import guests.urls
 @pytest.fixture(autouse=True)
 def fast_password_hasher(settings):
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
+
+@pytest.fixture
+def local_env(monkeypatch):
+    """The examiner's machine: no APP_ENV set (NFR-8), so the seed command runs."""
+    monkeypatch.delenv("APP_ENV", raising=False)
+
+
+@pytest.fixture
+def seeded(local_env, db):
+    """The fictional test data from seed.toml, loaded through the seed command."""
+    call_command("seed_testdata", stdout=StringIO())
 
 
 def _reload_urlconf():

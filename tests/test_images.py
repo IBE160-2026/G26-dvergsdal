@@ -14,6 +14,8 @@ from pathlib import Path
 import pytest
 from django.template.loader import render_to_string
 
+from tests.helpers import FRONT_PAGE
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 IMG_DIR = BASE_DIR / "static" / "img"
 README = IMG_DIR / "README.md"
@@ -61,17 +63,6 @@ TARGETS = {
     "forhandsvisning.jpg": 1000,  # link preview (Story 1.4c, FR-4), never loaded by a page
 } | {f"ikoner/ikon-{number:02d}-{name}.png": 112 for number, name in enumerate(ICONS, start=1)}
 
-FRONT_PAGE = (
-    "segl.png",
-    "illustrasjon.jpg",
-    "brudeslor.png",
-    "lilje-topp.png",
-    "lilje-bunn.png",
-    "blonde.png",
-    "sted-middag.jpg",
-    "sted-tunet.jpg",
-    "oss-strand.jpg",
-)
 FILE_BUDGET = 100 * 1024
 FRONT_PAGE_BUDGET = 300 * 1024
 
