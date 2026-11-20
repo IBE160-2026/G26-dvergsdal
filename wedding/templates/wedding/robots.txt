@@ -1,0 +1,4 @@
+# Every page says noindex in a meta tag and an X-Robots-Tag header (AD-15).
+# Search engines must be allowed to fetch a page to read that, so nothing is blocked.
+User-agent: *
+Disallow:
