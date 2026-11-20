@@ -1525,6 +1525,16 @@ So that I can plan the weekend.
 **When** the story is done
 **Then** the best-known times are used and each open item is listed in the PRD change log
 
+**Given** the real address of Hardingasete
+**When** «Hvordan komme seg dit» renders
+**Then** it has the outlined button «Åpne veibeskrivelse i kart», a link to a chosen map service with the address filled in, with `rel="noreferrer"` (AD-15), and the privacy page (Story 7.1) says that the link leaves the site for that service
+
+**Given** the guest pages after the full text is in
+**When** the tests run
+**Then** a test fails if any guest page still contains a square-bracket placeholder such as «[14:00]» or «[adresse]», so no placeholder reaches a guest
+
+*(Changed 2026-11-20 in Story 1.6: the map button from `mockups/info-praktisk.html` moved here, since there is no real address yet and no map service decided; the placeholder test was added so the placeholders that Story 1.6 keeps on Praktisk informasjon cannot be forgotten. See `deferred-work.md`.)*
+
 ## Epic 8: Cut-first extras (T3)
 
 The couple can move a guest to another household, replace one guest's link, register consent given by phone, and is warned when a price change affects households that have answered. The admin pages use a PC screen better, and repeated wrong-link attempts are slowed down. Whatever is not done by 10 December moves to [2027], with the reason in the PRD change log.
