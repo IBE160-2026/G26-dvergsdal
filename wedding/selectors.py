@@ -66,6 +66,24 @@ def footer_contacts(settings: Settings | None = None) -> list[dict[str, str]]:
     ]
 
 
+def programme_prices(settings: Settings | None = None) -> dict[str, int]:
+    """FR-9, FR-32, AD-12: the three meal prices the programme's «Godt å vite» shows.
+
+    Friday's dinner and the Saturday and Sunday breakfasts, in whole kroner, from
+    the one settings row, the same source the RSVP form will total from, so the
+    programme and the form cannot show different prices. The template writes
+    «<n> kr.»; no price is ever template text. Reads the settings row unless the
+    caller already has it.
+    """
+    if settings is None:
+        settings = site_settings()
+    return {
+        "friday_dinner": settings.price_friday_dinner,
+        "saturday_breakfast": settings.price_saturday_breakfast,
+        "sunday_breakfast": settings.price_sunday_breakfast,
+    }
+
+
 def household_guest_names(household: Household) -> list[str]:
     """FR-2, FR-7: the names of `household`'s guests, in the order they were added (by id).
 

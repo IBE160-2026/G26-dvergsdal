@@ -1,9 +1,10 @@
 """Guest views.
 
-The invitation's front page under `/<code>/` and the frame of its three info
-pages (Story 1.5, FR-2, FR-7, FR-8, FR-11), the private-invitation page G1 for
-the bare address and for every code that resolves to nobody (Story 1.4b, FR-5),
-and the local style sample (Story 1.4a).
+The invitation's front page under `/<code>/` and its three info pages (Story
+1.5, FR-2, FR-7, FR-8, FR-11; their content in Story 1.6 and, for Programmet
+with the meal prices from the settings, Story 1.7, FR-9), the
+private-invitation page G1 for the bare address and for every code that
+resolves to nobody (Story 1.4b, FR-5), and the local style sample (Story 1.4a).
 
 Every guest view only reads (FR-3): one resolver lookup, then selectors. None
 of them touches the session, the messages framework, `request.user` or a CSRF
@@ -15,8 +16,14 @@ from django.shortcuts import render
 
 from wedding.actors import GuestActor
 from wedding.links import resolve_code
+from wedding.models import Settings
 from wedding.rules.households import household_names, speaks_to_one
-from wedding.selectors import footer_contacts, household_guest_names, site_settings
+from wedding.selectors import (
+    footer_contacts,
+    household_guest_names,
+    programme_prices,
+    site_settings,
+)
 
 # DESIGN.md colour tokens, in the frontmatter's order, for the swatches.
 COLOUR_TOKENS = (
@@ -74,14 +81,13 @@ def _not_found(request: HttpRequest) -> HttpResponse:
     return render(request, PRIVATE_INVITATION, status=404)
 
 
-def _guest_context(actor: GuestActor, current: str = "") -> dict[str, object]:
+def _guest_context(actor: GuestActor, settings: Settings, current: str = "") -> dict[str, object]:
     """FR-6, FR-8, FR-41: what every guest page under a valid link needs.
 
     The code for the nav links, the open info page (`current`, empty on the
-    front page) and, from one read of the settings row, the footer contacts and
-    the deadline.
+    front page) and, from the settings row the view has read once, the footer
+    contacts and the deadline.
     """
-    settings = site_settings()
     return {
         "code": actor.guest.code,
         "current": current,
@@ -102,7 +108,7 @@ def front_page(request: HttpRequest, code: str) -> HttpResponse:
     if actor is None:
         return _not_found(request)
     names = household_guest_names(actor.household)
-    context = _guest_context(actor) | {
+    context = _guest_context(actor, site_settings()) | {
         "household_names": household_names(names),
         "speaks_to_one": speaks_to_one(len(names)),
     }
@@ -111,8 +117,8 @@ def front_page(request: HttpRequest, code: str) -> HttpResponse:
 
 # FR-8, FR-11: each info page's key (its URL name and current nav word) and
 # template. The text lives in the templates (AD-17): Praktisk informasjon
-# (FR-10) and Vår historie (UX-DR14) are filled in Story 1.6; Programmet holds
-# only the frame until Story 1.7.
+# (FR-10) and Vår historie (UX-DR14) are filled in Story 1.6, Programmet
+# (FR-9, UX-DR13) in Story 1.7.
 INFO_PAGES = {
     "programme": "guests/programme.html",
     "practical": "guests/practical.html",
@@ -121,14 +127,20 @@ INFO_PAGES = {
 
 
 def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
-    """FR-3, FR-5, FR-6, FR-8, FR-11: one of the three info pages (G3) under `/<code>/`.
+    """FR-3, FR-5, FR-6, FR-8, FR-9, FR-11: one of the three info pages (G3) under `/<code>/`.
 
     `page` is a key of `INFO_PAGES`, set by the route. Two SELECTs: the
-    resolver and the settings row for the footer; nobody gets G1 with 404.
-    The page's content is template text (AD-17): Praktisk informasjon (FR-10)
-    and Vår historie (UX-DR14) since Story 1.6, Programmet from Story 1.7.
+    resolver and the settings row; nobody gets G1 with 404. The page's content
+    is template text (AD-17): Praktisk informasjon (FR-10) and Vår historie
+    (UX-DR14) since Story 1.6, Programmet (UX-DR13) since Story 1.7. The
+    programme also gets the three meal prices from the same settings row
+    (FR-32, AD-12), so «Godt å vite» never holds a price of its own.
     """
     actor = resolve_code(code)
     if actor is None:
         return _not_found(request)
-    return render(request, INFO_PAGES[page], _guest_context(actor, current=page))
+    settings = site_settings()
+    context = _guest_context(actor, settings, current=page)
+    if page == "programme":
+        context["prices"] = programme_prices(settings)
+    return render(request, INFO_PAGES[page], context)
