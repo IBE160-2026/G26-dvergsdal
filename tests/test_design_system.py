@@ -1,4 +1,5 @@
-"""The invitation's colours, type, buttons and notices (Story 1.4a).
+"""The invitation's colours, type, buttons and notices (Story 1.4a), and the paper
+sheet, page texture and column (Story 1.4b).
 
 The stylesheet is read as text and compared with the DESIGN.md frontmatter, so
 a token changed in one place and not the other fails here (UX-DR1). The
@@ -8,18 +9,13 @@ show (forced colours, reduced motion, the fonts themselves) is MT-2 to MT-4 in
 docs/manual-test-plan.md.
 """
 
-import importlib
 import re
 from html.parser import HTMLParser
 from pathlib import Path
 
 import pytest
 from django.template.loader import render_to_string
-from django.test import override_settings
-from django.urls import clear_url_caches
 
-import config.urls
-import guests.urls
 from guests.views import COLOUR_TOKENS
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -35,8 +31,14 @@ STATIC_DIR = BASE_DIR / "static"
 SITE_CSS = STATIC_DIR / "css" / "site.css"
 CSS_FILES = sorted((STATIC_DIR / "css").glob("*.css"))
 FONT_FILES = ("imperial-script-400.woff2", "eb-garamond-roman.woff2", "eb-garamond-italic.woff2")
+PAPER_FILTERS = BASE_DIR / "wedding" / "templates" / "wedding" / "components" / "paper-filters.html"
 REDUCED_MOTION_QUERY = "@media (prefers-reduced-motion: no-preference)"
 FORCED_COLORS_QUERY = "@media (forced-colors: active)"
+SMALL_PHONE_QUERY = "@media (max-width: 339.98px)"
+NARROW_QUERY = "@media (max-width: 259.98px)"
+DATA_URI = r'url\("(data:[^"]*)"\)'
+SVG_NAMESPACE = "http://www.w3.org/2000/svg"
+TEXTURES = ("grain-sheet", "fibre-sheet", "grain-green")
 
 # A path that only the icon of that variant has (DESIGN.md, Notice: check,
 # circle with «!», triangle with «!», «i»).
@@ -262,13 +264,20 @@ def test_nothing_moves_by_itself(path):
 
 @pytest.mark.parametrize("path", CSS_FILES, ids=lambda path: path.name)
 def test_every_url_points_to_a_local_file(path):
-    """AD-15, UX-DR2: nothing is loaded from another site; every `url()` file exists."""
+    """AD-15, UX-DR2, UX-DR3: nothing is loaded from another site. Every `url()`
+    file exists, and every `url(#id)` names a filter in the paper-filters include.
+    A whole data-URI is skipped (the texture SVGs hold their own `url(%23t)`),
+    after checking that its only `://` is the SVG namespace."""
     css = _css(path)
     assert "@import" not in css
-    for url in re.findall(r"url\(\s*[\"']?([^\"')]+)[\"']?\s*\)", css):
+    for data_uri in re.findall(DATA_URI, css):
+        assert "://" not in data_uri.replace(SVG_NAMESPACE, ""), data_uri
+    filters = PAPER_FILTERS.read_text(encoding="utf-8")
+    for url in re.findall(r"url\(\s*[\"']?([^\"')]+)[\"']?\s*\)", re.sub(DATA_URI, "", css)):
         assert "://" not in url
         assert not url.startswith("//")
-        if url.startswith("data:"):
+        if url.startswith("#"):
+            assert f'id="{url[1:]}"' in filters, url
             continue
         assert (path.parent / url).resolve().is_file(), url
 
@@ -316,7 +325,7 @@ def test_focus_ring_on_focus_and_press_in_the_surface_colour():
     assert "outline: var(--space-focus-width) solid var(--focus-color);" in focus[0]
     assert "outline-offset: var(--space-focus-offset);" in focus[0]
     assert ROOT["focus-color"] == "var(--color-focus-on-green)"
-    surface = _declarations(_css(), ".surface-cream")
+    surface = _bodies(_css(), ".surface-cream")
     assert "--focus-color: var(--color-focus-on-panel);" in surface
 
 
@@ -375,9 +384,84 @@ def test_outlined_button_on_green():
         assert "--button-border-width: 3px;" in _bodies(css, f".button--on-green:{state}")
 
 
-def test_outlined_button_on_cream_is_drawn_in_ink():
+@pytest.mark.parametrize("surface", [".surface-cream", ".paper-sheet"])
+def test_outlined_button_on_cream_is_drawn_in_ink(surface):
     """DESIGN.md, Outlined button on green: on a cream sheet the same shape is ink."""
-    assert "color: var(--color-ink);" in _bodies(_css(), ".surface-cream .button--on-green")
+    assert "color: var(--color-ink);" in _bodies(_css(), f"{surface} .button--on-green")
+
+
+def _rules_with_parts(css: str, parts: set[str]) -> list[str]:
+    """The declarations of every rule whose selector list holds all of `parts`."""
+    return [body for rule, body in _rules(css) if parts <= set(_selector_parts(rule))]
+
+
+@pytest.mark.parametrize(
+    ("declaration", "selector"),
+    [
+        ("color: var(--color-ink);", ".surface-cream"),
+        ("--focus-color: var(--color-focus-on-panel);", ".surface-cream"),
+        ("color: var(--color-ink);", ".surface-cream .button--on-green"),
+    ],
+)
+def test_paper_sheet_shares_the_cream_surface_rules(declaration, selector):
+    """UX-DR3, spec 1.4b: the sheet joins `.surface-cream`'s selector lists for ink
+    text, the dark green focus ring and the ink outlined button, so the two
+    surfaces cannot drift apart; nothing is copied into a rule of its own."""
+    css = _css()
+    sheet = selector.replace(".surface-cream", ".paper-sheet")
+    assert any(declaration in body for body in _rules_with_parts(css, {selector, sheet}))
+    assert declaration not in _declarations(css, sheet)
+
+
+def test_paper_sheet_draws_everything_on_a_layer_behind_the_content():
+    """UX-DR3, DESIGN.md components.paper-sheet: cream, 5px corners, the sheet
+    texture and the edge-b3 filter sit on `::before` behind the content; the
+    sheet itself is never filtered, so text and focus rings stay sharp."""
+    css = _css()
+    sheet = _declarations(css, ".paper-sheet")
+    assert "position: relative;" in sheet
+    assert "isolation: isolate;" in sheet
+    layer = _declarations(css, ".paper-sheet::before")
+    for declaration in (
+        'content: "";',
+        "inset: 0;",
+        "z-index: -1;",
+        "background-color: var(--color-panel-cream);",
+        "border-radius: var(--radius-sheet);",
+        "background-image: var(--grain-sheet), var(--fibre-sheet);",
+        "background-blend-mode: overlay, overlay;",
+        "filter: url(#edge-b3);",
+    ):
+        assert declaration in layer, declaration
+    unfiltered = [
+        rule
+        for rule, body in _rules(_without_block(css, FORCED_COLORS_QUERY))
+        if "filter:" in body and rule != ".paper-sheet::before"
+    ]
+    assert unfiltered == []
+
+
+def test_page_has_the_calm_green_texture():
+    """UX-DR3, DESIGN.md components.page: page-green with grain-green, overlay."""
+    body = _declarations(_css(), "body")
+    assert "background-color: var(--color-page-green);" in body
+    assert "background-image: var(--grain-green);" in body
+    assert "background-blend-mode: overlay;" in body
+
+
+@pytest.mark.parametrize("name", TEXTURES)
+def test_texture_keeps_the_average_colour(name):
+    """UX-DR3, DESIGN.md > Paper texture: each texture is an inline SVG data-URI
+    without `;utf8` (the parser splits on `;`) whose colour matrix maps the noise
+    around mid-grey (offset + slope / 2 = 0.5 per channel), so `overlay` leaves
+    the average colour and the measured contrast unchanged."""
+    value = ROOT[name]
+    assert value.startswith('url("data:image/svg+xml,<svg ')
+    assert ";" not in value
+    matrix = [float(number) for number in re.search(r"values='([^']+)'", value).group(1).split()]
+    for row in range(3):
+        coefficients = matrix[row * 5 : row * 5 + 5]
+        assert sum(coefficients[:4]) / 2 + coefficients[4] == pytest.approx(0.5), (name, row)
 
 
 def test_forced_colours_keep_outlines_rules_and_focus():
@@ -391,6 +475,35 @@ def test_forced_colours_keep_outlines_rules_and_focus():
     assert "border-left: 4px solid currentColor;" in _declarations(css, ".notice")
 
 
+def test_forced_colours_give_the_sheet_a_border_and_drop_the_texture():
+    """UX-DR53, DESIGN.md > Elevation & Depth: the sheet becomes a flat panel with a
+    1px CanvasText border and its focus ring a system colour; the page and the
+    sheet layer lose texture and filter."""
+    forced = _block(_css(), FORCED_COLORS_QUERY)
+    assert "border: 1px solid CanvasText;" in _bodies(forced, ".paper-sheet")
+    assert "--focus-color: CanvasText;" in _bodies(forced, ".paper-sheet")
+    for selector in ("body", ".paper-sheet::before"):
+        assert "background-image: none;" in _bodies(forced, selector), selector
+    assert "filter: none;" in _bodies(forced, ".paper-sheet::before")
+
+
+def test_column_gutters_narrow_with_the_tokens():
+    """UX-DR30, NFR-5, DESIGN.md > Grid and gutters: one centred column of at most
+    content-max with the gutter; 260 to 339.98px uses the small-phone gutter, and
+    below 260px the narrow gutter, for the column and the G1 sheet's padding."""
+    css = _css()
+    column = _declarations(css, ".column")
+    assert "max-width: var(--space-content-max);" in column
+    assert "margin-inline: auto;" in column
+    assert "padding-inline: var(--space-gutter);" in column
+    small = _block(css, SMALL_PHONE_QUERY)
+    assert "padding-inline: var(--space-gutter-small-phone);" in _bodies(small, ".column")
+    narrow = _block(css, NARROW_QUERY)
+    assert "padding-inline: var(--space-gutter-narrow);" in _bodies(narrow, ".column")
+    sheet = _bodies(narrow, ".private-invitation__sheet")
+    assert "padding-inline: var(--space-gutter-narrow);" in sheet
+
+
 # Base template
 
 
@@ -402,6 +515,20 @@ def test_base_template_declares_language_colour_scheme_and_local_css():
     assert '<meta name="viewport" content="width=device-width, initial-scale=1">' in html
     assert '<link rel="stylesheet" href="/static/css/site.css">' in html
     assert "://" not in html
+
+
+def test_base_template_holds_the_edge_filter_once_and_hidden():
+    """UX-DR3: the edge-b3 filter is an inline SVG at the start of `<body>`, hidden
+    from screen readers and zero-size by class, without xmlns (no `://` above)."""
+    html = render_to_string("wedding/base.html")
+    body = html[html.index("<body>") :]
+    assert body.count('<filter id="edge-b3"') == 1
+    svg = re.search(r"<svg[^>]*>", body).group(0)
+    assert 'class="paper-filters"' in svg
+    assert 'aria-hidden="true"' in svg
+    assert 'focusable="false"' in svg
+    assert "xmlns" not in svg
+    assert "display: none" not in _declarations(_css(), ".paper-filters")
 
 
 # The notice include (UX-DR17): every row of the I/O matrix
@@ -523,12 +650,6 @@ def test_notice_text_is_escaped():
 # The style sample /stil/ (Rikke's decision, 2026-11-18)
 
 
-def _reload_urlconf():
-    importlib.reload(guests.urls)
-    importlib.reload(config.urls)
-    clear_url_caches()
-
-
 def test_style_sample_shows_every_button_and_notice_locally(client):
     """UX-DR1, UX-DR15, UX-DR17, UX-DR54: `/stil/` renders on the base template with
     the four buttons, the four notices and a jump link for the motion check (MT-3)."""
@@ -565,13 +686,24 @@ def test_style_sample_swatches_follow_design():
         assert f"background-color: var(--color-{token});" in body, token
 
 
-def test_style_sample_does_not_exist_in_production(client):
-    """Rikke's decision, 2026-11-18: with `APP_ENV=production` the URLconf has no `/stil/`."""
-    try:
-        with override_settings(APP_ENV="production"):
-            _reload_urlconf()
-            assert guests.urls.urlpatterns == []
-            response = client.get("/stil/")
-    finally:
-        _reload_urlconf()
+def test_style_sample_shows_a_paper_sheet(client):
+    """UX-DR3, spec 1.4b: `/stil/` has a `.paper-sheet` sample with a link and the
+    outlined button, so ink text and the focus ring can be compared with
+    `.surface-cream` in a browser (CSS rules: the sharing test above)."""
+    html = client.get("/stil/").content.decode()
+    sample = html[html.index('class="paper-sheet') :]
+    sample = sample[: sample.index("</section>")]
+    assert "<a href=" in sample
+    assert "button--on-green" in sample
+
+
+def test_style_sample_does_not_exist_in_production(client, production_urls):
+    """Rikke's decision, 2026-11-18: with `APP_ENV=production` the URLconf has no
+    `/stil/`; the path is then read as a link code and shows G1 with 404 (FR-5)."""
+    response = client.get("/stil/")
+    assert "style_sample" not in [pattern.name for pattern in production_urls]
     assert response.status_code == 404
+    page = response.content.decode()
+    assert "Dette er en privat invitasjon" in page
+    assert "Stilprøve" not in page
+    assert "guests/private_invitation.html" in [template.name for template in response.templates]
