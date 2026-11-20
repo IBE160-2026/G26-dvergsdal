@@ -24,6 +24,18 @@ Ingen kode endret. Funnene:
 
 Claude leverte en liste med det Rikke må gjøre selv (kvote, `workflow`-scope, innhold, fire beslutninger, PC-en våken) og det Claude gjør selv (Playwright-nettleser til skjermsjekker, tillatelser, gren og PR per story, sesjonslogg).
 
+**Rikkes svar (samme økt), ordrett:**
+
+> Profesoren som anbefaler goal på alt på en gang. Du kan merge PR-ene ja. Ta med epic 8 ja. Om en story blir blokkert gjør du det som er ebst for prosjektet. […] for punkt 4 bekrefter jeg alt
+
+Claudes anbefaling om ett epic om gangen ble altså avvist, etter råd fra faglæreren. Alle 50 stories kjøres i én goal-kjøring. Claude merger PR-ene selv, epic 8 er med, og bildene og `Vår historie.docx` er bekreftet endelige.
+
+**Gjort etter svaret:**
+- **Test av sub-agenter i flere ledd:** en sub-agent kunne starte en egen sub-agent, men den kjørte i bakgrunnen og svaret kom aldri tilbake. Beslutning: hovedøkten styrer hver story og starter sub-agentene til implementering og gjennomgang selv.
+- **`_bmad/custom/bmad-build-auto.toml`:** ny overstyring som sier at løkka venter på varslene fra sub-agentene i stedet for å stoppe med «no subagents», og som laster `AGENTS.md`. Sjekket at den kommer med i den ferdige arbeidsflyten. [PR #23](https://github.com/IBE160-2026/G26-dvergsdal/pull/23): CI grønn, merget av Claude (commit `79b47f7`).
+- **Playwright:** nedlastingen av Playwrights egen Chromium hang seg opp to ganger under utpakkingen (`chrome.dll` ble skrevet, `chrome.exe` aldri), trolig fordi antivirusprogrammet låste fila. Beslutning: Playwright 1.55.0 styrer i stedet Edge, som følger med Windows 11 (`channel: 'msedge'`, Edge 157). Testet med et vindu på 360 × 560: virker. Pakken ligger i øktens scratchpad, ikke i prosjektet.
+- **Tillatelser:** Claude ville skrive `.claude/settings.local.json` med tillatelser til `git push` og `gh pr merge`, men auto mode avviste skrivingen. Merge av PR #23 gikk likevel gjennom i auto mode, så fila trengs trolig ikke.
+- **`gh auth refresh -s workflow`:** ble ikke kjørt første gang, fordi `!` bare virker først i en melding. Rikke kjørte den så som egen melding og godkjente i nettleseren. Tokenet har nå `workflow`.
+
 ### Åpne punkter
-- Rikke avgjør: hele løpet i ett eller ett epic om gangen, om Claude kan merge PR-er selv når CI er grønn, om epic 8 skal med, og hva som skjer når en story blokkeres.
-- Levere endelige tekster og tider for programmet og praktisk informasjon før story 7.4.
+- Levere endelige tekster og tider for programmet og praktisk informasjon før story 7.4. Er de ikke levert, bygger Claude på det som står i planleggingsdokumentene, og fører opp i story-spesifikasjonen hva som fortsatt er plassholdere.
