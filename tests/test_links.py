@@ -1,8 +1,8 @@
 """Personal link codes and the one resolver (FR-1, FR-2, FR-3, AD-6).
 
-FR-3 is tested here at the resolver, because no guest view exists until Story 1.5;
-Story 1.5 repeats the test over an HTTP GET. Rows are set up directly in the tests,
-so the resolver is tested on its own.
+FR-3 is tested here at the resolver; test_front_page.py repeats the test over an
+HTTP GET of the front page and the three info pages (Story 1.5). Rows are set up
+directly in the tests, so the resolver is tested on its own.
 """
 
 import pytest

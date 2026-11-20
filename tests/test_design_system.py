@@ -1,5 +1,6 @@
-"""The invitation's colours, type, buttons and notices (Story 1.4a), and the paper
-sheet, page texture and column (Story 1.4b).
+"""The invitation's colours, type, buttons and notices (Story 1.4a), the paper
+sheet, page texture and column (Story 1.4b), and the guest pages' nav bar, hero,
+narrow widths and forced colours (Story 1.5).
 
 The stylesheet is read as text and compared with the DESIGN.md frontmatter, so
 a token changed in one place and not the other fails here (UX-DR1). The
@@ -37,6 +38,9 @@ REDUCED_MOTION_QUERY = "@media (prefers-reduced-motion: no-preference)"
 FORCED_COLORS_QUERY = "@media (forced-colors: active)"
 SMALL_PHONE_QUERY = "@media (max-width: 339.98px)"
 NARROW_QUERY = "@media (max-width: 259.98px)"
+STACK_QUERY = "@media (max-width: 299.98px)"
+STICKY_QUERY = "@media (min-height: 400px) and (min-width: 20em)"
+NAMES_QUERY = "@container (max-width: 13.7em)"
 DATA_URI = r'url\("(data:[^"]*)"\)'
 SVG_NAMESPACE = "http://www.w3.org/2000/svg"
 TEXTURES = ("grain-sheet", "fibre-sheet", "grain-green")
@@ -417,7 +421,9 @@ def test_paper_sheet_shares_the_cream_surface_rules(declaration, selector):
 def test_paper_sheet_draws_everything_on_a_layer_behind_the_content():
     """UX-DR3, DESIGN.md components.paper-sheet: cream, 5px corners, the sheet
     texture and the edge-b3 filter sit on `::before` behind the content; the
-    sheet itself is never filtered, so text and focus rings stay sharp."""
+    sheet itself is never filtered, so text and focus rings stay sharp. The only
+    other filters are the drop shadows DESIGN.md > Elevation & Depth gives the
+    seal and the lace frame image (Story 1.5), which hold no text."""
     css = _css()
     sheet = _declarations(css, ".paper-sheet")
     assert "position: relative;" in sheet
@@ -434,12 +440,19 @@ def test_paper_sheet_draws_everything_on_a_layer_behind_the_content():
         "filter: url(#edge-b3);",
     ):
         assert declaration in layer, declaration
-    unfiltered = [
-        rule
-        for rule, body in _rules(_without_block(css, FORCED_COLORS_QUERY))
-        if "filter:" in body and rule != ".paper-sheet::before"
-    ]
-    assert unfiltered == []
+    filter_declaration = re.compile(r"(?<![-\w])filter:\s*([^;]+);")
+    filtered = {}
+    for rule, body in _rules(_without_block(css, FORCED_COLORS_QUERY)):
+        if "filter:" not in body:
+            continue
+        match = filter_declaration.search(body)
+        assert match, f"{rule} has a *-filter but no filter: {body}"
+        filtered[rule] = match.group(1)
+    assert filtered == {
+        ".paper-sheet::before": "url(#edge-b3)",
+        ".hero__seal": "drop-shadow(0 2px 2px rgba(12, 16, 8, 0.45))",
+        ".lace-frame__lace": "drop-shadow(0 1px 1.5px rgba(10, 14, 6, 0.35))",
+    }
 
 
 def test_page_has_the_calm_green_texture():
@@ -503,6 +516,143 @@ def test_column_gutters_narrow_with_the_tokens():
     assert "padding-inline: var(--space-gutter-narrow);" in _bodies(narrow, ".column")
     sheet = _bodies(narrow, ".private-invitation__sheet")
     assert "padding-inline: var(--space-gutter-narrow);" in sheet
+
+
+# The guest pages of Story 1.5: nav bar, hero, narrow widths, forced colours
+
+
+def test_sticky_nav_and_scroll_padding_only_on_tall_and_wide_enough_screens():
+    """UX-DR6, NFR-5, EXPERIENCE.md > Accessibility Floor: the nav bar sticks and
+    `html` gets the scroll padding (bar height + scroll gap) only inside the
+    400px-tall, 20em-wide query (em, so a larger default text size that wraps
+    the rem-sized nav words also unsticks the bar); nowhere else, and no
+    scroll-margin on #svar, which would add up with the padding. The stylesheet
+    is read without its comments, so a comment may mention these words."""
+    css = _css()
+    assert "/*" not in css
+    sticky = _block(css, STICKY_QUERY)
+    assert "position: sticky;" in _bodies(sticky, ".nav-bar")
+    assert "top: 0;" in _bodies(sticky, ".nav-bar")
+    padding = "scroll-padding-top: calc(var(--space-nav-height) + var(--space-scroll-gap));"
+    assert padding in _bodies(sticky, "html")
+    outside = _without_block(css, STICKY_QUERY)
+    for forbidden in ("sticky", "scroll-padding", "scroll-margin"):
+        assert forbidden not in outside, forbidden
+    assert "scroll-margin" not in sticky
+
+
+def test_cream_hairlines_share_one_property_equal_to_the_token():
+    """UX-DR1, DESIGN.md nav-bar, details-section, info-page-title: the see-through
+    cream hairlines all use `--rgb-cream-on-green`, which is cream-on-green as an
+    RGB triplet; the triplet is written nowhere else."""
+    css = _css()
+    hex_value = ROOT["color-cream-on-green"].removeprefix("#")
+    triplet = ", ".join(str(int(hex_value[i : i + 2], 16)) for i in (0, 2, 4))
+    assert ROOT["rgb-cream-on-green"] == triplet
+    assert css.count(triplet) == 1
+    rule = "border-bottom: 1px solid rgba(var(--rgb-cream-on-green), 0.5);"
+    for selector in (".details__heading", ".info-page__title"):
+        assert rule in _declarations(css, selector), selector
+
+
+def test_nav_bar_values_follow_design():
+    """UX-DR6, UX-DR11, DESIGN.md components.nav-bar, nav-words, nav-svar: flat
+    page-green, 64px, padding 8/12/8/16, the cream hairline, above the content;
+    words 12px apart and at least 44px tall; «Svar» dark green with a cream
+    border, at least 64 x 44; the current page's word underlined 2px."""
+    css = _css()
+    bar = _declarations(css, ".nav-bar")
+    for declaration in (
+        "background-color: var(--color-page-green);",
+        "box-shadow: 0 1px 0 rgba(var(--rgb-cream-on-green), 0.22);",
+        "z-index: 3;",
+    ):
+        assert declaration in bar, declaration
+    assert "background-image" not in bar
+    inner = _declarations(css, ".nav-bar__inner")
+    assert "min-height: var(--space-nav-height);" in inner
+    assert "padding: 8px 12px 8px 16px;" in inner
+    words = _declarations(css, ".nav-bar__words")
+    assert "gap: 0 12px;" in words
+    assert "font-size: var(--font-size-nav-words);" in words
+    assert "min-height: var(--space-target-min);" in _declarations(css, ".nav-bar__words a")
+    current = _declarations(css, '.nav-bar__words a[aria-current="page"]')
+    assert "text-decoration-thickness: 2px;" in current
+    svar = _declarations(css, ".nav-bar__svar")
+    for declaration in (
+        "background-color: var(--color-green-dark);",
+        "border: 1px solid var(--color-cream-on-green);",
+        "min-width: 64px;",
+        "min-height: var(--space-target-min);",
+        "padding: 0 16px;",
+        "font-size: var(--font-size-nav-button);",
+    ):
+        assert declaration in svar, declaration
+
+
+def test_small_phones_get_the_tighter_nav_and_hero_padding():
+    """UX-DR30, DESIGN.md > First-screen budget: below 340px the bar's padding,
+    word gap and «Svar» shrink so it stays one line at 320px, and the hero takes
+    the small-phone padding; below 260px the hero and RSVP sheets take the narrow
+    gutter, and below 300px a topic row stacks."""
+    css = _css()
+    small = _block(css, SMALL_PHONE_QUERY)
+    assert "padding: 8px 10px 8px 12px;" in _bodies(small, ".nav-bar__inner")
+    assert "gap: 0 8px;" in _bodies(small, ".nav-bar__words")
+    assert "min-width: 56px;" in _bodies(small, ".nav-bar__svar")
+    assert "padding: 0 12px;" in _bodies(small, ".nav-bar__svar")
+    hero_small = "padding-inline: var(--space-hero-padding-inline-small-phone);"
+    assert hero_small in _bodies(small, ".hero")
+    narrow = _block(css, NARROW_QUERY)
+    for sheet in (".hero", ".rsvp"):
+        assert "padding-inline: var(--space-gutter-narrow);" in _bodies(narrow, sheet), sheet
+    assert "flex-direction: column;" in _bodies(_block(css, STACK_QUERY), ".topic-row")
+    # The narrow query comes last, so it wins over the small-phone hero padding.
+    assert css.index(NARROW_QUERY) > css.index(SMALL_PHONE_QUERY)
+
+
+def test_names_stack_by_container_query_and_never_shrink():
+    """UX-DR7, DESIGN.md > Typography (names wrap, never shrink): the hero is an
+    inline-size container, and where it is narrower than 13.7em (274px at 20px)
+    the three name spans become blocks; the query sets no font size."""
+    css = _css()
+    assert "container-type: inline-size;" in _declarations(css, ".hero")
+    stacked = _block(css, NAMES_QUERY)
+    assert "display: block;" in _bodies(stacked, ".hero__names > span")
+    assert "font-size" not in stacked
+    assert "font" not in _declarations(css, ".hero__names > span")
+    assert "nowrap" not in _bodies(css, ".hero__names")
+
+
+def test_forced_colours_drop_the_illustration_blend_and_edge_the_nav():
+    """UX-DR53, EXPERIENCE.md > Accessibility Floor: under forced colours the
+    illustration is not blended, and the nav bar keeps a visible lower edge."""
+    css = _css()
+    assert "mix-blend-mode: darken;" in _declarations(css, ".hero__illustration")
+    forced = _block(css, FORCED_COLORS_QUERY)
+    assert "mix-blend-mode: normal;" in _bodies(forced, ".hero__illustration")
+    assert "border-bottom: 1px solid CanvasText;" in _bodies(forced, ".nav-bar")
+
+
+def test_rsvp_jump_target_draws_no_ring_but_keeps_its_outline_rule():
+    """NFR-5, Story 1.5: #svar takes focus only from a link (tabindex -1), so its
+    ring is transparent rather than removed (never `outline: none`)."""
+    assert "outline-color: transparent;" in _declarations(_css(), "#svar:focus")
+
+
+def test_visually_hidden_utility_exists():
+    """NFR-5: `.visually-hidden` keeps text for screen readers (the «Les mer»
+    names) off the screen without `display: none`."""
+    body = _declarations(_css(), ".visually-hidden")
+    for declaration in (
+        "position: absolute;",
+        "width: 1px;",
+        "height: 1px;",
+        "overflow: hidden;",
+        "clip-path: inset(50%);",
+    ):
+        assert declaration in body, declaration
+    assert "display: none" not in body
 
 
 # Base template

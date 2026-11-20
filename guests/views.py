@@ -1,12 +1,22 @@
 """Guest views.
 
-The private-invitation page G1 for the bare address and for every link code
-(Story 1.4b, FR-5), and the local style sample (Story 1.4a). The invitation's
-front page under `/<code>/` arrives with Story 1.5.
+The invitation's front page under `/<code>/` and the frame of its three info
+pages (Story 1.5, FR-2, FR-7, FR-8, FR-11), the private-invitation page G1 for
+the bare address and for every code that resolves to nobody (Story 1.4b, FR-5),
+and the local style sample (Story 1.4a).
+
+Every guest view only reads (FR-3): one resolver lookup, then selectors. None
+of them touches the session, the messages framework, `request.user` or a CSRF
+token, so opening a link sets no cookie and writes no row.
 """
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
+
+from wedding.actors import GuestActor
+from wedding.links import resolve_code
+from wedding.rules.households import household_names, speaks_to_one
+from wedding.selectors import footer_contacts, household_guest_names, site_settings
 
 # DESIGN.md colour tokens, in the frontmatter's order, for the swatches.
 COLOUR_TOKENS = (
@@ -54,14 +64,67 @@ def private_invitation(request: HttpRequest) -> HttpResponse:
     return render(request, PRIVATE_INVITATION)
 
 
-def front_page(request: HttpRequest, code: str) -> HttpResponse:
-    """FR-5: every `/<code>/` shows G1 with status 404 until Story 1.5.
+def _not_found(request: HttpRequest) -> HttpResponse:
+    """FR-5: G1 with status 404 for a code that resolves to nobody.
 
     The visitor sees the same page as on `/`; the 404 tells crawlers and link
     scanners that the code is not a page. It is a normal response, so `DEBUG`
-    never shows Django's technical 404 with the URL list. Story 1.5 puts the
-    resolver (`wedding.links.resolve_code`) and the invitation's front page
-    here, and keeps G1 for a code that resolves to nobody. Until then the code
-    is not looked up, so the view reads nothing from the database.
+    never shows Django's technical 404 with the URL list.
     """
     return render(request, PRIVATE_INVITATION, status=404)
+
+
+def _guest_context(actor: GuestActor, current: str = "") -> dict[str, object]:
+    """FR-6, FR-8, FR-41: what every guest page under a valid link needs.
+
+    The code for the nav links, the open info page (`current`, empty on the
+    front page) and, from one read of the settings row, the footer contacts and
+    the deadline.
+    """
+    settings = site_settings()
+    return {
+        "code": actor.guest.code,
+        "current": current,
+        "contacts": footer_contacts(settings),
+        "deadline": settings.rsvp_deadline,
+    }
+
+
+def front_page(request: HttpRequest, code: str) -> HttpResponse:
+    """FR-2, FR-3, FR-5, FR-6, FR-7, FR-8, FR-41, UX-DR51: the invitation's front page (G2).
+
+    The code goes through the one resolver (AD-6); nobody gets G1 with 404.
+    Three SELECTs in all: the resolver, the household's guest names and the
+    settings row. The household line and «deg»/«dere» come from the rules; the
+    wedding's date and place are template text (AD-17).
+    """
+    actor = resolve_code(code)
+    if actor is None:
+        return _not_found(request)
+    names = household_guest_names(actor.household)
+    context = _guest_context(actor) | {
+        "household_names": household_names(names),
+        "speaks_to_one": speaks_to_one(len(names)),
+    }
+    return render(request, "guests/front_page.html", context)
+
+
+# FR-8, FR-11: each info page's key (its URL name and current nav word) and
+# template. The pages hold only the frame until Stories 1.6 and 1.7 fill them.
+INFO_PAGES = {
+    "programme": "guests/programme.html",
+    "practical": "guests/practical.html",
+    "our_story": "guests/our_story.html",
+}
+
+
+def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
+    """FR-3, FR-5, FR-6, FR-8, FR-11: one of the three info pages (G3) under `/<code>/`.
+
+    `page` is a key of `INFO_PAGES`, set by the route. Two SELECTs: the
+    resolver and the settings row for the footer; nobody gets G1 with 404.
+    """
+    actor = resolve_code(code)
+    if actor is None:
+        return _not_found(request)
+    return render(request, INFO_PAGES[page], _guest_context(actor, current=page))
