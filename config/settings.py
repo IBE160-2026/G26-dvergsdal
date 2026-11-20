@@ -76,6 +76,12 @@ ROOT_URLCONF = "config.urls"
 # CSRF check needs the Referer on HTTPS forms and would reject every one.
 SECURE_REFERRER_POLICY = "same-origin"
 
+# A form that fails the CSRF check gets a calm guest page instead of Django's
+# own: under a valid link with the couple's phones, otherwise impersonal
+# (Story 1.8, FR-5, FR-6, AD-15). The 400, 404 and 500 handlers are in
+# config/urls.py.
+CSRF_FAILURE_VIEW = "guests.views.csrf_failure"
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",

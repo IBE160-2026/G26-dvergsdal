@@ -1,0 +1,19 @@
+{% extends "guests/error_page.html" %}
+{% comment %}
+500 (Story 1.8; FR-5, FR-6, AD-15; DESIGN.md › No valid link): something went
+wrong on our side. guests.views.server_error renders it without a request,
+because a 500 can come before the host is checked; with a valid code it has
+the back button and the footer band, and the last line points to the phones
+below. Without one, or when the lookup itself fails, nothing personal. The text
+lives here (AD-17).
+{% endcomment %}
+{% block title %}Noe gikk galt hos oss – Invitasjon{% endblock title %}
+{% block heading %}Noe gikk galt hos oss{% endblock heading %}
+{% block message %}
+    <p>Prøv igjen om litt.</p>
+    {% if contacts %}
+        <p>Går det fortsatt ikke, send oss en melding.</p>
+    {% else %}
+        <p>Går det fortsatt ikke, ta kontakt med brudeparet direkte.</p>
+    {% endif %}
+{% endblock message %}

@@ -1,0 +1,13 @@
+{% extends "guests/error_page.html" %}
+{% comment %}
+404 under a valid link (Story 1.8; FR-5, FR-6, AD-15; DESIGN.md › No valid
+link): an address under `/<code>/` that is not a page, when the code resolves.
+guests.views.page_not_found shows it with the back button and the footer band;
+an address without a valid code gets G1 instead (private_invitation.html). The
+text lives here (AD-17).
+{% endcomment %}
+{% block title %}Vi finner ikke denne siden – Invitasjon{% endblock title %}
+{% block heading %}Vi finner ikke denne siden{% endblock heading %}
+{% block message %}
+    <p>Lenken kan ha en skrivefeil. Invitasjonen ligger der den var.</p>
+{% endblock message %}

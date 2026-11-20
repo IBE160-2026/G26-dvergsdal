@@ -10,6 +10,11 @@ link code. `/robots.txt` is there (Story 1.4c, NFR-4, AD-15): it blocks nothing,
 because a crawler must fetch a page to read its `noindex`, and it stops
 `/robots.txt` from showing G1. The `admin/` include (the couple's dashboard,
 Story 3.1) goes there too.
+
+The error handlers are guests/views.py's (Story 1.8, FR-5, FR-6, AD-15), so no
+visitor ever sees one of Django's own pages: a 404 without a valid code is G1,
+and a 404 or 500 under a valid link shows the couple's phones. A 400 is always
+impersonal. The CSRF failure page is set in config/settings.py.
 """
 
 from django.urls import include, path
@@ -24,3 +29,8 @@ urlpatterns = [
     ),
     path("", include("guests.urls")),
 ]
+
+# FR-5, FR-6, AD-15: site-wide error pages (Story 1.8).
+handler400 = "guests.views.bad_request"
+handler404 = "guests.views.page_not_found"
+handler500 = "guests.views.server_error"
