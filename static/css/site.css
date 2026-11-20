@@ -8,8 +8,12 @@
  * the private-invitation page (G1). Story 1.5 adds the guest pages' nav bar,
  * the front page (hero, lead-in, «Alt om helgen», RSVP sheet), the footer
  * band and the info-page frame, with the values of mockups/front-page-3.html
- * and mockups/info-praktisk.html where DESIGN.md has no token. The info
- * pages' content arrives in 1.6 and 1.7, the error pages in 1.8.
+ * and mockups/info-praktisk.html where DESIGN.md has no token. Story 1.6
+ * adds the content of Praktisk informasjon and Vår historie: the jump links,
+ * the info sheet, the story sheet and the 220px lace frame (UX-DR12,
+ * UX-DR14, UX-DR30, NFR-5), with the values of mockups/info-praktisk.html and
+ * mockups/info-om-oss.html where DESIGN.md has none. The programme arrives in
+ * 1.7, the error pages in 1.8.
  */
 
 /* ---------- Fonts: self-hosted WOFF2, SIL OFL (UX-DR2, AD-15) ----------
@@ -71,6 +75,10 @@
    * (DESIGN.md: the nav bar's at 22 %, the details heading's and the info
    * page title's rule at 50 %). Same colour as --color-cream-on-green. */
   --rgb-cream-on-green: 245, 238, 223;
+
+  /* ink as an RGB triplet, for the info sheets' heading rule at 35 %
+   * (DESIGN.md components.info-sheet, Story 1.6). Same colour as --color-ink. */
+  --rgb-ink: 59, 55, 47;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -804,12 +812,25 @@ a:active {
   object-position: 50% 82%;
 }
 
+/* The church photo is shifted right so the church fills the window
+ * (mockups/info-praktisk.html, Story 1.6). */
+.lace-frame__photo--kirka {
+  object-position: 76% 50%;
+}
+
 .lace-frame__lace {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   filter: drop-shadow(0 1px 1.5px rgba(10, 14, 6, 0.35));
+}
+
+/* On an info sheet the frame is 220px, centred at the top of the sheet body
+ * (DESIGN.md lace-frame.widthOnInfoSheet; Story 1.6, UX-DR12, UX-DR14). */
+.lace-frame--info {
+  width: 220px;
+  margin: 6px auto 14px;
 }
 
 /* ---------- RSVP sheet (FR-41, UX-DR7; DESIGN.md › RSVP sheet) ----------
@@ -909,13 +930,155 @@ a:active {
   text-align: center;
 }
 
+/* ---------- Jump links (FR-10, UX-DR12, NFR-5; DESIGN.md › Jump links) ----------
+ * The «Hopp til» nav 10px under the info page title: small capitals, centred,
+ * not underlined (they read like the nav words), each link at least 44px
+ * tall. Each balanced line is its own list, so a dot never starts a line. The
+ * dots are aria-hidden spans in the HTML, not CSS generated content, which
+ * some screen readers read aloud. A followed link's section is cleared of the
+ * sticky bar by the scroll padding on `html` alone.
+ * With the self-hosted EB Garamond the widest line, «Komme dit · Husregler ·
+ * Antrekk», is about 328px with the mockup's 4px inline margin and 7px dot
+ * padding, more than the 320px it gets at 360px. Without the inline margin
+ * and with 5px dot padding it is about 320px of the 328px content box. */
+
+.jump-links {
+  margin: 10px 0 0;
+}
+
+.jump-links ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.jump-links li {
+  display: flex;
+  align-items: center;
+}
+
+.jump-links__dot {
+  padding: 0 5px;
+}
+
+.jump-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-target-min);
+  font-size: var(--font-size-jump-links);
+  line-height: var(--line-height-jump-links);
+  letter-spacing: var(--letter-spacing-jump-links);
+  font-variant-caps: all-small-caps;
+  text-decoration: none;
+}
+
+/* Where the widest line no longer fits (about 320px of text plus the two 16px
+ * gutters, 352px, rounded up to 22.5em for a margin), each link takes its own
+ * line and the dots are hidden, so a dot never starts a line. In em, so it
+ * follows a larger default text size, like the sticky nav's 20em. */
+@media (max-width: 22.49em) {
+  .jump-links ul {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .jump-links__dot {
+    display: none;
+  }
+}
+
+/* ---------- Info sheet (FR-10, UX-DR12; DESIGN.md › Info sheet) ----------
+ * One paper sheet per part, 20px apart: the italic heading with an ink
+ * hairline, then the text; facts lead with a 600-weight label. The sheet is a
+ * jump target that takes focus only from its link (tabindex="-1"), so, like
+ * #svar, its ring is transparent rather than removed. */
+
+.info-sheet {
+  margin-top: 20px;
+  padding: 22px 22px 12px;
+}
+
+.info-sheet:focus {
+  outline-color: transparent;
+}
+
+.info-sheet h2 {
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(var(--rgb-ink), 0.35);
+  font-style: italic;
+}
+
+.info-sheet p,
+.info-sheet ul {
+  margin: 0 0 10px;
+}
+
+.info-sheet ul {
+  padding-left: 22px;
+}
+
+.info-sheet strong {
+  font-weight: var(--font-weight-label);
+}
+
+/* ---------- Story sheet (UX-DR14; DESIGN.md › Story sheet) ----------
+ * Vår historie: one paper sheet without its own heading, the photo in the
+ * 220px lace frame, chapters each opened by an italic time · place line in
+ * body size, an italic centred closing line and the names as a signature in
+ * Imperial Script. The closing line and the signature are named with the
+ * sheet's class as well, so they win over the chapter paragraphs' margin. */
+
+.story-sheet {
+  margin-top: 20px;
+  padding: 22px 22px 18px;
+}
+
+.story-sheet .lace-frame--info {
+  margin: 4px auto 16px;
+}
+
+.story-sheet h2 {
+  margin: 18px 0 4px;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-style: italic;
+}
+
+.story-sheet h2:first-of-type {
+  margin-top: 2px;
+}
+
+.story-sheet p {
+  margin: 0 0 12px;
+}
+
+.story-sheet .story-sheet__closing {
+  margin: 18px 4px 0;
+  font-style: italic;
+  text-align: center;
+}
+
+.story-sheet .story-sheet__signature {
+  margin: 18px 0 2px;
+  font-family: var(--font-script);
+  font-size: var(--font-size-signature);
+  line-height: var(--line-height-signature);
+  font-weight: 400;
+  text-align: center;
+}
+
 /* ---------- Narrow widths (UX-DR30, NFR-5) ----------
  * Gutters from DESIGN.md › Grid and gutters. From 260 to 339.98px the
  * nav bar uses its tighter spacing, so it stays one 64px line at 320px, and
  * the hero its small-phone padding, so the names and the place stay on one
  * line and the hero fits the first screen. Below 300px a topic row stacks,
  * frame above text. Below 260px the sheets' own inline padding narrows too,
- * so their lines keep room at 180 CSS px. */
+ * so their lines keep room at 180 CSS px. The jump links stack at their own,
+ * wider breakpoint (Jump links, Story 1.6). */
 
 @media (max-width: 339.98px) {
   .column {
@@ -953,7 +1116,9 @@ a:active {
 
   .private-invitation__sheet,
   .hero,
-  .rsvp {
+  .rsvp,
+  .info-sheet,
+  .story-sheet {
     padding-inline: var(--space-gutter-narrow);
   }
 }

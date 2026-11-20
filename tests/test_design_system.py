@@ -1,6 +1,7 @@
 """The invitation's colours, type, buttons and notices (Story 1.4a), the paper
-sheet, page texture and column (Story 1.4b), and the guest pages' nav bar, hero,
-narrow widths and forced colours (Story 1.5).
+sheet, page texture and column (Story 1.4b), the guest pages' nav bar, hero,
+narrow widths and forced colours (Story 1.5), and the jump links, info sheet
+and story sheet of the info pages (Story 1.6).
 
 The stylesheet is read as text and compared with the DESIGN.md frontmatter, so
 a token changed in one place and not the other fails here (UX-DR1). The
@@ -40,6 +41,7 @@ SMALL_PHONE_QUERY = "@media (max-width: 339.98px)"
 NARROW_QUERY = "@media (max-width: 259.98px)"
 STACK_QUERY = "@media (max-width: 299.98px)"
 STICKY_QUERY = "@media (min-height: 400px) and (min-width: 20em)"
+JUMP_STACK_QUERY = "@media (max-width: 22.49em)"
 NAMES_QUERY = "@container (max-width: 13.7em)"
 DATA_URI = r'url\("(data:[^"]*)"\)'
 SVG_NAMESPACE = "http://www.w3.org/2000/svg"
@@ -638,6 +640,143 @@ def test_rsvp_jump_target_draws_no_ring_but_keeps_its_outline_rule():
     """NFR-5, Story 1.5: #svar takes focus only from a link (tabindex -1), so its
     ring is transparent rather than removed (never `outline: none`)."""
     assert "outline-color: transparent;" in _declarations(_css(), "#svar:focus")
+
+
+# The info pages' content of Story 1.6: jump links, info sheet, story sheet
+
+
+def test_jump_links_are_small_caps_44px_and_not_underlined():
+    """UX-DR12, NFR-5, DESIGN.md components.jump-links, typography.jump-links:
+    centred lists without bullets 10px under the title; each link at least
+    44px tall, in small capitals with the jump-links type tokens and no
+    underline; the dot is padded 5px on each side and the nav has no inline
+    margin, so the widest line fits at 360px with the self-hosted font."""
+    css = _css()
+    assert "margin: 10px 0 0;" in _declarations(css, ".jump-links")
+    lists = _declarations(css, ".jump-links ul")
+    for declaration in (
+        "display: flex;",
+        "flex-wrap: wrap;",
+        "justify-content: center;",
+        "list-style: none;",
+        "padding: 0;",
+    ):
+        assert declaration in lists, declaration
+    link = _declarations(css, ".jump-links a")
+    for declaration in (
+        "min-height: var(--space-target-min);",
+        "font-size: var(--font-size-jump-links);",
+        "line-height: var(--line-height-jump-links);",
+        "letter-spacing: var(--letter-spacing-jump-links);",
+        "font-variant-caps: all-small-caps;",
+        "text-decoration: none;",
+    ):
+        assert declaration in link, declaration
+    assert ROOT["letter-spacing-jump-links"] == DESIGN["typography"]["jump-links"]["letterSpacing"]
+    assert "padding: 0 5px;" in _declarations(css, ".jump-links__dot")
+    item = _declarations(css, ".jump-links li")
+    assert "display: flex;" in item
+    assert "content:" not in item
+
+
+def test_jump_links_stack_without_dots_where_the_widest_line_stops_fitting():
+    """UX-DR12, UX-DR30, NFR-5, Story 1.6: below 22.5em (360px at the default
+    text size; the widest line needs about 352px with the gutters) each jump
+    link takes its own line and the dots are hidden, so a dot never starts a
+    line; the query is in em so it follows a larger text size, and nothing
+    else sets the jump links' direction or hides the dots. Below 260px the
+    info and story sheets take the narrow gutter as their inline padding."""
+    css = _css()
+    stack = _block(css, JUMP_STACK_QUERY)
+    assert "flex-direction: column;" in _bodies(stack, ".jump-links ul")
+    assert "display: none;" in _bodies(stack, ".jump-links__dot")
+    outside = _without_block(css, JUMP_STACK_QUERY)
+    assert "display: none" not in _bodies(outside, ".jump-links__dot")
+    assert "flex-direction" not in _bodies(outside, ".jump-links ul")
+    narrow = _block(css, NARROW_QUERY)
+    for sheet in (".info-sheet", ".story-sheet"):
+        assert "padding-inline: var(--space-gutter-narrow);" in _bodies(narrow, sheet), sheet
+
+
+def test_info_sheet_jump_target_draws_no_ring_but_keeps_its_outline_rule():
+    """NFR-5, UX-DR12: an info sheet takes focus only from its jump link
+    (tabindex -1), so like #svar its ring is transparent rather than removed."""
+    assert "outline-color: transparent;" in _declarations(_css(), ".info-sheet:focus")
+
+
+def test_info_sheet_values_follow_design():
+    """UX-DR12, DESIGN.md components.info-sheet: 20px apart, padded 22/22/12;
+    the italic heading has the ink hairline of DESIGN.md (ink at 35 %), 8px
+    below the text; labels in the label weight; lists keep their bullets."""
+    css = _css()
+    sheet = _declarations(css, ".info-sheet")
+    info = DESIGN["components"]["info-sheet"]
+    assert f"margin-top: {info['gap']};" in sheet
+    assert f"padding: {info['padding']};" in sheet
+    heading = _declarations(css, ".info-sheet h2")
+    assert "font-style: italic;" in heading
+    assert "padding-bottom: 8px;" in heading
+    assert "border-bottom: 1px solid rgba(var(--rgb-ink), 0.35);" in heading
+    assert "1px rgba(59,55,47,.35)" in info["headingRule"]
+    ink = ROOT["color-ink"].removeprefix("#")
+    triplet = ", ".join(str(int(ink[i : i + 2], 16)) for i in (0, 2, 4))
+    assert ROOT["rgb-ink"] == triplet
+    assert _css().count(triplet) == 1
+    assert "font-weight: var(--font-weight-label);" in _declarations(css, ".info-sheet strong")
+    assert "padding-left: 22px;" in _declarations(css, ".info-sheet ul")
+
+
+def test_lace_frame_is_220px_on_the_info_and_story_sheets():
+    """UX-DR9, DESIGN.md lace-frame.widthOnInfoSheet: 220px, centred, 6px above
+    and 14px below on an info sheet, 4px and 16px on the story sheet; the
+    church photo is shifted right as in the approved mockup."""
+    css = _css()
+    assert DESIGN["components"]["lace-frame"]["widthOnInfoSheet"].startswith("220px")
+    frame = _declarations(css, ".lace-frame--info")
+    assert "width: 220px;" in frame
+    assert "margin: 6px auto 14px;" in frame
+    assert "margin: 4px auto 16px;" in _declarations(css, ".story-sheet .lace-frame--info")
+    assert "object-position: 76% 50%;" in _declarations(css, ".lace-frame__photo--kirka")
+
+
+def test_story_sheet_values_follow_design():
+    """UX-DR14, DESIGN.md components.story-sheet: padded 22/22/18, 20px below
+    the title; chapter lines italic in body size, 18px above and 4px below;
+    the closing line italic and centred; the signature centred in the
+    signature tokens."""
+    css = _css()
+    story = DESIGN["components"]["story-sheet"]
+    sheet = _declarations(css, ".story-sheet")
+    assert f"padding: {story['padding']};" in sheet
+    assert "margin-top: 20px;" in sheet
+    chapter = _declarations(css, ".story-sheet h2")
+    for declaration in (
+        "margin: 18px 0 4px;",
+        "font-size: var(--font-size-body);",
+        "line-height: var(--line-height-body);",
+        "font-style: italic;",
+    ):
+        assert declaration in chapter, declaration
+    assert "margin-top: 2px;" in _declarations(css, ".story-sheet h2:first-of-type")
+    closing = _declarations(css, ".story-sheet .story-sheet__closing")
+    for declaration in ("margin: 18px 4px 0;", "font-style: italic;", "text-align: center;"):
+        assert declaration in closing, declaration
+    signature = _declarations(css, ".story-sheet .story-sheet__signature")
+    for declaration in (
+        "margin: 18px 0 2px;",
+        "font-family: var(--font-script);",
+        "font-size: var(--font-size-signature);",
+        "line-height: var(--line-height-signature);",
+        "text-align: center;",
+    ):
+        assert declaration in signature, declaration
+
+
+def test_imperial_script_only_for_the_names_and_the_signature():
+    """UX-DR2, DESIGN.md > Typography: `var(--font-script)` is used by the hero
+    names and the signature on Vår historie, nowhere else."""
+    users = {rule for rule, body in _rules(_css()) if "var(--font-script)" in body}
+    assert users == {".display-names", ".story-sheet .story-sheet__signature"}
 
 
 def test_visually_hidden_utility_exists():

@@ -42,3 +42,7 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-5-the-invitation-front-page.md`
   summary: An unknown second segment under a valid code (for example `/<code>/svar/`) shows Django's own 404 instead of G1; Story 1.8's handler404 should cover every unmatched path.
   evidence: low. Same case as the multi-segment paths deferred by 1.4b.
+
+- source_spec: `.docs/implementation-artifacts/spec-1-6-practical-information-and-our-story-pages.md`
+  summary: Story 7.4: add «Åpne veibeskrivelse i kart» to «Hvordan komme seg dit» on Praktisk informasjon once the real address exists. Choose the map service first, give the link `rel="noreferrer"` (AD-15), and say on the privacy page (Story 7.1) that the link leaves the site for that service.
+  evidence: medium. The approved mockup has the button, but there is no address yet and no map service decided, so Story 1.6 leaves it out (DESIGN.md › Info pages and EXPERIENCE.md › Info sheet carry the dated note).
