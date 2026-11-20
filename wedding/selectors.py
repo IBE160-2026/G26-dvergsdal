@@ -1,12 +1,14 @@
 """Read queries for views and commands (Structural Seed).
 
 Selectors load facts from the models and never filter on answer content; counts
-and totals come from `wedding.rules` (AD-2).
+and totals come from `wedding.rules` (AD-2). None of them writes, so a guest
+view built on them never writes either (FR-3).
 """
 
 from collections.abc import Iterable
 
-from wedding.models import Guest, User
+from wedding.models import Guest, Household, Settings, User
+from wedding.rules.contacts import tel_number
 
 
 def seed_conflicts(codes: Iterable[str], usernames: Iterable[str]) -> list[str]:
@@ -31,3 +33,44 @@ def seed_conflicts(codes: Iterable[str], usernames: Iterable[str]) -> list[str]:
     return [f"lenkekoden «{code}»" for code in codes if code in taken_codes] + [
         f"brukernavnet «{username}»" for username in usernames if username in taken_usernames
     ]
+
+
+def site_settings() -> Settings:
+    """FR-3, FR-6, FR-41: the one settings row, read with `.get()` and never created.
+
+    A data migration makes the row, so a missing row is a broken database and
+    raises instead of being repaired by a guest's GET.
+    """
+    return Settings.objects.get()
+
+
+def footer_contacts(settings: Settings | None = None) -> list[dict[str, str]]:
+    """FR-6: the couple's contacts for the footer band on every valid-link page.
+
+    Contact 1 first; each with the name, the phone as typed and the `tel:` number
+    from `wedding.rules.contacts.tel_number`. A contact whose phone has no digit
+    is left out, so an empty list means no footer
+    (wedding/components/footer-band.html). Reads the settings row unless the
+    caller already has it.
+    """
+    if settings is None:
+        settings = site_settings()
+    contacts = [
+        (settings.contact_1_name, settings.contact_1_phone),
+        (settings.contact_2_name, settings.contact_2_phone),
+    ]
+    return [
+        {"name": name, "phone": phone, "tel": tel}
+        for name, phone in contacts
+        if (tel := tel_number(phone))
+    ]
+
+
+def household_guest_names(household: Household) -> list[str]:
+    """FR-2, FR-7: the names of `household`'s guests, in the order they were added (by id).
+
+    One SELECT of the names only; nothing from another household.
+    """
+    return list(
+        Guest.objects.filter(household=household).order_by("id").values_list("name", flat=True)
+    )

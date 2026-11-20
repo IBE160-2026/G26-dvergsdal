@@ -36,8 +36,9 @@ class Household(models.Model):
     """The people invited together, who answer together (FR-49, AD-4).
 
     No name is stored: «for Sigmund og bestemor» is derived from the guests' names
-    (Story 1.5). `revision` starts at 0 and goes up on every change to the
-    household's answer or members, so two senders never overwrite silently (AD-9).
+    by `wedding.rules.households.household_names` (Story 1.5). `revision` starts
+    at 0 and goes up on every change to the household's answer or members, so
+    two senders never overwrite silently (AD-9).
     """
 
     revision = models.PositiveIntegerField("revisjon", default=0)
