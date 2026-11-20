@@ -144,3 +144,42 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+
+
+# Logging: Django's defaults, written out so every handler masks link codes
+# (Story 1.4c, FR-4, NFR-4, AD-15). `MaskLinkCodes` turns «Not Found: /<code>/»
+# into «Not Found: /[code]/». No `mail_admins` handler: mail is never sent, and
+# its body would carry the whole request.
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "require_debug_true": {"()": "django.utils.log.RequireDebugTrue"},
+        "mask_link_codes": {"()": "config.logging_filters.MaskLinkCodes"},
+    },
+    "formatters": {
+        "django.server": {
+            "()": "django.utils.log.ServerFormatter",
+            "format": "[{server_time}] {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "filters": ["require_debug_true", "mask_link_codes"],
+            "class": "logging.StreamHandler",
+        },
+        "django.server": {
+            "level": "INFO",
+            "filters": ["mask_link_codes"],
+            "class": "logging.StreamHandler",
+            "formatter": "django.server",
+        },
+    },
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "INFO"},
+        "django.server": {"handlers": ["django.server"], "level": "INFO", "propagate": False},
+    },
+}
