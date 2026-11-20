@@ -46,3 +46,15 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-6-practical-information-and-our-story-pages.md`
   summary: Story 7.4: add «Åpne veibeskrivelse i kart» to «Hvordan komme seg dit» on Praktisk informasjon once the real address exists. Choose the map service first, give the link `rel="noreferrer"` (AD-15), and say on the privacy page (Story 7.1) that the link leaves the site for that service.
   evidence: medium. The approved mockup has the button, but there is no address yet and no map service decided, so Story 1.6 leaves it out (DESIGN.md › Info pages and EXPERIENCE.md › Info sheet carry the dated note).
+
+- source_spec: `.docs/implementation-artifacts/spec-1-7-the-programme-page.md`
+  summary: Story 7.4: the programme's placeholder times are plain («10:00», as approved in the mockup), not bracketed, so the «[…]» placeholder test does not catch them. Replace them, and the rest of the programme text, from the content draft `ux/innhold/programmet-og-praktisk.md`, and decide du/dere for the lines that say «dere» (the voluntary line and «Meld dere på»), since a one-person household reads the same text today. The ceremony time stands both on Praktisk informasjon («Lørdag 27. mai kl. [14:00]», `guests/templates/guests/practical.html`) and in the programme («14:00 Vielsen»), with nothing tying them, so update both pages together.
+  evidence: medium. Story 1.7 keeps the mockup's times and text on purpose (AD-17, the real text belongs to 7.4); `tests/test_programme_page.py` compares the page with the mockup, so it will fail when 7.4 changes the text and must be updated with it.
+
+- source_spec: `.docs/implementation-artifacts/spec-1-7-the-programme-page.md`
+  summary: Story 2.3: when the RSVP form picks a kroner display (thousands with a space, for example «1 450 kr»), use the same display for the programme's meal prices in «Godt å vite», which today print the plain int («340 kr.»).
+  evidence: low. Every meal price is under 1000 kr, so the plain int reads correctly now; the first amount ≥ 1000 (the cabin weekend or a total) appears in Story 2.3.
+
+- source_spec: `.docs/implementation-artifacts/spec-1-7-the-programme-page.md`
+  summary: Story 4.5 (the settings admin page): a meal price of 0 (a fresh `migrate` without the seed, or a meal the couple pays for) renders «Middagen betales selv: 0 kr.» in the programme's «Godt å vite». Decide how a price of 0 is handled before the couple can save one: refuse it, or let the programme show the meal as free.
+  evidence: low. `update_settings` accepts 0 (`wedding/services/settings.py:90`); invitations are not sent before the real prices are entered, so no guest sees it today.
