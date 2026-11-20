@@ -18,7 +18,11 @@ from pathlib import Path
 import pytest
 from django.contrib.staticfiles import finders
 from django.core.management import call_command
+from django.template.loader import render_to_string
 from django.test import Client
+from django.urls import URLResolver, get_resolver
+
+from config.logging_filters import NOT_LINK_CODES
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SEED = tomllib.loads((BASE_DIR / "wedding" / "fixtures" / "seed.toml").read_text(encoding="utf-8"))
@@ -127,6 +131,14 @@ def test_every_response_says_noindex_and_same_origin(client, path, status):
     _assert_private_headers(response)
 
 
+def test_a_csrf_failure_says_noindex_and_same_origin():
+    """AD-15: the 403 page for a form without a CSRF token carries the headers too
+    (it is made by the CSRF middleware, not by a view)."""
+    response = Client(enforce_csrf_checks=True).post("/")
+    assert response.status_code == 403
+    _assert_private_headers(response)
+
+
 def test_a_seeded_test_link_says_noindex_and_same_origin(client, seeded_codes):
     """AD-15: a real guest link carries the same headers."""
     response = client.get(f"/{seeded_codes[0]}/")
@@ -154,9 +166,14 @@ def test_noindex_middleware_comes_before_whitenoise(settings):
     assert noindex < middleware.index("whitenoise.middleware.WhiteNoiseMiddleware")
 
 
-def test_referrer_policy_is_set_explicitly_to_same_origin(settings):
-    """AD-15: never `no-referrer`, which makes Django's CSRF check reject forms."""
+def test_referrer_policy_is_written_out_in_settings(settings):
+    """AD-15: `same-origin` is Django's default, so the value alone proves little;
+    the setting is written in config/settings.py, so the choice is traceable and a
+    new Django default cannot change it. Never `no-referrer`, which makes Django's
+    CSRF check reject forms."""
     assert settings.SECURE_REFERRER_POLICY == "same-origin"
+    source = (BASE_DIR / "config" / "settings.py").read_text(encoding="utf-8")
+    assert re.search(r'^SECURE_REFERRER_POLICY = "same-origin"$', source, re.MULTILINE)
 
 
 # The page head: noindex and the link preview (FR-4)
@@ -176,6 +193,48 @@ def test_bare_address_has_one_robots_meta_and_the_fixed_preview(client, assert_l
         assert absent not in html, absent
 
 
+@pytest.mark.parametrize(
+    "bad",
+    [
+        '<img src="//cdn.example/x.png" alt="">',
+        '<img srcset="/static/a.png 1x, //cdn.example/b.png 2x" alt="">',
+        '<form action="//example.org/svar/"></form>',
+        '<meta property="og:image" content="//example.org/x.jpg">',
+        '<video poster="//example.org/x.jpg"></video>',
+        "<div style=\"background: url('//example.org/x.png')\"></div>",
+        '<a href="https://example.org/">x</a>',
+        '<meta property="og:image" content="http://testserver/x.jpg">',  # wrong scheme
+    ],
+)
+def test_own_host_checker_catches_other_sites(assert_loads_only_own_host, bad):
+    """The checker in conftest.py is proved on each kind of address it looks for;
+    the last sample is our own host, but over HTTP on an HTTPS request."""
+    with pytest.raises(AssertionError):
+        assert_loads_only_own_host(bad, scheme="https")
+
+
+def test_preview_image_follows_the_request_scheme(client, assert_loads_only_own_host):
+    """FR-4, AD-15: over HTTPS the og:image is `https://` on our own host, so a chat
+    app never fetches it over plain HTTP."""
+    html = client.get("/", secure=True).content.decode()
+    assert _preview(html)["og:image"] == "https://testserver/static/img/forhandsvisning.jpg"
+    assert_loads_only_own_host(html, scheme="https")
+
+
+def test_base_rendered_without_a_request_leaves_og_image_out():
+    """FR-4: a page rendered with no request (render_to_string, Django's default
+    500 page) has no host to build the og:image from, so it leaves the tag out
+    instead of writing «:///static/…»; the other preview tags stay."""
+    html = render_to_string("wedding/base.html")
+    preview = _preview(html)
+    assert "og:image" not in preview
+    assert preview == {
+        "title": "Invitasjon",
+        **{key: value for key, value in PREVIEW.items() if key != "og:image"},
+    }
+    assert "://" not in html
+
+
 def test_preview_is_the_same_for_every_code_and_names_nobody(client, seeded_codes):
     """FR-4: two guests in different households and an unknown code get the same
     title and Open Graph tags as `/`, and none of them names a guest, the couple,
@@ -185,6 +244,8 @@ def test_preview_is_the_same_for_every_code_and_names_nobody(client, seeded_code
         for path in ["/", *(f"/{code}/" for code in seeded_codes), f"/{UNKNOWN_CODE}/"]
     ]
     assert all(preview == previews[0] for preview in previews)
+    # The <title> sits in a block that a page may fill, but never per guest.
+    assert {preview["title"] for preview in previews} == {"Invitasjon"}
     text = " ".join(previews[0].values())
     names = [guest["name"] for household in SEED["households"] for guest in household["guests"]]
     names += [SEED["settings"]["contact_1_name"], SEED["settings"]["contact_2_name"]]
@@ -201,7 +262,8 @@ def test_preview_tags_sit_outside_every_block():
         encoding="utf-8"
     )
     head = source[source.index("<head>") : source.index("</head>")]
-    outside = re.sub(r"{% block (\w+) %}.*?{% endblock \1 %}", "", head, flags=re.DOTALL)
+    # `{% endblock %}` may or may not repeat the block's name.
+    outside = re.sub(r"{% block (\w+) %}.*?{% endblock(?: \1)? %}", "", head, flags=re.DOTALL)
     assert '<meta name="robots" content="noindex">' in outside
     assert '{% include "wedding/components/link-preview.html" %}' in outside
 
@@ -229,13 +291,43 @@ def test_robots_txt_allows_crawling_and_is_not_g1(client, django_assert_num_quer
     assert "Disallow: /" not in response.content.decode()
 
 
+def _top_level_routes(patterns, prefix: str = "") -> list[str]:
+    """Every route as the browser sees it, with includes at `""` opened up."""
+    routes = []
+    for pattern in patterns:
+        route = prefix + str(pattern.pattern)
+        if isinstance(pattern, URLResolver) and str(pattern.pattern) == "":
+            routes += _top_level_routes(pattern.url_patterns, route)
+        else:
+            routes.append(route)
+    return routes
+
+
+def test_every_fixed_route_stays_readable_in_the_log():
+    """NFR-4, AD-15: every top-level route that is not a link code (everything
+    except `""` and the guest `<str:code>/`) is in the log filter's
+    `NOT_LINK_CODES`, so a new route such as Story 3.1's `admin/` fails here until
+    the filter knows it."""
+    routes = _top_level_routes(get_resolver().url_patterns)
+    assert "<str:code>/" in routes
+    fixed = [route for route in routes if route not in {"", "<str:code>/"}]
+    assert "robots.txt" in fixed
+    for route in fixed:
+        assert route.split("/")[0] in NOT_LINK_CODES, route
+
+
 # External links (AD-15)
 
-_EXTERNAL_LINK = re.compile(r"""<a\b[^>]*\bhref=["']?https?:[^>]*>""", re.IGNORECASE)
+# A link to another site: a literal `http(s):` address, or an address that comes
+# from a variable (`{{ … }}`), which may be anywhere. `{% url %}` and
+# `{% static %}` links are our own and are not matched.
+_EXTERNAL_LINK = re.compile(
+    r"""<a\b[^>]*\bhref=["']?(?:https?:|[^"'>]*\{\{)[^>]*>""", re.IGNORECASE
+)
 
 
 def _links_without_noreferrer(html: str) -> list[str]:
-    """Every `<a href="http…">` tag whose `rel` does not include `noreferrer`."""
+    """Every external `<a>` tag whose `rel` does not include `noreferrer`."""
     return [
         tag
         for tag in _EXTERNAL_LINK.findall(html)
@@ -244,11 +336,20 @@ def _links_without_noreferrer(html: str) -> list[str]:
 
 
 def test_noreferrer_checker_finds_a_bare_external_link():
-    """The checker below is proved on one good and one bad sample."""
-    good = '<a href="https://example.com/" rel="noreferrer">Kart</a>'
-    bad = '<a class="lenke" href="https://example.com/">Kart</a>'
+    """The checker below is proved on good and bad samples."""
+    good = (
+        '<a href="https://example.com/" rel="noreferrer">Kart</a>'
+        '<a href="{{ map_url }}" rel="external noreferrer">Kart</a>'
+        "<a href=\"{% url 'guests:private_invitation' %}\">Hjem</a>"
+        "<a href=\"{% static 'img/segl.png' %}\">Segl</a>"
+        '<a href="#svar">Svar</a>'
+    )
+    bad = '<a class="lenke" href="https://example.com/">Kart</a><a href="{{ map_url }}">Kart</a>'
     assert _links_without_noreferrer(good) == []
-    assert _links_without_noreferrer(bad) == ['<a class="lenke" href="https://example.com/">']
+    assert _links_without_noreferrer(bad) == [
+        '<a class="lenke" href="https://example.com/">',
+        '<a href="{{ map_url }}">',
+    ]
 
 
 @pytest.mark.parametrize(

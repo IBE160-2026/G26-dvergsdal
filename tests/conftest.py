@@ -44,19 +44,30 @@ def production_urls():
         _reload_urlconf()
 
 
-OWN_HOST = "http://testserver/"
+OWN_HOST = "testserver"
+
+# Attributes whose value is a URL the browser fetches or the previewer reads.
+# `srcset` is a list, so any of its entries may start with `//`.
+_PROTOCOL_RELATIVE = re.compile(
+    r"""\b(?:src|href|action|content|poster)=["']?//"""
+    r"""|\bsrcset=["']?(?:[^"'>]*,\s*)?//"""
+    r"""|url\(\s*["']?//"""
+)
 
 
-def _loads_only_own_host(html: str) -> None:
-    """AD-15, NFR-4: every `://` in `html` starts the test client's own address
-    (the og:image is absolute, from the request host), and no `src` or `href` is
-    protocol-relative (`//other.site/`), which would load from another site."""
+def _loads_only_own_host(html: str, scheme: str = "http") -> None:
+    """AD-15, NFR-4: every `://` in `html` starts the test client's own address with
+    the request's own scheme (the og:image is absolute, from the request host),
+    and no URL attribute or CSS `url()` is protocol-relative (`//other.site/`),
+    which would load from another site."""
+    own = f"{scheme}://{OWN_HOST}/"
     addresses = re.findall(r"""[\w+.-]*://[^/\s"'<>]*/?""", html)
-    assert [address for address in addresses if address != OWN_HOST] == []
-    assert not re.search(r"""\b(?:src|href)=["']?//""", html)
+    assert [address for address in addresses if address != own] == []
+    assert not _PROTOCOL_RELATIVE.search(html)
 
 
 @pytest.fixture
-def assert_loads_only_own_host() -> Callable[[str], None]:
-    """The checker above, for any test that renders a page."""
+def assert_loads_only_own_host() -> Callable[..., None]:
+    """The checker above, for any test that renders a page; pass `scheme="https"`
+    for a request made with `secure=True`."""
     return _loads_only_own_host
