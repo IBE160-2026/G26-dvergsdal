@@ -6,7 +6,7 @@ Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten
 
 Repoet inneholder applikasjonen og dokumentasjonen av utvikling, testing og kvalitetssikring med KI.
 
-> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Gjestesidene finnes ikke ennå: siden for ugyldige lenker kommer i story 1.4b og invitasjonens forside i story 1.5, så foreløpig viser `http://127.0.0.1:8000/` Djangos side «Page not found (404)».
+> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Papirarket, papirstrukturen, Rikkes bilder og siden for ugyldige lenker er på plass (story 1.4b). Invitasjonens forside kommer i story 1.5; til da viser både `http://127.0.0.1:8000/` og alle testlenkene siden for ugyldige lenker, «Dette er en privat invitasjon».
 
 ## Forutsetninger
 
@@ -28,7 +28,7 @@ uv run manage.py migrate
 uv run manage.py runserver
 ```
 
-Åpne <http://127.0.0.1:8000/stil/> i nettleseren for å se stilprøven. Stopp serveren med `Ctrl+C`.
+Åpne <http://127.0.0.1:8000/> i nettleseren. Til invitasjonens forside kommer i story 1.5, viser den siden for ugyldige lenker. Stilprøven ligger på <http://127.0.0.1:8000/stil/>. Stopp serveren med `Ctrl+C`.
 
 `uv sync` installerer Python 3.14 og de låste versjonene i `uv.lock`. `migrate` lager den lokale databasen `db.sqlite3`, som git ignorerer.
 
@@ -61,7 +61,7 @@ Alle personene er oppdiktet, bortsett fra Rikke og Valdemar: e-postene er på `e
 | Mona | Mona og Geir | <http://127.0.0.1:8000/test-mona0000000000000/> |
 | Geir | Mona og Geir | <http://127.0.0.1:8000/test-geir0000000000000/> |
 
-Åpne lenkene mens `uv run manage.py runserver` kjører. Invitasjonen de åpner, kommer i story 1.5; til da viser de Djangos side «Page not found (404)», akkurat som `/`.
+Åpne lenkene mens `uv run manage.py runserver` kjører. Invitasjonen de åpner, kommer i story 1.5; til da viser de siden for ugyldige lenker, akkurat som `/`.
 
 | Brukernavn | Passord | Rolle |
 |---|---|---|
@@ -102,7 +102,7 @@ Sjekker som ikke kan automatiseres, for eksempel hvordan sidene ser ut på en sm
 
 ## Stilprøve
 
-<http://127.0.0.1:8000/stil/> viser invitasjonens farger, de to skriftene, de fire knappene og de fire varslene, slik de er beskrevet i [DESIGN.md](.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md). Siden er laget for å se designet og gjøre de manuelle testene MT-2 til MT-4 (høykontrast, redusert bevegelse og fonter) i [docs/manual-test-plan.md](docs/manual-test-plan.md). Den inneholder ingen personopplysninger, leser ingenting fra databasen og finnes bare når `APP_ENV` er `local`; med `APP_ENV=production` gir `/stil/` 404.
+<http://127.0.0.1:8000/stil/> viser invitasjonens farger, de to skriftene, de fire knappene, papirarket og de fire varslene, slik de er beskrevet i [DESIGN.md](.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md). Siden er laget for å se designet og gjøre de manuelle testene MT-2 til MT-4 (høykontrast, redusert bevegelse og fonter) i [docs/manual-test-plan.md](docs/manual-test-plan.md). Den inneholder ingen personopplysninger, leser ingenting fra databasen og finnes bare når `APP_ENV` er `local`; med `APP_ENV=production` gir `/stil/` siden for ugyldige lenker med status 404.
 
 ## Innstillinger
 
@@ -143,13 +143,15 @@ uv run --env-file .env manage.py runserver
 │   ├── fixtures/             Testdata (seed.toml) og fasit (expected.toml)
 │   ├── templates/wedding/    Grunnmalen (base.html) og felles deler som varselet
 │   └── migrations/           Databasemigrasjoner
-├── guests/                   Gjestesidene under /<kode>/ (foreløpig bare stilprøven /stil/)
+├── guests/                   Gjestesidene under /<kode>/ (foreløpig siden for ugyldige lenker og stilprøven /stil/)
 ├── dashboard/                Sidene for brudeparet og hjelperne under /admin/
 ├── static/                   CSS, JavaScript, fonter og bilder, alt fra egen server
 │   ├── css/site.css          Stilarket: alle fargene, avstandene og skriftstørrelsene fra DESIGN.md
 │   ├── css/style-sample.css  Oppsettet for stilprøven /stil/, lastes bare der
-│   └── fonts/                Imperial Script og EB Garamond som WOFF2, med lisens og README
+│   ├── fonts/                Imperial Script og EB Garamond som WOFF2, med lisens og README
+│   └── img/                  Rikkes bilder (segl, blomster, blonderamme, illustrasjon, foto, ikoner), med README
 ├── tests/                    pytest-testene
+├── tools/                    Hjelpeskript for utviklere: prepare_images.py lager bildene i static/img/
 ├── docs/                     Referansestoff: sensorveiledningen og manuell testplan
 ├── .docs/                    Det som lages underveis: planlegging og implementering (BMAD)
 ├── .logs/rikke/              Logg over KI-økter og issues.md med åpne punkter
@@ -183,6 +185,10 @@ Hvorfor koden er delt slik, står i arkitekturen under. Mappen `rsvp/` er tom ti
 - Implementering i [.docs/implementation-artifacts/](.docs/implementation-artifacts/): spesifikasjon per story og [sprintstatus](.docs/implementation-artifacts/sprint-status.yaml)
 - [Manuell testplan](docs/manual-test-plan.md)
 - [Sesjonslogg](.logs/rikke/): prompts, KI-økter og beslutninger, koblet til commits, og [åpne punkter](.logs/rikke/issues.md)
+
+## Bilder
+
+Alle bildene i [static/img/](static/img/) er Rikkes egne eller bilder av stedet som Rikke har lov til å bruke. [static/img/README.md](static/img/README.md) viser kilden til hver fil, og filene lages på nytt med `uvx --with pillow==13.0.0 python -I tools/prepare_images.py` fra rotmappen. Pillow trengs bare til dette skriptet og er ikke en avhengighet for appen.
 
 ## Fonter og lisenser
 

@@ -309,11 +309,14 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   dashboard/                  # admin views and templates under /admin/
   static/                     # css/, js/, fonts/, img/ (all self-hosted)
   tests/                      # pytest: rules, services, guest flow, admin, expected results
+  tools/                      # developer scripts, never imported by the app (prepare_images.py)
 ```
 
 *(Changed 2026-11-16 in Story 1.2: `wedding/actors.py` added. The guest actor is made by `links.py` and the admin and system actors by the views and the seed command, and every service takes one of them (AD-3), so the actor types live in one module that both sides import instead of inside `links.py` or `services/`.)*
 
 *(Changed 2026-11-18 in Story 1.4a: `wedding/templates/wedding/` added. The guest pages, the couple's pages and the RSVP form in `wedding/rsvp/` all extend the same base template and use the same notice include, and `guests` and `dashboard` must not import each other, so the shared templates live with the shared app.)*
+
+*(Changed 2026-11-20 in Story 1.4b: `tools/` added. `tools/prepare_images.py` makes the images in `static/img/` from Rikke's files, so a replaced image is one command away and the result can be checked against the size budget (NFR-7). It runs with `uvx --with pillow==13.0.0`, so Pillow never becomes a dependency of the app, and it does not belong in `static/`, which is served to visitors.)*
 
 Core entities. Names and relationships only; the code owns the fields. `Settings` is a single row with prices, deadline, contacts and payment details.
 
