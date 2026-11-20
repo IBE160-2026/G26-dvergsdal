@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    # Under runserver, WhiteNoise serves static files too, through the middleware,
+    # so they carry `X-Robots-Tag` like every other response (AD-15).
+    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "wedding",
     "guests",

@@ -2,7 +2,9 @@
 
 `noindex_middleware` keeps every page out of search engines (FR-4, NFR-4,
 AD-15). It sits directly after `SecurityMiddleware` and before WhiteNoise, so
-static files, redirects and `/robots.txt` carry the header too.
+static files, redirects and `/robots.txt` carry the header too. Under
+`runserver`, `whitenoise.runserver_nostatic` in INSTALLED_APPS stops Django's
+own static handler, which would answer before any middleware runs.
 """
 
 from collections.abc import Callable
