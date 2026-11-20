@@ -48,6 +48,9 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    # Under runserver, WhiteNoise serves static files too, through the middleware,
+    # so they carry `X-Robots-Tag` like every other response (AD-15).
+    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "wedding",
     "guests",
@@ -56,6 +59,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "config.middleware.noindex_middleware",  # X-Robots-Tag on every response (AD-15)
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -66,6 +70,11 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "config.urls"
+
+# Guest pages never tell other sites where the visitor came from (AD-15, NFR-4).
+# Django's default, set here so it can be traced. Never `no-referrer`: Django's
+# CSRF check needs the Referer on HTTPS forms and would reject every one.
+SECURE_REFERRER_POLICY = "same-origin"
 
 TEMPLATES = [
     {
@@ -136,5 +145,56 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MAILERS = {
     "default": {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
+    },
+}
+
+
+# Logging: Django's defaults, written out so every handler masks link codes
+# (Story 1.4c, FR-4, NFR-4, AD-15). `MaskLinkCodes` comes first on every
+# handler, so a record is masked before any other filter can reject it and pass
+# it on unmasked; it turns «Not Found: /<code>/» into «Not Found: /[code]/».
+# `errors` writes WARNING and above whatever DEBUG is, and sits on the root
+# logger, so loggers outside `django` never fall through to Python's unmasked
+# last-resort handler. With DEBUG on, `console` adds Django's INFO lines. No
+# `mail_admins` handler: mail is never sent, and its body would carry the
+# whole request.
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "mask_link_codes": {"()": "config.logging_filters.MaskLinkCodes"},
+        "require_debug_true": {"()": "django.utils.log.RequireDebugTrue"},
+        "below_warning": {"()": "config.logging_filters.BelowWarning"},
+    },
+    "formatters": {
+        "django.server": {
+            "()": "django.utils.log.ServerFormatter",
+            "format": "[{server_time}] {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "filters": ["mask_link_codes", "require_debug_true", "below_warning"],
+            "class": "logging.StreamHandler",
+        },
+        "errors": {
+            "level": "WARNING",
+            "filters": ["mask_link_codes"],
+            "class": "logging.StreamHandler",
+        },
+        "django.server": {
+            "level": "INFO",
+            "filters": ["mask_link_codes"],
+            "class": "logging.StreamHandler",
+            "formatter": "django.server",
+        },
+    },
+    "root": {"handlers": ["errors"], "level": "WARNING"},
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "INFO"},
+        "django.server": {"handlers": ["django.server"], "level": "INFO", "propagate": False},
     },
 }

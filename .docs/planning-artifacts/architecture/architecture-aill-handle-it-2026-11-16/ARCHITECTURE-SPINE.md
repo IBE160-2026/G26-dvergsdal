@@ -7,7 +7,7 @@ paradigm: 'Functional core, imperative shell in a server-rendered Django monolit
 scope: 'The whole wedding website: course version v1 (local, mid-December 2026) and production (2027–2028)'
 status: final
 created: '2026-11-16'
-updated: '2026-11-16'
+updated: '2026-11-20'
 binds: [FR-1 to FR-78, NFR-1 to NFR-9, PRD D12, PRD D14, PRD D15, UX open questions 4–6]
 sources:
   - ../../prds/prd-aill-handle-it-2026-11-07/prd.md
@@ -203,7 +203,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Prevents:** a font, script, header or log line that leaks a guest's visit, link or allergy data.
 - **Rule:**
   - **Assets:** all fonts, scripts, images and CSS are served from the site itself.
-  - **Headers:** every guest response sends `noindex` (meta and an `X-Robots-Tag` middleware) and `Referrer-Policy: same-origin`, and has a page title with no names. External links carry `rel="noreferrer"`. A test checks the headers. (`no-referrer` is not allowed: it makes Django's CSRF check reject every form.)
+  - **Headers:** every guest response sends `noindex` (meta and an `X-Robots-Tag` middleware) and `Referrer-Policy: same-origin`, and has a page title with no names. External links carry `rel="noreferrer"`. A test checks the headers. (`no-referrer` is not allowed: it makes Django's CSRF check reject every form.) *(Changed 2026-11-20 in Story 1.4c: `/robots.txt` blocks nothing (`Disallow:` empty), because a crawler that may not fetch a page never reads its `noindex` and may still list the bare URL; it exists to say so and to stop `/robots.txt` from showing G1. The link preview is one fixed set of Open Graph tags in `base.html`, outside every block, and `og:image` is absolute from the request's own host (no `SITE_URL` setting, NFR-8). Behind TLS on a host this needs `SECURE_PROXY_SSL_HEADER`, or the image URL says `http://`.)*
   - **Logs:** a logging filter masks link codes in request paths. Guest form views use `sensitive_post_parameters`. No names, codes or allergy content are written to logs. Production access logs must mask the code too.
   - **Error pages:** 404, 500 and CSRF failure pages under `/<code>/` show the couple's contact numbers when the code resolves, and nothing personal otherwise.
 

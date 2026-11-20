@@ -58,6 +58,7 @@ TARGETS = {
     "sted-tunet.jpg": 440,
     "sted-kirka.jpg": 440,
     "sted-omradet.jpg": 440,
+    "forhandsvisning.jpg": 1000,  # link preview (Story 1.4c, FR-4), never loaded by a page
 } | {f"ikoner/ikon-{number:02d}-{name}.png": 112 for number, name in enumerate(ICONS, start=1)}
 
 FRONT_PAGE = (
@@ -94,13 +95,19 @@ def _jpeg_segments(data: bytes) -> list[tuple[int, bytes]]:
     raise AssertionError("no start-of-scan marker")
 
 
-def _jpeg_frame(data: bytes) -> tuple[int, int]:
-    """The start-of-frame marker (0xC0, 0xC1 or 0xC2) and the image width."""
+def _jpeg_frame_payload(data: bytes) -> tuple[int, bytes]:
+    """The start-of-frame marker (0xC0, 0xC1 or 0xC2) and its payload."""
     for marker, payload in _jpeg_segments(data):
         if marker in START_OF_FRAME:
             assert len(payload) >= 5, "short frame header"
-            return marker, struct.unpack(">H", payload[3:5])[0]
+            return marker, payload
     raise AssertionError("no JPEG frame header")
+
+
+def _jpeg_frame(data: bytes) -> tuple[int, int]:
+    """The start-of-frame marker (0xC0, 0xC1 or 0xC2) and the image width."""
+    marker, payload = _jpeg_frame_payload(data)
+    return marker, struct.unpack(">H", payload[3:5])[0]
 
 
 def _png_chunks(data: bytes) -> dict[bytes, bytes]:
@@ -128,6 +135,14 @@ def test_every_planned_image_exists_with_its_format_and_width(name, width):
     else:
         assert data.startswith(JPEG_MAGIC)
         assert _jpeg_frame(data) == (PROGRESSIVE, width)
+
+
+def test_link_preview_image_is_1000_by_525():
+    """FR-4, Story 1.4c: the og:image is 1.91:1 and at least 600 x 315, so Messenger
+    shows the large card; `og:image:width` and `og:image:height` say the same."""
+    _marker, payload = _jpeg_frame_payload((IMG_DIR / "forhandsvisning.jpg").read_bytes())
+    assert struct.unpack(">H", payload[1:3])[0] == 525
+    assert struct.unpack(">H", payload[3:5])[0] == 1000
 
 
 @pytest.mark.parametrize("name", [name for name in TARGETS if name.endswith(".jpg")])

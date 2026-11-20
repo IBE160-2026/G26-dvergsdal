@@ -6,7 +6,7 @@ Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten
 
 Repoet inneholder applikasjonen og dokumentasjonen av utvikling, testing og kvalitetssikring med KI.
 
-> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Papirarket, papirstrukturen, Rikkes bilder og siden for ugyldige lenker er på plass (story 1.4b). Invitasjonens forside kommer i story 1.5; til da viser både `http://127.0.0.1:8000/` og alle testlenkene siden for ugyldige lenker, «Dette er en privat invitasjon».
+> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Papirarket, papirstrukturen, Rikkes bilder og siden for ugyldige lenker er på plass (story 1.4b). Alle sider ber søkemotorer om ikke å vise dem (`noindex`), en delt lenke viser samme forhåndsvisning for alle gjester, og loggen skriver aldri lenkekoder (story 1.4c). Invitasjonens forside kommer i story 1.5; til da viser både `http://127.0.0.1:8000/` og alle testlenkene siden for ugyldige lenker, «Dette er en privat invitasjon».
 
 ## Forutsetninger
 
@@ -62,6 +62,8 @@ Alle personene er oppdiktet, bortsett fra Rikke og Valdemar: e-postene er på `e
 | Geir | Mona og Geir | <http://127.0.0.1:8000/test-geir0000000000000/> |
 
 Åpne lenkene mens `uv run manage.py runserver` kjører. Invitasjonen de åpner, kommer i story 1.5; til da viser de siden for ugyldige lenker, akkurat som `/`.
+
+Terminalen der serveren kjører, viser `/[code]/` i stedet for lenkekoden, for eksempel `"GET /[code]/ HTTP/1.1" 404` og `Not Found: /[code]/`. En lenkekode er gjestens eneste innlogging, så den skal ikke havne i en logg (story 1.4c).
 
 | Brukernavn | Passord | Rolle |
 |---|---|---|
@@ -130,8 +132,10 @@ uv run --env-file .env manage.py runserver
 
 ```text
 .
-├── config/                   Django-innstillinger, rot-URL-er, WSGI/ASGI
-│   └── env.py                Leser miljøvariabler og vakten for produksjon
+├── config/                   Django-innstillinger, rot-URL-er, WSGI/ASGI, mellomvare og loggfilter
+│   ├── env.py                Leser miljøvariabler og vakten for produksjon
+│   ├── middleware.py         Mellomvare: X-Robots-Tag: noindex på hvert svar
+│   └── logging_filters.py    Loggfilter som bytter lenkekoder ut med [code]
 ├── wedding/                  Dataeieren: modeller (også brukermodellen) og forretningslogikk
 │   ├── rules/                Rene regelfunksjoner uten Django (summer, tellinger, frist)
 │   ├── services/             Den eneste koden som skriver til databasen
@@ -141,7 +145,7 @@ uv run --env-file .env manage.py runserver
 │   ├── links.py              Gjør en personlig lenkekode om til en gjest
 │   ├── management/commands/  Kommandoer: seed_testdata fyller inn testdata
 │   ├── fixtures/             Testdata (seed.toml) og fasit (expected.toml)
-│   ├── templates/wedding/    Grunnmalen (base.html) og felles deler som varselet
+│   ├── templates/wedding/    Grunnmalen (base.html), felles deler som varselet og lenkeforhåndsvisningen, og robots.txt
 │   └── migrations/           Databasemigrasjoner
 ├── guests/                   Gjestesidene under /<kode>/ (foreløpig siden for ugyldige lenker og stilprøven /stil/)
 ├── dashboard/                Sidene for brudeparet og hjelperne under /admin/
@@ -163,7 +167,7 @@ uv run --env-file .env manage.py runserver
 ├── pyproject.toml, uv.lock   Avhengigheter og verktøyoppsett, låst med uv
 ├── .python-version           Python 3.14
 ├── .env.example              Alle innstillingene med eksempelverdier
-├── .gitattributes            Linjeskift for Impeccable-skriptet (alltid LF)
+├── .gitattributes            Linjeskift for Impeccable-skriptet og robots.txt (alltid LF)
 ├── AGENTS.md                 Instruksjoner for KI-agenter
 └── CLAUDE.md                 Laster inn AGENTS.md og sensorveiledningen, og krever sesjonslogg
 ```

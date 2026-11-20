@@ -7,6 +7,12 @@ Rikke's cutouts from the UX work (DESIGN.md > Shapes), and the illustration and
 photos are her own files and the venue's photos (permission: EXPERIENCE.md >
 Inspiration & Anti-patterns).
 
+It also writes the link-preview image `forhandsvisning.jpg` (Story 1.4c, FR-4,
+AD-15): a centre crop of the same watercolour at 1000 x 525 (1.91:1, at least
+600 x 315 so Messenger shows the large card). Every guest link shows this one
+image, so it names nobody and carries no seal, initials, date or place. No page
+loads it; only apps that build a link preview fetch it.
+
 Rules (spec 1.4b, NFR-7: front page usable in under 3 seconds on 4G):
 - every file is at most twice its largest display width, and never upscaled;
 - photos and the illustration become progressive, optimised JPEG without
@@ -72,6 +78,8 @@ PHOTOS = [
     ("sted-kirka.jpg", VENUE / "18-Kirka.jpg", 440),  # Vielsen sheet
     ("sted-omradet.jpg", VENUE / "12-Area.jpg", 440),  # Området rundt sheet
 ]
+# Link preview (og:image, Story 1.4c, FR-4): the hero watercolour, centre-cropped.
+PREVIEW = ("forhandsvisning.jpg", OWN_IMAGES / "04-Illustration.jpg", (1000, 525))
 
 
 def scaled(image: Image.Image, width: int) -> Image.Image:
@@ -141,6 +149,13 @@ def main() -> None:
     for name, source, width in PHOTOS:
         photo = ImageOps.exif_transpose(Image.open(source)).convert("RGB")
         save_jpeg(scaled(photo, width), name)
+
+    name, source, size = PREVIEW
+    illustration = ImageOps.exif_transpose(Image.open(source)).convert("RGB")
+    if illustration.width < size[0] or illustration.height < size[1]:
+        # ImageOps.fit would quietly upscale a smaller replacement (never upscale).
+        raise SystemExit(f"{source.name} is {illustration.size}; the preview needs {size}")
+    save_jpeg(ImageOps.fit(illustration, size, Image.Resampling.LANCZOS), name)
 
 
 if __name__ == "__main__":

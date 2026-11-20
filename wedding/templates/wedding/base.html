@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 {# Base template for every page: guests, the couple and the RSVP form (Story 1.4a, UX-DR1, NFR-5). #}
 {# Story 1.4b: the tab icon made from the seal (UX-DR4) and the paper sheet's edge filter (UX-DR3). #}
+{# Story 1.4c: noindex and the link preview sit outside every block, so no page can change them per guest (FR-4, NFR-4, AD-15). #}
 <html lang="nb">
     <head>
         <meta charset="utf-8">
@@ -9,6 +10,8 @@
         <meta name="color-scheme" content="light only">
         <title>{% block title %}Invitasjon{% endblock title %}</title>
         <link rel="stylesheet" href="{% static 'css/site.css' %}">
+        <meta name="robots" content="noindex">
+        {% include "wedding/components/link-preview.html" %}
         {% block icons %}
             <link rel="icon"
                   type="image/png"

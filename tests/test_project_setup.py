@@ -72,10 +72,15 @@ def test_sqlite_options_and_no_atomic_requests():
 
 
 def test_static_files_are_self_hosted_through_whitenoise():
-    """AD-15: static files come from the site itself, served by WhiteNoise."""
+    """AD-15: static files come from the site itself, served by WhiteNoise, as early
+    as WhiteNoise asks. Only the noindex middleware (Story 1.4c) sits between it and
+    SecurityMiddleware, so static files carry `X-Robots-Tag` too."""
     middleware = settings.MIDDLEWARE
     security = middleware.index("django.middleware.security.SecurityMiddleware")
-    assert middleware[security + 1] == "whitenoise.middleware.WhiteNoiseMiddleware"
+    assert middleware[security + 1 : security + 3] == [
+        "config.middleware.noindex_middleware",
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+    ]
     assert settings.STATIC_ROOT == BASE_DIR / "staticfiles"
     assert settings.STATICFILES_DIRS == [BASE_DIR / "static"]
 
