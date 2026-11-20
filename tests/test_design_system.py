@@ -1,7 +1,8 @@
 """The invitation's colours, type, buttons and notices (Story 1.4a), the paper
 sheet, page texture and column (Story 1.4b), the guest pages' nav bar, hero,
-narrow widths and forced colours (Story 1.5), and the jump links, info sheet
-and story sheet of the info pages (Story 1.6).
+narrow widths and forced colours (Story 1.5), the jump links, info sheet
+and story sheet of the info pages (Story 1.6), and the programme's voluntary
+line, timeline, icons and «Godt å vite» (Story 1.7).
 
 The stylesheet is read as text and compared with the DESIGN.md frontmatter, so
 a token changed in one place and not the other fails here (UX-DR1). The
@@ -42,6 +43,7 @@ NARROW_QUERY = "@media (max-width: 259.98px)"
 STACK_QUERY = "@media (max-width: 299.98px)"
 STICKY_QUERY = "@media (min-height: 400px) and (min-width: 20em)"
 JUMP_STACK_QUERY = "@media (max-width: 22.49em)"
+TIMELINE_QUERY = "@media (max-width: 16.2487em)"
 NAMES_QUERY = "@container (max-width: 13.7em)"
 DATA_URI = r'url\("(data:[^"]*)"\)'
 SVG_NAMESPACE = "http://www.w3.org/2000/svg"
@@ -770,6 +772,204 @@ def test_story_sheet_values_follow_design():
         "text-align: center;",
     ):
         assert declaration in signature, declaration
+
+
+# The programme of Story 1.7: voluntary line, timeline, icons, «Godt å vite»
+
+
+def test_voluntary_line_and_date_line_follow_design():
+    """UX-DR13, DESIGN.md components.voluntary-line: italic, centred, 6px 10px 0
+    under the jump links, with the mockup's line height; the day sheet's date
+    line italic, 4px up into the heading's space and 6px above the timeline,
+    named with `.programme-day` so it outranks the info sheet's paragraphs."""
+    css = _css()
+    voluntary = _declarations(css, ".voluntary-line")
+    margin = DESIGN["components"]["voluntary-line"]["margin"].split(",")[0]
+    for declaration in (
+        f"margin: {margin};",
+        "font-style: italic;",
+        "line-height: 1.35;",
+        "text-align: center;",
+    ):
+        assert declaration in voluntary, declaration
+    assert "italic, centred" in DESIGN["components"]["voluntary-line"]["typography"]
+    date = _declarations(css, ".programme-day .programme-day__date")
+    assert "margin: -4px 0 6px;" in date
+    assert "font-style: italic;" in date
+
+
+def test_programme_timeline_values_follow_design():
+    """UX-DR13, DESIGN.md components.programme-timeline: a list without bullets
+    with a 1px ink line at 45 % down the middle; events half the width,
+    alternating right-aligned left of the line and left-aligned right of it,
+    18px from it, each 36px up into the one before; a 6px ink dot on the line,
+    level with the time; the time in the small size with lining, tabular
+    figures and 0.04em spacing; the name italic at line height 1.25."""
+    css = _css()
+    timeline = DESIGN["components"]["programme-timeline"]
+    assert timeline["line"].startswith("1px rgba(59,55,47,.45), centred")
+    assert "18px from the line" in timeline["layout"]
+    assert "36px" in timeline["layout"]
+    assert timeline["dot"].startswith("6px circle in {colors.ink}")
+    expected = {
+        ".programme-day .programme-timeline": (
+            "position: relative;",
+            "margin: 8px 0 6px;",
+            "padding: 0;",
+            "list-style: none;",
+        ),
+        ".programme-day .programme-timeline::before": (
+            'content: "";',
+            "position: absolute;",
+            "top: 6px;",
+            "bottom: 6px;",
+            "left: 50%;",
+            "width: 1px;",
+            "background: rgba(var(--rgb-ink), 0.45);",
+        ),
+        ".programme-day .programme-timeline li": (
+            "position: relative;",
+            "width: 50%;",
+            "padding: 0 18px 0 0;",
+            "text-align: right;",
+        ),
+        ".programme-day .programme-timeline li:nth-child(even)": (
+            "margin-left: 50%;",
+            "padding: 0 0 0 18px;",
+            "text-align: left;",
+        ),
+        ".programme-day .programme-timeline li + li": ("margin-top: -36px;",),
+        ".programme-day .programme-timeline li::after": (
+            'content: "";',
+            "position: absolute;",
+            "top: calc(60px + 0.65 * var(--font-size-small) - 3px);",
+            "right: -3px;",
+            "width: 6px;",
+            "height: 6px;",
+            "border-radius: 50%;",
+            "background: var(--color-ink);",
+        ),
+        ".programme-day .programme-timeline li:nth-child(even)::after": (
+            "right: auto;",
+            "left: -3px;",
+        ),
+        ".programme-day .programme-timeline__time": (
+            "display: block;",
+            "font-size: var(--font-size-small);",
+            "line-height: 1.3;",
+            "letter-spacing: 0.04em;",
+            "font-variant-numeric: lining-nums tabular-nums;",
+        ),
+        ".programme-day .programme-timeline__name": (
+            "display: block;",
+            "font-style: italic;",
+            "line-height: 1.25;",
+        ),
+    }
+    outside = _without_block(_without_block(css, TIMELINE_QUERY), FORCED_COLORS_QUERY)
+    for selector, declarations in expected.items():
+        body = _declarations(outside, selector)
+        for declaration in declarations:
+            assert declaration in body, (selector, declaration)
+    assert "0.04em" in timeline["time"]
+    assert "line height 1.25" in timeline["name"]
+
+
+def test_programme_icon_is_56px_above_the_time_on_the_line_side():
+    """UX-DR13, DESIGN.md components.programme-icon: 56px, a block above the
+    time with 4px below, on the line side, aligned with the text (right on the
+    left-hand events, left on the right-hand ones), as in the approved mockup."""
+    css = _css()
+    assert DESIGN["components"]["programme-icon"]["size"] == "56px"
+    icon = _declarations(css, ".programme-day .programme-timeline__icon")
+    for declaration in ("display: block;", "width: 56px;", "height: 56px;"):
+        assert declaration in icon, declaration
+    assert "margin: 0 0 4px auto;" in icon
+    even = ".programme-day .programme-timeline li:nth-child(even) .programme-timeline__icon"
+    assert "margin: 0 auto 4px 0;" in _declarations(css, even)
+
+
+def test_good_to_know_values_follow_design():
+    """UX-DR13, DESIGN.md components.good-to-know: a 1px ink rule at 25 % above,
+    14px above the rule and 10px below; the heading italic in body size; a
+    bulleted list. Named with `.programme-day`, so it outranks the info
+    sheet's lists."""
+    css = _css()
+    assert DESIGN["components"]["good-to-know"]["rule"].startswith(
+        "1px rgba(59,55,47,.25) above, 14px above the rule, 10px below"
+    )
+    box = _declarations(css, ".programme-day .good-to-know")
+    for declaration in (
+        "margin: 14px 0 0;",
+        "padding-top: 10px;",
+        "border-top: 1px solid rgba(var(--rgb-ink), 0.25);",
+    ):
+        assert declaration in box, declaration
+    heading = _declarations(css, ".programme-day .good-to-know h3")
+    for declaration in (
+        "margin: 0 0 4px;",
+        "font-size: var(--font-size-body);",
+        "line-height: var(--line-height-body);",
+        "font-style: italic;",
+    ):
+        assert declaration in heading, declaration
+    items = _declarations(css, ".programme-day .good-to-know ul")
+    assert "margin: 0;" in items
+    assert "padding-left: 20px;" in items
+    assert "list-style" not in items
+    assert "margin: 0 0 4px;" in _declarations(css, ".programme-day .good-to-know li")
+
+
+def test_programme_timeline_turns_one_sided_below_260px():
+    """UX-DR13, UX-DR30, NFR-5, DESIGN.md > Narrow widths: below 16.25em (260px
+    at the default text size; in em so it follows a larger text size, like the
+    jump links) the line moves to the left edge; every event, odd and even,
+    sits right of it at full width, left-aligned, without the overlap, its icon
+    on the left and its dot on the line. The px narrow block holds none of it."""
+    css = _css()
+    narrow = _block(css, TIMELINE_QUERY)
+    assert "programme" not in _block(css, NARROW_QUERY)
+    assert "left: 3px;" in _bodies(narrow, ".programme-day .programme-timeline::before")
+    for item in (
+        ".programme-day .programme-timeline li",
+        ".programme-day .programme-timeline li:nth-child(even)",
+    ):
+        body = _bodies(narrow, item)
+        for declaration in (
+            "width: auto;",
+            "margin-left: 0;",
+            "padding: 0 0 0 18px;",
+            "text-align: left;",
+        ):
+            assert declaration in body, (item, declaration)
+    overlap = _bodies(narrow, ".programme-day .programme-timeline li + li")
+    assert "margin-top: var(--space-3);" in overlap
+    for icon in (
+        ".programme-day .programme-timeline__icon",
+        ".programme-day .programme-timeline li:nth-child(even) .programme-timeline__icon",
+    ):
+        assert "margin: 0 auto 4px 0;" in _bodies(narrow, icon), icon
+    for dot in (
+        ".programme-day .programme-timeline li::after",
+        ".programme-day .programme-timeline li:nth-child(even)::after",
+    ):
+        body = _bodies(narrow, dot)
+        assert "left: 0;" in body, dot
+        assert "right: auto;" in body, dot
+
+
+def test_forced_colours_draw_the_timeline_line_and_dots_in_canvas_text():
+    """UX-DR53: the timeline's line and dots are shapes, so under forced colours
+    they opt out of the system's repainting and are drawn in CanvasText."""
+    css = _css()
+    forced = _block(css, FORCED_COLORS_QUERY)
+    for selector in (
+        ".programme-day .programme-timeline::before",
+        ".programme-day .programme-timeline li::after",
+    ):
+        body = _bodies(forced, selector)
+        assert "forced-color-adjust: none;" in body, selector
+        assert "background: CanvasText;" in body, selector
 
 
 def test_imperial_script_only_for_the_names_and_the_signature():

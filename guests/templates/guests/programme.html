@@ -1,7 +1,222 @@
 {% extends "guests/info_page.html" %}
+{% load static %}
 {% comment %}
-Programmet (Story 1.5, FR-8, FR-9, FR-11): the info-page frame only. The days,
-the timeline and «Godt å vite» arrive with Story 1.7.
+Programmet (Story 1.7; FR-9, FR-11, AD-17, UX-DR13; DESIGN.md › Info pages,
+Programme timeline, Programme icon, «Godt å vite», Voluntary line; approved in
+mockups/info-program.html). Under the title, the «Hopp til» jump links in one
+list, with the same markup and classes as Praktisk informasjon (each dot an
+aria-hidden span), then the voluntary line. Then one info sheet per day, a
+focusable jump target labelled by its `h2`: the date line, the timeline as an
+`ol` (Rikke's icon, decorative with alt="", then the `<time>` and the short
+name; CSS alternates the sides) and «Godt å vite». Information only, no
+sign-up (FR-9). The text lives here in the template (AD-17) and is the approved
+mockup's. The three meal prices come from the settings row through
+`programme_prices` (FR-32, AD-12), never from this template, so the programme
+and the RSVP form cannot differ. The times are the mockup's placeholders until
+Story 7.4 replaces them with the couple's real times.
 {% endcomment %}
 {% block title %}Programmet – Invitasjon{% endblock title %}
 {% block info_title %}Programmet{% endblock info_title %}
+{% block info_content %}
+    <nav class="jump-links" aria-label="Hopp til">
+        <ul>
+            <li>
+                <a href="#fredag">Fredag</a>
+            </li>
+            <li>
+                <span class="jump-links__dot" aria-hidden="true">·</span><a href="#lordag">Lørdag</a>
+            </li>
+            <li>
+                <span class="jump-links__dot" aria-hidden="true">·</span><a href="#sondag">Søndag</a>
+            </li>
+        </ul>
+    </nav>
+    <p class="voluntary-line">Alt i programmet er frivillig. Bli med på det dere har lyst til.</p>
+    <section class="paper-sheet info-sheet programme-day"
+             id="fredag"
+             tabindex="-1"
+             aria-labelledby="fredag-overskrift">
+        <h2 id="fredag-overskrift">Fredag</h2>
+        <p class="programme-day__date">26. mai</p>
+        <ol class="programme-timeline">
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-01-fjelltur.png' %}"
+                     alt=""
+                     width="56"
+                     height="56">
+                <time class="programme-timeline__time" datetime="10:00">10:00</time>
+                <span class="programme-timeline__name">Fjelltur</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-02-hytte.png' %}"
+                     alt=""
+                     width="56"
+                     height="56">
+                <time class="programme-timeline__time" datetime="15:00">15:00</time>
+                <span class="programme-timeline__name">Hyttene er klare</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-04-middag.png' %}"
+                     alt=""
+                     width="56"
+                     height="56">
+                <time class="programme-timeline__time" datetime="17:00">17:00</time>
+                <span class="programme-timeline__name">Middag</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-03-rebus.png' %}"
+                     alt=""
+                     width="56"
+                     height="56">
+                <time class="programme-timeline__time" datetime="19:00">19:00</time>
+                <span class="programme-timeline__name">Rebus</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-05-stamp.png' %}"
+                     alt=""
+                     width="56"
+                     height="56">
+                <time class="programme-timeline__time" datetime="21:00">21:00</time>
+                <span class="programme-timeline__name">Badstue, stamp og mingling</span>
+            </li>
+        </ol>
+        <div class="good-to-know">
+            <h3>Godt å vite</h3>
+            <ul>
+                <li>Fjellturen er for dem som kommer tidlig. Meld dere på i svarskjemaet, og ta med gode sko.</li>
+                <li>
+                    <strong>Middagen betales selv:</strong> {{ prices.friday_dinner }} kr.
+                </li>
+                <li>Badstue og stamp er for den som vil. Ta med badetøy.</li>
+            </ul>
+        </div>
+    </section>
+    <section class="paper-sheet info-sheet programme-day"
+             id="lordag"
+             tabindex="-1"
+             aria-labelledby="lordag-overskrift">
+        <h2 id="lordag-overskrift">Lørdag</h2>
+        <p class="programme-day__date">
+            27. mai <span aria-hidden="true">·</span> bryllupsdagen
+        </p>
+        <ol class="programme-timeline">
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-07-yoga.png' %}"
+                     alt=""
+                     width="56"
+                     height="56"
+                     loading="lazy">
+                <time class="programme-timeline__time" datetime="08:00">08:00</time>
+                <span class="programme-timeline__name">Yoga</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-06-frokost.png' %}"
+                     alt=""
+                     width="56"
+                     height="56"
+                     loading="lazy">
+                <time class="programme-timeline__time" datetime="09:00">09:00</time>
+                <span class="programme-timeline__name">Frokost</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-08-bil.png' %}"
+                     alt=""
+                     width="56"
+                     height="56"
+                     loading="lazy">
+                <time class="programme-timeline__time" datetime="13:30">13:30</time>
+                <span class="programme-timeline__name">Vi drar til kirka</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-09-ringer.png' %}"
+                     alt=""
+                     width="56"
+                     height="56"
+                     loading="lazy">
+                <time class="programme-timeline__time" datetime="14:00">14:00</time>
+                <span class="programme-timeline__name">Vielsen</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-10-lunsj.png' %}"
+                     alt=""
+                     width="56"
+                     height="56"
+                     loading="lazy">
+                <time class="programme-timeline__time" datetime="16:00">16:00</time>
+                <span class="programme-timeline__name">Lunsj utenfor kirka</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-11-fest.png' %}"
+                     alt=""
+                     width="56"
+                     height="56"
+                     loading="lazy">
+                <time class="programme-timeline__time" datetime="19:00">19:00</time>
+                <span class="programme-timeline__name">Middag og fest</span>
+            </li>
+        </ol>
+        <div class="good-to-know">
+            <h3>Godt å vite</h3>
+            <ul>
+                <li>Yoga er for den som vil. Ta med treningstøy.</li>
+                <li>
+                    <strong>Frokosten betales selv:</strong> {{ prices.saturday_breakfast }} kr.
+                </li>
+                <li>
+                    Vielsen er i Strandebarm kirke, og lunsjen er utenfor kirka. Til lunsjen serverer vi cider fra Hardanger.
+                </li>
+                <li>
+                    Lunsj og middag dekker vi. Det blir dessverre ikke åpen bar, men vi dekker drikke til maten og litt ekstra.
+                </li>
+            </ul>
+        </div>
+    </section>
+    <section class="paper-sheet info-sheet programme-day"
+             id="sondag"
+             tabindex="-1"
+             aria-labelledby="sondag-overskrift">
+        <h2 id="sondag-overskrift">Søndag</h2>
+        <p class="programme-day__date">28. mai</p>
+        <ol class="programme-timeline">
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-06-frokost.png' %}"
+                     alt=""
+                     width="56"
+                     height="56"
+                     loading="lazy">
+                <time class="programme-timeline__time" datetime="09:00">09:00</time>
+                <span class="programme-timeline__name">Frokost</span>
+            </li>
+            <li>
+                <img class="programme-timeline__icon"
+                     src="{% static 'img/ikoner/ikon-12-avreise.png' %}"
+                     alt=""
+                     width="56"
+                     height="56"
+                     loading="lazy">
+                <time class="programme-timeline__time" datetime="12:00">12:00</time>
+                <span class="programme-timeline__name">Hyttene skal være tomme</span>
+            </li>
+        </ol>
+        <div class="good-to-know">
+            <h3>Godt å vite</h3>
+            <ul>
+                <li>
+                    <strong>Frokosten betales selv:</strong> {{ prices.sunday_breakfast }} kr.
+                </li>
+            </ul>
+        </div>
+    </section>
+{% endblock info_content %}

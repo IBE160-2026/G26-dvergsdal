@@ -12,8 +12,12 @@
  * adds the content of Praktisk informasjon and Vår historie: the jump links,
  * the info sheet, the story sheet and the 220px lace frame (UX-DR12,
  * UX-DR14, UX-DR30, NFR-5), with the values of mockups/info-praktisk.html and
- * mockups/info-om-oss.html where DESIGN.md has none. The programme arrives in
- * 1.7, the error pages in 1.8.
+ * mockups/info-om-oss.html where DESIGN.md has none. Story 1.7 adds the
+ * programme: the voluntary line, the day sheets' date line, the CSS-only
+ * timeline with Rikke's icons and «Godt å vite», one-sided below 260px and
+ * drawn in CanvasText under forced colours (FR-9, UX-DR13, UX-DR30, UX-DR53,
+ * NFR-5), with the values of mockups/info-program.html where DESIGN.md has
+ * none. The error pages arrive in 1.8.
  */
 
 /* ---------- Fonts: self-hosted WOFF2, SIL OFL (UX-DR2, AD-15) ----------
@@ -1071,14 +1075,142 @@ a:active {
   text-align: center;
 }
 
+/* ---------- Programme (FR-9, UX-DR13; DESIGN.md › Programme timeline, Programme icon, «Godt å vite», Voluntary line) ----------
+ * Programmet (Story 1.7, AD-17): the jump links are Praktisk's, the day sheets
+ * are info sheets, so this section adds only the voluntary line on the green
+ * under the jump links and, on each day sheet, the italic date line, the
+ * timeline and «Godt å vite». The timeline is CSS only, like «Order of
+ * events» in inspiration 09: a 1px ink line down the middle, events
+ * alternating right-aligned left of it and left-aligned right of it, 18px
+ * from it, each 36px up into the one before; a 6px ink dot on the line level
+ * with each time, and Rikke's 56px icon above the time on the line side,
+ * aligned with the text. Values from DESIGN.md, and from
+ * mockups/info-program.html where DESIGN.md has none. Every rule on a day
+ * sheet starts with `.programme-day`, so it outranks the info sheet's `p` and
+ * `ul` rules. Below 16.25em (260px at the default text size) the timeline
+ * turns one-sided (Narrow widths), and under forced colours the line
+ * and the dots are drawn in CanvasText (Forced colours). */
+
+.voluntary-line {
+  margin: 6px 10px 0;
+  font-style: italic;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.programme-day .programme-day__date {
+  margin: -4px 0 6px;
+  font-style: italic;
+}
+
+.programme-day .programme-timeline {
+  position: relative;
+  margin: 8px 0 6px;
+  padding: 0;
+  list-style: none;
+}
+
+.programme-day .programme-timeline::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 50%;
+  width: 1px;
+  background: rgba(var(--rgb-ink), 0.45);
+}
+
+.programme-day .programme-timeline li {
+  position: relative;
+  width: 50%;
+  padding: 0 18px 0 0;
+  text-align: right;
+}
+
+.programme-day .programme-timeline li:nth-child(even) {
+  margin-left: 50%;
+  padding: 0 0 0 18px;
+  text-align: left;
+}
+
+.programme-day .programme-timeline li + li {
+  margin-top: -36px;
+}
+
+.programme-day .programme-timeline li::after {
+  content: "";
+  position: absolute;
+  /* Level with the time: 56px icon + 4px margin + half the 1.3 line − half the dot. */
+  top: calc(60px + 0.65 * var(--font-size-small) - 3px);
+  right: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-ink);
+}
+
+.programme-day .programme-timeline li:nth-child(even)::after {
+  right: auto;
+  left: -3px;
+}
+
+.programme-day .programme-timeline__icon {
+  display: block;
+  width: 56px;
+  height: 56px;
+  margin: 0 0 4px auto;
+}
+
+.programme-day .programme-timeline li:nth-child(even) .programme-timeline__icon {
+  margin: 0 auto 4px 0;
+}
+
+.programme-day .programme-timeline__time {
+  display: block;
+  font-size: var(--font-size-small);
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.programme-day .programme-timeline__name {
+  display: block;
+  font-style: italic;
+  line-height: 1.25;
+}
+
+.programme-day .good-to-know {
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid rgba(var(--rgb-ink), 0.25);
+}
+
+.programme-day .good-to-know h3 {
+  margin: 0 0 4px;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-style: italic;
+}
+
+.programme-day .good-to-know ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.programme-day .good-to-know li {
+  margin: 0 0 4px;
+}
+
 /* ---------- Narrow widths (UX-DR30, NFR-5) ----------
  * Gutters from DESIGN.md › Grid and gutters. From 260 to 339.98px the
  * nav bar uses its tighter spacing, so it stays one 64px line at 320px, and
  * the hero its small-phone padding, so the names and the place stay on one
  * line and the hero fits the first screen. Below 300px a topic row stacks,
  * frame above text. Below 260px the sheets' own inline padding narrows too,
- * so their lines keep room at 180 CSS px. The jump links stack at their own,
- * wider breakpoint (Jump links, Story 1.6). */
+ * so their lines keep room at 180 CSS px. Below 16.25em (260px at the
+ * default text size) the programme timeline turns one-sided (Story 1.7,
+ * UX-DR13). The jump links stack at their own, wider breakpoint (Jump links,
+ * Story 1.6). */
 
 @media (max-width: 339.98px) {
   .column {
@@ -1123,11 +1255,47 @@ a:active {
   }
 }
 
+/* Story 1.7 (UX-DR13, UX-DR30, NFR-5): the programme timeline turns
+ * one-sided. The line moves to the left edge and every event sits right of
+ * it, left-aligned, with its icon on the left and no overlap, so a name never
+ * runs into the next event at 180 CSS px. In em, like the jump links in Story
+ * 1.6, so it follows a larger default text size: 16.2487em is 260px at the
+ * 16px default. */
+@media (max-width: 16.2487em) {
+  .programme-day .programme-timeline::before {
+    left: 3px;
+  }
+
+  .programme-day .programme-timeline li,
+  .programme-day .programme-timeline li:nth-child(even) {
+    width: auto;
+    margin-left: 0;
+    padding: 0 0 0 18px;
+    text-align: left;
+  }
+
+  .programme-day .programme-timeline li + li {
+    margin-top: var(--space-3);
+  }
+
+  .programme-day .programme-timeline__icon,
+  .programme-day .programme-timeline li:nth-child(even) .programme-timeline__icon {
+    margin: 0 auto 4px 0;
+  }
+
+  .programme-day .programme-timeline li::after,
+  .programme-day .programme-timeline li:nth-child(even)::after {
+    left: 0;
+    right: auto;
+  }
+}
+
 /* ---------- Forced colours, e.g. Windows high contrast (UX-DR53) ----------
  * The primary button's transparent border becomes a visible outline, cream
  * surfaces keep an edge, and the focus ring uses the system text colour. The
  * paper texture and the sheet edge are decoration, so they are dropped: the
- * sheet is a flat Canvas panel with a 1px border. */
+ * sheet is a flat Canvas panel with a 1px border. The programme timeline's
+ * line and dots stay visible in CanvasText (Story 1.7). */
 
 @media (forced-colors: active) {
   :root,
@@ -1162,6 +1330,15 @@ a:active {
 
   .nav-bar {
     border-bottom: 1px solid CanvasText;
+  }
+
+  /* Story 1.7: the programme timeline's line and dots are drawn shapes, not
+   * text, so the system would paint them in Canvas and hide them; they keep
+   * their place in the system text colour instead. */
+  .programme-day .programme-timeline::before,
+  .programme-day .programme-timeline li::after {
+    forced-color-adjust: none;
+    background: CanvasText;
   }
 }
 

@@ -6,9 +6,9 @@ I/O matrix for `/program/`, `/praktisk/` and `/historie/`: the page's title and
 back button to the front page, the nav «Svar» to the front page's `#svar`, the
 footer and two SELECTs. Unknown and malformed codes on each page show G1 with
 404 after one and no query. The content of Praktisk informasjon and Vår
-historie (Story 1.6) is tested in test_practical_and_story_pages.py; the
-programme's arrives in Story 1.7. That opening them never writes is in
-test_front_page.py.
+historie (Story 1.6) is tested in test_practical_and_story_pages.py, the
+programme's (Story 1.7) in test_programme_page.py. That opening them never
+writes is in test_front_page.py.
 """
 
 import re
