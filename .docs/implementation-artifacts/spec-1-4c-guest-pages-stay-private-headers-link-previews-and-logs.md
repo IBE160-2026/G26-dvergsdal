@@ -2,7 +2,8 @@
 title: 'Story 1.4c: Guest pages stay private: headers, link previews and logs'
 type: 'feature'
 created: '2026-11-20'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: 'ec1b8bb03ec0881b777e444a79a53dc8238770a0'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -10,7 +11,28 @@ context:
 warnings:
   - multiple-goals
   - oversized
-deferred: []
+deferred:
+  - summary: >-
+      MT-10, a real Messenger/SMS link preview, needs the site on a public address.
+    evidence: |-
+      Previews are built by the apps' servers, which cannot reach 127.0.0.1. Recorded in deferred-work.md for the hosting work (no story yet).
+    location: >-
+      docs/manual-test-plan.md
+    severity: low
+  - summary: >-
+      If SECURE_SSL_REDIRECT is turned on, SecurityMiddleware answers the redirect before noindex_middleware runs, so that redirect has no X-Robots-Tag.
+    evidence: |-
+      SECURE_SSL_REDIRECT is off today; recorded in deferred-work.md for the hosting work together with SECURE_PROXY_SSL_HEADER and production access logs.
+    location: >-
+      config/settings.py
+    severity: low
+  - summary: >-
+      A DisallowedHost 400 page that extends base.html would call request.get_host in the link preview and fail again.
+    evidence: |-
+      No custom 400 page exists yet; Story 1.8 adds the error pages. Recorded in deferred-work.md.
+    location: >-
+      wedding/templates/wedding/components/link-preview.html
+    severity: low
 ---
 
 <intent-contract>
@@ -73,17 +95,17 @@ deferred: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `tools/prepare_images.py` -- add the preview target (fit 1000×525 from `04-Illustration.jpg`), docstring names FR-4; run `uvx --with pillow==13.0.0 python -I tools/prepare_images.py` and commit `static/img/forhandsvisning.jpg`; add its row to `static/img/README.md` -- FR-4, UX-DR4.
-- [ ] `wedding/templates/wedding/components/link-preview.html`, `wedding/templates/wedding/base.html` -- the include with the fixed tags and a comment naming FR-4/AD-15; base gets the robots meta and the include -- FR-4, AD-15.
-- [ ] `config/middleware.py` -- `noindex_middleware(get_response)` setting `X-Robots-Tag: noindex` on every response; `config/logging_filters.py` -- `mask_link_codes`, `NOT_LINK_CODES`, `MaskLinkCodes` -- AD-15.
-- [ ] `config/settings.py` -- middleware after Security; `SECURE_REFERRER_POLICY`; `LOGGING` as in Boundaries -- AD-15, NFR-4.
-- [ ] `wedding/templates/wedding/robots.txt`, `config/urls.py` -- the route above the guest include and its docstring -- NFR-4, deferred-work (1.4b).
-- [ ] `tests/test_images.py` -- `forhandsvisning.jpg` in `TARGETS` (1000) and its JPEG height is 525.
-- [ ] `tests/conftest.py` -- fixture returning a checker that every `://` in an HTML string is `http://testserver/` and no `src`/`href` starts with `//`; use it in the three places listed in the Code Map (render `base.html` with `RequestFactory().get("/")`).
-- [ ] `tests/test_guest_privacy.py` -- every matrix row except the log rows: headers on `/`, unknown code, seeded code, `/stil/`, `/hei`, `/robots.txt`; middleware order (before WhiteNoise); `SECURE_REFERRER_POLICY == "same-origin"`; title and `og:` tags identical across codes with no names; `og:image` file found by `django.contrib.staticfiles.finders`; `rel="noreferrer"` on every `<a href="http…">` in every template under `wedding/templates` and `guests/templates`, with the checker proved on one good and one bad sample.
-- [ ] `tests/test_log_masking.py` -- `mask_link_codes` on the log rows and fixed paths; settings: every `LOGGING` handler has `mask_link_codes`, no `AdminEmailHandler`; end-to-end: with `settings.DEBUG = True`, swap each handler's stream on the `django` and `django.server` loggers for a `StringIO` (`handler.setStream`, restored after), make the 404 and CSRF requests and emit the server record, then assert the seeded code is absent and `/[code]/` present.
-- [ ] `docs/manual-test-plan.md` -- MT-8 (Playwright, Edge): open `http://127.0.0.1:8000/`, `/hei/`, `/stil/` and record every request: all go to `127.0.0.1:8000`; the document responses carry `X-Robots-Tag: noindex` and `Referrer-Policy: same-origin`; `/robots.txt` shows the four lines; `og:image` URL answers 200 `image/jpeg`. MT-9: start `uv run manage.py runserver` after `seed_testdata`, open one printed test link: the terminal shows `"GET /[code]/ HTTP/1.1" 404` and `Not Found: /[code]/`, never the code. MT-10 (Rikke, once the site is on a public address): paste a test link into Messenger and an SMS: the watercolour, «Invitasjon» and the description, no names. Result cells empty.
-- [ ] `README.md` -- status line (1.4c: headers, previews, masked logs), folder tree `config/` line (mellomvare og loggfilter), a sentence that the terminal shows `/[code]/` instead of link codes; `ARCHITECTURE-SPINE.md` AD-15 -- dated 2026-11-20 note: robots.txt allows crawling so `noindex` can be read, `og:image` absolute from the request host (needs `SECURE_PROXY_SSL_HEADER` when hosted behind TLS); `deferred-work.md` -- mark the robots part of the admin/robots entry done in 1.4c, admin stays with 3.1.
+- [x] `tools/prepare_images.py` -- add the preview target (fit 1000×525 from `04-Illustration.jpg`), docstring names FR-4; run `uvx --with pillow==13.0.0 python -I tools/prepare_images.py` and commit `static/img/forhandsvisning.jpg`; add its row to `static/img/README.md` -- FR-4, UX-DR4.
+- [x] `wedding/templates/wedding/components/link-preview.html`, `wedding/templates/wedding/base.html` -- the include with the fixed tags and a comment naming FR-4/AD-15; base gets the robots meta and the include -- FR-4, AD-15.
+- [x] `config/middleware.py` -- `noindex_middleware(get_response)` setting `X-Robots-Tag: noindex` on every response; `config/logging_filters.py` -- `mask_link_codes`, `NOT_LINK_CODES`, `MaskLinkCodes` -- AD-15.
+- [x] `config/settings.py` -- middleware after Security; `SECURE_REFERRER_POLICY`; `LOGGING` as in Boundaries -- AD-15, NFR-4.
+- [x] `wedding/templates/wedding/robots.txt`, `config/urls.py` -- the route above the guest include and its docstring -- NFR-4, deferred-work (1.4b).
+- [x] `tests/test_images.py` -- `forhandsvisning.jpg` in `TARGETS` (1000) and its JPEG height is 525.
+- [x] `tests/conftest.py` -- fixture returning a checker that every `://` in an HTML string is `http://testserver/` and no `src`/`href` starts with `//`; use it in the three places listed in the Code Map (render `base.html` with `RequestFactory().get("/")`).
+- [x] `tests/test_guest_privacy.py` -- every matrix row except the log rows: headers on `/`, unknown code, seeded code, `/stil/`, `/hei`, `/robots.txt`; middleware order (before WhiteNoise); `SECURE_REFERRER_POLICY == "same-origin"`; title and `og:` tags identical across codes with no names; `og:image` file found by `django.contrib.staticfiles.finders`; `rel="noreferrer"` on every `<a href="http…">` in every template under `wedding/templates` and `guests/templates`, with the checker proved on one good and one bad sample.
+- [x] `tests/test_log_masking.py` -- `mask_link_codes` on the log rows and fixed paths; settings: every `LOGGING` handler has `mask_link_codes`, no `AdminEmailHandler`; end-to-end: with `settings.DEBUG = True`, swap each handler's stream on the `django` and `django.server` loggers for a `StringIO` (`handler.setStream`, restored after), make the 404 and CSRF requests and emit the server record, then assert the seeded code is absent and `/[code]/` present.
+- [x] `docs/manual-test-plan.md` -- MT-8 (Playwright, Edge): open `http://127.0.0.1:8000/`, `/hei/`, `/stil/` and record every request: all go to `127.0.0.1:8000`; the document responses carry `X-Robots-Tag: noindex` and `Referrer-Policy: same-origin`; `/robots.txt` shows the four lines; `og:image` URL answers 200 `image/jpeg`. MT-9: start `uv run manage.py runserver` after `seed_testdata`, open one printed test link: the terminal shows `"GET /[code]/ HTTP/1.1" 404` and `Not Found: /[code]/`, never the code. MT-10 (Rikke, once the site is on a public address): paste a test link into Messenger and an SMS: the watercolour, «Invitasjon» and the description, no names. Result cells empty.
+- [x] `README.md` -- status line (1.4c: headers, previews, masked logs), folder tree `config/` line (mellomvare og loggfilter), a sentence that the terminal shows `/[code]/` instead of link codes; `ARCHITECTURE-SPINE.md` AD-15 -- dated 2026-11-20 note: robots.txt allows crawling so `noindex` can be read, `og:image` absolute from the request host (needs `SECURE_PROXY_SSL_HEADER` when hosted behind TLS); `deferred-work.md` -- mark the robots part of the admin/robots entry done in 1.4c, admin stays with 3.1.
 
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` run, then all pass.
@@ -95,6 +117,48 @@ deferred: []
 ## Spec Change Log
 
 ## Review Triage Log
+
+### 2026-11-20 — Review pass
+- verdicts: 38 findings — high 0, medium 14, low 19, false 5, maybe-false 0
+- findings:
+  - `[false]` `[reject]` The two-code preview comparison holds by construction because every code shows G1 (intent-alignment) — the test fetches seeded codes, so it compares real guest pages once Story 1.5 returns 200; nothing to change now.
+  - `[low]` `[patch]` Nothing enforces that the page `<title>` (inside a block) is the same for every code (intent-alignment) — the two-code test now also compares `<title>`.
+  - `[false]` `[reject]` "Loads nothing from other sites" does not follow the stylesheet (intent-alignment) — `test_every_url_points_to_a_local_file` (1.4a) already checks every `url()` in site.css; MT-8 in Edge saw only 127.0.0.1.
+  - `[low]` `[patch]` The noreferrer check has nothing to check and misses template-variable hrefs (intent-alignment) — `<a>` with `{{` in href must carry `rel` with noreferrer.
+  - `[low]` `[patch]` 403/500 bodies and headers are not checked (intent-alignment) — a CSRF 403 header test was added; the 500/400 bodies belong to Story 1.8.
+  - `[medium]` `[patch]` Loggers outside the `django` tree reach `logging.lastResort` unmasked (intent-alignment) — a root logger with a masked WARNING+ handler.
+  - `[low]` `[defer]` What Messenger/SMS really show (MT-10) needs a public host (intent-alignment) — deferred to the hosting work.
+  - `[false]` `[reject]` Tasks unticked, logs empty, sprint-status still backlog (blind) — that is the finalize step.
+  - `[low]` `[patch]` Work moved out of the story (production access logs, SECURE_PROXY_SSL_HEADER, MT-10) is not in deferred-work.md (blind) — entries added.
+  - `[medium]` `[patch]` With DEBUG off nothing from Django is logged anywhere (blind) — new masked WARNING+ handler that does not depend on DEBUG.
+  - `[medium]` `[patch]` Tracebacks (`exc_info`, `stack_info`) are not masked (blind) — the filter now masks exception and stack text.
+  - `[medium]` `[patch]` Full URLs and `key=/<code>/` are not masked, e.g. Django's CSRF Referer message (blind) — the first segment after `scheme://host` and after `=` is masked.
+  - `[low]` `[patch]` Absolute file paths are masked too, contrary to the docstring (blind) — docstring now says so.
+  - `[low]` `[patch]` `NOT_LINK_CODES` is only compared with itself (blind) — the test derives the top-level routes from the URLconf, so 3.1's `admin/` fails until added.
+  - `[low]` `[patch]` The Referrer-Policy test cannot fail (blind) — the test now checks the setting is written in settings.py.
+  - `[low]` `[patch]` The https scheme of og:image is untested (blind) — test with `secure=True`; the own-host checker accepts the request's scheme.
+  - `[low]` `[patch]` og:image becomes `:///static/…` without a request (blind) — the og:image tag sits in `{% if request %}`, with a test.
+  - `[medium]` `[patch]` Static files under runserver carry no X-Robots-Tag (blind; also seen by Claude in the Playwright MT-8 run) — `whitenoise.runserver_nostatic` added.
+  - `[low]` `[patch]` CSRF 403 and 500 headers are not tested (blind) — same as the 403 row above.
+  - `[false]` `[reject]` MT-8 and MT-9 were never run (blind) — run by Claude with Playwright in Edge after the review was launched, and recorded.
+  - `[false]` `[reject]` No session log for 1.4c (blind) — the orchestrator writes it before the PR merges.
+  - `[medium]` `[patch]` Absolute URLs and query values leak the code (verification-gap, other) — same root cause as the full-URL row.
+  - `[medium]` `[patch]` `require_debug_true` before `mask_link_codes` leaves the propagated record unmasked (verification-gap, other) — mask filter first on every handler.
+  - `[medium]` `[patch]` In production nothing is logged (verification-gap, other) — same as the DEBUG-off row.
+  - `[medium]` `[patch]` `//<code>/` is not masked (edge-case) — the path pattern accepts several leading slashes.
+  - `[medium]` `[patch]` Absolute-form request lines and paths after `=` (edge-case) — same as the full-URL row.
+  - `[medium]` `[patch]` exc_info / stack_info unmasked (edge-case) — same as the traceback row.
+  - `[low]` `[patch]` `record.getMessage()` raising escapes into the request (edge-case) — caught; the record passes unchanged.
+  - `[medium]` `[patch]` Non-django loggers emit WARNING+ through lastResort without the mask (edge-case) — same as the root-logger row.
+  - `[low]` `[defer]` A SECURE_SSL_REDIRECT redirect would skip `noindex_middleware` (edge-case) — SSL redirect is not enabled; recorded for the hosting work.
+  - `[low]` `[patch]` og:image without a request in context (edge-case) — same as the `{% if request %}` row.
+  - `[low]` `[defer]` A DisallowedHost 400 page extending base.html would call `request.get_host` again (edge-case) — deferred to Story 1.8.
+  - `[low]` `[patch]` The protocol-relative check misses srcset, action, content, poster and CSS `url(//` (edge-case) — regex extended.
+  - `[low]` `[patch]` An unnamed `{% endblock %}` would hide tags from the outside-every-block test (edge-case) — both forms accepted.
+  - `[low]` `[patch]` Template-variable external hrefs skip the noreferrer check (edge-case) — same as the noreferrer row above.
+  - `[low]` `[patch]` `ImageOps.fit` silently upscales a smaller replacement illustration (edge-case) — the script asserts the source is at least 1000×525.
+  - `[medium]` `[patch]` Claim: a request to a guest page never logs its code; `//<code>/` does (edge-case, claim) — same as the double-slash row.
+  - `[medium]` `[patch]` Claim: a filter on every handler masks every path; non-django loggers reach lastResort (edge-case, claim) — same as the root-logger row.
 
 ## Design Notes
 
@@ -112,3 +176,24 @@ deferred: []
 
 **Manual checks:**
 - MT-8 and MT-9 are run afterwards by the orchestrator with Playwright in Edge; MT-10 waits for hosting.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** Guest pages stay private. Every response carries `X-Robots-Tag: noindex` (middleware before WhiteNoise, and `runserver_nostatic` so dev static files get it too) and `Referrer-Policy: same-origin`. `base.html` holds the robots meta tag and one fixed Open Graph preview (watercolour crop `forhandsvisning.jpg`) outside every block. `/robots.txt` is routed above the catch-all and blocks nothing. A logging filter masks link codes (first path segment, after `scheme://host` and `=`, in tracebacks and stack text) on every handler, including a new DEBUG-independent WARNING+ handler on the root logger.
+
+**Files changed:**
+- `config/middleware.py`, `config/logging_filters.py`, `config/settings.py`, `config/urls.py` — noindex header, log masking, LOGGING, Referrer-Policy, robots route.
+- `wedding/templates/wedding/base.html`, `wedding/templates/wedding/components/link-preview.html`, `wedding/templates/wedding/robots.txt` — meta tags, preview, robots.
+- `tools/prepare_images.py`, `static/img/forhandsvisning.jpg`, `static/img/README.md` — the preview image.
+- `tests/test_guest_privacy.py`, `tests/test_log_masking.py`, `tests/conftest.py` and adjusted 1.4a/1.4b tests — headers, previews, robots, masking end to end.
+- `.gitattributes` (robots.txt stays LF), `README.md`, `ARCHITECTURE-SPINE.md` (AD-15 note), `deferred-work.md`, `docs/manual-test-plan.md` (MT-8, MT-9, MT-10).
+
+**Review:** 30 rows patched (18 distinct fixes), 3 rows deferred, 5 rejected with reasons in the triage log.
+
+**Follow-up review recommendation:** false. No high was patched. Several medium entries were patched (masking gaps, production logging, runserver static header), all covered by new tests that ran and by the Playwright MT-8/MT-9 re-run, so no unverified risk can be named.
+
+**Verification:** `uv run pytest` 492 passed; ruff and djlint clean; image script rerun leaves `static/img` unchanged; MT-8 and MT-9 run by Claude with Playwright in Edge (before and after the patches); 1.4b's MT-5/MT-6 re-run still pass.
+
+**Residual risks:** production access logs, `SECURE_PROXY_SSL_HEADER` and `SECURE_SSL_REDIRECT` wait for the hosting work; MT-10 (real Messenger/SMS preview) needs a public address; a DisallowedHost 400 page (Story 1.8) must not call `request.get_host` in the preview.
