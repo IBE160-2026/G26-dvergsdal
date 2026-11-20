@@ -6,7 +6,7 @@ Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten
 
 Repoet inneholder applikasjonen og dokumentasjonen av utvikling, testing og kvalitetssikring med KI.
 
-> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Papirarket, papirstrukturen, Rikkes bilder og siden for ugyldige lenker er på plass (story 1.4b). Alle sider ber søkemotorer om ikke å vise dem (`noindex`), en delt lenke viser samme forhåndsvisning for alle gjester, og loggen skriver aldri lenkekoder (story 1.4c). Invitasjonens forside kommer i story 1.5; til da viser både `http://127.0.0.1:8000/` og alle testlenkene siden for ugyldige lenker, «Dette er en privat invitasjon».
+> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Papirarket, papirstrukturen, Rikkes bilder og siden for ugyldige lenker er på plass (story 1.4b). Alle sider ber søkemotorer om ikke å vise dem (`noindex`), en delt lenke viser samme forhåndsvisning for alle gjester, og loggen skriver aldri lenkekoder (story 1.4c). En testlenke åpner invitasjonens forside med meny, toppfelt, «Alt om helgen», svarfelt og bunnfelt med telefonnumrene, og de tre infosidene (Programmet, Praktisk informasjon, Vår historie) finnes med ramme, men uten innhold ennå (story 1.5; innholdet kommer i story 1.6 og 1.7). `http://127.0.0.1:8000/` og ukjente lenker viser siden for ugyldige lenker, «Dette er en privat invitasjon».
 
 ## Forutsetninger
 
@@ -28,7 +28,7 @@ uv run manage.py migrate
 uv run manage.py runserver
 ```
 
-Åpne <http://127.0.0.1:8000/> i nettleseren. Til invitasjonens forside kommer i story 1.5, viser den siden for ugyldige lenker. Stilprøven ligger på <http://127.0.0.1:8000/stil/>. Stopp serveren med `Ctrl+C`.
+Åpne <http://127.0.0.1:8000/> i nettleseren. Den viser siden for ugyldige lenker, «Dette er en privat invitasjon», fordi invitasjonen bare åpnes med en personlig lenke; fyll inn testdata (se [Testdata](#testdata)) og åpne en testlenke for å se den. Stilprøven ligger på <http://127.0.0.1:8000/stil/>. Stopp serveren med `Ctrl+C`.
 
 `uv sync` installerer Python 3.14 og de låste versjonene i `uv.lock`. `migrate` lager den lokale databasen `db.sqlite3`, som git ignorerer.
 
@@ -61,9 +61,9 @@ Alle personene er oppdiktet, bortsett fra Rikke og Valdemar: e-postene er på `e
 | Mona | Mona og Geir | <http://127.0.0.1:8000/test-mona0000000000000/> |
 | Geir | Mona og Geir | <http://127.0.0.1:8000/test-geir0000000000000/> |
 
-Åpne lenkene mens `uv run manage.py runserver` kjører. Invitasjonen de åpner, kommer i story 1.5; til da viser de siden for ugyldige lenker, akkurat som `/`.
+Åpne lenkene mens `uv run manage.py runserver` kjører. Hver lenke åpner invitasjonen til husstanden sin, for eksempel «for Sigmund og bestemor»; menyen øverst går til de tre infosidene. `/` og en ukjent lenke viser siden for ugyldige lenker.
 
-Terminalen der serveren kjører, viser `/[code]/` i stedet for lenkekoden, for eksempel `"GET /[code]/ HTTP/1.1" 404` og `Not Found: /[code]/`. En lenkekode er gjestens eneste innlogging, så den skal ikke havne i en logg (story 1.4c).
+Terminalen der serveren kjører, viser `/[code]/` i stedet for lenkekoden, for eksempel `"GET /[code]/ HTTP/1.1" 200` for en testlenke og `"GET /[code]/ HTTP/1.1" 404` og `Not Found: /[code]/` for en ukjent lenke. En lenkekode er gjestens eneste innlogging, så den skal ikke havne i en logg (story 1.4c).
 
 | Brukernavn | Passord | Rolle |
 |---|---|---|
@@ -145,9 +145,9 @@ uv run --env-file .env manage.py runserver
 │   ├── links.py              Gjør en personlig lenkekode om til en gjest
 │   ├── management/commands/  Kommandoer: seed_testdata fyller inn testdata
 │   ├── fixtures/             Testdata (seed.toml) og fasit (expected.toml)
-│   ├── templates/wedding/    Grunnmalen (base.html), felles deler som varselet og lenkeforhåndsvisningen, og robots.txt
+│   ├── templates/wedding/    Grunnmalen (base.html), felles deler som varselet, lenkeforhåndsvisningen og bunnfeltet, og robots.txt
 │   └── migrations/           Databasemigrasjoner
-├── guests/                   Gjestesidene under /<kode>/ (foreløpig siden for ugyldige lenker og stilprøven /stil/)
+├── guests/                   Gjestesidene: forsiden og infosidene under /<kode>/, siden for ugyldige lenker og stilprøven /stil/
 ├── dashboard/                Sidene for brudeparet og hjelperne under /admin/
 ├── static/                   CSS, JavaScript, fonter og bilder, alt fra egen server
 │   ├── css/site.css          Stilarket: alle fargene, avstandene og skriftstørrelsene fra DESIGN.md
