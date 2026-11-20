@@ -1,4 +1,4 @@
-"""Helpers and constants shared by several test modules (Story 1.5).
+"""Helpers and constants shared by several test modules (Story 1.5, 1.6, 1.7).
 
 Fixtures live in conftest.py; plain values and functions that tests import live
 here.
@@ -25,3 +25,21 @@ FRONT_PAGE = (
 def page_text(html: str) -> str:
     """A page's text as a reader sees it: tags removed, whitespace collapsed."""
     return " ".join(re.sub(r"<[^>]+>", " ", html).split())
+
+
+def tag_attrs(tag: str) -> dict[str, str]:
+    """The attributes of one opening tag, as written."""
+    return dict(re.findall(r'([\w-]+)="([^"]*)"', tag))
+
+
+def main_html(html: str) -> str:
+    """The page's `main` element, from its opening tag to before `</main>`."""
+    return html[html.index("<main") : html.index("</main>")]
+
+
+def sections_of(html: str) -> list[tuple[dict[str, str], str]]:
+    """Every `section` in `html` as (attributes, inner HTML)."""
+    return [
+        (tag_attrs(tag), body)
+        for tag, body in re.findall(r"(<section\b[^>]*>)(.*?)</section>", html, re.DOTALL)
+    ]

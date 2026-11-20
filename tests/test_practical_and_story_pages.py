@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.helpers import page_text
+from tests.helpers import main_html, page_text, sections_of, tag_attrs
 
 CODE = "test-sigmund0000000000"  # several invited, «dere»
 SYNNE = "test-synne000000000000"  # one invited, «deg»
@@ -81,23 +81,6 @@ JUMP_DOT = '<span class="jump-links__dot" aria-hidden="true">·</span>'
 pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
 
 
-def _attrs(tag: str) -> dict[str, str]:
-    """The attributes of one opening tag, as written."""
-    return dict(re.findall(r'([\w-]+)="([^"]*)"', tag))
-
-
-def _main(html: str) -> str:
-    return html[html.index("<main") : html.index("</main>")]
-
-
-def _sections(html: str) -> list[tuple[dict[str, str], str]]:
-    """Every `section` in `html` as (attributes, inner HTML)."""
-    return [
-        (_attrs(tag), body)
-        for tag, body in re.findall(r"(<section\b[^>]*>)(.*?)</section>", html, re.DOTALL)
-    ]
-
-
 def _mockup_parts() -> dict[str, str]:
     """The approved Praktisk parts by id, without the map button (Story 7.4)."""
     parts = re.findall(
@@ -132,7 +115,7 @@ def story(client, seeded, django_assert_num_queries) -> str:
 def test_jump_links_sit_between_the_title_and_the_first_sheet(practical):
     """UX-DR12, DESIGN.md > Info pages: the «Hopp til» nav comes after the `h1`
     and before the first sheet, and there is exactly one."""
-    main = _main(practical)
+    main = main_html(practical)
     assert main.count('aria-label="Hopp til"') == 1
     nav = main.index('<nav class="jump-links" aria-label="Hopp til">')
     assert main.index("</h1>") < nav < main.index("<section")
@@ -170,7 +153,7 @@ def test_seven_sheets_in_order_each_a_focusable_jump_target(practical):
     """FR-10, UX-DR12, EXPERIENCE.md > Info sheet: seven info sheets in the
     approved order with the mockup's ids; each takes focus from its link
     (tabindex -1) and is labelled by its own `h2`."""
-    sections = _sections(_main(practical))
+    sections = sections_of(main_html(practical))
     assert [attrs["id"] for attrs, _ in sections] == [part_id for part_id, _ in SECTIONS]
     assert [attrs["id"] for attrs, _ in sections] == list(_mockup_parts())
     for (attrs, body), (part_id, heading) in zip(sections, SECTIONS, strict=True):
@@ -186,14 +169,14 @@ def test_each_sheet_holds_the_approved_text(practical, part_id, heading):
     """FR-10, AD-17: each sheet's text is the approved mockup's word for word,
     placeholders in square brackets included; the map button is left out
     until Story 7.4."""
-    sections = {attrs["id"]: body for attrs, body in _sections(_main(practical))}
+    sections = {attrs["id"]: body for attrs, body in sections_of(main_html(practical))}
     assert page_text(sections[part_id]) == page_text(_mockup_parts()[part_id])
     assert page_text(sections[part_id]).startswith(heading)
 
 
 def test_facts_use_strong_not_b(practical):
     """FR-10, DESIGN.md > Info sheet: the facts' labels are `strong`."""
-    main = _main(practical)
+    main = main_html(practical)
     assert "<b>" not in main
     for label in ("Lørdag 27. mai kl. [14:00]", "Adresse:", "Lørdag:", "Fredag og søndag:"):
         assert f"<strong>{label}</strong>" in main, label
@@ -201,7 +184,7 @@ def test_facts_use_strong_not_b(practical):
 
 def test_vielsen_links_to_the_programme(practical):
     """FR-8, FR-10: «programmet» in Vielsen opens the programme page."""
-    sections = {attrs["id"]: body for attrs, body in _sections(_main(practical))}
+    sections = {attrs["id"]: body for attrs, body in sections_of(main_html(practical))}
     assert f'<a href="/{CODE}/program/">programmet</a>' in sections["vielsen"]
 
 
@@ -209,12 +192,12 @@ def test_practical_images_are_framed_with_alt_size_and_loading(practical):
     """NFR-5, NFR-7, UX-DR4: the photos and the lace in the 220px frame, each with
     alt, width and height; the Vielsen images load at once and every later
     image lazily; the page shows exactly these four files."""
-    main = _main(practical)
+    main = main_html(practical)
     sources = set(re.findall(r'<img\b[^>]*src="/static/img/([^"]+)"', main))
     assert sources == {"sted-kirka.jpg", "sted-tunet.jpg", "sted-omradet.jpg", "blonde.png"}
-    sections = {attrs["id"]: body for attrs, body in _sections(main)}
+    sections = {attrs["id"]: body for attrs, body in sections_of(main)}
     for part_id, body in sections.items():
-        images = [_attrs(tag) for tag in re.findall(r"<img\b[^>]*>", body)]
+        images = [tag_attrs(tag) for tag in re.findall(r"<img\b[^>]*>", body)]
         if part_id not in PHOTOS:
             assert images == [], part_id
             continue
@@ -239,12 +222,12 @@ def test_practical_leaves_out_what_later_stories_bring(
     """Story 1.6 boundaries: no map button (7.4), no «Godt å vite» (1.7) and no
     du/dere logic: a one-person household gets the same text as a household of
     several (the placeholder text stays as written until 7.4)."""
-    main = _main(practical)
+    main = main_html(practical)
     assert "veibeskrivelse" not in main
     assert "Godt å vite" not in main
     with django_assert_num_queries(2):
         one = client.get(f"/{SYNNE}/praktisk/").content.decode()
-    assert page_text(_main(one)) == page_text(main)
+    assert page_text(main_html(one)) == page_text(main)
 
 
 # Vår historie (UX-DR14)
@@ -255,9 +238,9 @@ def test_story_has_one_sheet_labelled_by_the_title_and_no_jump_links(story):
     labelled by the page's `h1`, whose id is `sidetittel`."""
     assert story.count("<h1") == 1
     assert '<h1 class="info-page__title" id="sidetittel">' in story
-    main = _main(story)
+    main = main_html(story)
     assert "Hopp til" not in main
-    sections = _sections(main)
+    sections = sections_of(main)
     assert [attrs for attrs, _ in sections] == [
         {"class": "paper-sheet story-sheet", "aria-labelledby": "sidetittel"}
     ]
@@ -266,7 +249,7 @@ def test_story_has_one_sheet_labelled_by_the_title_and_no_jump_links(story):
 def test_story_chapters_are_h2_with_one_hidden_dot_each(story):
     """UX-DR14: nine chapter `h2`s in the approved order, each a time · place
     line whose dot is one aria-hidden span; they match the mockup's chapters."""
-    (_, body) = _sections(_main(story))[0]
+    (_, body) = sections_of(main_html(story))[0]
     headings = re.findall(r"<h2>(.*?)</h2>", body, re.DOTALL)
     assert [page_text(heading) for heading in headings] == CHAPTERS
     for heading in headings:
@@ -280,7 +263,7 @@ def test_story_text_is_the_approved_text_with_the_signature_last(story):
     """UX-DR14, AD-17: the sheet's text is the approved mockup's word for word,
     the closing line before the signature, and the signature the last thing
     on the sheet."""
-    (_, body) = _sections(_main(story))[0]
+    (_, body) = sections_of(main_html(story))[0]
     mockup = re.search(r'<section class="sheet story">(.*?)</section>', STORY_MOCKUP, re.S)
     assert page_text(body) == page_text(mockup.group(1))
     assert html_module.unescape(page_text(body)).endswith("sammen med dere! Rikke & Valdemar")
@@ -294,8 +277,8 @@ def test_story_text_is_the_approved_text_with_the_signature_last(story):
 def test_story_image_is_the_view_photo_in_the_frame_loaded_at_once(story):
     """NFR-5, UX-DR4, UX-DR14: the view photo and the lace in the 220px frame,
     with alt, width and height, loaded at once; exactly these two files."""
-    main = _main(story)
-    images = [_attrs(tag) for tag in re.findall(r"<img\b[^>]*>", main)]
+    main = main_html(story)
+    images = [tag_attrs(tag) for tag in re.findall(r"<img\b[^>]*>", main)]
     assert {image["src"] for image in images} == {
         "/static/img/oss-utsikt.jpg",
         "/static/img/blonde.png",
