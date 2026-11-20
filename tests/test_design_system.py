@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 from django.template.loader import render_to_string
+from django.test import RequestFactory
 
 from guests.views import COLOUR_TOKENS
 
@@ -507,14 +508,17 @@ def test_column_gutters_narrow_with_the_tokens():
 # Base template
 
 
-def test_base_template_declares_language_colour_scheme_and_local_css():
-    """UX-DR1, NFR-5: `lang="nb"`, light only, and the stylesheet from our own server."""
-    html = render_to_string("wedding/base.html")
+def test_base_template_declares_language_colour_scheme_and_local_css(
+    assert_loads_only_own_host,
+):
+    """UX-DR1, NFR-5, AD-15: `lang="nb"`, light only, and the stylesheet from our own
+    server; the only absolute address is our own host (the og:image, Story 1.4c)."""
+    html = render_to_string("wedding/base.html", request=RequestFactory().get("/"))
     assert '<html lang="nb">' in html
     assert '<meta name="color-scheme" content="light only">' in html
     assert '<meta name="viewport" content="width=device-width, initial-scale=1">' in html
     assert '<link rel="stylesheet" href="/static/css/site.css">' in html
-    assert "://" not in html
+    assert_loads_only_own_host(html)
 
 
 def test_base_template_holds_the_edge_filter_once_and_hidden():
@@ -650,7 +654,7 @@ def test_notice_text_is_escaped():
 # The style sample /stil/ (Rikke's decision, 2026-11-18)
 
 
-def test_style_sample_shows_every_button_and_notice_locally(client):
+def test_style_sample_shows_every_button_and_notice_locally(client, assert_loads_only_own_host):
     """UX-DR1, UX-DR15, UX-DR17, UX-DR54: `/stil/` renders on the base template with
     the four buttons, the four notices and a jump link for the motion check (MT-3)."""
     response = client.get("/stil/")
@@ -673,7 +677,7 @@ def test_style_sample_shows_every_button_and_notice_locally(client):
     assert "Obs: Svaret er ikke sendt ennå." in " ".join(html.split())
     assert 'href="#varsler"' in html
     assert 'id="varsler"' in html
-    assert "://" not in html
+    assert_loads_only_own_host(html)
 
 
 def test_style_sample_swatches_follow_design():

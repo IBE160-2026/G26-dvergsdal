@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "config.middleware.noindex_middleware",  # X-Robots-Tag on every response (AD-15)
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -66,6 +67,11 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "config.urls"
+
+# Guest pages never tell other sites where the visitor came from (AD-15, NFR-4).
+# Django's default, set here so it can be traced. Never `no-referrer`: Django's
+# CSRF check needs the Referer on HTTPS forms and would reject every one.
+SECURE_REFERRER_POLICY = "same-origin"
 
 TEMPLATES = [
     {

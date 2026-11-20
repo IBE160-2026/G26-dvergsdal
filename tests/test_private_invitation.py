@@ -51,52 +51,64 @@ def _text(html: str) -> str:
     return " ".join(html.split())
 
 
-def _assert_is_g1(response) -> str:
-    """The response is the G1 page and nothing more; returns its HTML."""
-    html = response.content.decode()
-    templates = [template.name for template in response.templates]
-    assert "guests/private_invitation.html" in templates
-    assert "wedding/base.html" in templates
-    assert '<main class="column private-invitation">' in html
-    assert '<div class="paper-sheet private-invitation__sheet">' in html
-    assert f'<h1 class="private-invitation__heading">{HEADING}</h1>' in html
-    assert HELP_LINE in _text(html)
-    flowers = re.search(r"<img[^>]*brudeslor\.png[^>]*>", html).group(0)
-    assert 'alt=""' in flowers
-    assert 'width="180"' in flowers
-    for forbidden in FORBIDDEN:
-        assert forbidden not in html, forbidden
-    assert "favicon" not in html
-    assert "apple-touch-icon" not in html
-    icons = re.findall(r"<link[^>]*\bicon\b[^>]*>", html)
-    assert icons == ['<link rel="icon" href="data:,">']
-    assert "://" not in html
-    return html
+@pytest.fixture
+def assert_is_g1(assert_loads_only_own_host):
+    """A checker that the response is the G1 page and nothing more; it returns
+    the HTML. Every absolute address is our own host (AD-15, Story 1.4c)."""
+
+    def check(response) -> str:
+        html = response.content.decode()
+        templates = [template.name for template in response.templates]
+        assert "guests/private_invitation.html" in templates
+        assert "wedding/base.html" in templates
+        assert '<main class="column private-invitation">' in html
+        assert '<div class="paper-sheet private-invitation__sheet">' in html
+        assert f'<h1 class="private-invitation__heading">{HEADING}</h1>' in html
+        assert HELP_LINE in _text(html)
+        flowers = re.search(r"<img[^>]*brudeslor\.png[^>]*>", html).group(0)
+        assert 'alt=""' in flowers
+        assert 'width="180"' in flowers
+        for forbidden in FORBIDDEN:
+            assert forbidden not in html, forbidden
+        assert "favicon" not in html
+        assert "apple-touch-icon" not in html
+        icons = re.findall(r"<link[^>]*\bicon\b[^>]*>", html)
+        assert icons == ['<link rel="icon" href="data:,">']
+        assert_loads_only_own_host(html)
+        return html
+
+    return check
 
 
-def test_bare_address_shows_g1_on_an_empty_database(client, django_assert_num_queries):
+def test_bare_address_shows_g1_on_an_empty_database(
+    client, assert_is_g1, django_assert_num_queries
+):
     """FR-5: `/` on an empty, migrated database gives 200 and G1, with no query."""
     assert Household.objects.count() == 0
     with django_assert_num_queries(0):
         response = client.get("/")
     assert response.status_code == 200
-    _assert_is_g1(response)
+    assert_is_g1(response)
 
 
 @pytest.mark.parametrize("code", UNKNOWN_CODES)
-def test_unknown_code_shows_the_same_g1_with_404(client, django_assert_num_queries, code):
+def test_unknown_code_shows_the_same_g1_with_404(
+    client, assert_is_g1, django_assert_num_queries, code
+):
     """FR-5: an unknown code gives 404 with the same G1 body as `/`, and no query;
     never Django's technical 404 page with the URL list."""
     with django_assert_num_queries(0):
         bare = client.get("/")
         response = client.get(f"/{code}/")
     assert response.status_code == 404
-    html = _assert_is_g1(response)
+    html = assert_is_g1(response)
     assert html == bare.content.decode()
     assert "Page not found" not in html
 
 
-def test_a_seeded_test_link_shows_g1_until_story_1_5(client, django_assert_num_queries):
+def test_a_seeded_test_link_shows_g1_until_story_1_5(
+    client, assert_is_g1, django_assert_num_queries
+):
     """FR-5, Design Notes: before Story 1.5 there is no guest page, so a real test
     link also shows G1 with 404, and its code is not looked up."""
     call_command("seed_testdata", stdout=StringIO())
@@ -105,14 +117,14 @@ def test_a_seeded_test_link_shows_g1_until_story_1_5(client, django_assert_num_q
     with django_assert_num_queries(0):
         response = client.get(f"/{code}/")
     assert response.status_code == 404
-    _assert_is_g1(response)
+    assert_is_g1(response)
 
 
-def test_seeded_data_never_reaches_g1(client):
+def test_seeded_data_never_reaches_g1(client, assert_is_g1):
     """FR-5, NFR-3: with the seed loaded, G1 holds no guest name, no couple name and
     no phone number, besides the year, the place, the seal, nav, footer or `tel:`."""
     call_command("seed_testdata", stdout=StringIO())
-    html = _assert_is_g1(client.get("/"))
+    html = assert_is_g1(client.get("/"))
     settings = SEED["settings"]
     names = [guest["name"] for guest in SEED_GUESTS]
     names += [settings["contact_1_name"], settings["contact_2_name"]]
@@ -131,10 +143,12 @@ def test_style_sample_locally_is_the_sample(client):
     assert "guests/style_sample.html" in [template.name for template in response.templates]
 
 
-def test_style_sample_in_production_is_g1(client, django_assert_num_queries, production_urls):
+def test_style_sample_in_production_is_g1(
+    client, assert_is_g1, django_assert_num_queries, production_urls
+):
     """Spec 1.4b matrix: with `APP_ENV=production` `/stil/` is read as a code and
     gives the G1 page with 404."""
     with django_assert_num_queries(0):
         response = client.get("/stil/")
     assert response.status_code == 404
-    _assert_is_g1(response)
+    assert_is_g1(response)

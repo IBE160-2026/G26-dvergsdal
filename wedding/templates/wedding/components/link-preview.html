@@ -1,0 +1,20 @@
+{% load static %}
+{% comment %}
+The link preview (Story 1.4c, FR-4, AD-15): one fixed set of Open Graph tags
+that every page shares, so a link pasted into Messenger, SMS or mail shows the
+same card for every guest and names nobody. No og:url, canonical, site name or
+Twitter tags, since they would vary by code or name the couple. The image is
+the watercolour, served from our own host (`request.scheme` follows
+SECURE_PROXY_SSL_HEADER once the site is hosted behind TLS).
+{% endcomment %}
+<meta property="og:type" content="website">
+<meta property="og:locale" content="nb_NO">
+<meta property="og:title" content="Invitasjon">
+<meta property="og:description"
+      content="En personlig invitasjon. Åpne lenken for å se den.">
+<meta property="og:image"
+      content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/forhandsvisning.jpg' %}">
+<meta property="og:image:width" content="1000">
+<meta property="og:image:height" content="525">
+<meta property="og:image:alt"
+      content="Akvarell av et gammelt tun med et lite klokketårn, et våningshus og furutrær.">
