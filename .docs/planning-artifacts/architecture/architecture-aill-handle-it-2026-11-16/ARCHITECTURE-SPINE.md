@@ -111,7 +111,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   - **Code:** each guest has one active code from `secrets.token_urlsafe(16)` (128 bits, 22 URL-safe characters). It is stored in plain form, unique and indexed, so the couple can copy it at any time. Only the seed command may set fixed codes, in the same 22-character format.
   - **New link:** issuing a new link replaces only that guest's code; the old code becomes unknown.
   - **Resolver:** one function in `wedding/` turns a code into a guest actor. Every guest view uses it.
-  - **URL:** the link is `/<code>/` and every guest page lives under it. This format never changes once invitations go out.
+  - **URL:** the link is `/<code>/` and every guest page lives under it. This format never changes once invitations go out. The info pages are `/<code>/program/`, `/<code>/praktisk/` and `/<code>/historie/`; `/<code>/svar/` (the RSVP form, AD-7) and `/<code>/personvern/` follow. *(Added 2026-11-20 in Story 1.5: the paths were decided in the architecture memlog but not written into this rule; Story 1.5 adds the first three, and Stories 2.1 and 7.1 add `/svar/` and `/personvern/`.)*
   - **Without a valid link:** an unknown code or the bare `/` shows the FR-5 page and nothing more.
   - **Opening a link:** a GET request never writes (FR-3).
   - **Who sees codes:** codes and "Kopier lenke" are rendered only for the couple, never for helpers.
