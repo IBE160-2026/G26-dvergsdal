@@ -1,7 +1,172 @@
 {% extends "guests/info_page.html" %}
+{% load static %}
 {% comment %}
-Praktisk informasjon (Story 1.5, FR-8, FR-10, FR-11): the info-page frame only.
-The jump links and one sheet per part arrive with Story 1.6.
+Praktisk informasjon (Story 1.6; FR-8, FR-10, FR-11, AD-17, UX-DR12; DESIGN.md ›
+Info pages, Jump links, Info sheet; approved in mockups/info-praktisk.html).
+Under the title, the «Hopp til» jump links in three balanced lists, so a dot
+never starts a line; each dot is an aria-hidden span, so screen readers do not
+read it. Then one paper sheet per part, each a `section` that takes focus from
+its jump link (tabindex="-1") and is labelled by its `h2`. The text lives here
+in the template (AD-17) and is the approved mockup's, placeholders in square
+brackets included: Story 7.4 replaces them with the couple's real text and adds
+«Åpne veibeskrivelse i kart» once the address and the map service are settled.
 {% endcomment %}
 {% block title %}Praktisk informasjon – Invitasjon{% endblock title %}
 {% block info_title %}Praktisk informasjon{% endblock info_title %}
+{% block info_content %}
+    <nav class="jump-links" aria-label="Hopp til">
+        <ul>
+            <li>
+                <a href="#vielsen">Vielsen</a>
+            </li>
+            <li>
+                <span class="jump-links__dot" aria-hidden="true">·</span><a href="#stedet">Hardingasete</a>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <a href="#komme-dit">Komme dit</a>
+            </li>
+            <li>
+                <span class="jump-links__dot" aria-hidden="true">·</span><a href="#husregler">Husregler</a>
+            </li>
+            <li>
+                <span class="jump-links__dot" aria-hidden="true">·</span><a href="#antrekk">Antrekk</a>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <a href="#ta-med">Ta med</a>
+            </li>
+            <li>
+                <span class="jump-links__dot" aria-hidden="true">·</span><a href="#omradet">Området</a>
+            </li>
+        </ul>
+    </nav>
+    <section class="paper-sheet info-sheet"
+             id="vielsen"
+             tabindex="-1"
+             aria-labelledby="vielsen-overskrift">
+        <h2 id="vielsen-overskrift">Vielsen</h2>
+        <div class="lace-frame lace-frame--info">
+            <img class="lace-frame__photo lace-frame__photo--kirka"
+                 src="{% static 'img/sted-kirka.jpg' %}"
+                 alt="Strandebarm kirke, en hvit trekirke med fjell bak."
+                 width="197"
+                 height="190">
+            <img class="lace-frame__lace"
+                 src="{% static 'img/blonde.png' %}"
+                 alt=""
+                 width="220"
+                 height="213">
+        </div>
+        <p>
+            <strong>Lørdag 27. mai kl. [14:00]</strong>
+            <br>
+            Strandebarm kirke, [adresse]
+        </p>
+        <p>
+            Vi gifter oss i Strandebarm kirke, [x] minutter fra tunet. [Hvordan gjestene kommer seg fra tunet til kirka og tilbake.]
+        </p>
+        <p>
+            Kom gjerne [15] minutter før. Resten av helgen står i <a href="{% url 'guests:programme' code %}">programmet</a>.
+        </p>
+    </section>
+    <section class="paper-sheet info-sheet"
+             id="stedet"
+             tabindex="-1"
+             aria-labelledby="stedet-overskrift">
+        <h2 id="stedet-overskrift">Hardingasete og hyttene</h2>
+        <div class="lace-frame lace-frame--info">
+            <img class="lace-frame__photo lace-frame__photo--tunet"
+                 src="{% static 'img/sted-tunet.jpg' %}"
+                 alt="Tunet på Hardingasete med de gamle husene."
+                 width="197"
+                 height="190"
+                 loading="lazy">
+            <img class="lace-frame__lace"
+                 src="{% static 'img/blonde.png' %}"
+                 alt=""
+                 width="220"
+                 height="213"
+                 loading="lazy">
+        </div>
+        <p>Hardingasete er et gammelt gårdstun i Hardanger. Her skal vi feire, spise og bo hele helgen.</p>
+        <p>
+            Hyttene ligger rundt tunet. Dere leier en seng for hele helgen, fra fredag til søndag. Sengetøy og håndklær [er med / må tas med].
+        </p>
+        <p>Det er stamper og badstue på tunet, som alle kan bruke.</p>
+    </section>
+    <section class="paper-sheet info-sheet"
+             id="komme-dit"
+             tabindex="-1"
+             aria-labelledby="komme-dit-overskrift">
+        <h2 id="komme-dit-overskrift">Hvordan komme seg dit</h2>
+        <p>
+            <strong>Adresse:</strong> Hardingasete, [vegnavn og nummer], [postnummer og sted]
+        </p>
+        <p>
+            Fra Bergen tar det rundt [x] timer med bil. Kjør [rute], og ta av ved [stikkord]. Det siste stykket er smalt, så kjør rolig.
+        </p>
+        <p>
+            Kommer dere uten bil, går det buss fra [sted] til [sted]. Si fra til oss, så finner vi skyss det siste stykket.
+        </p>
+        <p>Det er gratis parkering på tunet.</p>
+    </section>
+    <section class="paper-sheet info-sheet"
+             id="husregler"
+             tabindex="-1"
+             aria-labelledby="husregler-overskrift">
+        <h2 id="husregler-overskrift">Husregler</h2>
+        <p>Det er et barnefritt bryllup.</p>
+        <p>
+            Vi ønsker at dere legger bort mobilen under vielsen og middagen, så vi er til stede sammen. Vi har fotograf.
+        </p>
+    </section>
+    <section class="paper-sheet info-sheet"
+             id="antrekk"
+             tabindex="-1"
+             aria-labelledby="antrekk-overskrift">
+        <h2 id="antrekk-overskrift">Antrekk</h2>
+        <p>
+            <strong>Lørdag:</strong> [pent / dress og kjole]. Ta med noe varmt til kvelden.
+            <br>
+            <strong>Fredag og søndag:</strong> det dere trives i.
+        </p>
+    </section>
+    <section class="paper-sheet info-sheet"
+             id="ta-med"
+             tabindex="-1"
+             aria-labelledby="ta-med-overskrift">
+        <h2 id="ta-med-overskrift">Ta med</h2>
+        <ul>
+            <li>Gode sko til tur</li>
+            <li>Badetøy til stampen</li>
+            <li>Treningstøy hvis du vil være med på yoga</li>
+            <li>Varme klær til kvelden</li>
+        </ul>
+    </section>
+    <section class="paper-sheet info-sheet"
+             id="omradet"
+             tabindex="-1"
+             aria-labelledby="omradet-overskrift">
+        <h2 id="omradet-overskrift">Området rundt</h2>
+        <div class="lace-frame lace-frame--info">
+            <img class="lace-frame__photo"
+                 src="{% static 'img/sted-omradet.jpg' %}"
+                 alt="Fjorden og fjellene i Hardanger."
+                 width="197"
+                 height="190"
+                 loading="lazy">
+            <img class="lace-frame__lace"
+                 src="{% static 'img/blonde.png' %}"
+                 alt=""
+                 width="220"
+                 height="213"
+                 loading="lazy">
+        </div>
+        <p>
+            Rundt Hardingasete er det fjord, frukthager og fjell. Kommer dere tidlig, er det fine turer i nærheten, blant annet [turmål].
+        </p>
+    </section>
+{% endblock info_content %}

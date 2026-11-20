@@ -1,7 +1,88 @@
 {% extends "guests/info_page.html" %}
+{% load static %}
 {% comment %}
-Vår historie (Story 1.5, FR-8, FR-11): the info-page frame only. The story
-sheet with the photo, the chapters and the signature arrives with Story 1.6.
+Vår historie (Story 1.6; FR-8, FR-11, AD-17, UX-DR14; DESIGN.md › Info pages,
+Story sheet; approved in mockups/info-om-oss.html). No jump links: the page is
+read by choice. One story sheet labelled by the page title, with the couple's
+view photo in the lace frame, the nine chapters, each opened by an `h2` time ·
+place line (the dot an aria-hidden span), the closing line and the names as a
+signature. The text lives here in the template (AD-17) and is the couple's own,
+from ux/innhold/Vår historie.docx as approved in the mockup, with Rikke's three
+corrections; «[stilling]» stays until Rikke fills it in.
 {% endcomment %}
 {% block title %}Vår historie – Invitasjon{% endblock title %}
 {% block info_title %}Vår historie{% endblock info_title %}
+{% block info_content %}
+    <section class="paper-sheet story-sheet" aria-labelledby="sidetittel">
+        <div class="lace-frame lace-frame--info">
+            <img class="lace-frame__photo"
+                 src="{% static 'img/oss-utsikt.jpg' %}"
+                 alt="Rikke og Valdemar med utsikt."
+                 width="197"
+                 height="190">
+            <img class="lace-frame__lace"
+                 src="{% static 'img/blonde.png' %}"
+                 alt=""
+                 width="220"
+                 height="213">
+        </div>
+        <h2>
+            Sensommeren 2021 <span aria-hidden="true">·</span> Trondheim
+        </h2>
+        <p>
+            Vi møttes sensommeren 2021, da Rikke flyttet til Trondheim for å begynne å studere, og Valdemar begynte sitt andre studieår. Begge hadde blitt valgt inn i Teknologiporten, et verv som jobber med å knytte studenter og næringslivet tettere sammen.
+        </p>
+        <h2>
+            2022 <span aria-hidden="true">·</span> Trondheim
+        </h2>
+        <p>
+            I starten av 2022 begynte vi å bli bedre kjent, og etter hvert utviklet det seg et godt vennskap. Vi ble begge valgt inn i styret i Teknologiporten og fant raskt tonen, ikke minst sammen med vår gode venn Einar. Vi tre ble en liten trio som tilbrakte stadig mer tid sammen. Høsten 2022 begynte vennskapet mellom oss to å utvikle seg til noe mer. Timingen var imidlertid ikke helt på vår side, og vi bestemte oss for å fortsette som venner.
+        </p>
+        <h2>
+            2023 <span aria-hidden="true">·</span> Trondheim
+        </h2>
+        <p>
+            Vennskapet vårt, og den lille trioen med Einar, holdt seg sterkt. 2023 fylte vi med mye fest, fyll og moro i Trondheim.
+        </p>
+        <h2>
+            Høsten 2024 <span aria-hidden="true">·</span> Firenze
+        </h2>
+        <p>
+            Høsten 2024 pakket trioen vår koffertene og flyttet sammen til Firenze for et år på utveksling. Her bodde vi i kollektiv med to andre nordmenn og fikk leve «la dolce vita» («det søte liv»).
+        </p>
+        <h2>
+            Starten av 2025 <span aria-hidden="true">·</span> Annecy
+        </h2>
+        <p>
+            Vi startet året 2025 med en roadtrip gjennom Europa sammen med Einar. På den aller siste kvelden av turen, i den idylliske franske byen Annecy, gikk vennskapet vårt over til litt mer enn vennskap. (At det var noe mer mellom oss enn bare vennskap, hadde ligget i luften lenge.)
+        </p>
+        <h2>
+            Våren 2025 <span aria-hidden="true">·</span> Italia
+        </h2>
+        <p>
+            Våren 2025 blomstret kjærligheten i Italia. Vi spiste utallige gode måltider, utforsket vakre italienske steder og nøt livet i Italia sammen. I begynnelsen av april gikk turen til Comosjøen. På den øverste balkongen i en nydelig villa, med utsikt over innsjøen og en vakker hage, spurte Valdemar om vi skulle bli kjærester.
+        </p>
+        <h2>
+            Høsten 2025 <span aria-hidden="true">·</span> Trondheim
+        </h2>
+        <p>
+            Høsten 2025 gikk turen tilbake til Trondheim for å fullføre studiene. Vi flyttet inn i en koselig liten leilighet ved Studentersamfundet, og hverdagen besto stort sett av skole, jobb, trening, god mat og hyggelige stunder med venner.
+        </p>
+        <h2>
+            Sommeren 2026 <span aria-hidden="true">·</span> Asia
+        </h2>
+        <p>
+            Tidlig sommer 2026 leverte vi masteroppgavene, pakket sekkene og satte kursen mot nye eventyr. De neste ni månedene tilbrakte vi på reise i Asia! Vi startet i Indonesia og fortsatte videre til Filippinene, Taiwan og Japan. Deretter ble det en liten avstikker til Singapore før turen gikk videre til Thailand. Julen feiret vi i Hongkong, og det nye året ønsket vi velkommen med reiser i Kina. Eventyret ble rundet av med to fantastiske måneder i Vietnam.
+        </p>
+        <h2>
+            Våren 2027 <span aria-hidden="true">·</span> Oslo
+        </h2>
+        <p>
+            Etter ni måneder med opplevelser, eventyr og utallige minner vendte vi til slutt hjem til Norge, denne gangen med Oslo som vår nye hjemby. Her startet et nytt kapittel med jobb og voksenliv. Valdemar begynte som Graduate Drilling and Wells Engineer i Aker BP, mens Rikke startet som [stilling] i Volve.
+        </p>
+        <p class="story-sheet__closing">
+            Nå gleder vi oss til å gifte oss, og ser virkelig frem til å feire kjærligheten og den store dagen sammen med dere!
+        </p>
+        <p class="story-sheet__signature">Rikke &amp; Valdemar</p>
+    </section>
+{% endblock info_content %}

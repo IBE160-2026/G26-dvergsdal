@@ -110,7 +110,9 @@ def front_page(request: HttpRequest, code: str) -> HttpResponse:
 
 
 # FR-8, FR-11: each info page's key (its URL name and current nav word) and
-# template. The pages hold only the frame until Stories 1.6 and 1.7 fill them.
+# template. The text lives in the templates (AD-17): Praktisk informasjon
+# (FR-10) and Vår historie (UX-DR14) are filled in Story 1.6; Programmet holds
+# only the frame until Story 1.7.
 INFO_PAGES = {
     "programme": "guests/programme.html",
     "practical": "guests/practical.html",
@@ -123,6 +125,8 @@ def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
 
     `page` is a key of `INFO_PAGES`, set by the route. Two SELECTs: the
     resolver and the settings row for the footer; nobody gets G1 with 404.
+    The page's content is template text (AD-17): Praktisk informasjon (FR-10)
+    and Vår historie (UX-DR14) since Story 1.6, Programmet from Story 1.7.
     """
     actor = resolve_code(code)
     if actor is None:

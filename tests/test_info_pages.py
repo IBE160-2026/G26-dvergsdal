@@ -5,8 +5,10 @@ I/O matrix for `/program/`, `/praktisk/` and `/historie/`: the page's title and
 `h1`, its nav word marked current and the others not, the back link and the
 back button to the front page, the nav «Svar» to the front page's `#svar`, the
 footer and two SELECTs. Unknown and malformed codes on each page show G1 with
-404 after one and no query. The pages' content arrives in Stories 1.6 and 1.7;
-that opening them never writes is in test_front_page.py.
+404 after one and no query. The content of Praktisk informasjon and Vår
+historie (Story 1.6) is tested in test_practical_and_story_pages.py; the
+programme's arrives in Story 1.7. That opening them never writes is in
+test_front_page.py.
 """
 
 import re
@@ -46,7 +48,7 @@ def test_info_page_frame(
     html = response.content.decode()
     assert f"<title>{title}</title>" in html
     assert html.count("<h1") == 1
-    h1 = re.search(r'<h1 class="info-page__title">(.*?)</h1>', html, re.DOTALL).group(1)
+    h1 = re.search(r'<h1 class="info-page__title"[^>]*>(.*?)</h1>', html, re.DOTALL).group(1)
     assert " ".join(h1.split()) == heading
 
     nav = html[html.index("<nav") : html.index("</nav>")]

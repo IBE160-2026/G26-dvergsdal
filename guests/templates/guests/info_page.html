@@ -4,15 +4,17 @@ The frame of the three info pages, G3 (Story 1.5, FR-8, FR-11, UX-DR11,
 UX-DR12; DESIGN.md › Info pages, approved in mockups/info-praktisk.html): the
 back link at the top, the page title as the `h1` (italic, cream hairline), the
 page's content and the outlined back button at the bottom. The nav word of the
-open page carries `aria-current="page"` (nav-bar.html). Each page sets its
-`<title>` and `info_title`; Stories 1.6 and 1.7 fill `info_content` with jump
-links and one paper sheet per part.
+open page carries `aria-current="page"` (nav-bar.html). The `h1` has the id
+`sidetittel`, so the story sheet on Vår historie, which has no heading of its
+own, is labelled by it (UX-DR14). Each page sets its `<title>` and
+`info_title`, and fills `info_content`: Praktisk informasjon and Vår historie
+in Story 1.6, Programmet in Story 1.7.
 {% endcomment %}
 {% block main %}
     <main class="column info-page">
         <a class="info-page__back"
            href="{% url 'guests:front_page' code %}"><span aria-hidden="true">←</span> Tilbake til invitasjonen</a>
-        <h1 class="info-page__title">
+        <h1 class="info-page__title" id="sidetittel">
             {% block info_title %}
             {% endblock info_title %}
         </h1>
