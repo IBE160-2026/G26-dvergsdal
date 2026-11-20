@@ -252,7 +252,7 @@ components:
     shadow: 'drop-shadow 0 1px 1.5px rgba(10,14,6,.35)'
     widthOnInfoSheet: '220px, centred at the top of the sheet body, 6px above and 14px below'
   programme-timeline:
-    line: '1px rgba(59,55,47,.45), centred, between the first and last dot'
+    line: '1px rgba(59,55,47,.45), centred, along the whole list, 6px in from its top and bottom'
     dot: '6px circle in {colors.ink} on the line, level with the time'
     layout: 'events alternate right-aligned left of the line and left-aligned right of it, 18px from the line; each event overlaps the one before by 36px in height'
     time: '{typography.small}, lining and tabular figures, letter spacing 0.04em'
@@ -260,7 +260,7 @@ components:
   programme-icon:
     image: 'mockups/ikoner/ikon-01-fjelltur.png … ikon-12-avreise.png (Rikke, image tool; cut out and recoloured to {colors.ink})'
     size: 56px
-    position: 'above the time, on the side away from the line, 4px below'
+    position: 'above the time, on the line side, aligned with the text, 4px below'
   good-to-know:
     rule: '1px rgba(59,55,47,.25) above, 14px above the rule, 10px below'
     heading: '{typography.body}, italic («Godt å vite»)'
@@ -563,7 +563,7 @@ At 360px the page is about 3 530px (six screens) with placeholder text; the jump
 *Programmet* is approved in [mockups/info-program.html](mockups/info-program.html) (memlog, 2026-11-15; rounds in `.working/info-program-1.html` to `-6.html`). Same frame, with «Program» as the current nav word:
 
 1. Back link, then the title «Programmet» with its hairline.
-2. Jump links *Fredag · Lørdag · Søndag* on one line, then the voluntary line on green: «Alt i programmet er frivillig. Bli med på det dere har lyst til.»
+2. Jump links *Fredag · Lørdag · Søndag* on one line, then the voluntary line on green: «Alt i programmet er frivillig. Bli med på det dere har lyst til.» *(Changed 2026-11-20 in Story 1.7: the build reuses Praktisk's jump-link markup as one list, so the three links share one line at 360px; below 22.5em they stack one per line without dots, like every jump-link list (EXPERIENCE › Jump links, Narrow widths below). Under forced colours the timeline's line and dots are drawn in CanvasText, since the system would otherwise paint them in the Canvas colour and hide them. The timeline turns one-sided below 16.25em (260px at the default text size), in em like the jump links, so it follows a larger default text size; with a px breakpoint, «Middag» and «Badstue, stamp og mingling» broke mid-word at 260px with a 20px default text size. The frontmatter wording for `programme-timeline.line` and `programme-icon.position` was corrected to match the approved mockup: the line runs along the whole list, and the icon sits on the line side, aligned with the text.)*
 3. **One paper sheet per day**: the day as the italic heading, an italic date line («27. mai · bryllupsdagen»), the **programme timeline**, then **«Godt å vite»**.
 4. The timeline, like «Order of events» in [inspiration 09](../../ux/inspirasjon/09-Example.jpg): a thin centre line, a small dot per event, events alternating sides and overlapping in height, each with Rikke's icon (56px) above the time (18px) and a short italic name. Only time and name sit in the timeline; what costs money, what to bring and who covers what go in «Godt å vite» (Rikke: the first three layouts were not «like estetisk fine» as 09).
 5. Bottom back button and footer.
