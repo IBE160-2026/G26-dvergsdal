@@ -152,6 +152,9 @@ def main() -> None:
 
     name, source, size = PREVIEW
     illustration = ImageOps.exif_transpose(Image.open(source)).convert("RGB")
+    if illustration.width < size[0] or illustration.height < size[1]:
+        # ImageOps.fit would quietly upscale a smaller replacement (never upscale).
+        raise SystemExit(f"{source.name} is {illustration.size}; the preview needs {size}")
     save_jpeg(ImageOps.fit(illustration, size, Image.Resampling.LANCZOS), name)
 
 
