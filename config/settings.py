@@ -147,16 +147,22 @@ MAILERS = {
 
 
 # Logging: Django's defaults, written out so every handler masks link codes
-# (Story 1.4c, FR-4, NFR-4, AD-15). `MaskLinkCodes` turns «Not Found: /<code>/»
-# into «Not Found: /[code]/». No `mail_admins` handler: mail is never sent, and
-# its body would carry the whole request.
+# (Story 1.4c, FR-4, NFR-4, AD-15). `MaskLinkCodes` comes first on every
+# handler, so a record is masked before any other filter can reject it and pass
+# it on unmasked; it turns «Not Found: /<code>/» into «Not Found: /[code]/».
+# `errors` writes WARNING and above whatever DEBUG is, and sits on the root
+# logger, so loggers outside `django` never fall through to Python's unmasked
+# last-resort handler. With DEBUG on, `console` adds Django's INFO lines. No
+# `mail_admins` handler: mail is never sent, and its body would carry the
+# whole request.
 
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "filters": {
-        "require_debug_true": {"()": "django.utils.log.RequireDebugTrue"},
         "mask_link_codes": {"()": "config.logging_filters.MaskLinkCodes"},
+        "require_debug_true": {"()": "django.utils.log.RequireDebugTrue"},
+        "below_warning": {"()": "config.logging_filters.BelowWarning"},
     },
     "formatters": {
         "django.server": {
@@ -168,7 +174,12 @@ LOGGING = {
     "handlers": {
         "console": {
             "level": "INFO",
-            "filters": ["require_debug_true", "mask_link_codes"],
+            "filters": ["mask_link_codes", "require_debug_true", "below_warning"],
+            "class": "logging.StreamHandler",
+        },
+        "errors": {
+            "level": "WARNING",
+            "filters": ["mask_link_codes"],
             "class": "logging.StreamHandler",
         },
         "django.server": {
@@ -178,6 +189,7 @@ LOGGING = {
             "formatter": "django.server",
         },
     },
+    "root": {"handlers": ["errors"], "level": "WARNING"},
     "loggers": {
         "django": {"handlers": ["console"], "level": "INFO"},
         "django.server": {"handlers": ["django.server"], "level": "INFO", "propagate": False},

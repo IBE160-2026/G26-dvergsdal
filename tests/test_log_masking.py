@@ -1,14 +1,17 @@
 """Link codes never reach the logs (Story 1.4c, FR-4, NFR-4, AD-15).
 
 The log rows of the story's I/O matrix: `mask_link_codes` on Django's 404,
-CSRF and development-server lines and on the paths that stay readable; every
-handler in `LOGGING` carries the filter and none mails; and end to end, the
-configured handlers' output after a 404, a CSRF failure and a server line
-holds `/[code]/` and never the code. What the terminal shows is MT-9 in
-docs/manual-test-plan.md.
+CSRF and development-server lines, on full URLs and on the paths that stay
+readable; the filter on exception text and stacks; every handler in `LOGGING`
+carries the filter first and none mails; and end to end, the configured
+handlers' output after a 404, a CSRF failure and a server line (DEBUG on) and
+after an error with DEBUG off holds `/[code]/` and never the code. That
+`NOT_LINK_CODES` covers every fixed route is in test_guest_privacy.py. What the
+terminal shows is MT-9 in docs/manual-test-plan.md.
 """
 
 import logging
+import sys
 import tomllib
 from io import StringIO
 from pathlib import Path
@@ -17,7 +20,7 @@ import pytest
 from django.core.management import call_command
 from django.test import Client
 
-from config.logging_filters import NOT_LINK_CODES, MaskLinkCodes, mask_link_codes
+from config.logging_filters import MaskLinkCodes, mask_link_codes
 
 SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
 SEED = tomllib.loads(SEED_FILE.read_text(encoding="utf-8"))
@@ -38,6 +41,15 @@ SERVER_LINE = '"%s" %s %s'
         (f"('/{CODE}/',)", "('/[code]/',)"),
         ("Not Found: /hei/", "Not Found: /[code]/"),  # a mistyped code is masked too
         ("Not Found: /favicon.ico", "Not Found: /[code]"),
+        (f'"GET //{CODE}/ HTTP/1.1" 404 0', '"GET //[code]/ HTTP/1.1" 404 0'),
+        (
+            f"Forbidden (Referer checking failed - 'https://example.org/{CODE}/' does not "
+            "match any trusted origins.): /x/",
+            "Forbidden (Referer checking failed - 'https://example.org/[code]/' does not "
+            "match any trusted origins.): /[code]/",
+        ),
+        (f"http://127.0.0.1:8000/{CODE}/svar/", "http://127.0.0.1:8000/[code]/svar/"),
+        (f"Not Found: /x/?next=/{CODE}/", "Not Found: /[code]/?next=/[code]/"),
     ],
 )
 def test_first_path_segment_is_masked(message, masked):
@@ -57,17 +69,14 @@ def test_first_path_segment_is_masked(message, masked):
         "/robots.txt",
         "HTTP/1.1",
         "Starting development server at http://127.0.0.1:8000/",
+        "http://127.0.0.1:8000/static/css/site.css",
+        "https://example.org/robots.txt",
     ],
 )
 def test_fixed_paths_are_left_alone(message):
-    """NFR-4: `/`, static files, the style sample, robots.txt and `HTTP/1.1` are not
-    link codes, so they stay readable."""
+    """NFR-4: `/`, a bare site address, static files, the style sample, robots.txt
+    and `HTTP/1.1` are not link codes, so they stay readable."""
     assert mask_link_codes(message) == message
-
-
-def test_not_link_codes_are_the_planned_ones():
-    """AD-15: only these first segments are spared; Story 3.1 adds `admin`."""
-    assert frozenset({"static", "stil", "robots.txt"}) == NOT_LINK_CODES
 
 
 def test_filter_formats_masks_and_keeps_the_record():
@@ -82,33 +91,84 @@ def test_filter_formats_masks_and_keeps_the_record():
     assert record.getMessage() == "Not Found: /[code]/"
 
 
-def test_every_handler_masks_and_none_sends_mail(settings):
-    """NFR-4, AD-15: every handler in LOGGING carries `mask_link_codes`, and there is
-    no `mail_admins` handler, whose mail would carry the whole request."""
+def test_filter_masks_the_traceback_and_the_stack():
+    """AD-15: an exception whose text holds a code is formatted into `exc_text`,
+    masked, and `exc_info` cleared, so no formatter prints it again unmasked; the
+    stack is masked too."""
+    try:
+        raise ValueError(f"no guest for /{CODE}/")
+    except ValueError:
+        record = logging.getLogger("django.request").makeRecord(
+            "django.request",
+            logging.ERROR,
+            __file__,
+            1,
+            "Internal Server Error: %s",
+            (f"/{CODE}/",),
+            sys.exc_info(),
+            sinfo=f"Stack (most recent call last):\n  /{CODE}/",
+        )
+    assert MaskLinkCodes().filter(record) is True
+    assert record.exc_info is None
+    assert "ValueError: no guest for /[code]/" in record.exc_text
+    assert record.stack_info.endswith("/[code]/")
+    text = logging.Formatter().format(record)
+    assert CODE not in text
+    assert text.startswith("Internal Server Error: /[code]/")
+
+
+def test_filter_passes_a_broken_record_on_unchanged():
+    """AD-15: a record whose arguments do not fit its message is passed on as it is
+    instead of raising inside the request."""
+    record = logging.LogRecord("x", logging.WARNING, __file__, 1, "%s %s", ("one",), None)
+    assert MaskLinkCodes().filter(record) is True
+    assert record.msg == "%s %s"
+    assert record.args == ("one",)
+
+
+def test_every_handler_masks_first_and_none_sends_mail(settings):
+    """NFR-4, AD-15: every handler in LOGGING, the root logger's too, carries
+    `mask_link_codes` as its first filter, so no other filter can reject a record
+    that then goes on unmasked; there is no `mail_admins` handler, whose mail would
+    carry the whole request; and WARNING and above reach a handler whatever DEBUG
+    is."""
     logging_config = settings.LOGGING
     assert logging_config["filters"]["mask_link_codes"] == {
         "()": "config.logging_filters.MaskLinkCodes"
     }
     for name, handler in logging_config["handlers"].items():
-        assert "mask_link_codes" in handler["filters"], name
+        assert handler["filters"][0] == "mask_link_codes", name
         assert handler["class"] != "django.utils.log.AdminEmailHandler", name
     assert "mail_admins" not in logging_config["handlers"]
+    assert logging_config["root"] == {"handlers": ["errors"], "level": "WARNING"}
+    errors = logging_config["handlers"]["errors"]
+    assert errors["level"] == "WARNING"
+    assert errors["filters"] == ["mask_link_codes"]  # no DEBUG filter
     assert logging_config["loggers"]["django"]["handlers"] == ["console"]
+    configured = [
+        handler
+        for name in ("", "django", "django.server")
+        for handler in logging.getLogger(name).handlers
+        if handler.name in logging_config["handlers"]
+    ]
+    assert {handler.name for handler in configured} == set(logging_config["handlers"])
+    for handler in configured:
+        assert isinstance(handler.filters[0], MaskLinkCodes), handler.name
 
 
 @pytest.fixture
 def log_output():
-    """Every handler LOGGING put on the `django` and `django.server` loggers writes
-    to one StringIO for the length of the test; the old streams are put back after.
-    (pytest adds handlers of its own, which are left alone.)"""
+    """Every handler LOGGING put on the root, `django` and `django.server` loggers
+    writes to one StringIO for the length of the test; the old streams are put
+    back after. (pytest adds handlers of its own, which are left alone.)"""
     output = StringIO()
     handlers = [
         handler
-        for name in ("django", "django.server")
+        for name in ("", "django", "django.server")
         for handler in logging.getLogger(name).handlers
-        if handler.name in {"console", "django.server"}
+        if handler.name in {"errors", "console", "django.server"}
     ]
-    assert [handler.name for handler in handlers] == ["console", "django.server"]
+    assert [handler.name for handler in handlers] == ["errors", "console", "django.server"]
     old_streams = [handler.setStream(output) for handler in handlers]
     try:
         yield output
@@ -133,7 +193,23 @@ def test_configured_handlers_never_write_the_code(settings, monkeypatch, log_out
 
     text = log_output.getvalue()
     assert CODE not in text
-    assert "Not Found: /[code]/" in text
+    assert text.count("Not Found: /[code]/") == 1  # never by both console and errors
     assert "Forbidden (" in text
     assert "): /[code]/" in text
     assert '"GET /[code]/svar/?x=1 HTTP/1.1" 404 0' in text
+
+
+def test_with_debug_off_errors_still_reach_a_masked_handler(settings, log_output):
+    """NFR-4, AD-15: with DEBUG off (production) the debug console stays quiet, but
+    an error from Django and a warning from our own code still reach the `errors`
+    handler, masked, instead of Python's unmasked last-resort handler."""
+    settings.DEBUG = False
+    logging.getLogger("django.request").error("Internal Server Error: %s", f"/{CODE}/")
+    logging.getLogger("wedding").warning("Slow page: %s", f"/{CODE}/svar/")
+    logging.getLogger("django.request").info("Only with DEBUG: %s", f"/{CODE}/")
+
+    text = log_output.getvalue()
+    assert CODE not in text
+    assert "Internal Server Error: /[code]/" in text
+    assert "Slow page: /[code]/svar/" in text
+    assert "Only with DEBUG" not in text
