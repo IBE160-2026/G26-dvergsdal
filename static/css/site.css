@@ -4,7 +4,8 @@
  * Every value comes from DESIGN.md (frontmatter and Components table); the
  * tests in tests/test_design_system.py read this file and compare it with
  * DESIGN.md. No JavaScript, no external URLs, no motion that runs by itself.
- * Paper texture, the sheet edge and page layouts arrive in Stories 1.4b–1.7.
+ * Story 1.4b adds the paper texture, the paper sheet, the page column and
+ * the private-invitation page (G1); the guest page layouts arrive in 1.5–1.8.
  */
 
 /* ---------- Fonts: self-hosted WOFF2, SIL OFL (UX-DR2, AD-15) ----------
@@ -145,14 +146,25 @@
   --line-height-admin-body: 1.4;
 
   /* The focus ring takes the colour of the surface it is painted on (UX-DR15).
-   * The page is green; .surface-cream switches it to focus-on-panel. */
+   * The page is green; .surface-cream and .paper-sheet switch it to
+   * focus-on-panel. */
   --focus-color: var(--color-focus-on-green);
+
+  /* Paper textures (UX-DR3, DESIGN.md › Elevation & Depth), copied from
+   * mockups/paper-ceremony-5.html: tiling SVG noise, inline so nothing is
+   * fetched. Blended with `overlay`, and each feColorMatrix maps the noise
+   * around mid-grey (offset + slope / 2 = 0.5), so the average colour and the
+   * text contrast stay as measured. No `;` inside a value. */
+  --grain-sheet: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.75 0 0 0 0.125  0.75 0 0 0 0.125  0.75 0 0 0 0.125  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --fibre-sheet: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='4' seed='5' stitchTiles='stitch'/><feColorMatrix values='0.22 0 0 0 0.39  0.22 0 0 0 0.39  0.22 0 0 0 0.39  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
+  --grain-green: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='t' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' seed='3' stitchTiles='stitch'/><feColorMatrix values='0.24 0 0 0 0.38  0.24 0 0 0 0.38  0.24 0 0 0 0.38  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(%23t)'/></svg>");
 }
 
-/* ---------- Base type (UX-DR2, NFR-5) ----------
+/* ---------- Base type and the page (UX-DR2, UX-DR3, NFR-5) ----------
  * EB Garamond 20px for guest text, lining figures (old-style figures are easy
  * to misread), and long Norwegian compounds may break instead of forcing
- * sideways scroll. */
+ * sideways scroll. The page is page-green with the calm grain-green texture;
+ * if the texture fails, the flat green is the design. */
 
 *,
 *::before,
@@ -168,6 +180,8 @@ html {
 body {
   margin: 0;
   background-color: var(--color-page-green);
+  background-image: var(--grain-green);
+  background-blend-mode: overlay;
   color: var(--color-cream-on-green);
   font-family: var(--font-serif);
   font-size: var(--font-size-body);
@@ -238,16 +252,61 @@ a:active {
   font-variant-caps: all-small-caps;
 }
 
-/* ---------- Surfaces (UX-DR1, UX-DR53) ----------
- * A flat cream surface in the UX-DR1 tokens: the complete fallback for the
- * paper sheet that Story 1.4b draws on top of it, and the flat sheet UX-DR53
- * keeps under forced colours. Text is ink and focus rings turn dark green. */
+/* ---------- Surfaces (UX-DR1, UX-DR3, UX-DR53) ----------
+ * Two cream surfaces share ink text, 5px corners and the dark green focus
+ * ring. .surface-cream is flat cream. .paper-sheet is the guest
+ * paper sheet (DESIGN.md components.paper-sheet): colour, texture, the
+ * edge-b3 edge and its shadow all sit on ::before behind the content, so only
+ * that layer is filtered and text, links and focus rings stay sharp. Without
+ * filter support ::before is the flat 5px cream sheet, a complete design.
+ * The filter itself is wedding/components/paper-filters.html. */
 
-.surface-cream {
-  background-color: var(--color-panel-cream);
+.surface-cream,
+.paper-sheet {
   color: var(--color-ink);
   border-radius: var(--radius-sheet);
   --focus-color: var(--color-focus-on-panel);
+}
+
+.surface-cream {
+  background-color: var(--color-panel-cream);
+}
+
+.paper-sheet {
+  position: relative;
+  isolation: isolate;
+}
+
+.paper-sheet::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--radius-sheet);
+  background-color: var(--color-panel-cream);
+  background-image: var(--grain-sheet), var(--fibre-sheet);
+  background-blend-mode: overlay, overlay;
+  filter: url(#edge-b3);
+}
+
+/* The SVG that holds the edge filter takes no space; display: none would
+ * switch the filter off in some browsers. */
+.paper-filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ---------- Column (UX-DR30, NFR-5) ----------
+ * One centred column, at most content-max wide, with the side gutter. The
+ * gutter narrows on the smallest phones (260–339.98px layout width) and at
+ * 200 % zoom (below 260px, about 180 CSS px), so nothing scrolls sideways. */
+
+.column {
+  max-width: var(--space-content-max);
+  margin-inline: auto;
+  padding-inline: var(--space-gutter);
 }
 
 /* ---------- Focus ring (UX-DR15, NFR-5) ----------
@@ -346,7 +405,8 @@ a:active {
 
 /* On a cream sheet the same outlined shape is drawn in ink (DESIGN.md ›
  * Outlined button on green); the border follows currentColor. */
-.surface-cream .button--on-green {
+.surface-cream .button--on-green,
+.paper-sheet .button--on-green {
   color: var(--color-ink);
 }
 
@@ -391,13 +451,68 @@ a:active {
   color: var(--color-ink);
 }
 
+/* ---------- No valid link: G1 (FR-5, UX-DR5, UX-DR30) ----------
+ * One centred paper sheet 120px below the top (DESIGN.md › No valid link):
+ * an italic heading in the card size, the small gypsophila and one line.
+ * Markup: guests/templates/guests/private_invitation.html. */
+
+.private-invitation {
+  padding-top: 120px;
+  padding-bottom: var(--space-7);
+}
+
+.private-invitation__sheet {
+  padding: 30px 22px 26px;
+  text-align: center;
+}
+
+.private-invitation__heading {
+  font-size: var(--font-size-heading-card);
+  line-height: var(--line-height-heading-card);
+  font-style: italic;
+}
+
+.private-invitation__flowers {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 10px auto 12px;
+}
+
+.private-invitation__sheet p {
+  margin: 0;
+}
+
+/* ---------- Narrow widths (UX-DR30, NFR-5) ----------
+ * Gutters from DESIGN.md › Grid and gutters. Below 260px the G1 sheet's own
+ * inline padding narrows too, so its line keeps room at 180 CSS px. */
+
+@media (max-width: 339.98px) {
+  .column {
+    padding-inline: var(--space-gutter-small-phone);
+  }
+}
+
+@media (max-width: 259.98px) {
+  .column {
+    padding-inline: var(--space-gutter-narrow);
+  }
+
+  .private-invitation__sheet {
+    padding-inline: var(--space-gutter-narrow);
+  }
+}
+
 /* ---------- Forced colours, e.g. Windows high contrast (UX-DR53) ----------
  * The primary button's transparent border becomes a visible outline, cream
- * surfaces keep an edge, and the focus ring uses the system text colour. */
+ * surfaces keep an edge, and the focus ring uses the system text colour. The
+ * paper texture and the sheet edge are decoration, so they are dropped: the
+ * sheet is a flat Canvas panel with a 1px border. */
 
 @media (forced-colors: active) {
   :root,
-  .surface-cream {
+  .surface-cream,
+  .paper-sheet {
     --focus-color: CanvasText;
   }
 
@@ -405,8 +520,18 @@ a:active {
     border-color: ButtonText;
   }
 
-  .surface-cream {
+  .surface-cream,
+  .paper-sheet {
     border: 1px solid CanvasText;
+  }
+
+  body,
+  .paper-sheet::before {
+    background-image: none;
+  }
+
+  .paper-sheet::before {
+    filter: none;
   }
 }
 

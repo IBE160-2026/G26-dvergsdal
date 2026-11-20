@@ -1,0 +1,39 @@
+{% comment %}
+The paper sheet's edge (Story 1.4b, UX-DR3, DESIGN.md › Elevation & Depth).
+base.html includes this once at the start of <body>; `.paper-sheet::before`
+uses it with `filter: url(#edge-b3)`. The filter is edge B3 as trimmed in
+mockups/privacy-1.html (the same picture as paper-ceremony-5.html, without the
+rim and ridge steps that were computed there but never merged): a soft wave
+and fine fibre in the sheet's own colour, and a shadow (blur 3.2px, offset
+0 2.5px, #141A0C at 42 %). The filter region is wider than in the mockup
+(10 % each side, 15 % below), so the wave and the shadow are not clipped on a
+small sheet, such as the 164px sheet at 180 CSS px. The SVG takes no space
+(`.paper-filters`) and is hidden from screen readers. No xmlns: inline SVG in
+HTML does not need one, and the page holds no external URL (AD-15).
+djLint does not know the SVG filter elements and would flatten their
+indentation, so it skips this block.
+{% endcomment %}
+{# djlint:off #}
+<svg class="paper-filters" aria-hidden="true" focusable="false">
+    <filter id="edge-b3" x="-10%" y="-10%" width="120%" height="125%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="6" result="wave" />
+        <feDisplacementMap in="SourceGraphic" in2="wave" scale="8" xChannelSelector="R" yChannelSelector="G" result="wob" />
+        <feGaussianBlur in="wob" stdDeviation="1.8" result="soft" />
+        <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="3" seed="2" result="fn" />
+        <feColorMatrix in="fn" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1 0 0 0 0" result="fa" />
+        <feComposite in="soft" in2="fa" operator="arithmetic" k1="0" k2="1" k3="0.7" k4="-0.35" result="mix" />
+        <feComponentTransfer in="mix" result="mask">
+            <feFuncA type="linear" slope="6" intercept="-2.4" />
+        </feComponentTransfer>
+        <feComposite in="wob" in2="mask" operator="in" result="sheet" />
+        <feGaussianBlur in="mask" stdDeviation="3.2" result="sb" />
+        <feOffset in="sb" dy="2.5" result="so" />
+        <feFlood flood-color="#141A0C" flood-opacity=".42" />
+        <feComposite in2="so" operator="in" result="shadow" />
+        <feMerge>
+            <feMergeNode in="shadow" />
+            <feMergeNode in="sheet" />
+        </feMerge>
+    </filter>
+</svg>
+{# djlint:on #}
