@@ -14,6 +14,7 @@ Filene her er laget av [tools/prepare_images.py](../../tools/prepare_images.py) 
 | `lilje-bunn.png` | `mockups/lilje-bunn.png` (fra egne-bilder 10-FlowersBottom.jpg) | Liljekrans under «Alt om helgen», 296 px | 592 px |
 | `blonde.png` | `mockups/blonde.png` (fra egne-bilder 11-Frame.jpg) | Blonderamme, 136 px på forsiden og 220 px på infosidene | 320 px (kilden er 320) |
 | `illustrasjon.jpg` | `ux/egne-bilder/04-Illustration.jpg` (sjekket: ingen signatur eller tekst) | Akvarellen av tunet i toppen, 262 px | 524 px |
+| `forhandsvisning.jpg` | `ux/egne-bilder/04-Illustration.jpg`, utsnitt fra midten til 1000 × 525 (1,91:1) | Forhåndsvisningen når en lenke deles i Messenger, SMS og lignende (`og:image`, story 1.4c, FR-4). Samme bilde for alle gjester, uten navn, segl, dato eller sted. Ingen side laster det, så det teller ikke med i forsidebudsjettet | 1000 px |
 | `oss-strand.jpg` | `mockups/us1-utsnitt.jpg` (utsnitt av egne-bilder 12-Us1.jpg) | Brudeparet, «Vår historie» på forsiden | 400 px (kilden er 400) |
 | `oss-utsikt.jpg` | `ux/egne-bilder/13-Us2.jpg` | Brudeparet på siden «Vår historie», 220 px | 440 px |
 | `sted-middag.jpg` | `ux/stedet/01-Venue.jpg` | «Programmet» på forsiden | 440 px |
