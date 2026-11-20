@@ -71,3 +71,5 @@
 - [x] 2026-11-20 [forberedelse-autonom-kjoring](974-2026-11-20-15-22-15-forberedelse-autonom-kjoring.md) — kjøre `! gh auth refresh -h github.com -s workflow` som egen melding før goal-kjøringen (løst 2026-11-20)
 - [ ] 2026-11-20 [story-1-4b-papir-bilder-g1](973-2026-11-20-17-07-22-story-1-4b-papir-bilder-g1.md) — åpne `/` på iPhone eller iPad og se at papirarket (eller den flate reserven) vises; Claude kan bare styre Edge
 - [ ] 2026-11-20 [story-1-4b-papir-bilder-g1](973-2026-11-20-17-07-22-story-1-4b-papir-bilder-g1.md) — gjenta MT-6 med et ekte Windows-kontrasttema (Claude kjørte den med emulert høykontrast)
+- [ ] 2026-11-20 [story-1-4c-personvern-hoder-logger](972-2026-11-20-17-39-53-story-1-4c-personvern-hoder-logger.md) — MT-10: lim inn en testlenke i Messenger og SMS når nettsiden er på en offentlig adresse
+- [ ] 2026-11-20 [story-1-4c-personvern-hoder-logger](972-2026-11-20-17-39-53-story-1-4c-personvern-hoder-logger.md) — vurdere ordlyden i lenkeforhåndsvisningen («Invitasjon» / «En personlig invitasjon. Åpne lenken for å se den.»)
