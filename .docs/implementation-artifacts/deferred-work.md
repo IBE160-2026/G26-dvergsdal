@@ -38,3 +38,7 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-4c-guest-pages-stay-private-headers-link-previews-and-logs.md`
   summary: Story 1.8: a 400 page for `DisallowedHost` (a request with a host not in `ALLOWED_HOSTS`) that extends `base.html` must not call `request.get_host` in the link preview, or it raises `DisallowedHost` again while rendering the error page. Render it without `request` (the preview then leaves out `og:image`) or give it its own template.
   evidence: medium. `link-preview.html` builds `og:image` from `request.get_host` whenever `request` is set; Django's default 400 page does not use our templates, so it cannot happen until 1.8 adds one.
+
+- source_spec: `.docs/implementation-artifacts/spec-1-5-the-invitation-front-page.md`
+  summary: An unknown second segment under a valid code (for example `/<code>/svar/`) shows Django's own 404 instead of G1; Story 1.8's handler404 should cover every unmatched path.
+  evidence: low. Same case as the multi-segment paths deferred by 1.4b.

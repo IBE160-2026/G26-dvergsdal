@@ -1,0 +1,22 @@
+{% comment %}
+The footer band (Story 1.5, FR-6, UX-DR12; DESIGN.md › Footer band): on every
+valid-link page, the couple's phone numbers as `tel:` links, each on its own
+row of at least 44px, contact 1 first. `contacts` comes from
+wedding.selectors.footer_contacts, which leaves out a contact whose phone has
+no digit (wedding.rules.contacts); with no
+phone at all the whole footer is left out. A `tel:` link reaches no other site,
+so it needs no `rel`. The «Personvern» link arrives with Story 7.1. It lives in
+wedding/ because Story 1.8's error pages show it too.
+{% endcomment %}
+{% if contacts %}
+    <footer class="footer-band">
+        <p>Spørsmål? Send oss en melding:</p>
+        <ul class="footer-band__contacts">
+            {% for contact in contacts %}
+                <li>
+                    <a href="tel:{{ contact.tel }}">{{ contact.name }} {{ contact.phone }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </footer>
+{% endif %}

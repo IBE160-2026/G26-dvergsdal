@@ -2,8 +2,9 @@
 {% load static %}
 {% comment %}
 No valid link, G1 (Story 1.4b, FR-5, UX-DR5, UX-DR30; DESIGN.md › No valid
-link; approved in mockups/privacy-1.html). Shown for the bare address `/` and
-for every `/<code>/` until Story 1.5. Nothing personal: no names, phone
+link; approved in mockups/privacy-1.html). Shown for the bare address `/` and,
+with status 404, for every code under `/<code>/` that resolves to nobody (Story
+1.5, guests/views.py). Nothing personal: no names, phone
 numbers, date, place, nav bar or footer, and no seal and no seal tab icon, because
 the seal carries the couple's initials. The empty `data:,` icon stops the
 browser from asking for /favicon.ico, which would otherwise redirect to

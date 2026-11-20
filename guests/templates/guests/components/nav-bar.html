@@ -1,0 +1,28 @@
+{% comment %}
+The nav bar on the front page and the info pages (Story 1.5, FR-8, UX-DR6,
+UX-DR11; DESIGN.md › Nav bar, Nav "Svar" button). Three nav words to the info
+pages, no separator characters and no menu button, and «Svar» to the RSVP sheet:
+`#svar` on the front page, the front page's `#svar` from an info page. The info
+page that is open (`current`) carries `aria-current="page"`. Sticky only on a
+screen at least 400px tall and 320px wide (static/css/site.css).
+{% endcomment %}
+<nav class="nav-bar" aria-label="Invitasjonen">
+    <div class="nav-bar__inner">
+        <ul class="nav-bar__words">
+            <li>
+                <a href="{% url 'guests:programme' code %}"
+                   {% if current == "programme" %}aria-current="page"{% endif %}>Program</a>
+            </li>
+            <li>
+                <a href="{% url 'guests:practical' code %}"
+                   {% if current == "practical" %}aria-current="page"{% endif %}>Praktisk</a>
+            </li>
+            <li>
+                <a href="{% url 'guests:our_story' code %}"
+                   {% if current == "our_story" %}aria-current="page"{% endif %}>Vår historie</a>
+            </li>
+        </ul>
+        <a class="nav-bar__svar"
+           href="{% if current %}{% url 'guests:front_page' code %}{% endif %}#svar">Svar</a>
+    </div>
+</nav>

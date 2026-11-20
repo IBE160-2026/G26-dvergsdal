@@ -73,3 +73,4 @@
 - [ ] 2026-11-20 [story-1-4b-papir-bilder-g1](973-2026-11-20-17-07-22-story-1-4b-papir-bilder-g1.md) — gjenta MT-6 med et ekte Windows-kontrasttema (Claude kjørte den med emulert høykontrast)
 - [ ] 2026-11-20 [story-1-4c-personvern-hoder-logger](972-2026-11-20-17-39-53-story-1-4c-personvern-hoder-logger.md) — MT-10: lim inn en testlenke i Messenger og SMS når nettsiden er på en offentlig adresse
 - [ ] 2026-11-20 [story-1-4c-personvern-hoder-logger](972-2026-11-20-17-39-53-story-1-4c-personvern-hoder-logger.md) — vurdere ordlyden i lenkeforhåndsvisningen («Invitasjon» / «En personlig invitasjon. Åpne lenken for å se den.»)
+- [ ] 2026-11-20 [story-1-5-invitasjonens-forside](971-2026-11-20-18-32-52-story-1-5-invitasjonens-forside.md) — godkjenne 30 px mindre luft i toppfeltet (DESIGN.md) og at stedet brytes som «HARDINGASETE · / HARDANGER», eller velge mindre bokstavavstand på stedslinja

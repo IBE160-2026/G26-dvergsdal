@@ -1,0 +1,163 @@
+{% extends "guests/guest_page.html" %}
+{% load static %}
+{% comment %}
+The invitation's front page, G2 (Story 1.5, FR-2, FR-7, FR-8, FR-41, UX-DR7,
+UX-DR8, UX-DR9, UX-DR51; DESIGN.md › Front page, approved in
+mockups/front-page-3.html). Order: hero sheet, lead-in, «Alt om helgen», RSVP
+sheet; the nav bar and footer come from guest_page.html.
+
+- The wedding's date and place are template text, never data (AD-17). The
+  dates hold plain spaces: a no-break date would overflow the sheet at 180 CSS px.
+- «deg» to one invited person, «dere» to more (UX-DR51, `speaks_to_one`). The
+  household line comes from wedding.rules.households and is escaped.
+- The names are three spans, so a container query can stack them where one
+  line does not fit (DESIGN.md › Typography: names wrap, never shrink).
+- Decorative images have `alt=""`; images below the hero load lazily (NFR-7).
+- The RSVP button arrives with Story 2.1, the answered state with Epic 2.
+{% endcomment %}
+{% block main %}
+    <main class="column front-page">
+        <div class="paper-sheet hero">
+            <img class="hero__seal"
+                 src="{% static 'img/segl.png' %}"
+                 alt=""
+                 width="74"
+                 height="76">
+            <img class="hero__illustration"
+                 src="{% static 'img/illustrasjon.jpg' %}"
+                 alt="Akvarell av tunet på Hardingasete."
+                 width="262"
+                 height="144">
+            <h1 class="display-names hero__names"><span>Rikke</span> <span>&amp;</span> <span>Valdemar</span></h1>
+            <p class="hero__invites">
+                inviterer
+                {% if speaks_to_one %}
+                    deg
+                {% else %}
+                    dere
+                {% endif %}
+                til sitt bryllup
+            </p>
+            <img class="hero__flowers"
+                 src="{% static 'img/brudeslor.png' %}"
+                 alt=""
+                 width="224"
+                 height="50">
+            <p class="small-caps hero__date">Lørdag 27. mai 2028</p>
+            <p class="small-caps hero__place">
+                Hardingasete <span aria-hidden="true">·</span> Hardanger
+            </p>
+            <p class="hero__household">
+                for <span class="hero__household-names">{{ household_names }}</span>
+            </p>
+            <p class="hero__deadline">
+                <a href="#svar">Svar</a> innen {{ deadline|date:"j. F Y" }}
+            </p>
+        </div>
+        <p class="lead-in">
+            Vi gleder oss til å feire med
+            {% if speaks_to_one %}
+                deg
+            {% else %}
+                dere
+            {% endif %}
+        </p>
+        <section class="details" aria-labelledby="alt-om-helgen">
+            <img class="details__garland details__garland--top"
+                 src="{% static 'img/lilje-topp.png' %}"
+                 alt=""
+                 width="296"
+                 height="73"
+                 loading="lazy">
+            <h2 class="details__heading" id="alt-om-helgen">Alt om helgen</h2>
+            <ul class="details__topics">
+                <li class="topic-row">
+                    <div class="lace-frame">
+                        <img class="lace-frame__photo"
+                             src="{% static 'img/sted-middag.jpg' %}"
+                             alt="Der vi skal spise middag på Hardingasete."
+                             width="122"
+                             height="117"
+                             loading="lazy">
+                        <img class="lace-frame__lace"
+                             src="{% static 'img/blonde.png' %}"
+                             alt=""
+                             width="136"
+                             height="131"
+                             loading="lazy">
+                    </div>
+                    <div class="topic-row__text">
+                        <h3>Programmet</h3>
+                        <p>Hele helgen, dag for dag.</p>
+                        <a class="button button--on-green"
+                           href="{% url 'guests:programme' code %}">Les mer<span class="visually-hidden"> om programmet</span></a>
+                    </div>
+                </li>
+                <li class="topic-row">
+                    <div class="lace-frame">
+                        <img class="lace-frame__photo lace-frame__photo--tunet"
+                             src="{% static 'img/sted-tunet.jpg' %}"
+                             alt="Tunet på Hardingasete, der vi skal bo og feire."
+                             width="122"
+                             height="117"
+                             loading="lazy">
+                        <img class="lace-frame__lace"
+                             src="{% static 'img/blonde.png' %}"
+                             alt=""
+                             width="136"
+                             height="131"
+                             loading="lazy">
+                    </div>
+                    <div class="topic-row__text">
+                        <h3>Praktisk informasjon</h3>
+                        <p>Reise, hyttene, tunet og området rundt.</p>
+                        <a class="button button--on-green"
+                           href="{% url 'guests:practical' code %}">Les mer<span class="visually-hidden"> om praktisk informasjon</span></a>
+                    </div>
+                </li>
+                <li class="topic-row">
+                    <div class="lace-frame">
+                        <img class="lace-frame__photo"
+                             src="{% static 'img/oss-strand.jpg' %}"
+                             alt="Rikke og Valdemar på stranda."
+                             width="122"
+                             height="117"
+                             loading="lazy">
+                        <img class="lace-frame__lace"
+                             src="{% static 'img/blonde.png' %}"
+                             alt=""
+                             width="136"
+                             height="131"
+                             loading="lazy">
+                    </div>
+                    <div class="topic-row__text">
+                        <h3>Vår historie</h3>
+                        <p>Fra vi møttes til i dag.</p>
+                        <a class="button button--on-green"
+                           href="{% url 'guests:our_story' code %}">Les mer<span class="visually-hidden"> om vår historie</span></a>
+                    </div>
+                </li>
+            </ul>
+            <img class="details__garland details__garland--bottom"
+                 src="{% static 'img/lilje-bunn.png' %}"
+                 alt=""
+                 width="296"
+                 height="65"
+                 loading="lazy">
+        </section>
+        <section class="paper-sheet rsvp"
+                 id="svar"
+                 tabindex="-1"
+                 aria-labelledby="svar-heading">
+            <h2 id="svar-heading">Svar på invitasjonen</h2>
+            <img class="rsvp__flowers"
+                 src="{% static 'img/brudeslor.png' %}"
+                 alt=""
+                 width="180"
+                 height="40"
+                 loading="lazy">
+            <p class="rsvp__childfree">Barnefritt bryllup</p>
+            <p class="rsvp__deadline">Svar innen {{ deadline|date:"l j. F Y" }} kl. 23:59</p>
+        </section>
+    </main>
+{% endblock main %}

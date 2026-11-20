@@ -3,7 +3,7 @@ name: "AI'll handle it"
 description: "Rikke & Valdemar's wedding invitation as a website: cream paper sheets with soft hand-made edges on a textured olive-green page, a dark green wax seal, gypsophila and lily garlands, pictures in cream lace frames, a script name line and printed-invitation body text. Light only."
 status: final
 created: 2026-11-10
-updated: 2026-11-15
+updated: 2026-11-20
 colors:
   page-green: '#5A6C48'
   green-dark: '#344628'
@@ -149,9 +149,9 @@ spacing:
   gutter-narrow: 8px
   gutter-small-phone: 12px
   hero-padding-inline-small-phone: 10px
-  page-padding-top: 46px
-  hero-padding-top: 26px
-  hero-padding-bottom: 22px
+  page-padding-top: 42px
+  hero-padding-top: 22px
+  hero-padding-bottom: 16px
   hero-padding-inline: 20px
   admin-panel-padding: 12px
   admin-gap: 8px
@@ -172,8 +172,8 @@ components:
     texture: 'none (flat, so cream text keeps 4.95:1)'
     height: '{spacing.nav-height}'
     padding: '8px 12px 8px 16px'
-    borderBottom: '1px rgba(245,238,223,.22)'
-    position: 'sticky top 0, only when viewport height >= 400px'
+    hairline: 'box-shadow 0 1px 0 rgba(245,238,223,.22), takes no height; 1px CanvasText border under forced colors'
+    position: 'sticky top 0, only when the viewport is >= 400px tall and >= 20em (320px at the default text size) wide'
   nav-words:
     foreground: '{colors.cream-on-green}'
     typography: '{typography.nav-words}'
@@ -211,7 +211,7 @@ components:
     sheet: '{components.paper-sheet}'
     foreground: '{colors.ink}'
     padding: '26px 22px 24px'
-    scrollMarginTop: 'nav-height + scroll-gap'
+    jumpTarget: 'cleared by html scroll-padding-top (nav-height + scroll-gap); no scroll-margin'
   wax-seal:
     image: 'mockups/segl.png (Rikke, image tool; cut out to transparent PNG)'
     width: 74px
@@ -298,7 +298,7 @@ components:
     gap: 20px
     heading: '{typography.heading-card}, italic, left'
     headingRule: '1px rgba(59,55,47,.35) under the heading, 8px below the text'
-    scrollMarginTop: 'nav-height + scroll-gap'
+    jumpTarget: 'cleared by html scroll-padding-top (nav-height + scroll-gap); no scroll-margin'
   button-on-green:
     background: 'transparent'
     foreground: '{colors.cream-on-green}'
@@ -541,7 +541,9 @@ Front-page order. The whole front page is approved in [mockups/front-page-3.html
 
 The whole hero sheet fits above the fold with 8px to spare, so these values are a budget, not a starting point: any added line or larger seal pushes the sheet's end off the first screen. At 320px (re-measured 2026-11-15 with «Vår historie» as the third nav word) the nav bar stays on one line (64px) only with tighter spacing below 340px layout width: nav words 8px apart, bar padding 8px 10px 8px 12px, the "Svar" button padding 0 12px and minimum width 56px (still ≥ 44px tall); with the normal spacing, «Vår historie» wraps and the bar grows to 104px. At 320px the small-phone gutter and hero padding keep the names and the place on one line, and the deadline line ends at 530px, above the 568px fold. With the normal 16px gutter and 20px padding it ended at 611px, below the fold (Open Question 2, resolved). «Praktisk informasjon» wraps to two lines beside its frame there, which is fine. Check widths for every build: 360 × 560, 320 × 568, 180 × 320.
 
-Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal centred with its top 36px above the sheet's top edge; illustration pulled up 12px (its top is empty sky) with 4px below; invites 2px below the names; divider 2px below; 6px above the household line, 4px above the deadline line. Topic rows: 20px above, 6px below, 14px between frame and text; the «Les mer» target supplies the bottom space. Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero and RSVP sheet is centred, the details heading too; topic text is left-aligned beside its picture; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
+*(Changed 2026-11-20 in Story 1.5: in the build, with the self-hosted EB Garamond, the place line «Hardingasete · Hardanger» in small capitals at 0.14em is about 307px wide and wraps to two lines in the 288px (360) and 276px (320) content box, which the mockup's no-break spaces hid. With the spacing above, the hero ended at 578px at both 360 × 560 and 320 × 568, below the fold, so the hero's vertical spacing was tightened by 30px to end at about 548px: `page-padding-top` 46 → 42px (the seal's top stays 6px below the nav bar), `hero-padding-top` 26 → 22px, `hero-padding-bottom` 22 → 16px, the illustration's gap below 4 → 0px, the invites line and the divider 2 → 0px, the household line 6 → 2px and the deadline line 4 → 0px. The names, the type sizes and the place line's letter spacing are unchanged. The table above is the 2026-11-14 measurement; MT-11 re-measures the build. Not yet seen by Rikke: it goes to her for approval, as every deviation from the approved design does.)*
+
+Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal centred with its top 36px above the sheet's top edge; illustration pulled up 12px (its top is empty sky) with no gap below; the invites line directly below the names; the divider directly below; 2px above the household line, none above the deadline line (tightened 2026-11-20, see the note above). Topic rows: 20px above, 6px below, 14px between frame and text; the «Les mer» target supplies the bottom space. Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero and RSVP sheet is centred, the details heading too; topic text is left-aligned beside its picture; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
 
 Sections are separated by green showing between the sheets and by the lily garlands around «Alt om helgen». This answers inspiration 08's "not one long page on one identical background".
 
@@ -646,7 +648,7 @@ Frontmatter key in brackets where one exists.
 |---|---|
 | **Page** [`page`] | `{colors.page-green}` with the calm paper texture. Never plain white anywhere. |
 | **Paper sheet** [`paper-sheet`] | The surface of every guest content panel: cream, textured, soft hand-made edge in its own colour, soft shadow, all on a layer behind the content. Flat `{rounded.sheet}` fallback (Elevation & Depth). |
-| **Nav bar** [`nav-bar`, `nav-words`] | Full-width strip, **flat** `{colors.page-green}` (no texture), 64px, a faint cream hairline below. Nav words left (Program · Praktisk · Vår historie), `{typography.nav-words}` in `{colors.cream-on-green}`, **not underlined**, 12px apart, each ≥ 44 × 44px; no separator characters; may wrap to two lines; no hamburger. Current page: 2px underline, offset 4px (approved in the info-page renders). |
+| **Nav bar** [`nav-bar`, `nav-words`] | Full-width strip, **flat** `{colors.page-green}` (no texture), 64px, a faint cream hairline below. Nav words left (Program · Praktisk · Vår historie), `{typography.nav-words}` in `{colors.cream-on-green}`, **not underlined**, 12px apart, each ≥ 44 × 44px; no separator characters; may wrap to two lines; no hamburger. Current page: 2px underline, offset 4px (approved in the info-page renders). Sticky only on a screen at least 400px tall and 20em wide; the hairline is a box shadow, so it adds no height. *(Changed 2026-11-20 in Story 1.5: the width condition was added, in em so it follows the phone's text size, because a bar whose words wrap to several lines would cover what a link jumps to; jump targets are cleared by `scroll-padding-top` on `html` alone, since a `scroll-margin-top` on the RSVP and info sheets as well would double the gap.)* |
 | **Nav "Svar" button** [`nav-svar`] | Right end of the nav bar: `{colors.green-dark}` fill, cream text, **1px `{colors.cream-on-green}` border** (dark green on page-green is only 1.79:1), ≥ 64 × 44px (below 340px layout width: 56px wide, padding 0 12px). The one primary-styled control allowed on green. |
 | **Hero sheet** [`hero-panel`] | Centred, in this order: seal over the top edge, illustration, names, invites line, gypsophila divider, date and place in small capitals, «for <household>», short deadline line with the "Svar" link. Rendered in [mockups/paper-ceremony-5.html](mockups/paper-ceremony-5.html). |
 | **Wax seal** [`wax-seal`] | Rikke's seal image, 74px wide, centred with its top 36px above the hero sheet's top edge, drop shadow. Decorative (`alt=""`). The favicon is made from the same image (at 32px and 180px). |

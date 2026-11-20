@@ -4,7 +4,8 @@ The log rows of the story's I/O matrix: `mask_link_codes` on Django's 404,
 CSRF and development-server lines, on full URLs and on the paths that stay
 readable; the filter on exception text and stacks; every handler in `LOGGING`
 carries the filter first and none mails; and end to end, the configured
-handlers' output after a 404, a CSRF failure and a server line (DEBUG on) and
+handlers' output after a 404, a seeded link's 200 (Story 1.5), a CSRF failure
+and a server line (DEBUG on) and
 after an error with DEBUG off holds `/[code]/` and never the code. That
 `NOT_LINK_CODES` covers every fixed route is in test_guest_privacy.py. What the
 terminal shows is MT-9 in docs/manual-test-plan.md.
@@ -25,6 +26,7 @@ from config.logging_filters import MaskLinkCodes, mask_link_codes
 SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
 SEED = tomllib.loads(SEED_FILE.read_text(encoding="utf-8"))
 CODE = SEED["households"][0]["guests"][0]["code"]
+UNKNOWN_CODE = "AAAAAAAAAAAAAAAAAAAAAA"
 SERVER_LINE = '"%s" %s %s'
 
 
@@ -179,20 +181,23 @@ def log_output():
 
 @pytest.mark.django_db
 def test_configured_handlers_never_write_the_code(settings, monkeypatch, log_output):
-    """FR-4, NFR-4, AD-15: with DEBUG on (as on the developer's machine), a 404 for a
-    seeded link, a CSRF failure on it and a development-server line all reach the
-    configured handlers with `/[code]/` and never the code."""
+    """FR-4, NFR-4, AD-15: with DEBUG on (as on the developer's machine), a 404 for an
+    unknown code, a seeded link that opens the invitation, a CSRF failure on it and
+    a development-server line all reach the configured handlers with `/[code]/`
+    and never a code."""
     monkeypatch.delenv("APP_ENV", raising=False)
     call_command("seed_testdata", stdout=StringIO())
     settings.DEBUG = True
 
-    assert Client().get(f"/{CODE}/").status_code == 404
+    assert Client().get(f"/{UNKNOWN_CODE}/").status_code == 404
+    assert Client().get(f"/{CODE}/").status_code == 200
     response = Client(enforce_csrf_checks=True).post(f"/{CODE}/")
     assert response.status_code == 403
     logging.getLogger("django.server").info(SERVER_LINE, f"GET /{CODE}/svar/?x=1 HTTP/1.1", 404, 0)
 
     text = log_output.getvalue()
     assert CODE not in text
+    assert UNKNOWN_CODE not in text
     assert text.count("Not Found: /[code]/") == 1  # never by both console and errors
     assert "Forbidden (" in text
     assert "): /[code]/" in text

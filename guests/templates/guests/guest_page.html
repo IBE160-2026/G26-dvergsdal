@@ -1,0 +1,13 @@
+{% extends "wedding/base.html" %}
+{% comment %}
+Every guest page under a valid link (Story 1.5, FR-6, FR-8): the nav bar, the
+page's own `main` and the footer band with the couple's phone numbers. The
+front page and the info-page frame extend it; G1 does not, because it shows
+none of this (FR-5).
+{% endcomment %}
+{% block content %}
+    {% include "guests/components/nav-bar.html" %}
+    {% block main %}
+    {% endblock main %}
+    {% include "wedding/components/footer-band.html" %}
+{% endblock content %}

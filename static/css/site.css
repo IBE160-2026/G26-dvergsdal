@@ -5,7 +5,11 @@
  * tests in tests/test_design_system.py read this file and compare it with
  * DESIGN.md. No JavaScript, no external URLs, no motion that runs by itself.
  * Story 1.4b adds the paper texture, the paper sheet, the page column and
- * the private-invitation page (G1); the guest page layouts arrive in 1.5–1.8.
+ * the private-invitation page (G1). Story 1.5 adds the guest pages' nav bar,
+ * the front page (hero, lead-in, «Alt om helgen», RSVP sheet), the footer
+ * band and the info-page frame, with the values of mockups/front-page-3.html
+ * and mockups/info-praktisk.html where DESIGN.md has no token. The info
+ * pages' content arrives in 1.6 and 1.7, the error pages in 1.8.
  */
 
 /* ---------- Fonts: self-hosted WOFF2, SIL OFL (UX-DR2, AD-15) ----------
@@ -63,6 +67,11 @@
   --color-warning: #765012;
   --color-scrim: #141A0C;
 
+  /* cream-on-green as an RGB triplet, for its see-through hairlines on green
+   * (DESIGN.md: the nav bar's at 22 %, the details heading's and the info
+   * page title's rule at 50 %). Same colour as --color-cream-on-green. */
+  --rgb-cream-on-green: 245, 238, 223;
+
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -74,9 +83,9 @@
   --space-gutter-narrow: 8px;
   --space-gutter-small-phone: 12px;
   --space-hero-padding-inline-small-phone: 10px;
-  --space-page-padding-top: 46px;
-  --space-hero-padding-top: 26px;
-  --space-hero-padding-bottom: 22px;
+  --space-page-padding-top: 42px;
+  --space-hero-padding-top: 22px;
+  --space-hero-padding-bottom: 16px;
   --space-hero-padding-inline: 20px;
   --space-admin-panel-padding: 12px;
   --space-admin-gap: 8px;
@@ -483,13 +492,457 @@ a:active {
   margin: 0;
 }
 
+/* ---------- Visually hidden text (NFR-5) ----------
+ * Words for screen readers only, such as « om programmet» after «Les mer».
+ * No wrapping, so the words are not read run together. */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Nav bar (FR-8, UX-DR6, UX-DR11; DESIGN.md › Nav bar) ----------
+ * A full-width strip of flat page-green (no texture, so the 18px cream nav
+ * words keep 4.95:1) with a faint cream hairline below. Its content keeps to
+ * the column's width. Nav words left, not underlined, 12px apart, no
+ * separator characters; the current info page's word is underlined 2px.
+ * «Svar» right: dark green with a cream border (dark green on page-green is
+ * only 1.79:1). The tighter values below 340px are under Narrow widths. */
+
+.nav-bar {
+  position: relative;
+  z-index: 3;
+  background-color: var(--color-page-green);
+  box-shadow: 0 1px 0 rgba(var(--rgb-cream-on-green), 0.22);
+}
+
+.nav-bar__inner {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  max-width: var(--space-content-max);
+  min-height: var(--space-nav-height);
+  margin-inline: auto;
+  padding: 8px 12px 8px 16px;
+}
+
+.nav-bar__words {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 0 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-nav-words);
+  line-height: var(--line-height-nav-words);
+  letter-spacing: var(--letter-spacing-nav-words);
+}
+
+.nav-bar__words a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-target-min);
+  text-decoration: none;
+}
+
+.nav-bar__words a[aria-current="page"] {
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.nav-bar__svar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  min-height: var(--space-target-min);
+  padding: 0 16px;
+  border: 1px solid var(--color-cream-on-green);
+  border-radius: var(--radius-md);
+  background-color: var(--color-green-dark);
+  color: var(--color-cream-on-green);
+  font-size: var(--font-size-nav-button);
+  line-height: var(--line-height-nav-button);
+  text-decoration: none;
+}
+
+.nav-bar__svar:hover {
+  background-color: var(--color-green-dark-hover);
+}
+
+/* ---------- Sticky nav bar and scroll padding (UX-DR6, NFR-5, WCAG 2.4.11) ----------
+ * The bar sticks only on a screen at least 400px tall (EXPERIENCE.md ›
+ * Accessibility Floor) and 20em wide (320px at the default text size): on a
+ * narrower layout, or with a larger default text size, the rem-sized words
+ * wrap to several lines and the bar would cover what a link jumps to. The
+ * width is in em so it scales with the text. The scroll padding on
+ * `html` keeps every jump target and focused element clear of the bar; there is
+ * no scroll-margin on #svar as well, since the two add up. */
+
+@media (min-height: 400px) and (min-width: 20em) {
+  html {
+    scroll-padding-top: calc(var(--space-nav-height) + var(--space-scroll-gap));
+  }
+
+  .nav-bar {
+    position: sticky;
+    top: 0;
+  }
+}
+
+/* ---------- Front page column (UX-DR7, UX-DR30) ----------
+ * The hero sheet starts page-padding-top below the nav bar, so the seal is
+ * never hidden under it. */
+
+.front-page {
+  padding-top: var(--space-page-padding-top);
+  padding-bottom: 26px;
+}
+
+/* ---------- Hero sheet (FR-7, FR-41, UX-DR7, UX-DR51; DESIGN.md › Hero sheet) ----------
+ * Centred, in DESIGN.md's order and spacing (Layout › Hero spacing, tightened
+ * on 2026-11-20 so the whole sheet fits the first screen even though the
+ * place line, about 307px wide, wraps to two lines): seal over the top edge, the whole illustration pulled up 12px
+ * with no gap below, the names, the invites
+ * line, the gypsophila, date and place in letter-spaced small capitals, the
+ * household line with the names upright, and the short deadline line. The
+ * sheet is a size container, so the names stack on three lines where one
+ * line does not fit: 274px at 48px is 13.7em of the sheet's 20px text, and
+ * em follows the phone's text size. No font size changes there: the names
+ * wrap, never shrink. */
+
+.hero {
+  container-type: inline-size;
+  padding: var(--space-hero-padding-top) var(--space-hero-padding-inline)
+    var(--space-hero-padding-bottom);
+  text-align: center;
+}
+
+.hero__seal {
+  position: absolute;
+  top: -36px;
+  left: 50%;
+  z-index: 2;
+  width: 74px;
+  height: auto;
+  margin-left: -37px;
+  filter: drop-shadow(0 2px 2px rgba(12, 16, 8, 0.45));
+}
+
+.hero__illustration {
+  display: block;
+  width: 262px;
+  max-width: 100%;
+  height: auto;
+  margin: -12px auto 0;
+  mix-blend-mode: darken;
+}
+
+.hero__invites {
+  margin: 0;
+  font-size: var(--font-size-invites);
+  line-height: var(--line-height-invites);
+  font-style: italic;
+}
+
+.hero__flowers {
+  display: block;
+  width: 224px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.hero__date {
+  margin: 0;
+  font-size: var(--font-size-date-line);
+  line-height: var(--line-height-date-line);
+  letter-spacing: var(--letter-spacing-date-line);
+}
+
+.hero__place {
+  margin: 0;
+  font-size: var(--font-size-place-line);
+  line-height: var(--line-height-place-line);
+  letter-spacing: var(--letter-spacing-place-line);
+}
+
+.hero__household {
+  margin: 2px 0 0;
+  font-style: italic;
+}
+
+.hero__household-names {
+  font-style: normal;
+}
+
+.hero__deadline {
+  margin: 0;
+  line-height: 1.35;
+}
+
+@container (max-width: 13.7em) {
+  .hero__names > span {
+    display: block;
+  }
+}
+
+/* ---------- Lead-in (UX-DR8; DESIGN.md › Lead-in) ----------
+ * One italic cream line on the textured green (24px, above the 19px floor). */
+
+.lead-in {
+  margin: 0;
+  padding: 26px 10px 22px;
+  color: var(--color-cream-on-green);
+  font-size: var(--font-size-lead-in);
+  line-height: var(--line-height-lead-in);
+  font-style: italic;
+  text-align: center;
+}
+
+/* ---------- «Alt om helgen» and topic rows (FR-8, UX-DR8; DESIGN.md › Details section, Topic row) ----------
+ * Directly on the textured green, no sheet: the lily garlands above and below,
+ * the italic heading with a cream hairline, and three rows of a lace-framed
+ * picture left and title, one italic line and «Les mer» right. Below 300px
+ * a row stacks (Narrow widths). */
+
+.details {
+  padding: 0 2px 4px;
+  color: var(--color-cream-on-green);
+}
+
+.details__garland {
+  display: block;
+  width: 296px;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+
+.details__garland--top {
+  margin-bottom: 8px;
+}
+
+.details__garland--bottom {
+  margin-top: 14px;
+}
+
+.details__heading {
+  margin: 0 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(var(--rgb-cream-on-green), 0.5);
+  font-size: var(--font-size-heading-section);
+  line-height: var(--line-height-heading-section);
+  font-style: italic;
+  text-align: center;
+}
+
+.details__topics {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.topic-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 20px 0 6px;
+}
+
+.topic-row__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.topic-row__text h3 {
+  margin-bottom: 2px;
+}
+
+.topic-row__text p {
+  margin: 0 0 6px;
+  font-style: italic;
+}
+
+.topic-row__text .button--on-green {
+  margin: 2px 6px 6px 0;
+}
+
+/* ---------- Lace frame (UX-DR9; DESIGN.md › Lace frame) ----------
+ * Rikke's lace image in panel-cream over a square-cut photo that fills its
+ * window, with a soft drop shadow so the frame lifts off the green. */
+
+.lace-frame {
+  position: relative;
+  flex: none;
+  width: 136px;
+  max-width: 100%;
+  aspect-ratio: 932 / 901;
+}
+
+.lace-frame__photo {
+  position: absolute;
+  top: 5.3%;
+  left: 5.2%;
+  width: 89.6%;
+  height: 89.4%;
+  object-fit: cover;
+}
+
+/* The farmyard photo is shifted down so the buildings show (DESIGN.md › Front page). */
+.lace-frame__photo--tunet {
+  object-position: 50% 82%;
+}
+
+.lace-frame__lace {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 1.5px rgba(10, 14, 6, 0.35));
+}
+
+/* ---------- RSVP sheet (FR-41, UX-DR7; DESIGN.md › RSVP sheet) ----------
+ * The jump target of both «Svar» links, 20px below the garland: the heading,
+ * the small gypsophila, «Barnefritt bryllup» and the full deadline. It takes
+ * focus only from a link (tabindex="-1"), so no ring is drawn there; under
+ * forced colours the system draws its own. The RSVP button arrives with
+ * Story 2.1. */
+
+.rsvp {
+  margin-top: 20px;
+  padding: 26px 22px 24px;
+  text-align: center;
+}
+
+.rsvp h2 {
+  margin-bottom: 6px;
+}
+
+.rsvp__flowers {
+  display: block;
+  width: 180px;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto 10px;
+}
+
+.rsvp__childfree {
+  margin: 0 0 8px;
+}
+
+.rsvp__deadline {
+  margin: 0;
+}
+
+#svar:focus {
+  outline-color: transparent;
+}
+
+/* ---------- Footer band (FR-6, UX-DR12; DESIGN.md › Footer band) ----------
+ * Full-bleed green-dark, cream text, each phone number on its own row of at
+ * least 44px. */
+
+.footer-band {
+  padding: 22px 16px 26px;
+  background-color: var(--color-green-dark);
+  color: var(--color-cream-on-green);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.footer-band p {
+  margin: 0;
+}
+
+.footer-band__contacts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.footer-band__contacts a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--space-target-min);
+}
+
+/* ---------- Info-page frame (FR-11, UX-DR11; DESIGN.md › Info pages, Back link, Info page title) ----------
+ * The back link 10px below the nav bar, the italic title with a cream
+ * hairline, and the outlined back button 14px below the content. */
+
+.info-page {
+  padding-top: 10px;
+  padding-bottom: 30px;
+}
+
+.info-page__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-target-min);
+}
+
+.info-page__title {
+  margin: 14px 6px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(var(--rgb-cream-on-green), 0.5);
+  font-size: var(--font-size-heading-page);
+  line-height: var(--line-height-heading-page);
+  font-style: italic;
+  text-align: center;
+}
+
+.info-page__bottom {
+  margin: 0;
+  padding-top: 14px;
+  text-align: center;
+}
+
 /* ---------- Narrow widths (UX-DR30, NFR-5) ----------
- * Gutters from DESIGN.md › Grid and gutters. Below 260px the G1 sheet's own
- * inline padding narrows too, so its line keeps room at 180 CSS px. */
+ * Gutters from DESIGN.md › Grid and gutters. From 260 to 339.98px the
+ * nav bar uses its tighter spacing, so it stays one 64px line at 320px, and
+ * the hero its small-phone padding, so the names and the place stay on one
+ * line and the hero fits the first screen. Below 300px a topic row stacks,
+ * frame above text. Below 260px the sheets' own inline padding narrows too,
+ * so their lines keep room at 180 CSS px. */
 
 @media (max-width: 339.98px) {
   .column {
     padding-inline: var(--space-gutter-small-phone);
+  }
+
+  .nav-bar__inner {
+    padding: 8px 10px 8px 12px;
+  }
+
+  .nav-bar__words {
+    gap: 0 8px;
+  }
+
+  .nav-bar__svar {
+    min-width: 56px;
+    padding: 0 12px;
+  }
+
+  .hero {
+    padding-inline: var(--space-hero-padding-inline-small-phone);
+  }
+}
+
+@media (max-width: 299.98px) {
+  .topic-row {
+    flex-direction: column;
   }
 }
 
@@ -498,7 +951,9 @@ a:active {
     padding-inline: var(--space-gutter-narrow);
   }
 
-  .private-invitation__sheet {
+  .private-invitation__sheet,
+  .hero,
+  .rsvp {
     padding-inline: var(--space-gutter-narrow);
   }
 }
@@ -532,6 +987,16 @@ a:active {
 
   .paper-sheet::before {
     filter: none;
+  }
+
+  /* Story 1.5: the illustration is shown as it is, not blended into the
+   * sheet, and the nav bar keeps a visible lower edge. */
+  .hero__illustration {
+    mix-blend-mode: normal;
+  }
+
+  .nav-bar {
+    border-bottom: 1px solid CanvasText;
   }
 }
 

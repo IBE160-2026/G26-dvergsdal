@@ -5,19 +5,20 @@ FR-4, NFR-4, AD-15. Every row of the story's I/O matrix except the log rows
 `Referrer-Policy: same-origin` on pages, redirects, robots.txt and static
 files; one robots meta tag and one fixed set of Open Graph tags that are the
 same for every code and name nobody; `/robots.txt` routed above the catch-all;
-and `rel="noreferrer"` on every external link in the templates. What a real
-browser and a real chat app show is MT-8 and MT-10 in docs/manual-test-plan.md.
+and `rel="noreferrer"` on every external link in the templates. Since Story
+1.5 the seeded links open the front page and the three info pages, which carry
+the same headers and, per page, the same title and preview for every guest.
+What a real browser and a real chat app show is MT-8 and MT-10 in
+docs/manual-test-plan.md.
 """
 
 import re
 import tomllib
 from html.parser import HTMLParser
-from io import StringIO
 from pathlib import Path
 
 import pytest
 from django.contrib.staticfiles import finders
-from django.core.management import call_command
 from django.template.loader import render_to_string
 from django.test import Client
 from django.urls import URLResolver, get_resolver
@@ -29,6 +30,14 @@ SEED = tomllib.loads((BASE_DIR / "wedding" / "fixtures" / "seed.toml").read_text
 TEMPLATE_DIRS = (BASE_DIR / "wedding" / "templates", BASE_DIR / "guests" / "templates")
 
 UNKNOWN_CODE = "AAAAAAAAAAAAAAAAAAAAAA"
+# The front page and the info pages under a valid link (Story 1.5), with each
+# page's fixed title.
+GUEST_PAGES = {
+    "": "Invitasjon",
+    "program/": "Programmet \N{EN DASH} Invitasjon",
+    "praktisk/": "Praktisk informasjon \N{EN DASH} Invitasjon",
+    "historie/": "Vår historie \N{EN DASH} Invitasjon",
+}
 PREVIEW = {
     "og:type": "website",
     "og:locale": "nb_NO",
@@ -48,19 +57,12 @@ ROBOTS_TXT = (
     "Disallow:\n"
 )
 
-pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture(autouse=True)
-def local_env(monkeypatch):
-    """The examiner's machine: no APP_ENV set (NFR-8), so the seed command runs."""
-    monkeypatch.delenv("APP_ENV", raising=False)
+pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
 
 
 @pytest.fixture
-def seeded_codes() -> list[str]:
+def seeded_codes(seeded) -> list[str]:
     """The seed loaded; the first guest's code in household 1 and in household 2."""
-    call_command("seed_testdata", stdout=StringIO())
     return [household["guests"][0]["code"] for household in SEED["households"][:2]]
 
 
@@ -139,10 +141,12 @@ def test_a_csrf_failure_says_noindex_and_same_origin():
     _assert_private_headers(response)
 
 
-def test_a_seeded_test_link_says_noindex_and_same_origin(client, seeded_codes):
-    """AD-15: a real guest link carries the same headers."""
-    response = client.get(f"/{seeded_codes[0]}/")
-    assert response.status_code == 404  # G1 until Story 1.5
+@pytest.mark.parametrize("page", GUEST_PAGES)
+def test_a_seeded_test_link_says_noindex_and_same_origin(client, seeded_codes, page):
+    """AD-15: a real guest link's front page and each info page answer 200 with the
+    same headers."""
+    response = client.get(f"/{seeded_codes[0]}/{page}")
+    assert response.status_code == 200
     _assert_private_headers(response)
 
 
@@ -255,6 +259,22 @@ def test_preview_is_the_same_for_every_code_and_names_nobody(client, seeded_code
         assert forbidden not in text, forbidden
 
 
+@pytest.mark.parametrize(("page", "title"), GUEST_PAGES.items())
+def test_each_guest_page_has_one_preview_for_every_guest(client, seeded_codes, page, title):
+    """FR-4, Story 1.5: the front page and each info page have the same title and
+    Open Graph tags for guests of two households: the page's fixed title and the
+    shared preview, naming nobody and holding no code."""
+    previews = [_preview(client.get(f"/{code}/{page}").content.decode()) for code in seeded_codes]
+    assert previews[0] == previews[1] == {"title": title, **PREVIEW}
+    text = " ".join(previews[0].values())
+    names = [guest["name"] for household in SEED["households"] for guest in household["guests"]]
+    names += [SEED["settings"]["contact_1_name"], SEED["settings"]["contact_2_name"]]
+    for name in names:
+        assert not re.search(rf"\b{re.escape(name)}\b", text), name
+    for code in seeded_codes:
+        assert code not in text
+
+
 def test_preview_tags_sit_outside_every_block():
     """FR-4: the robots meta and the preview include are in base.html's head outside
     every `{% block %}`, so no page can change them for one guest."""
@@ -305,12 +325,13 @@ def _top_level_routes(patterns, prefix: str = "") -> list[str]:
 
 def test_every_fixed_route_stays_readable_in_the_log():
     """NFR-4, AD-15: every top-level route that is not a link code (everything
-    except `""` and the guest `<str:code>/`) is in the log filter's
-    `NOT_LINK_CODES`, so a new route such as Story 3.1's `admin/` fails here until
-    the filter knows it."""
+    except `""` and the guest pages starting with `<str:code>/`) is in the log
+    filter's `NOT_LINK_CODES`, so a new route such as Story 3.1's `admin/` fails
+    here until the filter knows it."""
     routes = _top_level_routes(get_resolver().url_patterns)
     assert "<str:code>/" in routes
-    fixed = [route for route in routes if route not in {"", "<str:code>/"}]
+    assert "<str:code>/program/" in routes
+    fixed = [route for route in routes if route != "" and not route.startswith("<str:code>/")]
     assert "robots.txt" in fixed
     for route in fixed:
         assert route.split("/")[0] in NOT_LINK_CODES, route
@@ -320,9 +341,10 @@ def test_every_fixed_route_stays_readable_in_the_log():
 
 # A link to another site: a literal `http(s):` address, or an address that comes
 # from a variable (`{{ … }}`), which may be anywhere. `{% url %}` and
-# `{% static %}` links are our own and are not matched.
+# `{% static %}` links are our own and are not matched, and neither are `tel:`
+# links (the footer's phone numbers, Story 1.5), which reach no site.
 _EXTERNAL_LINK = re.compile(
-    r"""<a\b[^>]*\bhref=["']?(?:https?:|[^"'>]*\{\{)[^>]*>""", re.IGNORECASE
+    r"""<a\b[^>]*\bhref=["']?(?!tel:)(?:https?:|[^"'>]*\{\{)[^>]*>""", re.IGNORECASE
 )
 
 
@@ -343,6 +365,7 @@ def test_noreferrer_checker_finds_a_bare_external_link():
         "<a href=\"{% url 'guests:private_invitation' %}\">Hjem</a>"
         "<a href=\"{% static 'img/segl.png' %}\">Segl</a>"
         '<a href="#svar">Svar</a>'
+        '<a href="tel:{{ contact.tel }}">{{ contact.name }} {{ contact.phone }}</a>'
     )
     bad = '<a class="lenke" href="https://example.com/">Kart</a><a href="{{ map_url }}">Kart</a>'
     assert _links_without_noreferrer(good) == []

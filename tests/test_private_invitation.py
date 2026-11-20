@@ -1,11 +1,13 @@
 """The private-invitation page G1 (Story 1.4b, FR-5, UX-DR5, UX-DR30).
 
-Every row of the story's I/O matrix: the bare address, unknown codes, a seeded
-test link before Story 1.5, the seeded data that must not leak, and `/stil/`
-with `APP_ENV` local and production. Each GET runs with
-`django_assert_num_queries(0)`: G1 reads nothing, so it renders on an empty,
-migrated database. How the page looks at 360, 320 and 180 CSS px and under
-forced colours is MT-5 and MT-6 in docs/manual-test-plan.md.
+Every row of the story's I/O matrix: the bare address, unknown codes, the
+seeded data that must not leak, and `/stil/` with `APP_ENV` local and
+production. Each GET counts its queries: G1 itself reads nothing, so it renders
+on an empty, migrated database; since Story 1.5 a well-formed unknown code
+costs the resolver's one lookup and a malformed one none, and a seeded test link
+opens the invitation instead (test_front_page.py, test_info_pages.py). How the
+page looks at 360, 320 and 180 CSS px and under forced colours is MT-5 and
+MT-6 in docs/manual-test-plan.md.
 """
 
 import re
@@ -16,6 +18,7 @@ from pathlib import Path
 import pytest
 from django.core.management import call_command
 
+from tests.helpers import page_text
 from wedding.models import Guest, Household
 
 SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
@@ -24,7 +27,9 @@ SEED_GUESTS = [guest for household in SEED["households"] for guest in household[
 
 HEADING = "Dette er en privat invitasjon"
 HELP_LINE = "Virker ikke lenken din? Ta kontakt med brudeparet direkte."
-UNKNOWN_CODES = ["AAAAAAAAAAAAAAAAAAAAAA", "hei"]
+# An unknown code in the right format costs the resolver's one lookup; a malformed
+# one never reaches the database (AD-6).
+UNKNOWN_CODES = [("AAAAAAAAAAAAAAAAAAAAAA", 1), ("hei", 0)]
 # Nothing on G1 may name or place the wedding (FR-5, EXPERIENCE.md G1).
 FORBIDDEN = [
     "2028",
@@ -38,17 +43,7 @@ FORBIDDEN = [
     "tel:",
 ]
 
-pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture(autouse=True)
-def local_env(monkeypatch):
-    """The examiner's machine: no APP_ENV set (NFR-8), so the seed command runs."""
-    monkeypatch.delenv("APP_ENV", raising=False)
-
-
-def _text(html: str) -> str:
-    return " ".join(html.split())
+pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
 
 
 @pytest.fixture
@@ -64,7 +59,7 @@ def assert_is_g1(assert_loads_only_own_host):
         assert '<main class="column private-invitation">' in html
         assert '<div class="paper-sheet private-invitation__sheet">' in html
         assert f'<h1 class="private-invitation__heading">{HEADING}</h1>' in html
-        assert HELP_LINE in _text(html)
+        assert HELP_LINE in page_text(html)
         flowers = re.search(r"<img[^>]*brudeslor\.png[^>]*>", html).group(0)
         assert 'alt=""' in flowers
         assert 'width="180"' in flowers
@@ -91,14 +86,16 @@ def test_bare_address_shows_g1_on_an_empty_database(
     assert_is_g1(response)
 
 
-@pytest.mark.parametrize("code", UNKNOWN_CODES)
+@pytest.mark.parametrize(("code", "queries"), UNKNOWN_CODES)
 def test_unknown_code_shows_the_same_g1_with_404(
-    client, assert_is_g1, django_assert_num_queries, code
+    client, assert_is_g1, django_assert_num_queries, code, queries
 ):
-    """FR-5: an unknown code gives 404 with the same G1 body as `/`, and no query;
-    never Django's technical 404 page with the URL list."""
+    """FR-5, AD-6: an unknown code gives 404 with the same G1 body as `/`, after one
+    lookup for a well-formed code and none for a malformed one; never Django's
+    technical 404 page with the URL list."""
     with django_assert_num_queries(0):
         bare = client.get("/")
+    with django_assert_num_queries(queries):
         response = client.get(f"/{code}/")
     assert response.status_code == 404
     html = assert_is_g1(response)
@@ -106,18 +103,18 @@ def test_unknown_code_shows_the_same_g1_with_404(
     assert "Page not found" not in html
 
 
-def test_a_seeded_test_link_shows_g1_until_story_1_5(
-    client, assert_is_g1, django_assert_num_queries
-):
-    """FR-5, Design Notes: before Story 1.5 there is no guest page, so a real test
-    link also shows G1 with 404, and its code is not looked up."""
+def test_a_seeded_test_link_opens_the_invitation_not_g1(client):
+    """FR-2, FR-5, Story 1.5: a real test link answers 200 with the front page, and
+    nothing of G1."""
     call_command("seed_testdata", stdout=StringIO())
     code = SEED_GUESTS[0]["code"]
     assert Guest.objects.filter(code=code).exists()
-    with django_assert_num_queries(0):
-        response = client.get(f"/{code}/")
-    assert response.status_code == 404
-    assert_is_g1(response)
+    response = client.get(f"/{code}/")
+    assert response.status_code == 200
+    templates = [template.name for template in response.templates]
+    assert "guests/front_page.html" in templates
+    assert "guests/private_invitation.html" not in templates
+    assert HEADING not in response.content.decode()
 
 
 def test_seeded_data_never_reaches_g1(client, assert_is_g1):
