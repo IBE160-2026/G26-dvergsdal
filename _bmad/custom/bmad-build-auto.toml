@@ -1,0 +1,13 @@
+# Project overrides for bmad-build-auto (unattended story loop).
+# Merged over .claude/skills/bmad-build-auto/customize.toml.
+
+[workflow]
+
+persistent_facts = [
+  # Why: in Claude Code the Agent tool always starts subagents in the background
+  # and wakes the session with a completion notice. A test on 2026-11-20 showed
+  # that waiting for that notice works from the main session, while a subagent
+  # that starts its own subagent never gets the answer back.
+  "Claude Code harness: the Agent tool always runs subagents in the background and re-invokes this session with a completion notification when each one finishes. Waiting for those notifications is the sanctioned way to collect subagent results in this project and is not 'detaching'. Launch every subagent a step calls for in one message, then wait until all of them have reported before continuing. Never HALT with 'no subagents' for this reason. Run this workflow from the main session, never from inside a subagent.",
+  "file:AGENTS.md",
+]
