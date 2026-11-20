@@ -74,3 +74,5 @@
 - [ ] 2026-11-20 [story-1-4c-personvern-hoder-logger](972-2026-11-20-17-39-53-story-1-4c-personvern-hoder-logger.md) — MT-10: lim inn en testlenke i Messenger og SMS når nettsiden er på en offentlig adresse
 - [ ] 2026-11-20 [story-1-4c-personvern-hoder-logger](972-2026-11-20-17-39-53-story-1-4c-personvern-hoder-logger.md) — vurdere ordlyden i lenkeforhåndsvisningen («Invitasjon» / «En personlig invitasjon. Åpne lenken for å se den.»)
 - [ ] 2026-11-20 [story-1-5-invitasjonens-forside](971-2026-11-20-18-32-52-story-1-5-invitasjonens-forside.md) — godkjenne 30 px mindre luft i toppfeltet (DESIGN.md) og at stedet brytes som «HARDINGASETE · / HARDANGER», eller velge mindre bokstavavstand på stedslinja
+- [ ] 2026-11-21 [story-1-7-programmet](969-2026-11-21-08-27-05-story-1-7-programmet.md) — vurdere om ikonene i programmet trenger lys bakgrunn i et mørkt Windows-kontrasttema (mørke PNG-er på svart ark; de er pynt)
+- [ ] 2026-11-21 [story-1-7-programmet](969-2026-11-21-08-27-05-story-1-7-programmet.md) — **story 4.5:** avgjøre hva som skjer når en måltidspris er 0, i dag står det «betales selv: 0 kr.» (deferred-work.md)
