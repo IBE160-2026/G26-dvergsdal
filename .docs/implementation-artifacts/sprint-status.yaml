@@ -29,13 +29,13 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-16-2026 13:02
-last_updated: 11-21-2026 09:03
+last_updated: 11-21-2026 13:45
 project: AI'll handle it
 project_key: NOKEY
 tracking_system: file-system
 story_location: .docs/implementation-artifacts
 development_status:
-  epic-1: in-progress
+  epic-1: done
   1-1-runnable-project-with-one-command-for-tests-and-checks: done
   1-2-households-guests-and-personal-links: done
   1-3-fictional-test-data-and-the-hand-made-expected-results-list: done
@@ -46,7 +46,7 @@ development_status:
   1-6-practical-information-and-our-story-pages: done
   1-7-the-programme-page: done
   1-8-error-pages-that-still-show-how-to-reach-the-couple: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   epic-2: backlog
   2-1-start-the-answer-who-is-coming: backlog
@@ -111,3 +111,65 @@ development_status:
   8-5-the-admin-pages-on-a-pc-screen: backlog
   8-6-slow-down-guessing-of-link-codes: backlog
   epic-8-retrospective: optional
+action_items:
+  - id: "epic-1-retro-item-1-rikke-approve-or-reject-the-30px-hero-sp"
+    epic: 1
+    action: "Rikke: approve or reject the 30px hero spacing ([forslag] in DESIGN.md),
+      the error-page and link-preview wording; run MT-1 (1.4b), MT-6 with a real contrast
+      theme and an iPhone/iPad check"
+    owner: "Rikke"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
+  - id: "epic-1-retro-item-2-reconcile-the-prd-with-the-build-fr-6-40"
+    epic: 1
+    action: "Reconcile the PRD with the build: FR-6 (400 page impersonal), FR-7 (sticky
+      nav >=400px tall and >=20em wide), FR-10 (map button to 7.4), FR-60 in the change
+      log and status table; Story 1.5 AC in epics.md"
+    owner: "Rikke approves, Claude writes"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
+  - id: "epic-1-retro-item-3-repo-hygiene-remove-content-invoke-resid"
+    epic: 1
+    action: "Repo hygiene: remove </content></invoke> residue from spec 1.3, the stray
+      fence in .gitignore (restore node_modules/), and wedding/fixtures/.gitkeep"
+    owner: "Claude"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
+  - id: "epic-1-retro-item-4-widen-the-log-mask-for-percent-encoded-b"
+    epic: 1
+    action: "Widen the log mask for percent-encoded, bracketed, colon-prefixed and
+      slash-less link codes before Story 3.1's ?next= (deferred-work.md)"
+    owner: "Claude, Story 3.1"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
+  - id: "epic-1-retro-item-5-later-story-fixes-routed-in-deferred-wor"
+    epic: 1
+    action: "Later-story fixes routed in deferred-work.md: require_safe and Cache-Control
+      on guest pages (2.1), seed must not overwrite real Settings plus error-path
+      tests (2.6d), phone without digit (4.5), pin runserver_nostatic"
+    owner: "Claude, named stories"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
+  - id: "epic-1-retro-item-6-go-live-hardening-when-hosting-is-chosen"
+    epic: 1
+    action: "Go-live hardening when hosting is chosen: CSRF_TRUSTED_ORIGINS and proxy
+      header from env, check --deploy, refuse test data and placeholder settings in
+      production"
+    owner: "Claude, hosting story"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
+  - id: "epic-1-retro-item-7-runner-process-for-epic-2-smaller-commit"
+    epic: 1
+    action: "Runner process for Epic 2: smaller commits per logical step, fill the
+      Spec Change Log on post-approval changes, post the triage summary as a PR comment,
+      brief reviewers on the workflow, write the em-breakpoint rule into DESIGN.md"
+    owner: "Claude"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
+  - id: "epic-1-retro-item-8-run-impeccable-critique-and-audit-on-the"
+    epic: 1
+    action: "Run Impeccable critique and audit on the guest pages before the usability
+      test and route the findings"
+    owner: "Claude, Rikke reviews"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
