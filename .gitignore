@@ -21,6 +21,9 @@ db.sqlite3
 db.sqlite3-*
 staticfiles/
 
+# Node packages (if a tool installs any locally)
+node_modules/
+
 # Tests / coverage
 coverage/
 htmlcov/
@@ -79,4 +82,3 @@ Thumbs.db
 **/.impeccable/live/deferred-svelte-component-accepts.json
 **/.impeccable/live/*.png
 # impeccable-ignore-end
-```
