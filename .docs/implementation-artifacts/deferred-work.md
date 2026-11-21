@@ -65,3 +65,15 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
   summary: Story 3.1: the error handlers are site-wide, so `/admin/` paths get the impersonal guest error pages («ta kontakt med brudeparet direkte»), and a 404 under `/admin/` gives G1. Decide the couple's own 404, 500 and CSRF pages there (for example by checking the path in `guests.views._reachable` or the handlers, or a dashboard frame). Add `admin` to `NOT_LINK_CODES` in `config/logging_filters.py`, as already planned.
   evidence: medium. Nothing is routed under `/admin/` yet, so a guest page is the right answer today; once the dashboard exists, a logged-in couple who meets an error would see a guest page that tells them to contact themselves.
+
+- source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
+  summary: Story 3.1: there is no `handler403`, so a `PermissionDenied` (the admin raises it for staff without a permission) still gets Django's own bare 403 page. Decide the couple's own 403 together with their 404, 500 and CSRF pages.
+  evidence: low. `config/urls.py` sets only `handler400`, `handler404` and `handler500`; no guest code raises `PermissionDenied`, so only the admin can reach it (1.8 review, blind and edge-case layers).
+
+- source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
+  summary: Epic 2 (the RSVP form): `handler400` treats every 400 as an untrusted host, so a form POST under a valid link that trips `RequestDataTooBig`, `TooManyFieldsSent` or a bad multipart body gets the impersonal 400 page with no back button and no phones. Decide there whether a 400 that is not `DisallowedHost` should use `_reachable`.
+  evidence: medium. `guests.views.bad_request` never looks up the code; unreachable today because no guest view reads a request body (1.8 review, blind layer).
+
+- source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
+  summary: Before go-live: `MaskLinkCodes` only masks a path that starts with `/`, so a link code in a slash-less path inside a log record (such as Django's `Resolver404` text `{'path': '<code>/finnes-ikke/'}` in a chained traceback) is logged unmasked. Widen `_PATH` in `config/logging_filters.py`, or mask `Resolver404`'s `path`.
+  evidence: low. Found while patching 1.8: the new `_reachable` warning chained the `Resolver404` on a 404 and leaked the code; fixed there with `__suppress_context__`. No other known log line carries a slash-less path.
