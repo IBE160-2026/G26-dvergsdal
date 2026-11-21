@@ -23,8 +23,8 @@ FRONT_PAGE = (
 
 # FR-5, Story 1.8: what an impersonal page (G1 and the error pages without a
 # valid link) may never hold: the year, the place, the seal, the couple's
-# initials, a nav bar, the footer band or a phone link. The same list as G1's
-# in test_private_invitation.py.
+# initials, a nav bar, the footer band or a phone link. Used by
+# test_private_invitation.py and test_error_pages.py.
 IMPERSONAL_FORBIDDEN = (
     "2028",
     "Hardingasete",

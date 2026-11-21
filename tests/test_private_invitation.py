@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 from django.core.management import call_command
 
-from tests.helpers import page_text
+from tests.helpers import IMPERSONAL_FORBIDDEN, page_text
 from wedding.models import Guest, Household
 
 SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
@@ -30,18 +30,6 @@ HELP_LINE = "Virker ikke lenken din? Ta kontakt med brudeparet direkte."
 # An unknown code in the right format costs the resolver's one lookup; a malformed
 # one never reaches the database (AD-6).
 UNKNOWN_CODES = [("AAAAAAAAAAAAAAAAAAAAAA", 1), ("hei", 0)]
-# Nothing on G1 may name or place the wedding (FR-5, EXPERIENCE.md G1).
-FORBIDDEN = [
-    "2028",
-    "Hardingasete",
-    "Strandebarm",
-    "segl",
-    "R &amp; V",
-    "R & V",
-    "<nav",
-    "<footer",
-    "tel:",
-]
 
 pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
 
@@ -63,7 +51,8 @@ def assert_is_g1(assert_loads_only_own_host):
         flowers = re.search(r"<img[^>]*brudeslor\.png[^>]*>", html).group(0)
         assert 'alt=""' in flowers
         assert 'width="180"' in flowers
-        for forbidden in FORBIDDEN:
+        # Nothing on G1 may name or place the wedding (FR-5, EXPERIENCE.md G1).
+        for forbidden in IMPERSONAL_FORBIDDEN:
             assert forbidden not in html, forbidden
         assert "favicon" not in html
         assert "apple-touch-icon" not in html

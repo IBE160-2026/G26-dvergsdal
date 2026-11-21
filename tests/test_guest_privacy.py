@@ -135,7 +135,8 @@ def test_every_response_says_noindex_and_same_origin(client, path, status):
 
 def test_a_csrf_failure_says_noindex_and_same_origin():
     """AD-15: the 403 page for a form without a CSRF token carries the headers too
-    (it is made by the CSRF middleware, not by a view)."""
+    (the CSRF middleware rejects the form and calls `CSRF_FAILURE_VIEW`,
+    guests.views.csrf_failure, Story 1.8)."""
     response = Client(enforce_csrf_checks=True).post("/")
     assert response.status_code == 403
     _assert_private_headers(response)
