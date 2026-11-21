@@ -1,10 +1,14 @@
-"""Helpers and constants shared by several test modules (Story 1.5, 1.6, 1.7, 1.8).
+"""Helpers and constants shared by several test modules (Story 1.5, 1.6, 1.7, 1.8, 2.1).
 
 Fixtures live in conftest.py; plain values and functions that tests import live
 here.
 """
 
 import re
+
+from django.contrib.sessions.models import Session
+
+from wedding.models import Guest, Household, Settings, User
 
 # NFR-7, UX-DR4: the nine images the front page shows (Story 1.4b plans them,
 # test_images.py keeps them within their budget, test_front_page.py checks that
@@ -59,3 +63,22 @@ def sections_of(html: str) -> list[tuple[dict[str, str], str]]:
         (tag_attrs(tag), body)
         for tag, body in re.findall(r"(<section\b[^>]*>)(.*?)</section>", html, re.DOTALL)
     ]
+
+
+def row_counts() -> dict[str, int]:
+    """FR-3, AD-8: the number of rows in every table a guest request could write,
+    sessions included, so a test can check that a request wrote nothing."""
+    return {
+        model.__name__: model.objects.count()
+        for model in (Household, Guest, Settings, User, Session)
+    }
+
+
+def checked_radios(html: str) -> dict[str, str]:
+    """Every checked radio or checkbox in `html` as {name: value} (Story 2.1)."""
+    found = {}
+    for tag in re.findall(r"<input\b[^>]*>", html):
+        if re.search(r"\schecked\b", tag):
+            attributes = tag_attrs(tag)
+            found[attributes["name"]] = attributes["value"]
+    return found
