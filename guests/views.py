@@ -14,6 +14,8 @@ token, so opening a link sets no cookie and writes no row. The error pages
 only read too.
 """
 
+import logging
+
 from django.http import (
     HttpRequest,
     HttpResponse,
@@ -33,6 +35,8 @@ from wedding.selectors import (
     programme_prices,
     site_settings,
 )
+
+logger = logging.getLogger(__name__)
 
 # DESIGN.md colour tokens, in the frontmatter's order, for the swatches.
 COLOUR_TOKENS = (
@@ -158,8 +162,9 @@ def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
 # Error pages (Story 1.8, FR-5, FR-6, AD-15)
 #
 # config/urls.py sets handler404, handler500 and handler400 to these views, and
-# CSRF_FAILURE_VIEW in config/settings.py points to csrf_failure, so no visitor
-# ever sees one of Django's own pages. Under a valid link (the first path
+# CSRF_FAILURE_VIEW in config/settings.py points to csrf_failure, so a 400,
+# 404, 500 or failed CSRF check never shows one of Django's own pages. There is
+# no handler403: no guest view raises PermissionDenied. Under a valid link (the first path
 # segment resolves) an error page shows the back button to the invitation and
 # the footer band with the couple's phones; otherwise it shows nothing personal.
 
@@ -178,14 +183,20 @@ def _reachable(request: HttpRequest) -> dict[str, object]:
     """
     segment = request.path_info.lstrip("/").split("/", 1)[0]
     # The error page must never fail itself (FR-5): any error in the lookup, such
-    # as a broken database, gives the impersonal page. The original error is
-    # already logged, with the code masked, by `django.request`.
+    # as a broken database, gives the impersonal page. It is logged once here,
+    # since on a 404 or a CSRF failure nothing else would log it; the LOGGING
+    # handlers mask the link code (AD-15).
     try:
         actor = resolve_code(segment)
         if actor is None:
             return {}
         return {"code": actor.guest.code, "contacts": footer_contacts(site_settings())}
-    except Exception:
+    except Exception as error:
+        # On a 404 the error is raised while Django handles its Resolver404, whose
+        # text holds the path without a leading slash, which the mask cannot
+        # find; it says nothing about the lookup, so it is left out of the log.
+        error.__suppress_context__ = True
+        logger.warning("Error page lookup failed for %s", request.path_info, exc_info=True)
         return {}
 
 

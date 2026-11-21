@@ -19,9 +19,10 @@ from pathlib import Path
 import pytest
 from django.conf import settings
 from django.contrib.sessions.models import Session
+from django.core.exceptions import DisallowedHost
 from django.db import DatabaseError
 from django.middleware.csrf import _get_failure_view
-from django.test import Client
+from django.test import Client, RequestFactory
 from django.urls import get_resolver
 
 import config.urls
@@ -55,7 +56,8 @@ def _title(heading: str) -> str:
     return f"{heading} \N{EN DASH} Invitasjon"
 
 
-TECHNICAL = ("Traceback", "Exception", "RuntimeError", "Django", "DEBUG")
+# The same words MT-22 forbids in the page text.
+TECHNICAL = ("Traceback", "Exception", "RuntimeError", "Django", "DEBUG", "settings")
 
 pytestmark = [
     pytest.mark.django_db,
@@ -205,15 +207,23 @@ def test_500_on_a_broken_database_is_impersonal(seeded):
     [(f"/{SIGMUND}/feil/", 500, SERVER_ERROR), (f"/{SIGMUND}/finnes-ikke/", 404, None)],
     ids=["500", "404"],
 )
-def test_a_lookup_that_raises_falls_back(seeded, monkeypatch, path, status, heading):
+def test_a_lookup_that_raises_falls_back(seeded, monkeypatch, caplog, path, status, heading):
     """FR-5: when the resolver itself raises, the error page never fails: the 500
-    is impersonal and the 404 is G1."""
+    is impersonal and the 404 is G1. The failed lookup is logged once as a
+    warning with its traceback, since on a 404 nothing else would log it."""
 
     def broken(code):
         raise DatabaseError("database is locked")
 
     monkeypatch.setattr(views, "resolve_code", broken)
-    response = _get(path)
+    with caplog.at_level("WARNING", logger="guests.views"):
+        response = _get(path)
+    records = [record for record in caplog.records if record.name == "guests.views"]
+    assert len(records) == 1
+    assert records[0].levelname == "WARNING"
+    # The LOGGING filter formats the traceback into `exc_text` and masks the code.
+    assert "DatabaseError: database is locked" in records[0].exc_text
+    assert SIGMUND not in records[0].getMessage() + records[0].exc_text
     assert response.status_code == status
     html = response.content.decode()
     if heading:
@@ -225,7 +235,8 @@ def test_a_lookup_that_raises_falls_back(seeded, monkeypatch, path, status, head
 
 def test_valid_link_without_phones_keeps_the_back_button(seeded):
     """FR-6: with no phone to call there is no footer, but the back button stays,
-    and the 500 page says line B, since there is nothing below to message."""
+    and the 500 and CSRF pages say line B, since there is nothing below to
+    message."""
     Settings.objects.filter(pk=1).update(contact_1_phone="", contact_2_phone="")
     for path, heading in (
         (f"/{SIGMUND}/feil/", SERVER_ERROR),
@@ -237,6 +248,15 @@ def test_valid_link_without_phones_keeps_the_back_button(seeded):
         assert "<footer" not in html
         assert "tel:" not in html
     assert LINE_B in page_text(_get(f"/{SIGMUND}/feil/").content.decode())
+    response = _post(f"/{SIGMUND}/")
+    assert response.status_code == 403
+    html = response.content.decode()
+    assert _heading(html) == CSRF_FAILURE
+    assert BACK_LINK.search(html)
+    assert "<footer" not in html
+    assert "tel:" not in html
+    assert LINE_B in page_text(html)
+    assert LINE_A not in page_text(html)
 
 
 # CSRF failure (FR-5, FR-6, AD-15)
@@ -267,6 +287,23 @@ def test_csrf_failure_without_a_valid_link_is_impersonal(seeded, path):
     _assert_impersonal(html)
 
 
+def test_500_never_calls_get_host(seeded, monkeypatch):
+    """AD-15: the 500 page renders without the request, so even under a valid
+    link, where it reads the code and the phones, `request.get_host` is never
+    called; a 500 can come before the host is checked."""
+    request = RequestFactory().get(f"/{SIGMUND}/")
+
+    def disallowed():
+        raise DisallowedHost("evil.example")
+
+    monkeypatch.setattr(request, "get_host", disallowed)
+    response = views.server_error(request)
+    assert response.status_code == 500
+    html = response.content.decode()
+    assert _heading(html) == SERVER_ERROR
+    assert BACK_LINK.search(html)
+
+
 # 400 (FR-5, AD-15, deferred from 1.4c)
 
 
@@ -290,10 +327,12 @@ def test_bad_host_gives_the_impersonal_400(seeded):
 # Each error, its status and its page title; seeded.
 ERRORS = {
     "404-g1": (lambda: _get("/hei/x/"), 404, "Invitasjon"),
+    "404-unknown": (lambda: _get(f"/{UNKNOWN}/svar/"), 404, "Invitasjon"),
     "404-link": (lambda: _get(f"/{SIGMUND}/finnes-ikke/"), 404, _title(NOT_FOUND)),
     "500-link": (lambda: _get(f"/{SIGMUND}/feil/"), 500, _title(SERVER_ERROR)),
     "500-unknown": (lambda: _get(f"/{UNKNOWN}/feil/"), 500, _title(SERVER_ERROR)),
     "403-link": (lambda: _post(f"/{SIGMUND}/"), 403, _title(CSRF_FAILURE)),
+    "403-unknown": (lambda: _post(f"/{UNKNOWN}/"), 403, _title(CSRF_FAILURE)),
     "403-bare": (lambda: _post("/"), 403, _title(CSRF_FAILURE)),
     "400": (
         lambda: _get(f"/{SIGMUND}/", HTTP_HOST="evil.example"),

@@ -11,8 +11,9 @@ because a crawler must fetch a page to read its `noindex`, and it stops
 `/robots.txt` from showing G1. The `admin/` include (the couple's dashboard,
 Story 3.1) goes there too.
 
-The error handlers are guests/views.py's (Story 1.8, FR-5, FR-6, AD-15), so no
-visitor ever sees one of Django's own pages: a 404 without a valid code is G1,
+The error handlers are guests/views.py's (Story 1.8, FR-5, FR-6, AD-15), so a
+400, 404, 500 or failed CSRF check never shows one of Django's own pages (there
+is no handler403; Story 3.1 decides it): a 404 without a valid code is G1,
 and a 404 or 500 under a valid link shows the couple's phones. A 400 is always
 impersonal. The CSRF failure page is set in config/settings.py.
 """
