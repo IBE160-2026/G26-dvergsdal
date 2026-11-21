@@ -80,3 +80,8 @@
 - [ ] 2026-11-21 [story-1-8-feilsider](968-2026-11-21-13-26-38-story-1-8-feilsider.md) — **epic 2:** en 400 fra et skjema under gyldig lenke viser ikke telefonnumrene (deferred-work.md)
 - [ ] 2026-11-21 [story-1-8-feilsider](968-2026-11-21-13-26-38-story-1-8-feilsider.md) — **story 3.1:** egne feilsider for `/admin/`, også 403 (deferred-work.md)
 - [ ] 2026-11-21 [story-1-8-feilsider](968-2026-11-21-13-26-38-story-1-8-feilsider.md) — **før lansering:** loggfilteret maskerer ikke lenkekoder i stier uten `/` foran (deferred-work.md)
+- [ ] 2026-11-21 [retrospektiv-epic-1](967-2026-11-21-13-45-51-retrospektiv-epic-1.md) — kjøre MT-1 (1.4b) i nettleser; raden i `docs/manual-test-plan.md` har verken dato eller resultat
+- [ ] 2026-11-21 [retrospektiv-epic-1](967-2026-11-21-13-45-51-retrospektiv-epic-1.md) — godkjenne at PRD-en avstemmes med det som ble bygd (FR-6, FR-7, FR-10, FR-60) og med kravet til story 1.5 i epics.md
+- [ ] 2026-11-21 [retrospektiv-epic-1](967-2026-11-21-13-45-51-retrospektiv-epic-1.md) — avgjøre om brukertesten kjøres på en offentlig adresse; i så fall må loggmaskeringen og produksjonsinnstillingene gjøres før den
+- [ ] 2026-11-21 [retrospektiv-epic-1](967-2026-11-21-13-45-51-retrospektiv-epic-1.md) — **Claude:** rydde i repoet: KI-restene i spec 1.3, `.gitignore` (`node_modules/` tilbake) og `wedding/fixtures/.gitkeep`
+- [ ] 2026-11-21 [retrospektiv-epic-1](967-2026-11-21-13-45-51-retrospektiv-epic-1.md) — **Claude, før epic 2:** mindre commits, Spec Change Log, triage-oppsummering som PR-kommentar, review-prompter som kjenner arbeidsflyten, og em-regelen for brytningspunkter i DESIGN.md
