@@ -77,3 +77,35 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
   summary: Before go-live: `MaskLinkCodes` only masks a path that starts with `/`, so a link code in a slash-less path inside a log record (such as Django's `Resolver404` text `{'path': '<code>/finnes-ikke/'}` in a chained traceback) is logged unmasked. Widen `_PATH` in `config/logging_filters.py`, or mask `Resolver404`'s `path`.
   evidence: low. Found while patching 1.8: the new `_reachable` warning chained the `Resolver404` on a 404 and leaked the code; fixed there with `__suppress_context__`. No other known log line carries a slash-less path.
+
+## From the Epic 1 retrospective (2026-11-21)
+
+Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the finding id in brackets points to the source there.
+
+- source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B1)
+  summary: Story 3.1 (before the login adds `?next=`) and before go-live: widen `_PATH` in `config/logging_filters.py` (or add a pass for bare 22-character link-code tokens) so a code is masked also when percent-encoded (`?next=%2F<code>%2F`), in brackets (`[/<code>/]`), after a colon (`path:/<code>/`) or without a slash (`code=<code>`). Add each shape to `tests/test_log_masking.py`. Extends the 1.8 «before go-live» entry above.
+  evidence: medium. Each shape was checked against `mask_link_codes` in the retrospective and passed through unmasked.
+
+- source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B6, B7)
+  summary: Story 2.1: decorate the guest read views (`front_page`, `info_page`) with `@require_safe`, so a POST to `/<code>/` gets 405 instead of «Skjemaet ble ikke sendt», and set `Cache-Control: private, no-store` on guest responses (with a test next to the `X-Robots-Tag` test) before the first page shows answer state.
+  evidence: low today (no answer state yet), medium once Epic 2 stores answers.
+
+- source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (R6, B9)
+  summary: Story 2.6d (extends the seed): `seed_testdata` overwrites the single real `Settings` row every run (`seed_testdata.py:80`), although its docstring promises to replace only its own test data. Write settings only while the row still holds the migration placeholders, or say plainly in the help and output that settings are replaced. Also test the «Fant ikke eller kunne ikke lese» path (missing and invalid `seed.toml`) and assert the role labels «(brudeparet)» / «(hjelper)» in the printout.
+  evidence: medium. Found by the edge-case and verification-gap lenses; the overwrite was confirmed in the code.
+
+- source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B5)
+  summary: Story 4.5 (settings page): `update_settings` accepts a phone with no digit («ring meg»), and `tel_number` then returns "", so the contact silently vanishes from every guest page. Refuse a non-empty phone without a digit. Decide this together with the price-0 entry above.
+  evidence: low. Only reachable once the couple can edit settings.
+
+- source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B8)
+  summary: The next story that touches `config/settings.py`: add a test that `whitenoise.runserver_nostatic` is in `INSTALLED_APPS` before `django.contrib.staticfiles`, as `test_noindex_middleware_comes_before_whitenoise` does for the middleware. Removing the line leaves all 666 tests green, and it is the exact bug MT-8 found in 1.4c.
+  evidence: medium. Mutation-tested in the retrospective.
+
+- source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B2, B3, B4)
+  summary: Hosting (no story yet): read `CSRF_TRUSTED_ORIGINS` and the proxy header from env (and list them in `.env.example`), run `manage.py check --deploy` in the production checks, and refuse to start in production while test data (`is_test_data`) exists or while the settings row still holds the migration placeholders (blank phones, price 0, deadline 2028-01-04). Without `CSRF_TRUSTED_ORIGINS` behind a TLS proxy, every RSVP POST lands on the friendly CSRF page.
+  evidence: medium. Joins the hosting entries above and the 2026-11-16 issues.md item on a stricter production guard.
+
+- source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (D1, D2, S2, S3, A2, A3)
+  summary: Code tidy-ups for the next story that touches each place: move the copied test helpers (`_row_counts`, `make_admin`, `_get`, `tel:` parsing) into `tests/helpers.py` or a fixture; split `tests/test_design_system.py` when Epic 2 adds form components; rename `_not_found` / `NOT_FOUND` in `guests/views.py`. In Story 3.1, add a test that every reserved first segment is in `NOT_LINK_CODES`, and a test that `guests` and `dashboard` never import each other.
+  evidence: low. Maintainability only.
