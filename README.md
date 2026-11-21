@@ -112,7 +112,7 @@ uv run manage.py collectstatic --noinput
 $env:DEBUG='false'; $env:ALLOWED_HOSTS='localhost'; uv run manage.py runserver
 ```
 
-I bash, zsh eller Git Bash er siste linje `DEBUG=false ALLOWED_HOSTS=localhost uv run manage.py runserver`. Med `ALLOWED_HOSTS=localhost` svarer serveren bare på `localhost`, ikke på `127.0.0.1`. I PowerShell gjelder variablene til vinduet lukkes; åpne et nytt vindu for å kjøre serveren vanlig igjen. Åpne så:
+I bash, zsh eller Git Bash er siste linje `DEBUG=false ALLOWED_HOSTS=localhost uv run manage.py runserver`. Med `ALLOWED_HOSTS=localhost` svarer serveren bare på `localhost`, ikke på `127.0.0.1`. I PowerShell gjelder variablene til de fjernes; for å kjøre serveren vanlig igjen etterpå, kjør `Remove-Item Env:DEBUG, Env:ALLOWED_HOSTS`. Åpne så:
 
 - <http://localhost:8000/hei/x/>: siden for ugyldige lenker, «Dette er en privat invitasjon», med status 404.
 - <http://localhost:8000/test-sigmund0000000000/finnes-ikke/>: «Vi finner ikke denne siden», med knappen «Tilbake til invitasjonen» og brudeparets telefonnumre nederst.
