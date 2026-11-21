@@ -1,0 +1,14 @@
+{% extends "guests/error_page.html" %}
+{% comment %}
+400 for a request Django cannot trust, such as a `Host` header that is not
+allowed (Story 1.8; FR-5, AD-15; DESIGN.md › No valid link).
+guests.views.bad_request renders it without a request and never looks up the
+code, so nothing calls `request.get_host` again and the page is always
+impersonal: no back button, no footer, no phones. The text lives here (AD-17).
+{% endcomment %}
+{% block title %}Siden kunne ikke vises – Invitasjon{% endblock title %}
+{% block heading %}Siden kunne ikke vises{% endblock heading %}
+{% block message %}
+    <p>Prøv å åpne lenken på nytt.</p>
+    <p>Går det fortsatt ikke, ta kontakt med brudeparet direkte.</p>
+{% endblock message %}

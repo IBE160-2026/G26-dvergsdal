@@ -1,0 +1,20 @@
+{% extends "guests/error_page.html" %}
+{% comment %}
+403 for a form that failed the CSRF check (Story 1.8; FR-5, FR-6, AD-15;
+DESIGN.md › No valid link): `CSRF_FAILURE_VIEW` is guests.views.csrf_failure.
+Under a valid code it has the back button and the footer band, and the last
+line points to the phones below; otherwise nothing personal. The text lives
+here (AD-17).
+{% endcomment %}
+{% block title %}Skjemaet ble ikke sendt – Invitasjon{% endblock title %}
+{% block heading %}Skjemaet ble ikke sendt{% endblock heading %}
+{% block message %}
+    <p>
+        Det skjer når siden har stått åpen lenge, eller når nettleseren ikke tar imot informasjonskapsler. Gå tilbake og prøv igjen.
+    </p>
+    {% if contacts %}
+        <p>Går det fortsatt ikke, send oss en melding.</p>
+    {% else %}
+        <p>Går det fortsatt ikke, ta kontakt med brudeparet direkte.</p>
+    {% endif %}
+{% endblock message %}

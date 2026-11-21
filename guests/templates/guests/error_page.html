@@ -1,0 +1,44 @@
+{% extends "wedding/base.html" %}
+{% load static %}
+{% comment %}
+The frame of G1 and the error pages (Story 1.4b, Story 1.8; FR-5, FR-6, AD-15,
+UX-DR5, UX-DR30; DESIGN.md › No valid link). One centred paper sheet with an
+italic heading, the small gypsophila (decoration, `alt=""`) and the page's
+message. No seal and no seal tab icon, because the seal carries the couple's
+initials; the empty `data:,` icon stops the browser from asking for
+/favicon.ico, which would otherwise redirect to /favicon.ico/ and fetch the
+page again. No nav bar. G1 (private_invitation.html) fills it for `/` and for
+a code that resolves to nobody. The error pages in guests/errors/ fill it for
+guests/views.py's site-wide handlers: page_not_found (404), csrf_failure
+(403), server_error (500) and bad_request (400). Only when the view found a
+valid code (`code`) does the page add the outlined back button to the
+invitation, and the footer band with the couple's phones when `contacts`
+holds one (FR-6); otherwise it shows nothing personal (FR-5). The 400 and 500
+pages are rendered without a request, so the link preview leaves out og:image
+and nothing calls `request.get_host`, which raises again on a bad Host header
+(AD-15). djLint skips the content block, and the back button and the footer
+sit behind their own `if` at the start of a line, so G1, which has neither,
+renders byte for byte as it did before it had a frame.
+{% endcomment %}
+{% block icons %}
+    <link rel="icon" href="data:,">
+{% endblock icons %}
+{# djlint:off #}
+{% block content %}
+    <main class="column private-invitation">
+        <div class="paper-sheet private-invitation__sheet">
+            <h1 class="private-invitation__heading">{% block heading %}{% endblock heading %}</h1>
+            <img src="{% static 'img/brudeslor.png' %}"
+                 alt=""
+                 width="180"
+                 height="40"
+                 class="private-invitation__flowers">
+            {% block message %}{% endblock message %}
+        </div>
+{% if code %}        <p class="error-page__back">
+            <a class="button button--on-green" href="{% url 'guests:front_page' code %}">Tilbake til invitasjonen</a>
+        </p>
+{% endif %}    </main>
+{% if contacts %}    {% include "wedding/components/footer-band.html" %}
+{% endif %}{% endblock content %}
+{# djlint:on #}

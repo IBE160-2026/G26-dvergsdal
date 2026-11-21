@@ -6,7 +6,7 @@ Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten
 
 Repoet inneholder applikasjonen og dokumentasjonen av utvikling, testing og kvalitetssikring med KI.
 
-> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Papirarket, papirstrukturen, Rikkes bilder og siden for ugyldige lenker er på plass (story 1.4b). Alle sider ber søkemotorer om ikke å vise dem (`noindex`), en delt lenke viser samme forhåndsvisning for alle gjester, og loggen skriver aldri lenkekoder (story 1.4c). En testlenke åpner invitasjonens forside med meny, toppfelt, «Alt om helgen», svarfelt og bunnfelt med telefonnumrene, og de tre infosidene (Programmet, Praktisk informasjon, Vår historie) finnes med ramme (story 1.5). Praktisk informasjon har «Hopp til»-lenker og ett papirark per del, med plassholdertekst til brudeparets egen tekst kommer i story 7.4, og Vår historie har brudeparets egen historie i ni kapitler med signatur (story 1.6). Programmet har «Hopp til»-lenker og ett papirark per dag med tidslinje, Rikkes ikoner og «Godt å vite», der prisene på måltidene hentes fra innstillingene; klokkeslettene er plassholdere til story 7.4 (story 1.7). `http://127.0.0.1:8000/` og ukjente lenker viser siden for ugyldige lenker, «Dette er en privat invitasjon».
+> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Papirarket, papirstrukturen, Rikkes bilder og siden for ugyldige lenker er på plass (story 1.4b). Alle sider ber søkemotorer om ikke å vise dem (`noindex`), en delt lenke viser samme forhåndsvisning for alle gjester, og loggen skriver aldri lenkekoder (story 1.4c). En testlenke åpner invitasjonens forside med meny, toppfelt, «Alt om helgen», svarfelt og bunnfelt med telefonnumrene, og de tre infosidene (Programmet, Praktisk informasjon, Vår historie) finnes med ramme (story 1.5). Praktisk informasjon har «Hopp til»-lenker og ett papirark per del, med plassholdertekst til brudeparets egen tekst kommer i story 7.4, og Vår historie har brudeparets egen historie i ni kapitler med signatur (story 1.6). Programmet har «Hopp til»-lenker og ett papirark per dag med tidslinje, Rikkes ikoner og «Godt å vite», der prisene på måltidene hentes fra innstillingene; klokkeslettene er plassholdere til story 7.4 (story 1.7). `http://127.0.0.1:8000/` og ukjente lenker viser siden for ugyldige lenker, «Dette er en privat invitasjon». Andre feil viser en rolig feilside i samme stil i stedet for Djangos egne sider, og under en gyldig lenke har feilsiden en knapp tilbake til invitasjonen og brudeparets telefonnumre (story 1.8, se [Feilsider](#feilsider)).
 
 ## Forutsetninger
 
@@ -61,7 +61,7 @@ Alle personene er oppdiktet, bortsett fra Rikke og Valdemar: e-postene er på `e
 | Mona | Mona og Geir | <http://127.0.0.1:8000/test-mona0000000000000/> |
 | Geir | Mona og Geir | <http://127.0.0.1:8000/test-geir0000000000000/> |
 
-Åpne lenkene mens `uv run manage.py runserver` kjører. Hver lenke åpner invitasjonen til husstanden sin, for eksempel «for Sigmund og bestemor»; menyen øverst går til de tre infosidene. `/` og en ukjent lenke viser siden for ugyldige lenker.
+Åpne lenkene mens `uv run manage.py runserver` kjører. Hver lenke åpner invitasjonen til husstanden sin, for eksempel «for Sigmund og bestemor»; menyen øverst går til de tre infosidene. `/` og en ukjent lenke viser siden for ugyldige lenker. Andre gale adresser viser også siden for ugyldige lenker, eller, når adressen begynner med en gyldig lenke, en feilside med brudeparets telefonnumre (se [Feilsider](#feilsider)).
 
 Terminalen der serveren kjører, viser `/[code]/` i stedet for lenkekoden, for eksempel `"GET /[code]/ HTTP/1.1" 200` for en testlenke og `"GET /[code]/ HTTP/1.1" 404` og `Not Found: /[code]/` for en ukjent lenke. En lenkekode er gjestens eneste innlogging, så den skal ikke havne i en logg (story 1.4c).
 
@@ -101,6 +101,23 @@ uv run djlint --reformat .
 Ruff sjekker og formaterer Python-koden, djLint sjekker Django-malene.
 
 Sjekker som ikke kan automatiseres, for eksempel hvordan sidene ser ut på en smal mobilskjerm, står i [docs/manual-test-plan.md](docs/manual-test-plan.md).
+
+## Feilsider
+
+Feilsidene vises bare når `DEBUG` er av; med `DEBUG` på (standard lokalt) viser Django sine egne feilsøkingssider. Med `DEBUG=false` serveres stilarket og bildene fra `staticfiles/`, så kjør `collectstatic` først. I PowerShell:
+
+```powershell
+uv run manage.py seed_testdata
+uv run manage.py collectstatic --noinput
+$env:DEBUG='false'; $env:ALLOWED_HOSTS='localhost'; uv run manage.py runserver
+```
+
+I bash, zsh eller Git Bash er siste linje `DEBUG=false ALLOWED_HOSTS=localhost uv run manage.py runserver`. Med `ALLOWED_HOSTS=localhost` svarer serveren bare på `localhost`, ikke på `127.0.0.1`. I PowerShell gjelder variablene til de fjernes; for å kjøre serveren vanlig igjen etterpå, kjør `Remove-Item Env:DEBUG, Env:ALLOWED_HOSTS`. Åpne så:
+
+- <http://localhost:8000/hei/x/>: siden for ugyldige lenker, «Dette er en privat invitasjon», med status 404.
+- <http://localhost:8000/test-sigmund0000000000/finnes-ikke/>: «Vi finner ikke denne siden», med knappen «Tilbake til invitasjonen» og brudeparets telefonnumre nederst.
+
+`staticfiles/` holdes ute av git. Feilsidene for 500 (noe gikk galt hos oss), 400 (for eksempel en adresse serveren ikke svarer på) og et skjema som ble avvist av CSRF-sjekken dekkes av de automatiske testene i [tests/test_error_pages.py](tests/test_error_pages.py), og alle feilsidene sjekkes i en nettleser i MT-22 i [docs/manual-test-plan.md](docs/manual-test-plan.md).
 
 ## Stilprøve
 
@@ -148,6 +165,7 @@ uv run --env-file .env manage.py runserver
 │   ├── templates/wedding/    Grunnmalen (base.html), felles deler som varselet, lenkeforhåndsvisningen og bunnfeltet, og robots.txt
 │   └── migrations/           Databasemigrasjoner
 ├── guests/                   Gjestesidene: forsiden og infosidene under /<kode>/, siden for ugyldige lenker og stilprøven /stil/
+│   └── templates/guests/errors/  Feilsidene for 404, 500, 400 og CSRF, med rammen error_page.html ved siden av (story 1.8)
 ├── dashboard/                Sidene for brudeparet og hjelperne under /admin/
 ├── static/                   CSS, JavaScript, fonter og bilder, alt fra egen server
 │   ├── css/site.css          Stilarket: alle fargene, avstandene og skriftstørrelsene fra DESIGN.md

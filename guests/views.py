@@ -4,15 +4,26 @@ The invitation's front page under `/<code>/` and its three info pages (Story
 1.5, FR-2, FR-7, FR-8, FR-11; their content in Story 1.6 and, for Programmet
 with the meal prices from the settings, Story 1.7, FR-9), the
 private-invitation page G1 for the bare address and for every code that
-resolves to nobody (Story 1.4b, FR-5), and the local style sample (Story 1.4a).
+resolves to nobody (Story 1.4b, FR-5), the local style sample (Story 1.4a),
+and the site-wide error pages for 404, 500, 400 and a failed CSRF check
+(Story 1.8, FR-5, FR-6, AD-15).
 
 Every guest view only reads (FR-3): one resolver lookup, then selectors. None
 of them touches the session, the messages framework, `request.user` or a CSRF
-token, so opening a link sets no cookie and writes no row.
+token, so opening a link sets no cookie and writes no row. The error pages
+only read too.
 """
 
-from django.http import HttpRequest, HttpResponse
+import logging
+
+from django.http import (
+    HttpRequest,
+    HttpResponse,
+    HttpResponseBadRequest,
+    HttpResponseServerError,
+)
 from django.shortcuts import render
+from django.template.loader import render_to_string
 
 from wedding.actors import GuestActor
 from wedding.links import resolve_code
@@ -24,6 +35,8 @@ from wedding.selectors import (
     programme_prices,
     site_settings,
 )
+
+logger = logging.getLogger(__name__)
 
 # DESIGN.md colour tokens, in the frontmatter's order, for the swatches.
 COLOUR_TOKENS = (
@@ -144,3 +157,89 @@ def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
     if page == "programme":
         context["prices"] = programme_prices(settings)
     return render(request, INFO_PAGES[page], context)
+
+
+# Error pages (Story 1.8, FR-5, FR-6, AD-15)
+#
+# config/urls.py sets handler404, handler500 and handler400 to these views, and
+# CSRF_FAILURE_VIEW in config/settings.py points to csrf_failure, so a 400,
+# 404, 500 or failed CSRF check never shows one of Django's own pages. There is
+# no handler403: no guest view raises PermissionDenied. Under a valid link (the first path
+# segment resolves) an error page shows the back button to the invitation and
+# the footer band with the couple's phones; otherwise it shows nothing personal.
+
+NOT_FOUND = "guests/errors/not_found.html"
+SERVER_ERROR = "guests/errors/server_error.html"
+BAD_REQUEST = "guests/errors/bad_request.html"
+CSRF_FAILURE = "guests/errors/csrf_failure.html"
+
+
+def _reachable(request: HttpRequest) -> dict[str, object]:
+    """FR-5, FR-6, AD-15: the code and the couple's contacts when the path starts with a valid link.
+
+    The first segment of the path goes through the one resolver (AD-6): no query
+    when it is not in the code format, one when it is, and one more for the
+    settings row when it resolves. `{}` when it resolves to nobody.
+    """
+    segment = request.path_info.lstrip("/").split("/", 1)[0]
+    # The error page must never fail itself (FR-5): any error in the lookup, such
+    # as a broken database, gives the impersonal page. It is logged once here,
+    # since on a 404 or a CSRF failure nothing else would log it; the LOGGING
+    # handlers mask the link code (AD-15).
+    try:
+        actor = resolve_code(segment)
+        if actor is None:
+            return {}
+        return {"code": actor.guest.code, "contacts": footer_contacts(site_settings())}
+    except Exception as error:
+        # On a 404 the error is raised while Django handles its Resolver404, whose
+        # text holds the path without a leading slash, which the mask cannot
+        # find; it says nothing about the lookup, so it is left out of the log.
+        error.__suppress_context__ = True
+        logger.warning("Error page lookup failed for %s", request.path_info, exc_info=True)
+        return {}
+
+
+def page_not_found(request: HttpRequest, exception: Exception) -> HttpResponse:
+    """FR-5, FR-6, AD-15: handler404, for every address that is not a page.
+
+    Without a valid code it is G1 with 404, the same page as `/`, so an unknown
+    address tells nothing. Under a valid link it is «Vi finner ikke denne siden»
+    with the back button and the phones. The host is already checked by then, so
+    it renders with the request.
+    """
+    context = _reachable(request)
+    if not context:
+        return _not_found(request)
+    return render(request, NOT_FOUND, context, status=404)
+
+
+def csrf_failure(request: HttpRequest, reason: str = "") -> HttpResponse:
+    """FR-5, FR-6, AD-15: CSRF_FAILURE_VIEW, a form sent without a valid CSRF token.
+
+    «Skjemaet ble ikke sendt» with status 403; under a valid link with the back
+    button and the phones. The host is already checked, so it renders with the
+    request. `reason` is Django's technical cause and is never shown.
+    """
+    return render(request, CSRF_FAILURE, _reachable(request), status=403)
+
+
+def server_error(request: HttpRequest) -> HttpResponse:
+    """FR-5, FR-6, AD-15: handler500, «Noe gikk galt hos oss».
+
+    Rendered without the request, because a 500 can come from a middleware before
+    the host is checked: the link preview then leaves out og:image and nothing
+    calls `request.get_host`. Under a valid link it has the back button and the
+    phones; if the lookup fails as well, the impersonal page.
+    """
+    return HttpResponseServerError(render_to_string(SERVER_ERROR, _reachable(request)))
+
+
+def bad_request(request: HttpRequest, exception: Exception) -> HttpResponse:
+    """FR-5, AD-15: handler400, for a request Django cannot trust, such as a bad `Host`.
+
+    Always impersonal: the request itself is untrusted, so the code is never
+    looked up, and the page is rendered without the request, because
+    `request.get_host` would raise the same `DisallowedHost` again.
+    """
+    return HttpResponseBadRequest(render_to_string(BAD_REQUEST))

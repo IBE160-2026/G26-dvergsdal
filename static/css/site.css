@@ -475,7 +475,10 @@ a:active {
 /* ---------- No valid link: G1 (FR-5, UX-DR5, UX-DR30) ----------
  * One centred paper sheet 120px below the top (DESIGN.md › No valid link):
  * an italic heading in the card size, the small gypsophila and one line.
- * Markup: guests/templates/guests/private_invitation.html. */
+ * Markup: guests/templates/guests/error_page.html, the frame that G1
+ * (private_invitation.html) and the error pages (Story 1.8, FR-5, FR-6) share.
+ * Under a valid link an error page adds the back button (.error-page__back,
+ * with .info-page__bottom below) and the footer band. */
 
 .private-invitation {
   padding-top: 120px;
@@ -928,7 +931,8 @@ a:active {
   text-align: center;
 }
 
-.info-page__bottom {
+.info-page__bottom,
+.error-page__back {
   margin: 0;
   padding-top: 14px;
   text-align: center;
