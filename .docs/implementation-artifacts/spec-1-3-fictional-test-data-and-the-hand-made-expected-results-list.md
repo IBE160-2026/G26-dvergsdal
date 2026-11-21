@@ -133,5 +133,3 @@ A marker field instead of matching codes: matching `seed.toml` codes cannot tell
 - `uv run manage.py migrate && uv run manage.py seed_testdata && uv run manage.py seed_testdata` -- expected: same printout twice, exit 0
 - `uv run pytest` -- expected: all pass
 - `uv run ruff check && uv run ruff format --check && uv run djlint --check .` -- expected: exit 0
-</content>
-</invoke>

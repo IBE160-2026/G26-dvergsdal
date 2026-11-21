@@ -133,7 +133,7 @@ action_items:
     action: "Repo hygiene: remove </content></invoke> residue from spec 1.3, the stray
       fence in .gitignore (restore node_modules/), and wedding/fixtures/.gitkeep"
     owner: "Claude"
-    status: open
+    status: done
     ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
   - id: "epic-1-retro-item-4-widen-the-log-mask-for-percent-encoded-b"
     epic: 1
@@ -164,7 +164,7 @@ action_items:
       Spec Change Log on post-approval changes, post the triage summary as a PR comment,
       brief reviewers on the workflow, write the em-breakpoint rule into DESIGN.md"
     owner: "Claude"
-    status: open
+    status: done
     ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
   - id: "epic-1-retro-item-8-run-impeccable-critique-and-audit-on-the"
     epic: 1
