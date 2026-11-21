@@ -126,6 +126,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   - **Running total:** the server renders the total on every step. As an enhancement, `POST /<code>/svar/sum/` (and the same under the admin path) returns the total as a server-rendered HTML fragment for a script to swap in on change. It uses the same rule and writes nothing.
   - **Price change before sending:** the draft stores the total shown on the check page. If the recomputed total differs at send, nothing is written and the check page is shown again with a notice.
   - **Read more:** "Read more" inside a step is a `<details>` element.
+  - **Addresses:** *(Added 2026-11-21 in Story 2.1: step 1 is the base address `/<code>/svar/`, and the later steps are `/<code>/svar/<slug>/` with the slugs `dager`, `overnatting`, `maltider`, `allergier` and `fjelltur`, and the check page `se-over`. The registry (key, slug, name) is `wedding/rsvp/steps.py`, and the applicable steps come from `form_steps` in `wedding/rules/form_steps.py`. A `FormMount` carries the base path, the draft's cookie path and where «Tilbake» on step 1 goes, so the couple's mount (Story 4.4) builds its own addresses. Until Stories 2.2–2.5 fill them, the later steps and the check page are frames, so «Fortsett» always lands on a real address. «Bytt» is a `<details>` too, and its «Velg» posts the whole step with `action=switch`.)*
 
 ### AD-8: An unsent answer lives in a draft cookie and is never stored `[ADOPTED: UX open question 6]`
 
@@ -140,6 +141,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   - **Guest pages and sessions:** guest views never read or write `request.session` and never use the messages framework. A test asserts that the whole guest flow creates no session rows.
   - **Size:** the allergy note has a maximum length of 200 characters, and a test proves the draft for a household of 8 people with every field filled fits in 4 KB. A household larger than 8 is refused when the couple saves it. *(Changed 2026-11-16 after the epics review, A10/E17: without numbers the 4 KB test could not be written.)*
   - **No cookies:** a browser that blocks cookies also fails Django's CSRF check, and gets the friendly CSRF failure page (AD-15).
+  - **Format:** *(Added 2026-11-21 in Story 2.1: the cookie is `rsvp_draft`, signed with the salt `wedding.rsvp.draft`, and its JSON payload is `{"v": 1, "started", "rev", "resp", "att", "done"}` (format 1: when it started in UTC, the household revision, the respondent's guest id, each member's attendance by guest id and the completed step keys). Wrong types, another version, or a respondent, member or step key the household does not know make it broken. Its `max_age` is 90 days, only a backstop. It is first written on «Fortsett» or «Velg», never on a GET. The code is `wedding/rsvp/draft.py`. A CSRF failure on a step re-renders the step with what was posted and writes no draft (UX-DR52).)*
 
 ### AD-9: Two senders in one household never overwrite silently
 
@@ -167,7 +169,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Prevents:** two units disagreeing about whether the deadline has passed, and a story that wrongly locks consent withdrawal or payment reports.
 - **Rule:**
   - **Time:** `USE_TZ = True`, `TIME_ZONE = "Europe/Oslo"`. Times are stored in UTC and shown in Oslo time.
-  - **Deadline:** the deadline is stored as a date. One function in `rules/`, given `now`, decides whether a moment is after 23:59:59 Oslo time on that date. Tests cover both sides of it and a winter/summer time boundary.
+  - **Deadline:** the deadline is stored as a date. One function in `rules/`, given `now`, decides whether a moment is after 23:59:59 Oslo time on that date. Tests cover both sides of it and a winter/summer time boundary. *(Added 2026-11-21 in Story 2.1: the function is `is_past_deadline(deadline, now)` in `wedding/rules/deadline.py`. It is True from 00:00:00 Europe/Oslo the day after, and refuses a naive `now`. Every `/<code>/svar/` address checks it first, and after the deadline shows a closed page that writes nothing.)*
   - **What it locks:** only guest sends that change answer content. Consent withdrawal, "I have paid" reports and every couple service are never locked.
 
 ### AD-12: Money is whole kroner as integers
@@ -317,6 +319,8 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 *(Changed 2026-11-18 in Story 1.4a: `wedding/templates/wedding/` added. The guest pages, the couple's pages and the RSVP form in `wedding/rsvp/` all extend the same base template and use the same notice include, and `guests` and `dashboard` must not import each other, so the shared templates live with the shared app.)*
 
 *(Changed 2026-11-20 in Story 1.4b: `tools/` added. `tools/prepare_images.py` makes the images in `static/img/` from Rikke's files, so a replaced image is one command away and the result can be checked against the size budget (NFR-7). It runs with `uvx --with pillow==13.0.0`, so Pillow never becomes a dependency of the app, and it does not belong in `static/`, which is served to visitors.)*
+
+*(Changed 2026-11-21 in Story 2.1: the RSVP form's templates live in `wedding/rsvp/templates/rsvp/`. `wedding/rsvp/` is a package, not an app, so the folder is listed in `TEMPLATES["DIRS"]` in `config/settings.py`. The guest mount's views, the closed page after the deadline and the CSRF handler stay in `guests/`.)*
 
 Core entities. Names and relationships only; the code owns the fields. `Settings` is a single row with prices, deadline, contacts and payment details.
 

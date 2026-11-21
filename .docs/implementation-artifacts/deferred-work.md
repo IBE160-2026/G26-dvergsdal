@@ -73,6 +73,7 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
   summary: Epic 2 (the RSVP form): `handler400` treats every 400 as an untrusted host, so a form POST under a valid link that trips `RequestDataTooBig`, `TooManyFieldsSent` or a bad multipart body gets the impersonal 400 page with no back button and no phones. Decide there whether a 400 that is not `DisallowedHost` should use `_reachable`.
   evidence: medium. `guests.views.bad_request` never looks up the code; unreachable today because no guest view reads a request body (1.8 review, blind layer).
+  status: decided in Story 2.1: the 400 stays impersonal. The step forms are urlencoded with fewer than 20 fields, far below `DATA_UPLOAD_MAX_NUMBER_FIELDS` (1000) and `DATA_UPLOAD_MAX_MEMORY_SIZE` (2.5 MB), so only a forged request can trip `RequestDataTooBig` or `TooManyFieldsSent`, and that request is not owed a personal page.
 
 - source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
   summary: Before go-live: `MaskLinkCodes` only masks a path that starts with `/`, so a link code in a slash-less path inside a log record (such as Django's `Resolver404` text `{'path': '<code>/finnes-ikke/'}` in a chained traceback) is logged unmasked. Widen `_PATH` in `config/logging_filters.py`, or mask `Resolver404`'s `path`.
@@ -89,6 +90,7 @@ Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the findin
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B6, B7)
   summary: Story 2.1: decorate the guest read views (`front_page`, `info_page`) with `@require_safe`, so a POST to `/<code>/` gets 405 instead of «Skjemaet ble ikke sendt», and set `Cache-Control: private, no-store` on guest responses (with a test next to the `X-Robots-Tag` test) before the first page shows answer state.
   evidence: low today (no answer state yet), medium once Epic 2 stores answers.
+  status: done in Story 2.1 (`front_page` and `info_page` have `@require_safe` and `@never_cache`; the RSVP views, `csrf_failure`, `page_not_found` and `server_error` have `@never_cache`; `tests/test_guest_privacy.py` checks `Cache-Control` private/no-store and the 405).
 
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (R6, B9)
   summary: Story 2.6d (extends the seed): `seed_testdata` overwrites the single real `Settings` row every run (`seed_testdata.py:80`), although its docstring promises to replace only its own test data. Write settings only while the row still holds the migration placeholders, or say plainly in the help and output that settings are replaced. Also test the «Fant ikke eller kunne ikke lese» path (missing and invalid `seed.toml`) and assert the role labels «(brudeparet)» / «(hjelper)» in the printout.
@@ -101,6 +103,7 @@ Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the findin
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B8)
   summary: The next story that touches `config/settings.py`: add a test that `whitenoise.runserver_nostatic` is in `INSTALLED_APPS` before `django.contrib.staticfiles`, as `test_noindex_middleware_comes_before_whitenoise` does for the middleware. Removing the line leaves all 666 tests green, and it is the exact bug MT-8 found in 1.4c.
   evidence: medium. Mutation-tested in the retrospective.
+  status: done in Story 2.1 (`test_runserver_nostatic_comes_before_staticfiles` in `tests/test_guest_privacy.py`).
 
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B2, B3, B4)
   summary: Hosting (no story yet): read `CSRF_TRUSTED_ORIGINS` and the proxy header from env (and list them in `.env.example`), run `manage.py check --deploy` in the production checks, and refuse to start in production while test data (`is_test_data`) exists or while the settings row still holds the migration placeholders (blank phones, price 0, deadline 2028-01-04). Without `CSRF_TRUSTED_ORIGINS` behind a TLS proxy, every RSVP POST lands on the friendly CSRF page.
@@ -109,3 +112,10 @@ Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the findin
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (D1, D2, S2, S3, A2, A3)
   summary: Code tidy-ups for the next story that touches each place: move the copied test helpers (`_row_counts`, `make_admin`, `_get`, `tel:` parsing) into `tests/helpers.py` or a fixture; split `tests/test_design_system.py` when Epic 2 adds form components; rename `_not_found` / `NOT_FOUND` in `guests/views.py`. In Story 3.1, add a test that every reserved first segment is in `NOT_LINK_CODES`, and a test that `guests` and `dashboard` never import each other.
   evidence: low. Maintainability only.
+  status: partly done in Story 2.1: `_not_found` / `NOT_FOUND` are renamed `_unknown_link` / `PAGE_NOT_FOUND`, `_row_counts` is `row_counts()` in `tests/helpers.py`, and the form components have their own `tests/test_form_components.py`. Still open: `make_admin`, `_get` and the `tel:` parsing helpers, and the two Story 3.1 tests.
+
+## From Story 2.1 (2026-11-21)
+
+- source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
+  summary: Convert the three px breakpoints left in `static/css/site.css` (`max-width: 339.98px`, `299.98px` and `259.98px`, the Narrow widths section) to em, re-measured at the default text size and at 20px default text, in the Impeccable pass (Epic 1 retrospective action 8) or the next story that touches them. `tests/test_form_components.py` allows exactly these three; remove each from `PX_ALLOWED` as it is converted.
+  evidence: medium. DESIGN.md › Narrow widths (rule of 2026-11-21) says every layout breakpoint is in em; Stories 1.5 to 1.7 each found a px breakpoint that broke at 20px default text.
