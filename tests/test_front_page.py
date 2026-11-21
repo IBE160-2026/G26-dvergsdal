@@ -21,9 +21,9 @@ from django.contrib.sessions.models import Session
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
-from tests.helpers import FRONT_PAGE, page_text
+from tests.helpers import FRONT_PAGE, page_text, row_counts
 from wedding.links import new_code
-from wedding.models import Guest, Household, Settings, User
+from wedding.models import Guest, Household, Settings
 from wedding.rules.households import household_names
 
 SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
@@ -152,20 +152,13 @@ def test_without_a_digit_in_either_phone_there_is_no_footer(client, seeded):
     assert "tel:" not in html
 
 
-def _row_counts() -> dict[str, int]:
-    return {
-        model.__name__: model.objects.count()
-        for model in (Household, Guest, Settings, User, Session)
-    }
-
-
 @pytest.mark.parametrize(("path", "queries"), [("", 3), *((path, 2) for path in INFO_PATHS)])
 def test_opening_a_guest_page_never_writes(client, seeded, path, queries):
     """FR-2, FR-3 over HTTP: a GET of the front page runs three SELECTs (the
     resolver, the household's guest names, the settings row) and of an info page
     two, and nothing else: it creates and changes no row (household revisions
     included), sets no cookie and makes no session."""
-    before = _row_counts()
+    before = row_counts()
     revisions = list(Household.objects.values_list("id", "revision"))
     with CaptureQueriesContext(connection) as captured:
         response = client.get(f"/{SIGMUND}/{path}")
@@ -173,7 +166,7 @@ def test_opening_a_guest_page_never_writes(client, seeded, path, queries):
     sql = [query["sql"] for query in captured.captured_queries]
     assert len(sql) == queries
     assert all(statement.lstrip().upper().startswith("SELECT") for statement in sql)
-    assert _row_counts() == before
+    assert row_counts() == before
     assert list(Household.objects.values_list("id", "revision")) == revisions
     assert not response.cookies
     assert "Set-Cookie" not in response
@@ -279,7 +272,7 @@ def test_les_mer_links_have_their_pages_and_accessible_names(client, seeded):
 
 def test_rsvp_sheet_is_the_jump_target(client, seeded):
     """FR-41, UX-DR7: the RSVP sheet is `#svar`, focusable by a link only and
-    labelled by its heading; no RSVP button or `/svar/` link before Story 2.1."""
+    labelled by its heading."""
     html = _page(client, SIGMUND)
     rsvp = html[html.index('<section class="paper-sheet rsvp"') : html.index("</main>")]
     assert re.search(
@@ -290,7 +283,19 @@ def test_rsvp_sheet_is_the_jump_target(client, seeded):
     assert '<h2 id="svar-heading">Svar på invitasjonen</h2>' in rsvp
     assert "Barnefritt bryllup" in rsvp
     assert re.search(r'<img[^>]*brudeslor\.png[^>]*width="180"', rsvp)
-    assert "/svar/" not in html
+
+
+@pytest.mark.parametrize("code", [SIGMUND, SYNNE, ARILD])
+def test_rsvp_sheet_links_to_the_form(client, seeded, code):
+    """FR-12, FR-14, UX-DR7 (Story 2.1): every household's RSVP sheet ends with the
+    primary link «Svar på invitasjonen» to its own `/<code>/svar/`, after the
+    deadline line. It is a link, not a button: opening the form posts nothing."""
+    html = _page(client, code)
+    rsvp = html[html.index('<section class="paper-sheet rsvp"') : html.index("</main>")]
+    link = f'<a class="button" href="/{code}/svar/">Svar på invitasjonen</a>'
+    assert link in rsvp
+    assert rsvp.index('class="rsvp__deadline"') < rsvp.index(link)
+    assert html.count("/svar/") == 1
     assert "<button" not in html
 
 

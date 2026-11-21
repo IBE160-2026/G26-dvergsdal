@@ -6,17 +6,23 @@ with the meal prices from the settings, Story 1.7, FR-9), the
 private-invitation page G1 for the bare address and for every code that
 resolves to nobody (Story 1.4b, FR-5), the local style sample (Story 1.4a),
 and the site-wide error pages for 404, 500, 400 and a failed CSRF check
-(Story 1.8, FR-5, FR-6, AD-15).
+(Story 1.8, FR-5, FR-6, AD-15), and the RSVP form under `/<code>/svar/`
+(Story 2.1, FR-12 to FR-14, FR-22, FR-41, AD-7, AD-8, AD-11).
 
 Every guest view only reads (FR-3): one resolver lookup, then selectors. None
-of them touches the session, the messages framework, `request.user` or a CSRF
-token, so opening a link sets no cookie and writes no row. The error pages
-only read too.
+of them touches the session, the messages framework or `request.user`, and
+the read views (front page, info pages) use no CSRF token, so opening a link
+sets no cookie and writes no row. The RSVP form keeps the answer in the draft
+cookie only (AD-8) and writes no row either. The error pages only read too.
+Guest responses say `Cache-Control: private, no-store` (`never_cache`), so no
+shared or back-forward cache keeps a household's page (AD-15), and the read
+views answer only GET and HEAD.
 """
 
 import logging
 
 from django.http import (
+    Http404,
     HttpRequest,
     HttpResponse,
     HttpResponseBadRequest,
@@ -24,14 +30,23 @@ from django.http import (
 )
 from django.shortcuts import render
 from django.template.loader import render_to_string
+from django.urls import Resolver404, resolve, reverse
+from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.debug import sensitive_post_parameters
+from django.views.decorators.http import require_http_methods, require_safe
 
 from wedding.actors import GuestActor
 from wedding.links import resolve_code
 from wedding.models import Settings
+from wedding.rsvp.steps import KEY_BY_SLUG, FormMount
+from wedding.rsvp.views import handle_step, render_after_csrf_failure
+from wedding.rules.deadline import is_past_deadline
 from wedding.rules.households import household_names, speaks_to_one
 from wedding.selectors import (
     footer_contacts,
     household_guest_names,
+    household_members,
     programme_prices,
     site_settings,
 )
@@ -84,7 +99,7 @@ def private_invitation(request: HttpRequest) -> HttpResponse:
     return render(request, PRIVATE_INVITATION)
 
 
-def _not_found(request: HttpRequest) -> HttpResponse:
+def _unknown_link(request: HttpRequest) -> HttpResponse:
     """FR-5: G1 with status 404 for a code that resolves to nobody.
 
     The visitor sees the same page as on `/`; the 404 tells crawlers and link
@@ -109,17 +124,20 @@ def _guest_context(actor: GuestActor, settings: Settings, current: str = "") -> 
     }
 
 
+@never_cache
+@require_safe
 def front_page(request: HttpRequest, code: str) -> HttpResponse:
     """FR-2, FR-3, FR-5, FR-6, FR-7, FR-8, FR-41, UX-DR51: the invitation's front page (G2).
 
     The code goes through the one resolver (AD-6); nobody gets G1 with 404.
     Three SELECTs in all: the resolver, the household's guest names and the
     settings row. The household line and «deg»/«dere» come from the rules; the
-    wedding's date and place are template text (AD-17).
+    wedding's date and place are template text (AD-17). The RSVP sheet links to
+    the form (Story 2.1). Only GET and HEAD, never cached (AD-15).
     """
     actor = resolve_code(code)
     if actor is None:
-        return _not_found(request)
+        return _unknown_link(request)
     names = household_guest_names(actor.household)
     context = _guest_context(actor, site_settings()) | {
         "household_names": household_names(names),
@@ -139,6 +157,8 @@ INFO_PAGES = {
 }
 
 
+@never_cache
+@require_safe
 def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
     """FR-3, FR-5, FR-6, FR-8, FR-9, FR-11: one of the three info pages (G3) under `/<code>/`.
 
@@ -147,16 +167,77 @@ def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
     is template text (AD-17): Praktisk informasjon (FR-10) and Vår historie
     (UX-DR14) since Story 1.6, Programmet (UX-DR13) since Story 1.7. The
     programme also gets the three meal prices from the same settings row
-    (FR-32, AD-12), so «Godt å vite» never holds a price of its own.
+    (FR-32, AD-12), so «Godt å vite» never holds a price of its own. Only GET
+    and HEAD, never cached (AD-15).
     """
     actor = resolve_code(code)
     if actor is None:
-        return _not_found(request)
+        return _unknown_link(request)
     settings = site_settings()
     context = _guest_context(actor, settings, current=page)
     if page == "programme":
         context["prices"] = programme_prices(settings)
     return render(request, INFO_PAGES[page], context)
+
+
+# The RSVP form (Story 2.1, AD-7, AD-8, AD-11)
+#
+# The guest mount of the one form in wedding/rsvp/. The views resolve the code,
+# read the settings, check the deadline and load the members, then hand the
+# step to wedding.rsvp.views: three SELECTs per request while the form is open.
+# After the deadline every address shows the closed page instead.
+
+RSVP_CLOSED = "guests/rsvp_closed.html"
+
+
+def _guest_mount(code: str) -> FormMount:
+    """AD-7, AD-8: the form under `/<code>/svar/`, its draft cookie scoped to `/<code>/`."""
+    front = reverse("guests:front_page", args=[code])
+    return FormMount(
+        base_path=reverse("guests:rsvp", args=[code]), cookie_path=front, exit_url=f"{front}#svar"
+    )
+
+
+def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
+    """FR-5, FR-41, AD-6, AD-11: the checks every RSVP address shares, then the step.
+
+    An unknown code gives G1 with 404 after the one resolver query; an unknown
+    step slug (`step` None) gives «Vi finner ikke denne siden». After the
+    deadline, GET and POST alike show the closed page and write nothing.
+    """
+    actor = resolve_code(code)
+    if actor is None:
+        return _unknown_link(request)
+    if step is None:
+        raise Http404
+    settings = site_settings()
+    context = _guest_context(actor, settings)
+    if is_past_deadline(settings.rsvp_deadline, timezone.now()):
+        return render(request, RSVP_CLOSED, context)
+    return handle_step(
+        request,
+        actor=actor,
+        mount=_guest_mount(actor.guest.code),
+        members=household_members(actor.household),
+        step=step,
+        page_context=context,
+    )
+
+
+@never_cache
+@sensitive_post_parameters()
+@require_http_methods(["GET", "HEAD", "POST"])
+def rsvp(request: HttpRequest, code: str) -> HttpResponse:
+    """FR-12, FR-13, FR-14, FR-22, AD-7, AD-8: step 1 of the RSVP form, «Hvem kommer?»."""
+    return _rsvp(request, code, "who")
+
+
+@never_cache
+@sensitive_post_parameters()
+@require_http_methods(["GET", "HEAD", "POST"])
+def rsvp_step(request: HttpRequest, code: str, slug: str) -> HttpResponse:
+    """AD-7: a later step or the check page of the RSVP form, by its slug (frames until 2.5)."""
+    return _rsvp(request, code, KEY_BY_SLUG.get(slug))
 
 
 # Error pages (Story 1.8, FR-5, FR-6, AD-15)
@@ -168,7 +249,7 @@ def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
 # segment resolves) an error page shows the back button to the invitation and
 # the footer band with the couple's phones; otherwise it shows nothing personal.
 
-NOT_FOUND = "guests/errors/not_found.html"
+PAGE_NOT_FOUND = "guests/errors/not_found.html"
 SERVER_ERROR = "guests/errors/server_error.html"
 BAD_REQUEST = "guests/errors/bad_request.html"
 CSRF_FAILURE = "guests/errors/csrf_failure.html"
@@ -200,6 +281,7 @@ def _reachable(request: HttpRequest) -> dict[str, object]:
         return {}
 
 
+@never_cache
 def page_not_found(request: HttpRequest, exception: Exception) -> HttpResponse:
     """FR-5, FR-6, AD-15: handler404, for every address that is not a page.
 
@@ -210,20 +292,66 @@ def page_not_found(request: HttpRequest, exception: Exception) -> HttpResponse:
     """
     context = _reachable(request)
     if not context:
-        return _not_found(request)
-    return render(request, NOT_FOUND, context, status=404)
+        return _unknown_link(request)
+    return render(request, PAGE_NOT_FOUND, context, status=404)
 
 
-def csrf_failure(request: HttpRequest, reason: str = "") -> HttpResponse:
-    """FR-5, FR-6, AD-15: CSRF_FAILURE_VIEW, a form sent without a valid CSRF token.
+def _rsvp_after_csrf_failure(request: HttpRequest) -> HttpResponse | None:
+    """UX-DR52, AD-7: an RSVP step posted without a valid token, shown again; else None.
 
-    «Skjemaet ble ikke sendt» with status 403; under a valid link with the back
-    button and the phones. The host is already checked, so it renders with the
-    request. `reason` is Django's technical cause and is never shown.
+    Only for a POST to `guests:rsvp` or `guests:rsvp_step` whose code resolves
+    while the form is open. The step is re-rendered with what was posted, a
+    focused notice and status 403; no draft is written.
     """
+    if request.method != "POST":
+        return None
+    try:
+        match = resolve(request.path_info)
+    except Resolver404:
+        return None
+    if match.namespace != "guests" or match.url_name not in ("rsvp", "rsvp_step"):
+        return None
+    step = KEY_BY_SLUG.get(match.kwargs["slug"]) if "slug" in match.kwargs else "who"
+    actor = resolve_code(match.kwargs["code"])
+    if actor is None or step is None:
+        return None
+    settings = site_settings()
+    if is_past_deadline(settings.rsvp_deadline, timezone.now()):
+        return None
+    return render_after_csrf_failure(
+        request,
+        actor=actor,
+        mount=_guest_mount(actor.guest.code),
+        members=household_members(actor.household),
+        step=step,
+        page_context=_guest_context(actor, settings),
+    )
+
+
+@never_cache
+def csrf_failure(request: HttpRequest, reason: str = "") -> HttpResponse:
+    """FR-5, FR-6, AD-15, UX-DR52: CSRF_FAILURE_VIEW, a form sent without a valid CSRF token.
+
+    A step of the RSVP form is shown again with what the guest chose and a
+    notice to try again (Story 2.1). Anything else gets «Skjemaet ble ikke
+    sendt» with status 403; under a valid link with the back button and the
+    phones. The host is already checked, so it renders with the request.
+    `reason` is Django's technical cause and is never shown.
+    """
+    # The friendly page must never fail itself (FR-5): any error in the step's
+    # re-render falls back to the generic page. It is logged once; the LOGGING
+    # handlers mask the link code (AD-15).
+    try:
+        response = _rsvp_after_csrf_failure(request)
+    except Exception:
+        logger.warning("RSVP re-render after a CSRF failure failed", exc_info=True)
+        response = None
+    if response is not None:
+        return response
     return render(request, CSRF_FAILURE, _reachable(request), status=403)
 
 
+@never_cache
 def server_error(request: HttpRequest) -> HttpResponse:
     """FR-5, FR-6, AD-15: handler500, «Noe gikk galt hos oss».
 

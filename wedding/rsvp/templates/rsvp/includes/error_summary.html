@@ -1,0 +1,26 @@
+{% comment %}
+The error summary (Story 2.1; FR-22, UX-DR16; DESIGN.md › Error summary,
+EXPERIENCE.md › Error summary): an error notice at the top of the step's sheet
+with a heading and one link per error, each to the first radio of that
+member's group. It takes focus on load through `tabindex="-1"` and
+`autofocus`, without a script, and is gone once the errors are fixed. The
+page title starts with «Feil: » (step.html).
+{% endcomment %}
+<div class="notice notice--error error-summary"
+     tabindex="-1"
+     autofocus
+     role="group"
+     aria-labelledby="error-summary-heading">
+    {% include "wedding/components/state-icon.html" with variant="error" class="notice__icon" only %}
+    <div>
+        <h2 class="error-summary__heading"
+            id="error-summary-heading">For å gå videre må du rette opp følgende feil.</h2>
+        <ul class="error-summary__list">
+            {% for error in errors %}
+                <li>
+                    <a href="#{{ error.target }}">{{ error.text }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
