@@ -8,7 +8,9 @@ test_rsvp_who_is_coming.py.
 """
 
 import base64
+import time
 import zlib
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from django.core import signing
@@ -121,6 +123,9 @@ BROKEN = {
     "v true": lambda: _signed(_payload(v=True)),
     "missing key": lambda: _signed({k: v for k, v in _payload().items() if k != "rev"}),
     "naive started": lambda: _signed(_payload(started="2026-11-21T10:00:00")),
+    "started in the future": lambda: _signed(
+        _payload(started=(datetime.now(UTC) + timedelta(minutes=2)).isoformat())
+    ),
     "started not a time": lambda: _signed(_payload(started="i går")),
     "rev a string": lambda: _signed(_payload(rev="0")),
     "negative rev": lambda: _signed(_payload(rev=-1)),
@@ -182,3 +187,25 @@ def test_a_valid_draft_is_read_back(client, seeded):
         f"attendance_{bestemor}": "no",
         "respondent": str(sigmund),
     }
+
+
+def test_a_draft_older_than_90_days_is_broken(client, seeded, monkeypatch):
+    """AD-8: the server checks the signature's age too, not only the browser's
+    `max_age`: a draft signed 91 days ago is deleted and the form starts empty."""
+    signed_at = time.time() - 91 * 24 * 60 * 60
+    payload = _payload()
+    with monkeypatch.context() as patch:
+        patch.setattr(signing.time, "time", lambda: signed_at)
+        client.cookies[COOKIE_NAME] = _signed(payload)
+    response = client.get(STEP_1)
+    assert response.status_code == 200
+    assert response.cookies[COOKIE_NAME]["max-age"] == 0
+    assert checked_radios(response.content.decode()) == {"respondent": str(_ids(SIGMUND)[0])}
+
+
+def test_a_start_time_within_a_minute_ahead_is_accepted(client, seeded):
+    """AD-8: a minute of clock skew is allowed for `started`."""
+    started = (datetime.now(UTC) + timedelta(seconds=30)).isoformat()
+    client.cookies[COOKIE_NAME] = _signed(_payload(started=started))
+    response = client.get(STEP_1)
+    assert COOKIE_NAME not in response.cookies

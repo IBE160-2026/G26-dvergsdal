@@ -7,9 +7,11 @@ mount's cookie path (`/<code>/` for guests), `HttpOnly`, `SameSite=Lax` and
 decides with the deadline rule whether the form is open. The draft is written
 first on «Fortsett» or «Velg», never on a GET.
 
-A cookie that cannot be trusted is broken: a bad signature, a payload that is
-not zlib or not JSON, another format version, wrong types, a respondent or an
-attendance key that is not a member of the household, or an unknown step key.
+A cookie that cannot be trusted is broken: a bad signature, a signature older
+than 90 days (the server checks the age too), a payload that is not zlib or
+not JSON, another format version, wrong types, a start time in the future, a
+respondent or an attendance key that is not a member of the household, or an
+unknown step key.
 A broken draft is deleted and the form starts empty, never with a server
 error. (Story 2.9 will drop changed members instead of deleting.)
 """
@@ -21,6 +23,7 @@ from datetime import UTC, datetime, timedelta
 from django.conf import settings
 from django.core import signing
 from django.http import HttpRequest, HttpResponse
+from django.utils import timezone
 
 from wedding.rsvp.steps import FormMount
 from wedding.rules.form_steps import STEP_KEYS
@@ -29,6 +32,8 @@ COOKIE_NAME = "rsvp_draft"
 SALT = "wedding.rsvp.draft"
 VERSION = 1
 MAX_AGE = timedelta(days=90)
+# A draft that says it started later than this after now is not ours.
+FUTURE_SKEW = timedelta(seconds=60)
 
 
 @dataclass
@@ -71,11 +76,15 @@ def _is_int(value: object) -> bool:
     return type(value) is int
 
 
-def _is_aware_time(value: object) -> bool:
+def _is_start_time(value: object) -> bool:
+    """AD-8: an aware ISO time that is not in the future (a minute of clock skew allowed)."""
     try:
-        return isinstance(value, str) and datetime.fromisoformat(value).tzinfo is not None
+        started = datetime.fromisoformat(value) if isinstance(value, str) else None
     except ValueError:
         return False
+    if started is None or started.tzinfo is None:
+        return False
+    return started <= timezone.now() + FUTURE_SKEW
 
 
 def _attendance(att: object, member_ids: set[int]) -> dict[int, bool] | None:
@@ -100,7 +109,7 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
     attendance = _attendance(att, member_ids)
     if (
         not (_is_int(version) and version == VERSION)
-        or not _is_aware_time(started)
+        or not _is_start_time(started)
         or not (_is_int(rev) and rev >= 0)
         or not (_is_int(resp) and resp in member_ids)
         or attendance is None
@@ -119,7 +128,7 @@ def read_draft(request: HttpRequest, member_ids: set[int]) -> tuple[Draft | None
     if value is None:
         return None, False
     try:
-        payload = signing.loads(value, salt=SALT)
+        payload = signing.loads(value, salt=SALT, max_age=MAX_AGE)
     except signing.BadSignature, zlib.error, ValueError, TypeError:
         return None, True
     draft = _parse(payload, member_ids)
