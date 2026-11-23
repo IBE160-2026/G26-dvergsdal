@@ -378,7 +378,8 @@ def test_skipped_answers_read_ikke_oppgitt_and_fr_28_warns(client, seeded):
     _sigmund_to_check(client)
     html = client.get(_url(SIGMUND, "se-over")).content.decode()
     allergies = _blocks(html)[4]
-    assert '<p class="check-list__missing">Merknad om bestemor: Ikke oppgitt</p>' in allergies
+    # The note is optional: an empty note gets no line (2026-11-24).
+    assert "Merknad om bestemor" not in allergies
     assert '<p class="check-list__missing">Samtykke for bestemor: Ikke oppgitt</p>' in allergies
     assert '<p class="check-list__missing">Sigmund: Ikke oppgitt</p>' in allergies
     assert (
@@ -426,6 +427,58 @@ def test_consent_and_confirmation_lines(client, seeded):
     assert "Du har bekreftet at bestemor vet om det og er enig." in text
     assert "Du har bekreftet at Sigmund" not in text
     assert "Obs: Allergiopplysningene om Sigmund blir ikke lagret" in text
+
+
+def test_a_note_without_a_category(client, seeded):
+    """FR-21, FR-25: a note alone is information: «Merknad om …» and the consent line."""
+    sigmund, bestemor = _sigmund_to_hike(client, bestemor_lactose=False)
+    client.post(
+        f"{_url(SIGMUND, 'allergier')}{FROM}",
+        {f"note_{bestemor}": "Tåler ikke koriander", f"consent_{bestemor}": "no"},
+    )
+    client.post(_url(SIGMUND, "fjelltur"), {f"hike_{sigmund}": "yes", f"hike_{bestemor}": "no"})
+    allergies = page_text(_blocks(client.get(_url(SIGMUND, "se-over")).content.decode())[4])
+    assert "Merknad om bestemor: Tåler ikke koriander" in allergies
+    assert "Samtykke for bestemor: nei" in allergies
+
+
+def test_a_gate_redirect_keeps_fra(client, seeded):
+    """UX-DR23, AD-7: «Endre» to a step whose earlier step is unfinished keeps `fra`
+    on the gate redirect."""
+    _sigmund_to_check(client)
+    client.post(_url(SIGMUND, "dager"), {"whole": "no"})
+    response = client.get(f"{_url(SIGMUND, 'fjelltur')}{FROM}")
+    assert response["Location"] == f"{_url(SIGMUND, 'dager')}{FROM}"
+
+
+def test_another_fra_value_is_ignored(client, seeded):
+    """UX-DR23: only `fra=se-over` counts; Tilbake goes to the step before."""
+    _sigmund_to_check(client)
+    html = client.get(f"{_url(SIGMUND, 'maltider')}?fra=noe-annet").content.decode()
+    assert f'href="{_url(SIGMUND, "overnatting")}">Tilbake</a>' in html
+
+
+def test_keep_from_puts_the_fragment_last(rf):
+    """UX-DR23: `_keep_from` with a query and a fragment keeps `#` last."""
+    from wedding.rsvp.views import _keep_from
+
+    request = rf.get("/x/svar/dager/?fra=se-over")
+    assert _keep_from(request, "/x/svar/dager/#velg-dager", "feil=1") == (
+        "/x/svar/dager/?feil=1&fra=se-over#velg-dager"
+    )
+
+
+def test_summary_imports_first_in_a_fresh_interpreter():
+    """No circular import: `wedding.rsvp.summary` loads before `forms`."""
+    import subprocess
+    import sys
+
+    code = (
+        "import django, os; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings');"
+        " django.setup(); import wedding.rsvp.summary"
+    )
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr
 
 
 def test_days_lines_for_mixed_days(client, seeded):

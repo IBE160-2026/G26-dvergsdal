@@ -27,7 +27,7 @@ its texts are avgjort av Claude 2026-11-23 (EXPERIENCE.md, Microcopy).
 from django import forms
 
 from wedding.rsvp.steps import ALLERGIES, DAYS, HIKE, MEALS
-from wedding.rsvp.summary import join_words
+from wedding.rsvp.text import join_words
 from wedding.rules.allergies import NOTE_MAX, AllergyEntry, clean_note
 from wedding.rules.days import DAY_KEYS, GAP, NO_DAY
 from wedding.templatetags.money import kroner

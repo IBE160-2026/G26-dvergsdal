@@ -77,7 +77,13 @@ from wedding.rules.allergies import (
     not_saved,
 )
 from wedding.rules.answer import Answer, normalise_answer, present_days
-from wedding.rules.days import can_stay_overnight, day_error, offered_meals
+from wedding.rules.days import (
+    HIKE_ANSWERS,
+    can_stay_overnight,
+    day_error,
+    joins_hike,
+    offered_meals,
+)
 from wedding.rules.form_steps import (
     first_unfinished,
     form_steps,
@@ -190,7 +196,11 @@ def _allergy_problems(draft: Draft, guest_id: int) -> tuple[str, ...]:
 def _hiking(draft: Draft, members: Members) -> Members:
     """FR-17: the coming members present on Friday as (id, name), in household order."""
     present = present_days(_answer(draft, members))
-    return [(guest_id, name) for guest_id, name in members if "fri" in present.get(guest_id, ())]
+    return [
+        (guest_id, name)
+        for guest_id, name in members
+        if guest_id in present and joins_hike(present[guest_id])
+    ]
 
 
 def _settled(draft: Draft, members: Members) -> Draft:
@@ -251,6 +261,12 @@ def _keep_from(request: HttpRequest, url: str, query: str = "") -> str:
     if parts := [part for part in (query, back) if part]:
         path = f"{path}?{'&'.join(parts)}"
     return f"{path}{hash_mark}{fragment}"
+
+
+def _gate_url(request: HttpRequest, mount: FormMount, key: str | None) -> str:
+    """AD-7, UX-DR23: a gate redirect to step `key`, keeping `fra`; the check page never gets it."""
+    url = mount.url(key)
+    return url if key is None else _keep_from(request, url)
 
 
 def _error_url(request: HttpRequest, url: str) -> str:
@@ -923,7 +939,9 @@ def _hike_fields(
             {"name": name, "field": field, "value": hike.get(guest_id, ""), "error": error}
         )
         if error:
-            errors.append({"target": f"{field}_{YES}", "text": HikeForm.summary_text(name)})
+            errors.append(
+                {"target": f"{field}_{HIKE_ANSWERS[0]}", "text": HikeForm.summary_text(name)}
+            )
     return {"lead": HikeForm.LEAD, "choices": HikeForm.CHOICES, "groups": groups}, errors
 
 
@@ -997,10 +1015,10 @@ def _later_step(
     draft = _settled(draft, members)
     steps = _steps(draft, members)
     if step != CHECK and step not in steps:
-        return HttpResponseRedirect(mount.url(next_step(steps, step))), None
+        return HttpResponseRedirect(_gate_url(request, mount, next_step(steps, step))), None
     unfinished = first_unfinished(steps, draft.done, None if step == CHECK else step)
     if unfinished is not None:
-        return HttpResponseRedirect(mount.url(unfinished)), None
+        return HttpResponseRedirect(_gate_url(request, mount, unfinished)), None
     if step == "days":
         return _which_days(
             request,

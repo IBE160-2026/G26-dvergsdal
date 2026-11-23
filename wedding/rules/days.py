@@ -61,6 +61,11 @@ def can_stay_overnight(days: Iterable[str]) -> bool:
     return day_error(chosen) is None and len(chosen) >= 2
 
 
+def joins_hike(days: Iterable[str]) -> bool:
+    """FR-17: True when the days include Friday, so the person is asked about the hike."""
+    return "fri" in _day_set(days)
+
+
 def offered_meals(days: Iterable[str]) -> tuple[str, ...]:
     """FR-15, FR-73: the paid meals a person with these days can be offered, in order.
 

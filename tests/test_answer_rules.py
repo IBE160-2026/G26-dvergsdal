@@ -22,6 +22,7 @@ from wedding.rules.days import (
     WHOLE_WEEKEND,
     can_stay_overnight,
     day_error,
+    joins_hike,
     offered_meals,
 )
 from wedding.rules.money import CABIN, household_total
@@ -272,3 +273,10 @@ def test_a_forged_hike_answer_is_dropped():
 def test_the_hike_never_counts_in_the_total():
     """FR-33, AD-12: the hike is free; `household_total` ignores it."""
     assert household_total(Answer({ARILD: True}, True, hike={ARILD: "yes"}), PRICES) == 0
+
+
+def test_joins_hike():
+    """FR-17: only days with Friday are asked about the hike."""
+    assert joins_hike(["fri"])
+    assert joins_hike(ALL)
+    assert not joins_hike(["sat", "sun"])

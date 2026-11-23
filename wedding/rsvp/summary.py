@@ -12,17 +12,23 @@ only `household_total` adds prices (AD-12, wedding/rules/money.py).
 UX-DR23, AD-7: each «Endre» link carries `?fra=se-over`, so «Fortsett» on that
 step returns to the check page (wedding/rsvp/views.py, `_continue_url`).
 
-`join_words` is the one place names and days are joined «a, b og c»; the
-FR-28 warning on step 5 uses it too (wedding/rsvp/forms.py).
+Names and days are joined «a, b og c» by `join_words` (wedding/rsvp/text.py).
 """
 
 from collections.abc import Sequence
 
 from wedding.rsvp import forms
 from wedding.rsvp.steps import ALLERGIES, CHECK_SLUG, DAYS, HIKE, MEALS, STEPS, FormMount
+from wedding.rsvp.text import join_words
 from wedding.rules.allergies import EMPTY, has_allergy_info, not_saved
 from wedding.rules.answer import Answer, normalise_answer, present_days
-from wedding.rules.days import DAY_KEYS, WHOLE_WEEKEND, can_stay_overnight, offered_meals
+from wedding.rules.days import (
+    DAY_KEYS,
+    WHOLE_WEEKEND,
+    can_stay_overnight,
+    joins_hike,
+    offered_meals,
+)
 
 # UX-DR23: the query an «Endre» link adds, and its only value that counts.
 FROM_QUERY = "fra"
@@ -30,13 +36,6 @@ MISSING = "Ikke oppgitt"
 # UX-DR23: the hidden context after «Endre» where the step's name alone reads
 # oddly («Endre hvem som kommer»); otherwise the name, lowercased.
 _HIDDEN = {"who": "hvem som kommer"}
-
-
-def join_words(words: Sequence[str]) -> str:
-    """FR-21, FR-28: words joined «a», «a og b» or «a, b og c»."""
-    if len(words) <= 1:
-        return "".join(words)
-    return f"{', '.join(words[:-1])} og {words[-1]}"
 
 
 def _line(text: str, *, missing: bool = False) -> dict[str, object]:
@@ -108,8 +107,6 @@ def _allergy_lines(answer: Answer, members, present, respondent) -> list[dict]:
             lines.append(_line(f"{name}: {cats}"))
             if entry.note:
                 lines.append(_line(f"Merknad om {name}: {entry.note}"))
-            else:
-                lines.append(_line(f"Merknad om {name}: {MISSING}", missing=True))
         elif entry.none:
             lines.append(_line(f"{name}: ingen allergier eller matbehov"))
         else:
@@ -128,7 +125,7 @@ def _hike_lines(answer: Answer, members, present, _respondent) -> list[dict]:
     """FR-17, FR-21: each member present on Friday, «ja», «nei» or «kanskje»."""
     lines = []
     for guest_id, name in members:
-        if guest_id in present and "fri" in present[guest_id]:
+        if guest_id in present and joins_hike(present[guest_id]):
             choice = answer.hike.get(guest_id)
             if choice is None:
                 lines.append(_line(f"{name}: {MISSING}", missing=True))

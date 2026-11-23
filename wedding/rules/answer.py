@@ -27,6 +27,7 @@ from wedding.rules.days import (
     WHOLE_WEEKEND,
     can_stay_overnight,
     day_error,
+    joins_hike,
     offered_meals,
 )
 
@@ -136,7 +137,7 @@ def normalise_answer(answer: Answer) -> Answer:
     hike = {
         guest_id: choice
         for guest_id, choice in answer.hike.items()
-        if guest_id in present and "fri" in present[guest_id] and choice in HIKE_ANSWERS
+        if guest_id in present and joins_hike(present[guest_id]) and choice in HIKE_ANSWERS
     }
     return Answer(
         dict(answer.attendance), whole, days, night, meals, allergies, consent, confirmed, hike
