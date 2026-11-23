@@ -231,3 +231,14 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-5-the-friday-hike-and-the-check-page.md`
   summary: Story 2.6a gives «Send svaret» its POST handler (the check page's POST only redirects back today), the «Sender …» busy state, and a friendly CSRF result on the check page (it shows the generic 403 page today). The check page must also store the total it showed in the draft (AD-8 snapshot), so a price change before sending is caught.
   evidence: decided in the spec.
+  status: done in Story 2.6a for the POST handler, the busy state and the CSRF result; the total snapshot moved to Story 2.6c (see «From Story 2.6a»).
+
+## From Story 2.6a (2026-11-24)
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6a-send-the-answer.md`
+  summary: Story 2.6c stores the total the check page showed in the draft and compares it with the recalculated total at send (AD-7 «Price change before sending»), refusing with the check page and a notice when they differ. Moved from 2.6a: 2.6c owns that refusal, and writing the snapshot on the check page's GET would break AD-8's «written only on Fortsett or Velg».
+  evidence: decided in the spec (Design Notes).
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6a-send-the-answer.md`
+  summary: Story 2.6c: the «Sender …» button stays busy if the navigation is aborted (Esc or a network failure) or the send fails; reset it so the guest can try again.
+  evidence: low. Edge Case Hunter and Blind review; a reload restores it today.

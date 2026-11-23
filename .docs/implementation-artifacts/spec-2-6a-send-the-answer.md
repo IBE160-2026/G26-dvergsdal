@@ -2,8 +2,8 @@
 title: 'Story 2.6a: Send the answer'
 type: 'feature'
 created: '2026-11-24'
-status: 'ready-for-dev'
-baseline_revision: '709433da2d5f9a78344f32d5c4ba3a0bb7f6ef56'
+status: 'done'
+baseline_revision: '63ff928552705c7ab6bbb46263ee96e7a4a1b848'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -11,7 +11,9 @@ context:
   - '{project-root}/.docs/implementation-artifacts/spec-2-5-the-friday-hike-and-the-check-page.md'
 warnings:
   - oversized
-deferred: []
+deferred:
+- summary: "Story 2.6c: the «Sender …» button stays busy if the navigation is aborted (Esc or a network failure) or the send fails; reset it so the guest can try again."
+  evidence: "Edge Case Hunter and Blind review; reload restores it today."
 ---
 
 <intent-contract>
@@ -79,24 +81,24 @@ deferred: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/models.py`, migration `0005` — the two models (AD-4, FR-74).
-- [ ] `wedding/rules/households.py` — `person_state`, `household_state` (FR-74, AD-2).
-- [ ] `wedding/services/exceptions.py`, `wedding/services/answers.py` — `send_answer` with all refusals (AD-3, AD-9, FR-41, NFR-2).
-- [ ] `wedding/selectors.py` — `household_answer`.
-- [ ] `wedding/rsvp/steps.py`, `wedding/rsvp/views.py` — `sent_url`, send branch, `actor` through `_later_step`, CSRF branch for the check page, docstrings.
-- [ ] `guests/views.py`, `guests/urls.py` — `DeadlinePassed` → closed page; `rsvp_sent` view and route.
-- [ ] `wedding/rsvp/templates/rsvp/check.html`, new `rsvp/sent.html`, `static/js/rsvp-send.js`, `static/css/site.css` — busy state, CSRF notice, sent page.
-- [ ] `tests/test_send_answer.py` — every service row of the matrix with `now` fixed (deadline day 23:59:59 Oslo accepted, next day 00:00 refused, nothing written), cross-household and admin refusals, re-send updates, revision raised, sent_by/sent_by_name, FR-74 rule truth table, migration fields (no total/status field on either model).
-- [ ] `tests/test_rsvp_send.py` — through the test client: Sigmund's full journey then send (rows, cookie deleted with `max-age=0` on path `/<code>/`, 303 to `sendt/`); sent page content (`h1`, sent line in Oslo time, link to `/<code>/`), 302 without answer, Cache-Control private no-store; deadline passed at send (closed page, no rows); missing member; non-send POST; CSRF on the check page (403, notice, no cookie set); the check page has `data-send-form` and the script tag; no session rows or messages.
-- [ ] `tests/test_rsvp_hike_check.py` — adjust the «POST writes nothing» and no-DB-rows assertions.
-- [ ] `docs/manual-test-plan.md` — Norwegian rows, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`); before each `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`:
+- [x] `wedding/models.py`, migration `0005` — the two models (AD-4, FR-74).
+- [x] `wedding/rules/households.py` — `person_state`, `household_state` (FR-74, AD-2).
+- [x] `wedding/services/exceptions.py`, `wedding/services/answers.py` — `send_answer` with all refusals (AD-3, AD-9, FR-41, NFR-2).
+- [x] `wedding/selectors.py` — `household_answer`.
+- [x] `wedding/rsvp/steps.py`, `wedding/rsvp/views.py` — `sent_url`, send branch, `actor` through `_later_step`, CSRF branch for the check page, docstrings.
+- [x] `guests/views.py`, `guests/urls.py` — `DeadlinePassed` → closed page; `rsvp_sent` view and route.
+- [x] `wedding/rsvp/templates/rsvp/check.html`, new `rsvp/sent.html`, `static/js/rsvp-send.js`, `static/css/site.css` — busy state, CSRF notice, sent page.
+- [x] `tests/test_send_answer.py` — every service row of the matrix with `now` fixed (deadline day 23:59:59 Oslo accepted, next day 00:00 refused, nothing written), cross-household and admin refusals, re-send updates, revision raised, sent_by/sent_by_name, FR-74 rule truth table, migration fields (no total/status field on either model).
+- [x] `tests/test_rsvp_send.py` — through the test client: Sigmund's full journey then send (rows, cookie deleted with `max-age=0` on path `/<code>/`, 303 to `sendt/`); sent page content (`h1`, sent line in Oslo time, link to `/<code>/`), 302 without answer, Cache-Control private no-store; deadline passed at send (closed page, no rows); missing member; non-send POST; CSRF on the check page (403, notice, no cookie set); the check page has `data-send-form` and the script tag; no session rows or messages.
+- [x] `tests/test_rsvp_hike_check.py` — adjust the «POST writes nothing» and no-DB-rows assertions.
+- [x] `docs/manual-test-plan.md` — Norwegian rows, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`); before each `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`:
   - **MT-1 (2.6a):** README «Svarskjemaet» to the sent page.
   - **MT-39 (real send):** `http://127.0.0.1:8000/test-sigmund0000000000/svar/` through MT-36 b) to `/svar/se-over/`. a) With `page.route` delaying the POST 2 s, click «Send svaret» twice: the button reads «Sender …» with `aria-disabled="true"` and exactly one POST is sent. b) Lands on `/svar/sendt/`: title «Svaret er sendt – Invitasjon», `h1` «Svaret er sendt», «Sendt av Sigmund <today> kl. <HH:MM>.», link «Til invitasjonen» to `/test-sigmund0000000000/`; no `rsvp_draft` cookie. c) `uv run manage.py shell -c` prints the household's `HouseholdAnswer` (`sent_by_name` Sigmund), two `PersonAnswer` rows (both `coming`, all days, `cabin` True, bestemor `sunday_breakfast` per MT-36 c, hikes «maybe»/«no») and `revision` 1. d) `page.goBack()` → no `dialog` event, lands on `/svar/` with no radio checked (draft gone). e) Arild's link: switch respondent to Marie with «Bytt», answer, send → shell shows `sent_by_name` Marie, Leone `coming` False.
   - **MT-40 (keyboard only):** Sigmund's link to the check page with `page.keyboard`; Tab to «Send svaret», Enter → `/svar/sendt/`; on the sent page Tab order is «Til invitasjonen», `tel:` links; focused elements have `outline-style` `solid`.
   - **MT-41 (layout):** the sent page and the check page in the busy state (route held). At 360 × 640 and 180 × 320, then with 20px default text (CDP `Page.setFontSizes` `{ fontSizes: { standard: 20 } }`) at both: `scrollWidth` ≤ `innerWidth`; «Sender …» fits on the button without overflow, button ≥ 44px tall; the sent line wraps inside the sheet.
-- [ ] `README.md` — status (story 2.6a: «Send svaret» saves the answer and shows «Svaret er sendt»; the full receipt is story 2.7), «Svarskjemaet», tree.
-- [ ] ARCHITECTURE-SPINE, EXPERIENCE.md — dated notes (2026-11-24, Story 2.6a): AD-4 the two models and fields; AD-7 the send POST, `sendt/` address and that the total snapshot moves to 2.6c; EXPERIENCE the sent page frame wording «avgjort av Claude» and the busy state built on «Send svaret».
-- [ ] `.docs/implementation-artifacts/deferred-work.md` — mark the 2.5 entry done in 2.6a for POST handler, busy state and CSRF; add «From Story 2.6a»: Story 2.6c stores the shown total in the draft and compares it at send (moved with the reason in Design Notes).
+- [x] `README.md` — status (story 2.6a: «Send svaret» saves the answer and shows «Svaret er sendt»; the full receipt is story 2.7), «Svarskjemaet», tree.
+- [x] ARCHITECTURE-SPINE, EXPERIENCE.md — dated notes (2026-11-24, Story 2.6a): AD-4 the two models and fields; AD-7 the send POST, `sendt/` address and that the total snapshot moves to 2.6c; EXPERIENCE the sent page frame wording «avgjort av Claude» and the busy state built on «Send svaret».
+- [x] `.docs/implementation-artifacts/deferred-work.md` — mark the 2.5 entry done in 2.6a for POST handler, busy state and CSRF; add «From Story 2.6a»: Story 2.6c stores the shown total in the draft and compares it at send (moved with the reason in Design Notes).
 
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` run, then all pass and `uv run manage.py makemigrations --check` reports no changes.
@@ -110,6 +112,36 @@ deferred: []
 ## Spec Change Log
 
 ## Review Triage Log
+
+### 2026-11-24 — Review pass
+- verdicts: 26 findings — high 0, medium 0, low 11, false 14, maybe-false 1
+- findings:
+  - `[false]` `[reject]` NotAllowed/InvalidAnswer from send_answer give a 500 (edge-case) — `read_draft` rejects a draft whose `resp` or attendance key is not a member (wedding/rsvp/draft.py:287), and the view redirects to step 1 when a member lacks attendance before calling the service; no reachable path raises either.
+  - `[false]` `[reject]` Two concurrent sends race on update_or_create and raise IntegrityError (edge-case) — the database runs `transaction_mode: IMMEDIATE` (config/settings.py:118), so the second send waits for the write lock and then updates the existing rows.
+  - `[low]` `[reject]` A non-guest actor reaching the send branch passes `household=None` (edge-case) — no non-guest mount of the form exists until Story 4.4, which must pass a real household; an admin is refused before `household` is read.
+  - `[maybe-false]` `[reject]` A guest moved to another household keeps a stale PersonAnswer (edge-case) — guests are moved only by the couple's admin (Epic 4); the next send of the new household overwrites it. If true it would be low; settle in Epic 4's guest editing.
+  - `[low]` `[defer]` An aborted navigation leaves the button at «Sender …» (edge-case) — only Esc or a network failure; reload restores it. Routed to Story 2.6c (failing sends).
+  - `[low]` `[patch]` The view's missing-member branch is never exercised (verification-gap) — added a test where nobody comes, a member joins, and the send redirects to step 1 with nothing written.
+  - `[false]` `[reject]` InvalidAnswer unhandled on the view path (verification-gap, other) — same refutation as the first row.
+  - `[false]` `[reject]` The busy state is checked only as source text (verification-gap, other) — MT-39 and MT-41 ran it in Edge: «Sender …», `aria-disabled="true"`, the second submit prevented, exactly one POST.
+  - `[false]` `[reject]` «One IMMEDIATE transaction» rests on global settings (intent-alignment) — that is how the architecture makes every transaction IMMEDIATE (AD-4); `send_answer` runs in one `atomic()` block.
+  - `[false]` `[reject]` «Ignores more taps» is not run (intent-alignment) — run in Edge by MT-39 a).
+  - `[low]` `[reject]` The deadline view test stubs `is_past_deadline` (intent-alignment) — the service test uses the real rule with a real date; the stub only isolates the view's handling.
+  - `[false]` `[reject]` AD-3 is tested only at the service (intent-alignment) — the guard lives in the service by design; the view cannot address another household.
+  - `[false]` `[reject]` Admin refused and system actor not bound by the deadline go beyond the ACs (intent-alignment) — decided in the spec for Stories 4.4 and 2.6d.
+  - `[low]` `[reject]` `household=None` for a non-guest (intent-alignment) — same as the third row.
+  - `[false]` `[reject]` FR-74 states appear in no view (intent-alignment) — the AC asks for the states as rules; their views are Stories 2.8 and 4.x.
+  - `[false]` `[reject]` The draft is deleted in the view, not in `send_answer` (intent-alignment) — a cookie is an HTTP concern; the services take no response (AD-4); tested by the view tests and MT-39 b).
+  - `[false]` `[reject]` NotAllowed/InvalidAnswer reach Django unhandled (blind) — same refutation as the first row.
+  - `[false]` `[reject]` `draft.resp` may be None or a non-member (blind) — `read_draft` refuses such a draft (draft.py:287).
+  - `[low]` `[reject]` A system actor would crash on `household=None` (blind) — same as the third row.
+  - `[low]` `[reject]` `person_state`/`household_state` are unused in production (blind) — the story's AC requires them as rules; Stories 2.8 and 4.x use them; tested.
+  - `[low]` `[patch]` `wedding/models.py` imports `HIKE` labels from the form package `wedding.rsvp.steps` (blind) — the labels moved to `wedding/rules/days.py` next to `HIKE_ANSWERS`; steps.py imports them from there.
+  - `[false]` `[reject]` Concurrent double send gives IntegrityError and is not deferred (blind) — IMMEDIATE transactions (row 2); repeated sends are Story 2.6c by the epic.
+  - `[low]` `[defer]` Busy button: no reset on failure, nothing announced to screen readers (blind) — failure reset deferred with row 5; the label change is on the focused button and the page title changes on arrival, so no live region added.
+  - `[low]` `[patch]` Hover/active still thicken the outline of the busy button (blind) — `.button[aria-disabled="true"]` now keeps the 2px border on hover and press.
+  - `[false]` `[reject]` The sent page has no status role or focus, and no way to change the answer (blind) — it is a new page whose title and h1 say «Svaret er sendt»; changing the answer is Story 2.8.
+  - `[low]` `[patch]` No test that revision rises by one on a re-send, and the Norwegian date is untested (blind) — a re-send test added; MT-39 showed «mandag 23. november 2026 kl. 17:51» in Edge.
 
 ## Design Notes
 
@@ -125,3 +157,24 @@ deferred: []
 - `uv run ruff check` and `uv run ruff format --check` -- expected: no findings.
 - `uv run djlint --check .` -- expected: no findings.
 - `uv run manage.py makemigrations --check --dry-run` -- expected: no changes.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** «Send svaret» on the check page now sends the answer: `send_answer` writes one `PersonAnswer` per guest and the household's `HouseholdAnswer` (sender, name, time) in one IMMEDIATE transaction, raises `Household.revision`, and refuses an admin actor, another household, a missing member and a guest after the deadline. The draft cookie is deleted and the guest lands on «Svaret er sendt» (`/svar/sendt/`). The button shows «Sender …» with `aria-disabled` and ignores further taps; a CSRF failure on the check page shows the check page with the focused notice. FR-74 states are pure rules. The total snapshot (AD-8) moved to Story 2.6c.
+
+**Files changed:**
+- `wedding/models.py`, `wedding/migrations/0005_householdanswer_personanswer.py` — the two answer models.
+- `wedding/services/answers.py`, `wedding/services/exceptions.py`, `wedding/selectors.py`, `wedding/rules/households.py`, `wedding/rules/days.py` — sending, refusals, FR-74 states, hike labels.
+- `wedding/rsvp/views.py`, `wedding/rsvp/steps.py`, `guests/views.py`, `guests/urls.py`, `wedding/rsvp/templates/rsvp/check.html`, `sent.html`, `static/js/rsvp-send.js`, `static/css/site.css` — send branch, sent page, busy state, CSRF notice.
+- `tests/test_send_answer.py`, `tests/test_rsvp_send.py`, `tests/test_rsvp_hike_check.py`, `tests/test_design_system.py`.
+- `README.md`, `docs/manual-test-plan.md`, `ARCHITECTURE-SPINE.md`, `EXPERIENCE.md`, `deferred-work.md`.
+
+**Review:** 26 findings — 4 patched (missing-member check before the gate with a test, hike labels moved out of the form package, busy button without hover/press ring, stricter re-send test), 2 deferred to 2.6c, 20 rejected with reasons in the triage log.
+
+**Follow-up review recommendation:** false. Only low findings were patched, and the browser checks were re-run after the patches.
+
+**Verification:** `uv run pytest` 1191 passed; ruff, ruff format and djlint clean; `makemigrations --check` clean. MT-1 (2.6a), MT-39, MT-40, MT-41 run by Claude with Playwright in Edge 158 after the patches, with the database rows read through `manage.py shell`.
+
+**Residual risks:** a busy button is not reset after an aborted send (2.6c); «Tilbake» after a send shows the empty form until Story 2.8; the total snapshot and revision conflict are 2.6c.
