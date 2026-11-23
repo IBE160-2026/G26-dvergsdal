@@ -1,4 +1,5 @@
 {% extends "wedding/base.html" %}
+{% load static %}
 {% comment %}
 The check page (Story 2.5; FR-21, FR-28, FR-33, AD-7, AD-12, UX-DR23;
 DESIGN.md › Check-answers list, mockups/key-check-page.html). Same paper
@@ -9,14 +10,27 @@ focused and not live), the `h1`, a list with one block per applicable step
 one line per person; «Ikke oppgitt» is muted, and the allergy block carries
 the FR-28 warning), the household total from `household_total` (no per-line
 prices, AD-12), and «Send svaret» above «Tilbake». Each «Endre» link carries
-`?fra=se-over`, so «Fortsett» on that step returns here. «Send svaret» writes
-nothing until Story 2.6a. No hidden fields and no script.
+`?fra=se-over`, so «Fortsett» on that step returns here. «Send svaret»
+(Story 2.6a, FR-74) posts `action=send`, which sends the answer and lands on
+«Svaret er sendt». After a failed CSRF check (`csrf_failed`, UX-DR52) the
+focused error notice opens the sheet, above «Obs». No hidden fields; the only
+script is rsvp-send.js (UX-DR15), which shows «Sender …» on the button and
+stops a second tap; without it the form still sends.
 {% endcomment %}
 {% block title %}Se over svaret før du sender – Invitasjon{% endblock title %}
+{% block head %}
+    <script src="{% static 'js/rsvp-send.js' %}" defer></script>
+{% endblock head %}
 {% block content %}
     <main class="column form-page">
-        <form class="paper-sheet form-sheet" method="post" novalidate>
+        <form class="paper-sheet form-sheet"
+              method="post"
+              novalidate
+              data-send-form>
             {% csrf_token %}
+            {% if csrf_failed %}
+                {% include "wedding/components/notice.html" with variant="error" text="Skjemaet ble ikke sendt. Det skjer når siden har stått åpen lenge, eller når nettleseren ikke tar imot informasjonskapsler. Det du fylte ut, står her fortsatt. Prøv igjen." focus=True only %}
+            {% endif %}
             {% include "wedding/components/notice.html" with variant="warning" text="Svaret er ikke sendt ennå." only %}
             <h1>Se over svaret før du sender</h1>
             <ul class="check-list">

@@ -25,7 +25,10 @@ or «Kanskje» of each coming person present on Friday. The check page (FR-21,
 FR-28, UX-DR23, Story 2.5) shows the answer from `check_parts`
 (wedding/rsvp/summary.py) with an «Endre» link per part; a step opened with
 `?fra=se-over` returns to the check page on «Fortsett» (`_continue_url`).
-«Send svaret» is shown, but its POST writes nothing until Story 2.6a.
+«Send svaret» (FR-74, AD-3, AD-9, Story 2.6a) posts `action=send` to the
+check page, which calls `wedding.services.answers.send_answer`, deletes the
+draft and redirects (303) to the sent page `<base>/sendt/`; that is the only
+database write the form makes.
 A later step opens only when every applicable step before it is done (`first_unfinished`).
 Every draft write runs `normalise_answer` (FR-75), so a person who stops
 coming loses their days, stay, meals and allergy answers, steps 2, 3 and 5
@@ -92,6 +95,7 @@ from wedding.rules.form_steps import (
     step_position,
 )
 from wedding.rules.money import CABIN, household_total
+from wedding.services.answers import send_answer
 
 STEP_TEMPLATE = "rsvp/step.html"
 CHECK_TEMPLATE = "rsvp/check.html"
@@ -599,12 +603,15 @@ def _render_check(
     draft: Draft,
     prices: Prices,
     page_context: dict,
+    csrf_failed: bool = False,
+    status: int = 200,
 ) -> HttpResponse:
     """FR-21, FR-28, FR-33, UX-DR23: the check page.
 
     One block per applicable step from `check_parts`, the household total
     from `household_total` (AD-12), «Send svaret» and «Tilbake» to the last
-    applicable step.
+    applicable step. `csrf_failed` (UX-DR52, Story 2.6a) adds the focused
+    error notice, with `status` 403.
     """
     context = page_context | {
         "parts": check_parts(
@@ -616,8 +623,9 @@ def _render_check(
         ),
         "total": _total(draft, members, prices),
         "back_url": mount.url(steps[-1]),
+        "csrf_failed": csrf_failed,
     }
-    return render(request, CHECK_TEMPLATE, context)
+    return render(request, CHECK_TEMPLATE, context, status=status)
 
 
 def _switch_respondent(request: HttpRequest, draft: Draft, members: Members) -> Draft:
@@ -993,6 +1001,7 @@ def _hike_step(
 def _later_step(
     request: HttpRequest,
     *,
+    actor: Actor,
     step: str,
     mount: FormMount,
     members: Members,
@@ -1005,8 +1014,12 @@ def _later_step(
     Before step 1 is completed it sends the guest to step 1, a step that does
     not apply to the answers sends them on to the next one that does, and a
     step with an applicable step before it not done sends them to that one.
-    Any POST to the check page redirects (303) back to it and writes
-    nothing: sending is Story 2.6a.
+    A POST with `action=send` to the check page sends the answer through
+    `send_answer` (FR-74, AD-3, Story 2.6a), deletes the draft and redirects
+    (303) to the sent page; a member missing from the draft's attendance
+    sends the guest to step 1 instead. `DeadlinePassed` is left to the
+    mount's view (FR-41). Any other POST to the check page redirects (303)
+    back to it and writes nothing.
     """
     if draft is None or "who" not in draft.done:
         return HttpResponseRedirect(mount.url("who")), None
@@ -1058,8 +1071,20 @@ def _later_step(
             page_context=page_context,
         )
     if request.method == "POST":
-        # Story 2.6a builds «Send svaret»; until then nothing is written.
-        return _see_other(mount.url(CHECK)), None
+        if request.POST.get("action") != "send":
+            return _see_other(mount.url(CHECK)), None
+        if any(guest_id not in draft.att for guest_id, _ in members):
+            return _see_other(mount.url("who")), None
+        send_answer(
+            actor,
+            household=actor.household if isinstance(actor, GuestActor) else None,
+            respondent=draft.resp,
+            answer=_answer(draft, members),
+            now=timezone.now(),
+        )
+        response = _see_other(mount.sent_url())
+        delete_draft(response, mount)
+        return response, None
     response = _render_check(
         request,
         steps=steps,
@@ -1089,8 +1114,9 @@ def handle_step(
     changes who is there on which days (`present_days`), by step 1, step 2 or
     «Velg», the steps after step 2 are no longer done, so the guest goes
     through the questions that now ask more. `prices` are `form_prices` of the
-    settings. A broken draft is deleted and the form starts empty. Nothing is
-    written to the database.
+    settings. A broken draft is deleted and the form starts empty. The
+    database is written only by «Send svaret» on the check page, through
+    `send_answer` (Story 2.6a).
     """
     draft, broken = read_draft(request, _member_ids(members))
     before = _present(draft, members)
@@ -1098,7 +1124,7 @@ def handle_step(
     if step == "who":
         response, new = _who_is_coming(request, actor=actor, **arguments)
     else:
-        response, new = _later_step(request, step=step, prices=prices, **arguments)
+        response, new = _later_step(request, actor=actor, step=step, prices=prices, **arguments)
     if new is not None:
         new = _settled(new, members)
         if _present(new, members) != before:
@@ -1128,8 +1154,9 @@ def render_after_csrf_failure(
     choices are merged into the saved ones, and the total is that of the
     merged answer (FR-33). On step 5 the posted ticks, notes, consent and
     confirmations are shown, the confirmation following the posted
-    respondent. On step 6 the posted hike answers are shown. No draft is
-    written, and a broken one is deleted.
+    respondent. On step 6 the posted hike answers are shown. The check page
+    (Story 2.6a), when every applicable step is done, is shown again with
+    the same notice. No draft is written, and a broken one is deleted.
     None when the step is not one the guest could have posted from (the
     caller then shows the generic page).
     """
@@ -1142,9 +1169,26 @@ def render_after_csrf_failure(
         saved = draft.att if draft is not None else {}
         checked = saved | WhoIsComingForm(members, data=request.POST).posted_attendance()
         fields, _ = _who_fields(members, checked, show_errors=False)
+    elif step == CHECK:
+        if draft is None or "who" not in draft.done:
+            return None
+        draft = _settled(draft, members)
+        steps = _steps(draft, members)
+        if first_unfinished(steps, draft.done, None) is not None:
+            return None
+        return _render_check(
+            request,
+            steps=steps,
+            mount=mount,
+            members=members,
+            draft=draft,
+            prices=prices,
+            page_context=page_context,
+            csrf_failed=True,
+            status=403,
+        )
     elif (
-        step != CHECK
-        and draft is not None
+        draft is not None
         and "who" in draft.done
         and step in steps
         and first_unfinished(steps, draft.done, step) is None

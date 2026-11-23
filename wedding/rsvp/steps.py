@@ -175,6 +175,10 @@ class FormMount:
         slug = STEPS[key].slug
         return f"{self.base_path}{slug}/" if slug else self.base_path
 
+    def sent_url(self) -> str:
+        """AD-7, FR-74 (Story 2.6a): where the guest lands after «Send svaret»."""
+        return f"{self.base_path}sendt/"
+
     def total_url(self, key: str) -> str:
         """AD-7, FR-33: where step `key` posts its choices for the running total."""
         return f"{self.base_path}{TOTAL_SLUG}/?steg={STEPS[key].slug}"

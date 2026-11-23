@@ -1,0 +1,31 @@
+{% extends "wedding/base.html" %}
+{% comment %}
+«Svaret er sendt», where «Send svaret» lands (Story 2.6a; FR-74, AD-7,
+UX-DR24; EXPERIENCE.md › Receipt heading and sent line). Same paper sheet as
+the check page, with no nav bar and the footer band kept: a success notice
+holding the `h1` and the sent line «Sendt av <name> <weekday j. month Y> kl.
+<H:i>.» in Oslo time (TIME_ZONE), then «Til invitasjonen». Wording «avgjort
+av Claude» in Story 2.6a. Story 2.7 adds Rikke's message, the summary, the total
+and how to pay. No form and no script.
+{% endcomment %}
+{% block title %}Svaret er sendt – Invitasjon{% endblock title %}
+{% block content %}
+    <main class="column form-page">
+        <div class="paper-sheet form-sheet">
+            <div class="notice notice--success sent-notice">
+                {% include "wedding/components/state-icon.html" with variant="success" class="notice__icon" only %}
+                <div class="notice__text">
+                    <h1>Svaret er sendt</h1>
+                    <p>
+                        Sendt av {{ answer.sent_by_name }} {{ answer.sent_at|date:"l j. F Y" }} kl. {{ answer.sent_at|date:"H:i" }}.
+                    </p>
+                </div>
+            </div>
+            <div class="form-actions">
+                <a class="button button--secondary"
+                   href="{% url 'guests:front_page' code %}">Til invitasjonen</a>
+            </div>
+        </div>
+    </main>
+    {% include "wedding/components/footer-band.html" %}
+{% endblock content %}

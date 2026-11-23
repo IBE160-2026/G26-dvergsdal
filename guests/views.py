@@ -8,13 +8,15 @@ resolves to nobody (Story 1.4b, FR-5), the local style sample (Story 1.4a),
 and the site-wide error pages for 404, 500, 400 and a failed CSRF check
 (Story 1.8, FR-5, FR-6, AD-15), and the RSVP form under `/<code>/svar/`
 (Story 2.1, FR-12 to FR-14, FR-22, FR-41, AD-7, AD-8, AD-11) with its running
-total under `/<code>/svar/sum/` (Story 2.3, FR-33).
+total under `/<code>/svar/sum/` (Story 2.3, FR-33) and its sent page under
+`/<code>/svar/sendt/` (Story 2.6a, FR-74).
 
 Every guest view only reads (FR-3): one resolver lookup, then selectors. None
 of them touches the session, the messages framework or `request.user`, and
 the read views (front page, info pages) use no CSRF token, so opening a link
 sets no cookie and writes no row. The RSVP form keeps the answer in the draft
-cookie only (AD-8) and writes no row either. The error pages only read too.
+cookie only (AD-8); its one write is «Send svaret», through the service
+`send_answer` (Story 2.6a, AD-3). The error pages only read too.
 Guest responses say `Cache-Control: private, no-store` (`never_cache`), so no
 shared or back-forward cache keeps a household's page (AD-15), and the read
 views answer only GET and HEAD.
@@ -27,6 +29,7 @@ from django.http import (
     HttpRequest,
     HttpResponse,
     HttpResponseBadRequest,
+    HttpResponseRedirect,
     HttpResponseServerError,
 )
 from django.shortcuts import render
@@ -47,11 +50,13 @@ from wedding.rules.households import household_names, speaks_to_one
 from wedding.selectors import (
     footer_contacts,
     form_prices,
+    household_answer,
     household_guest_names,
     household_members,
     programme_prices,
     site_settings,
 )
+from wedding.services.exceptions import DeadlinePassed
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +210,8 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
 
     An unknown code gives G1 with 404 after the one resolver query; an unknown
     step slug (`step` None) gives «Vi finner ikke denne siden». After the
-    deadline, GET and POST alike show the closed page and write nothing.
+    deadline, GET and POST alike show the closed page and write nothing; so
+    does a send `send_answer` refuses with `DeadlinePassed` (FR-41, Story 2.6a).
     """
     actor = resolve_code(code)
     if actor is None:
@@ -216,15 +222,18 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
     context = _guest_context(actor, settings)
     if is_past_deadline(settings.rsvp_deadline, timezone.now()):
         return render(request, RSVP_CLOSED, context)
-    return handle_step(
-        request,
-        actor=actor,
-        mount=_guest_mount(actor.guest.code),
-        members=household_members(actor.household),
-        step=step,
-        prices=form_prices(settings),
-        page_context=context,
-    )
+    try:
+        return handle_step(
+            request,
+            actor=actor,
+            mount=_guest_mount(actor.guest.code),
+            members=household_members(actor.household),
+            step=step,
+            prices=form_prices(settings),
+            page_context=context,
+        )
+    except DeadlinePassed:
+        return render(request, RSVP_CLOSED, context)
 
 
 @never_cache
@@ -241,6 +250,27 @@ def rsvp(request: HttpRequest, code: str) -> HttpResponse:
 def rsvp_step(request: HttpRequest, code: str, slug: str) -> HttpResponse:
     """AD-7: a later step or the check page of the RSVP form, by its slug."""
     return _rsvp(request, code, KEY_BY_SLUG.get(slug))
+
+
+@never_cache
+@require_safe
+def rsvp_sent(request: HttpRequest, code: str) -> HttpResponse:
+    """FR-74, AD-7, UX-DR24 (Story 2.6a): «Svaret er sendt», where «Send svaret» lands.
+
+    An unknown code gives G1 with 404; a household that has sent nothing is
+    sent (302) to step 1. Otherwise the sent page with who sent the answer
+    and when, in Oslo time. It only reads, so the deadline does not close
+    it. Story 2.7 turns it into the full receipt. Only GET and HEAD, never
+    cached (AD-15).
+    """
+    actor = resolve_code(code)
+    if actor is None:
+        return _unknown_link(request)
+    answer = household_answer(actor.household)
+    if answer is None:
+        return HttpResponseRedirect(reverse("guests:rsvp", args=[code]))
+    context = _guest_context(actor, site_settings()) | {"answer": answer}
+    return render(request, "rsvp/sent.html", context)
 
 
 @never_cache
