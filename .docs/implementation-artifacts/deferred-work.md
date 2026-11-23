@@ -118,6 +118,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md`
   summary: Epic 1 polish (before the usability test): build Rikke's 2026-11-21 front-page choice. In `static/css/site.css` set `--letter-spacing-place-line` to 0.08em, `--space-page-padding-top` 46px, `--space-hero-padding-top` 26px, `--space-hero-padding-bottom` 22px, 4px below `.hero__illustration`, 2px below `.hero__invites` and the divider, 6px above `.hero__household` and 4px above `.hero__deadline`, and update the comment above `.hero`. Re-measure MT-11 at 360 × 560 and 320 × 568.
   evidence: high. Rikke chose B from screenshots (DESIGN.md › Hero spacing, note 2026-11-21); measured with injected CSS: place line 26px (one line), hero ends at 550px.
+  status: done 2026-11-21 on `docs/svar-pa-apne-punkter`, because `tests/test_design_system.py` checks that the CSS tokens match DESIGN.md, so the two had to change together. MT-11 still re-measures it in the browser.
 
 - source_spec: `.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md`
   summary: Epic 1 polish: under `@media (forced-colors: active)` give the programme icons `forced-color-adjust: none`, a white background, `border-radius: 50%` and 4px padding, so they stay visible on a dark contrast theme (DESIGN.md › programme-icon). Check with Playwright `forcedColors: 'active'`, `colorScheme: 'dark'`.
