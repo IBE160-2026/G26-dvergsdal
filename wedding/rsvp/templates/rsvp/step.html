@@ -1,8 +1,8 @@
 {% extends "wedding/base.html" %}
 {% load static %}
 {% comment %}
-One step of the RSVP form (Stories 2.1 to 2.3; FR-12 to FR-16, FR-22, FR-32,
-FR-33, FR-70, FR-73, AD-7, UX-DR16 to UX-DR19, UX-DR52; DESIGN.md › Form step,
+One step of the RSVP form (Stories 2.1 to 2.4; FR-12 to FR-16, FR-22,
+FR-25 to FR-28, FR-32, FR-33, FR-70, FR-73, AD-7, UX-DR16 to UX-DR19, UX-DR52; DESIGN.md › Form step,
 approved in mockups/key-form-steps.html). One paper sheet on the green page,
 with no nav bar and the footer band kept. In order: the CSRF notice or the
 error summary when there is one (both focused on load with `autofocus`, so no
@@ -11,8 +11,9 @@ progress line, the respondent line with «Bytt», the step's own fields, the
 running total on the paid steps and the actions: «Fortsett» above «Tilbake».
 Each step's fields are the include the step registry names
 (`fields_template`, wedding/rsvp/steps.py); the `h1` always has the id
-`sporsmal`, which names step 2's «Ja»/«Nei» group. Allergies and the hike
-(Stories 2.4, 2.5) are frames for now: no fields and no «Fortsett».
+`sporsmal`, which names step 2's «Ja»/«Nei» group. The hike (Story 2.5) is
+a frame for now: no fields and no «Fortsett». Step 5's FR-28 warning sits at
+the top of its own include (allergy_fields.html), above the fieldsets.
 
 On steps 3 and 4 (`total` given) the household total from `household_total`
 stands under the fields (total.html), with an empty `role="status"` beside
@@ -28,12 +29,15 @@ and swaps in the fragment; without JavaScript the next page shows the total.
 - The first button in the form is a hidden copy of «Fortsett», so Enter in a
   radio or checkbox submits as «Fortsett» and not as «Velg» inside «Bytt»,
   which comes earlier in the form. It is not focusable and carries no answer.
-- No hidden fields (AD-1, AD-8), and no script except on the paid steps.
+- No hidden fields (AD-1, AD-8), and no script except rsvp-total.js on the
+  paid steps and rsvp-allergies.js on step 5 (UX-DR21), which only enhance.
 {% endcomment %}
 {% block title %}{% if errors %}Feil: {% endif %}{{ progress }} – Invitasjon{% endblock title %}
 {% block head %}
     {% if total is not None %}
         <script src="{% static 'js/rsvp-total.js' %}" defer></script>
+    {% elif key == "allergies" and has_fields %}
+        <script src="{% static 'js/rsvp-allergies.js' %}" defer></script>
     {% endif %}
 {% endblock head %}
 {% block content %}

@@ -1,0 +1,19 @@
+{% comment %}
+The consent text on step 5 (Story 2.4; FR-26, FR-28, AD-18; DESIGN.md and
+EXPERIENCE.md › Consent block). Purpose, who sees the information, how to
+withdraw, and that the answer can be sent without consent, before any
+«Ja»/«Nei». Each person's consent group points here with
+`aria-describedby="samtykke-tekst"`. Its version is CONSENT_TEXT_VERSION in
+wedding/services/consent.py: change both in the same commit (a test pairs
+them with a hash of this file). Avgjort av Claude (EXPERIENCE.md, Microcopy).
+{% endcomment %}
+<div class="consent-text" id="samtykke-tekst">
+    <p>Vi lagrer allergiopplysningene bare for dem dere sier ja for, og bare for at kjøkkenet skal lage mat dere tåler.</p>
+    <p>Rikke og Valdemar, toastmaster og forloverne kan se dem. Navn og allergier sendes til kjøkkenet på Hardingasete.</p>
+    <p>
+        Dere kan trekke samtykket tilbake når som helst med den samme lenken, også etter svarfristen. Da slettes opplysningene.
+    </p>
+    <p>
+        Dere kan sende svaret også uten å samtykke. Da lagrer vi ikke allergiopplysningene, og dere kan heller si fra til oss direkte.
+    </p>
+</div>

@@ -1,4 +1,4 @@
-"""The draft cookie that holds an answer between steps (Stories 2.1 to 2.3; AD-8).
+"""The draft cookie that holds an answer between steps (Stories 2.1 to 2.4; AD-8).
 
 AD-8, FR-78: until the answer is sent, nothing is stored on the server. The
 answers live in one signed, compressed cookie, `rsvp_draft`, scoped to the
@@ -16,7 +16,12 @@ unknown step key, a `whole` that is not true, false or null (Story 2.2),
 day, or the same day twice, `night` (Story 2.3) with a key that is not a
 member or a value that is not true or false, or `meals` with a key that is
 not a member, an empty list, a key that is not a meal, or the same meal
-twice. A cookie of format 1 or 2 is broken too; nothing was live then.
+twice. Story 2.4 adds `alg` (a key that is not a member, an entry without
+exactly `c`, `n` and `t`, a category that is not one of `ALLERGY_KEYS` or
+repeated, `n` not true or false, `t` not text or longer than `NOTE_MAX`),
+`cons` (a key that is not a member, a value not true or false) and `conf`
+and `long` (not a list, an id that is not a member, or the same id twice).
+A cookie of format 1, 2 or 3 is broken too; nothing was live then.
 A broken draft is deleted and the form starts empty, never with a server
 error. (Story 2.9 will drop changed members instead of deleting.)
 """
@@ -31,12 +36,13 @@ from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 
 from wedding.rsvp.steps import FormMount
+from wedding.rules.allergies import ALLERGY_KEYS, NOTE_MAX, AllergyEntry
 from wedding.rules.days import DAY_KEYS, MEAL_KEYS
 from wedding.rules.form_steps import STEP_KEYS
 
 COOKIE_NAME = "rsvp_draft"
 SALT = "wedding.rsvp.draft"
-VERSION = 3
+VERSION = 4
 MAX_AGE = timedelta(days=90)
 # A draft that says it started later than this after now is not ours.
 FUTURE_SKEW = timedelta(seconds=60)
@@ -53,7 +59,10 @@ class Draft:
     unanswered), `days` each member's chosen day keys by guest id, kept only
     after «Nei» (Story 2.2, FR-14, FR-75), `night` each member's «Ja»/«Nei» to
     the cabin and `meals` each member's chosen meal keys (Story 2.3, FR-15,
-    FR-16).
+    FR-16). Story 2.4 (FR-25 to FR-27): `alg` each member's allergy entry,
+    `cons` each member's «Ja»/«Nei» to consent (none: unanswered), `conf` the
+    members the respondent confirmed know and agree, and `long` the members
+    whose last posted note was too long and was not kept.
     """
 
     started: str
@@ -65,6 +74,10 @@ class Draft:
     days: dict[int, list[str]] = field(default_factory=dict)
     night: dict[int, bool] = field(default_factory=dict)
     meals: dict[int, list[str]] = field(default_factory=dict)
+    alg: dict[int, AllergyEntry] = field(default_factory=dict)
+    cons: dict[int, bool] = field(default_factory=dict)
+    conf: list[int] = field(default_factory=list)
+    long: list[int] = field(default_factory=list)
 
     @classmethod
     def new(cls, *, revision: int, respondent: int, now: datetime) -> Draft:
@@ -72,7 +85,7 @@ class Draft:
         return cls(started=now.astimezone(UTC).isoformat(), rev=revision, resp=respondent)
 
     def payload(self) -> dict[str, object]:
-        """AD-8: the cookie's JSON payload, format version 3."""
+        """AD-8: the cookie's JSON payload, format version 4."""
         return {
             "v": VERSION,
             "started": self.started,
@@ -84,10 +97,32 @@ class Draft:
             "days": {str(guest_id): list(days) for guest_id, days in self.days.items()},
             "night": {str(guest_id): stays for guest_id, stays in self.night.items()},
             "meals": {str(guest_id): list(meals) for guest_id, meals in self.meals.items()},
+            "alg": {
+                str(guest_id): {"c": list(entry.cats), "n": entry.none, "t": entry.note}
+                for guest_id, entry in self.alg.items()
+            },
+            "cons": {str(guest_id): given for guest_id, given in self.cons.items()},
+            "conf": list(self.conf),
+            "long": list(self.long),
         }
 
 
-PAYLOAD_KEYS = ("v", "started", "rev", "resp", "att", "done", "whole", "days", "night", "meals")
+PAYLOAD_KEYS = (
+    "v",
+    "started",
+    "rev",
+    "resp",
+    "att",
+    "done",
+    "whole",
+    "days",
+    "night",
+    "meals",
+    "alg",
+    "cons",
+    "conf",
+    "long",
+)
 
 
 def _is_int(value: object) -> bool:
@@ -126,11 +161,11 @@ def _attendance(att: object, member_ids: set[int]) -> dict[int, bool] | None:
     return attendance
 
 
-def _is_key_list(value: object, keys: tuple[str, ...]) -> bool:
-    """AD-8: a non-empty list of distinct keys from `keys`."""
+def _is_key_list(value: object, keys: tuple[str, ...], *, allow_empty: bool = False) -> bool:
+    """AD-8: a list of distinct keys from `keys`, non-empty unless `allow_empty`."""
     return (
         isinstance(value, list)
-        and bool(value)
+        and (allow_empty or bool(value))
         and all(isinstance(key, str) and key in keys for key in value)
         and len(set(value)) == len(value)
     )
@@ -151,8 +186,8 @@ def _key_lists(
     return chosen
 
 
-def _night(night: object, member_ids: set[int]) -> dict[int, bool] | None:
-    """AD-8, FR-16: `night` with guest ids as ints, or None when any entry is off."""
+def _bools(night: object, member_ids: set[int]) -> dict[int, bool] | None:
+    """AD-8, FR-16, FR-26: `night` or `cons` with guest ids as ints, or None when any is off."""
     if not isinstance(night, dict):
         return None
     stays = {}
@@ -164,17 +199,53 @@ def _night(night: object, member_ids: set[int]) -> dict[int, bool] | None:
     return stays
 
 
+def _allergy_entries(value: object, member_ids: set[int]) -> dict[int, AllergyEntry] | None:
+    """AD-8, FR-25: `alg` with guest ids as ints, or None when any entry is off."""
+    if not isinstance(value, dict):
+        return None
+    entries = {}
+    for key, entry in value.items():
+        guest_id = _member_key(key, member_ids)
+        if (
+            guest_id is None
+            or not isinstance(entry, dict)
+            or set(entry) != {"c", "n", "t"}
+            or not _is_key_list(entry["c"], ALLERGY_KEYS, allow_empty=True)
+            or not isinstance(entry["n"], bool)
+            or not isinstance(entry["t"], str)
+            or len(entry["t"]) > NOTE_MAX
+        ):
+            return None
+        entries[guest_id] = AllergyEntry(tuple(entry["c"]), entry["n"], entry["t"])
+    return entries
+
+
+def _id_list(value: object, member_ids: set[int]) -> list[int] | None:
+    """AD-8, FR-27: `conf` or `long`, distinct member ids, or None when off."""
+    if (
+        not isinstance(value, list)
+        or not all(_is_int(guest_id) and guest_id in member_ids for guest_id in value)
+        or len(set(value)) != len(value)
+    ):
+        return None
+    return list(value)
+
+
 def _parse(payload: object, member_ids: set[int]) -> Draft | None:
     """AD-8: the draft in `payload`, or None when anything is off."""
     if not isinstance(payload, dict) or set(payload) != set(PAYLOAD_KEYS):
         return None
-    version, started, rev, resp, att, done, whole, days, night, meals = (
+    version, started, rev, resp, att, done, whole, days, night, meals, alg, cons, conf, long = (
         payload[key] for key in PAYLOAD_KEYS
     )
     attendance = _attendance(att, member_ids)
     chosen_days = _key_lists(days, member_ids, DAY_KEYS)
-    stays = _night(night, member_ids)
+    stays = _bools(night, member_ids)
     chosen_meals = _key_lists(meals, member_ids, MEAL_KEYS)
+    entries = _allergy_entries(alg, member_ids)
+    consent = _bools(cons, member_ids)
+    confirmed = _id_list(conf, member_ids)
+    too_long = _id_list(long, member_ids)
     if (
         not (_is_int(version) and version == VERSION)
         or not _is_start_time(started)
@@ -187,6 +258,10 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
         or chosen_days is None
         or stays is None
         or chosen_meals is None
+        or entries is None
+        or consent is None
+        or confirmed is None
+        or too_long is None
     ):
         return None
     return Draft(
@@ -199,6 +274,10 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
         days=chosen_days,
         night=stays,
         meals=chosen_meals,
+        alg=entries,
+        cons=consent,
+        conf=confirmed,
+        long=too_long,
     )
 
 

@@ -96,8 +96,8 @@ def test_registry_has_every_step_with_its_slug_and_name():
         "allergies": ("allergier", "Allergier og matbehov"),
         "hike": ("fjelltur", "Fjelltur fredag"),
     }
-    # Stories 2.2, 2.3: each step's question and fields; steps 5 and 6 keep
-    # their name and have no fields until 2.4-2.5.
+    # Stories 2.2 to 2.4: each step's question and fields; steps 5 and 6 keep
+    # their name as the question, and step 6 has no fields until 2.5.
     assert STEPS["who"].question == "Hvem kommer?"
     assert STEPS["days"].question == "Er alle som kommer, med hele helgen?"
     assert STEPS["overnight"].question == "Hvem skal overnatte på Hardingasete?"
@@ -108,7 +108,7 @@ def test_registry_has_every_step_with_its_slug_and_name():
         "days": "rsvp/includes/days_fields.html",
         "overnight": "rsvp/includes/overnight_fields.html",
         "meals": "rsvp/includes/meals_fields.html",
-        "allergies": "",
+        "allergies": "rsvp/includes/allergy_fields.html",
         "hike": "",
     }
     assert CHECK_SLUG == "se-over"

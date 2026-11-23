@@ -51,6 +51,7 @@ DAYS = f"/{SIGMUND}/svar/dager/"
 OVERNIGHT = f"/{SIGMUND}/svar/overnatting/"
 MEALS = f"/{SIGMUND}/svar/maltider/"
 ALLERGIES = f"/{SIGMUND}/svar/allergier/"
+HIKE = f"/{SIGMUND}/svar/fjelltur/"
 MONTHS = (
     "januar",
     "februar",
@@ -419,31 +420,39 @@ def _through_step_2(client) -> None:
     client.post(DAYS, {"whole": "yes"})
 
 
-def _through_step_4(client) -> None:
-    """Stories 2.2, 2.3: both coming the whole weekend, neither staying, no meal, so
-    the frames after step 4 open."""
+def _through_step_5(client) -> None:
+    """Stories 2.2 to 2.4: both coming the whole weekend, neither staying, no meal
+    and no allergies, so the hike frame opens."""
     sigmund, bestemor = _ids(SIGMUND)
     _through_step_2(client)
     client.post(OVERNIGHT, {f"overnight_{sigmund}": "no", f"overnight_{bestemor}": "no"})
     client.post(MEALS, {"action": "continue"})
+    assert client.post(ALLERGIES, {"action": "continue"})["Location"] == HIKE
 
 
 def test_a_frame_shows_where_the_guest_is(client, seeded):
-    """AD-7, UX-DR19: the allergies frame has the step's name as `h1`, «Steg 5 av 6:
-    Allergier og matbehov», the respondent line with «Bytt» and «Tilbake» to
-    step 4; no groups, no «Fortsett» and no script."""
-    _through_step_4(client)
-    html = client.get(ALLERGIES).content.decode()
-    assert '<h1 id="sporsmal">Allergier og matbehov</h1>' in html
-    assert '<p class="form-progress">Steg 5 av 6: Allergier og matbehov</p>' in html
-    assert _title(html) == "Steg 5 av 6: Allergier og matbehov \N{EN DASH} Invitasjon"
+    """AD-7, UX-DR19: the hike frame has the step's name as `h1`, «Steg 6 av 6:
+    Fjelltur fredag», the respondent line with «Bytt» and «Tilbake» to step 5;
+    no groups, no «Fortsett» and no script."""
+    _through_step_5(client)
+    html = client.get(HIKE).content.decode()
+    assert '<h1 id="sporsmal">Fjelltur fredag</h1>' in html
+    assert '<p class="form-progress">Steg 6 av 6: Fjelltur fredag</p>' in html
+    assert _title(html) == "Steg 6 av 6: Fjelltur fredag \N{EN DASH} Invitasjon"
     assert "Jeg er Sigmund · Bytt hvem som svarer" in page_text(html)
-    assert f'href="{MEALS}">Tilbake</a>' in html
+    assert f'href="{ALLERGIES}">Tilbake</a>' in html
     assert _fieldsets(html) == []
     assert "Fortsett" not in html
     assert "<script" not in html
-    # Story 2.2: a later frame opens only when every step before it is done.
-    assert client.get(f"/{SIGMUND}/svar/fjelltur/")["Location"] == ALLERGIES
+
+
+def test_a_later_frame_opens_only_after_the_steps_before_it(client, seeded):
+    """Story 2.2, AD-7: the hike frame sends the guest to step 5 until it is done."""
+    sigmund, bestemor = _ids(SIGMUND)
+    _through_step_2(client)
+    client.post(OVERNIGHT, {f"overnight_{sigmund}": "no", f"overnight_{bestemor}": "no"})
+    client.post(MEALS, {"action": "continue"})
+    assert client.get(HIKE)["Location"] == ALLERGIES
 
 
 def test_a_frame_that_does_not_apply_goes_on(client, seeded):
@@ -458,15 +467,15 @@ def test_a_post_to_a_frame_only_handles_bytt(client, seeded):
     """AD-7: a POST to a frame without `switch` goes back to the frame and changes
     nothing; with `switch` it sets the respondent."""
     _, bestemor = _ids(SIGMUND)
-    _through_step_4(client)
-    response = client.post(ALLERGIES, {"action": "continue"})
+    _through_step_5(client)
+    response = client.post(HIKE, {"action": "continue"})
     assert response.status_code == 302
-    assert response["Location"] == ALLERGIES
+    assert response["Location"] == HIKE
     assert COOKIE_NAME not in response.cookies
-    response = client.post(ALLERGIES, {"action": "switch", "respondent": str(bestemor)})
-    assert response["Location"] == ALLERGIES
+    response = client.post(HIKE, {"action": "switch", "respondent": str(bestemor)})
+    assert response["Location"] == HIKE
     assert _draft(response)["resp"] == bestemor
-    assert _draft(response)["done"] == ["who", "days", "overnight", "meals"]
+    assert _draft(response)["done"] == ["who", "days", "overnight", "meals", "allergies"]
 
 
 def _closed(response) -> None:
@@ -549,12 +558,12 @@ def test_csrf_failure_keeps_the_saved_draft_under_the_posted_choices(seeded):
 def test_csrf_failure_on_a_frame_shows_the_frame(seeded):
     """UX-DR52: a frame posted without a token comes back with its notice."""
     client = Client()
-    _through_step_4(client)
+    _through_step_5(client)
     client.handler.enforce_csrf_checks = True
-    response = client.post(ALLERGIES, {"action": "switch"})
+    response = client.post(HIKE, {"action": "switch"})
     assert response.status_code == 403
     html = response.content.decode()
-    assert '<h1 id="sporsmal">Allergier og matbehov</h1>' in html
+    assert '<h1 id="sporsmal">Fjelltur fredag</h1>' in html
     assert CSRF_NOTICE in page_text(html)
 
 

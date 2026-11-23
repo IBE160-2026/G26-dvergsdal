@@ -8,11 +8,16 @@ for someone who is not coming, nor a stay or a meal their days do not allow
 (AD-2), and `present_days` says which days each coming person counts with,
 the same way `form_steps` does, so a half-made day choice never drops a later
 choice.
+
+Story 2.4: the answer also holds each person's allergy entry, consent and
+the respondent's confirmation; `normalise_answer` drops them for anyone who
+is not coming (FR-75), and drops an entry with no information in it.
 """
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 
+from wedding.rules.allergies import AllergyEntry, has_allergy_info
 from wedding.rules.days import (
     DAY_KEYS,
     WHOLE_WEEKEND,
@@ -30,7 +35,10 @@ class Answer:
     kommer, med hele helgen?» (None while unanswered), `days` each member's
     chosen day keys after «Nei», `night` each member's «Ja»/«Nei» to the cabin
     (a member with no entry has not answered) and `meals` each member's chosen
-    meal keys.
+    meal keys. Story 2.4 (FR-25 to FR-27): `allergies` is each member's
+    `AllergyEntry`, `consent` each member's «Ja» (True) or «Nei» (False) to
+    storing it (no entry: unanswered), and `confirmed` the members the
+    respondent has confirmed know and agree.
     """
 
     attendance: Mapping[int, bool]
@@ -38,6 +46,9 @@ class Answer:
     days: Mapping[int, Iterable[str]] = field(default_factory=dict)
     night: Mapping[int, bool] = field(default_factory=dict)
     meals: Mapping[int, Iterable[str]] = field(default_factory=dict)
+    allergies: Mapping[int, AllergyEntry] = field(default_factory=dict)
+    consent: Mapping[int, bool] = field(default_factory=dict)
+    confirmed: frozenset[int] = frozenset()
 
 
 def present_days(answer: Answer) -> dict[int, frozenset[str]]:
@@ -90,7 +101,9 @@ def normalise_answer(answer: Answer) -> Answer:
     only when `can_stay_overnight` allows their days; otherwise the entry is
     removed, so the question is unanswered again. `meals` keeps only coming
     members and only the keys `offered_meals` offers for their days, in that
-    order; a member left with no meal is left out.
+    order; a member left with no meal is left out. Allergy entries, consent
+    and confirmations are kept only for coming members (FR-75, Story 2.4), and
+    an entry with no information is left out.
     """
     whole, days = _kept_days(answer)
     present = present_days(Answer(answer.attendance, whole, days))
@@ -105,4 +118,11 @@ def normalise_answer(answer: Answer) -> Answer:
             chosen_set = set(chosen)
             if kept := [meal for meal in offered_meals(present[guest_id]) if meal in chosen_set]:
                 meals[guest_id] = kept
-    return Answer(dict(answer.attendance), whole, days, night, meals)
+    allergies = {
+        guest_id: entry
+        for guest_id, entry in answer.allergies.items()
+        if guest_id in present and has_allergy_info(entry)
+    }
+    consent = {guest_id: given for guest_id, given in answer.consent.items() if guest_id in present}
+    confirmed = frozenset(guest_id for guest_id in answer.confirmed if guest_id in present)
+    return Answer(dict(answer.attendance), whole, days, night, meals, allergies, consent, confirmed)
