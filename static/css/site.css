@@ -384,7 +384,11 @@ a:active {
   background-color: var(--color-green-dark-hover);
 }
 
-.button[aria-disabled="true"] {
+.button[aria-disabled="true"],
+.button[aria-disabled="true"]:hover,
+.button[aria-disabled="true"]:active {
+  --button-border-width: 2px;
+
   background-color: var(--color-green-dark);
   cursor: progress;
 }
