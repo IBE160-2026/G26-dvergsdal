@@ -50,8 +50,9 @@ class WhoIsComingForm(forms.Form):
     def posted_attendance(self) -> dict[int, bool]:
         """FR-13: the members whose posted value is valid, without requiring the others.
 
-        Used by «Velg» (the answers typed so far survive a switch of respondent)
-        and by the re-render after a CSRF failure (UX-DR52).
+        Used by «Velg» and by an invalid «Fortsett» (the answers chosen so far
+        are kept in the draft) and by the re-render after a CSRF failure
+        (UX-DR52).
         """
         posted = {}
         for guest_id, _ in self.members:

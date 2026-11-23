@@ -32,7 +32,14 @@ from wedding.rules.form_steps import form_steps, next_step, previous_step, step_
 STEP_TEMPLATE = "rsvp/step.html"
 CHECK_TEMPLATE = "rsvp/check_frame.html"
 SWITCH = "switch"
+# FR-22: the query that asks step 1 to show its errors after an invalid «Fortsett».
+ERRORS_QUERY = "feil"
 Members = list[tuple[int, str]]
+
+
+def _member_ids(members: Members) -> set[int]:
+    """AD-8: the household's guest ids, the only ids a draft or a POST may name."""
+    return {guest_id for guest_id, _ in members}
 
 
 def _owner(actor: Actor, members: Members) -> int:
@@ -70,16 +77,17 @@ def _render_step(
     members: Members,
     respondent: int,
     page_context: dict[str, object],
-    form: WhoIsComingForm | None = None,
     checked: dict[int, bool] | None = None,
+    show_errors: bool = False,
     csrf_failed: bool = False,
     status: int = 200,
 ) -> HttpResponse:
     """FR-12, FR-14, FR-22, UX-DR16, UX-DR18, UX-DR19: one step's page.
 
-    Step 1 gets one group per member with `checked` pre-selected, and, for a
-    bound invalid `form`, the error summary and each group's error line. A
-    frame (any other step) has no groups and no «Fortsett».
+    Step 1 gets one group per member with `checked` pre-selected and, with
+    `show_errors`, the error summary and an error line for each member with no
+    answer in `checked`. A frame (any other step) has no groups and no
+    «Fortsett».
     """
     number, total = step_position(steps, key)
     step = STEPS[key]
@@ -88,11 +96,11 @@ def _render_step(
     rows, errors = [], []
     if key == "who":
         checked = checked or {}
-        form_errors = form.errors if form is not None and form.is_bound else {}
         for guest_id, name in members:
             field = attendance_field(guest_id)
-            error = form_errors.get(field, [""])[0]
             coming = checked.get(guest_id)
+            missing = show_errors and coming is None
+            error = f"Velg «Kommer» eller «Kommer ikke» for {name}." if missing else ""
             rows.append(
                 {
                     "id": guest_id,
@@ -133,8 +141,7 @@ def _switched(request: HttpRequest, draft: Draft, members: Members) -> Draft:
     every valid posted attendance is kept in the draft without validating the
     rest and without marking the step done, so nothing typed is lost.
     """
-    member_ids = {guest_id for guest_id, _ in members}
-    respondent = posted_respondent(request.POST, member_ids)
+    respondent = posted_respondent(request.POST, _member_ids(members))
     if respondent is not None:
         draft.resp = respondent
     posted = WhoIsComingForm(members, data=request.POST).posted_attendance()
@@ -164,27 +171,22 @@ def _who_is_coming(
             respondent=respondent,
             page_context=page_context,
             checked=checked,
+            show_errors=ERRORS_QUERY in request.GET,
         )
         return response, None
     if request.POST.get("action") == SWITCH:
         new = _switched(request, _merged(draft, actor, members), members)
         return HttpResponseRedirect(mount.url("who")), new
     form = WhoIsComingForm(members, data=request.POST)
-    member_ids = {guest_id for guest_id, _ in members}
-    posted = posted_respondent(request.POST, member_ids)
     if not form.is_valid():
-        response = _render_step(
-            request,
-            key="who",
-            steps=_steps(draft, members),
-            mount=mount,
-            members=members,
-            respondent=respondent if posted is None else posted,
-            page_context=page_context,
-            form=form,
-            checked=form.posted_attendance(),
-        )
-        return response, None
+        # FR-22, AD-7: POST-redirect-GET for errors too, so Back to the error
+        # page never asks to resubmit. The valid choices and respondent are kept
+        # in the draft, step 1 stays not done, and the GET shows the errors.
+        new = _switched(request, _merged(draft, actor, members), members)
+        response = HttpResponseRedirect(f"{mount.url('who')}?{ERRORS_QUERY}=1")
+        response.status_code = 303  # See Other: the GET never resubmits
+        return response, new
+    posted = posted_respondent(request.POST, _member_ids(members))
     new = _merged(draft, actor, members)
     new.att = form.attendance()
     if "who" not in new.done:
@@ -243,11 +245,11 @@ def handle_step(
 ) -> HttpResponse:
     """AD-7, AD-8: GET or POST one step (a key of `STEPS`, or `CHECK`) of the form.
 
-    Reads the draft cookie, answers the step, and writes the draft only after
-    a valid «Fortsett» or a «Velg». A broken draft is deleted and the form
-    starts empty. Nothing is written to the database.
+    Reads the draft cookie, answers the step, and writes the draft only on a
+    «Fortsett» (valid or not) or a «Velg». A broken draft is deleted and the
+    form starts empty. Nothing is written to the database.
     """
-    draft, broken = read_draft(request, {guest_id for guest_id, _ in members})
+    draft, broken = read_draft(request, _member_ids(members))
     arguments = {"mount": mount, "members": members, "draft": draft, "page_context": page_context}
     if step == "who":
         response, new = _who_is_coming(request, actor=actor, **arguments)
@@ -273,12 +275,12 @@ def render_after_csrf_failure(
 
     The posted valid choices stay checked, with no field errors, and a focused
     error notice at the top says what happened and to try again; the page has
-    a fresh token. No draft is written. None when the step is not one the guest
-    could have posted from (the caller then shows the generic page).
+    a fresh token. No draft is written, and a broken one is deleted. None when
+    the step is not one the guest could have posted from (the caller then shows
+    the generic page).
     """
-    draft, _ = read_draft(request, {guest_id for guest_id, _ in members})
-    member_ids = {guest_id for guest_id, _ in members}
-    posted = posted_respondent(request.POST, member_ids)
+    draft, broken = read_draft(request, _member_ids(members))
+    posted = posted_respondent(request.POST, _member_ids(members))
     steps = _steps(draft, members)
     if step == "who":
         saved = draft.att if draft is not None else {}
@@ -291,7 +293,7 @@ def render_after_csrf_failure(
         respondent = posted
     else:
         respondent = draft.resp if draft is not None else _owner(actor, members)
-    return _render_step(
+    response = _render_step(
         request,
         key=step,
         steps=steps,
@@ -303,3 +305,6 @@ def render_after_csrf_failure(
         csrf_failed=True,
         status=403,
     )
+    if broken:
+        delete_draft(response, mount)
+    return response

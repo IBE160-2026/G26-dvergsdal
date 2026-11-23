@@ -173,8 +173,16 @@ def test_unknown_step_slug_is_not_found(client, seeded):
     assert "Vi finner ikke denne siden" in response.content.decode()
 
 
-def _assert_bestemor_missing(response) -> None:
+def _assert_bestemor_missing(client, response) -> None:
+    """FR-22, AD-7: the invalid POST keeps Sigmund's answer in the draft (step 1
+    not done) and redirects 303 to `?feil=1`, whose GET shows bestemor's error."""
     sigmund, bestemor = _ids(SIGMUND)
+    assert response.status_code == 303
+    assert response["Location"] == f"{STEP_1}?feil=1"
+    draft = _draft(response)
+    assert draft["att"] == {str(sigmund): True}
+    assert draft["done"] == []
+    response = client.get(response["Location"])
     assert response.status_code == 200
     html = response.content.decode()
     assert _title(html) == "Feil: Steg 1 av 6: Hvem kommer \N{EN DASH} Invitasjon"
@@ -197,15 +205,14 @@ def _assert_bestemor_missing(response) -> None:
     assert "aria-describedby" not in groups[0]
     assert "aria-invalid" not in groups[0]
     assert checked_radios(html) == {f"attendance_{sigmund}": "yes", "respondent": str(sigmund)}
-    assert COOKIE_NAME not in response.cookies
 
 
 def test_missing_answer_shows_the_errors(client, seeded):
-    """FR-22, UX-DR16: only Sigmund answered, so the step comes back with 200, «Feil: »
-    in the title, a focused summary linking to bestemor's first radio, the error
-    under her legend, Sigmund still chosen, and no draft."""
+    """FR-22, UX-DR16, AD-7: only Sigmund answered, so the step redirects to
+    `?feil=1` (PRG), which shows «Feil: » in the title, a focused summary linking
+    to bestemor's first radio, the error under her legend and Sigmund still chosen."""
     sigmund, _ = _ids(SIGMUND)
-    _assert_bestemor_missing(client.post(STEP_1, {f"attendance_{sigmund}": "yes"}))
+    _assert_bestemor_missing(client, client.post(STEP_1, {f"attendance_{sigmund}": "yes"}))
 
 
 @pytest.mark.parametrize("forged", ["maybe", "", "YES", "1"])
@@ -215,7 +222,7 @@ def test_a_forged_value_is_an_error(client, seeded, forged):
     response = client.post(
         STEP_1, {f"attendance_{sigmund}": "yes", f"attendance_{bestemor}": forged}
     )
-    _assert_bestemor_missing(response)
+    _assert_bestemor_missing(client, response)
 
 
 def test_a_foreign_member_id_is_ignored(client, seeded):
@@ -225,8 +232,8 @@ def test_a_foreign_member_id_is_ignored(client, seeded):
     arild = _ids(ARILD)[0]
     data = {f"attendance_{sigmund}": "yes", f"attendance_{arild}": "yes"}
     response = client.post(STEP_1, data)
-    _assert_bestemor_missing(response)
-    assert f"attendance_{arild}" not in response.content.decode()
+    _assert_bestemor_missing(client, response)
+    assert str(arild) not in str(_draft(response)["att"])
 
 
 def test_valid_with_someone_coming_goes_to_the_days(client, seeded):
@@ -245,6 +252,30 @@ def test_valid_with_someone_coming_goes_to_the_days(client, seeded):
     assert draft["done"] == ["who"]
     assert draft["att"] == {str(sigmund): True, str(bestemor): False}
     assert draft["resp"] == sigmund
+
+
+def test_errors_show_only_for_missing_answers(client, seeded):
+    """FR-22: `?feil=1` with every answer saved shows the step without errors."""
+    client.post(STEP_1, _answers(SIGMUND, True, False))
+    html = client.get(f"{STEP_1}?feil=1").content.decode()
+    assert not _title(html).startswith("Feil:")
+    assert "error-summary" not in html
+    assert "aria-invalid" not in html
+
+
+def test_an_invalid_fortsett_keeps_the_chosen_respondent(client, seeded):
+    """FR-12: a valid respondent posted with an invalid «Fortsett» is kept."""
+    _, bestemor = _ids(SIGMUND)
+    response = client.post(STEP_1, {"respondent": str(bestemor)})
+    assert response.status_code == 303
+    assert _draft(response)["resp"] == bestemor
+    assert "Jeg er bestemor" in page_text(client.get(response["Location"]).content.decode())
+
+
+def test_a_new_draft_starts_at_the_household_revision(client, seeded):
+    """AD-8, AD-9: a new draft records the household's current revision."""
+    Household.objects.filter(guests__code=SIGMUND).update(revision=3)
+    assert _draft(client.post(STEP_1, _answers(SIGMUND, True, True)))["rev"] == 3
 
 
 def test_valid_with_nobody_coming_goes_to_the_check_page(client, seeded):
@@ -513,14 +544,41 @@ def test_csrf_failure_elsewhere_under_svar_is_the_generic_page(seeded, path):
     )
 
 
-def test_csrf_failure_after_the_deadline_is_the_generic_page(seeded):
-    """FR-41: after the deadline a step is not shown again."""
+@pytest.mark.parametrize("path", [STEP_1, DAYS])
+def test_csrf_failure_after_the_deadline_is_the_closed_page(seeded, path):
+    """FR-41, AD-11: after the deadline every step address shows the closed page,
+    also for a POST with a stale token."""
     _set_deadline(timezone.localdate() - datetime.timedelta(days=1))
-    response = Client(enforce_csrf_checks=True).post(STEP_1)
-    assert response.status_code == 403
-    assert '<h1 class="private-invitation__heading">Skjemaet ble ikke sendt</h1>' in (
-        response.content.decode()
+    response = Client(enforce_csrf_checks=True).post(path)
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert '<h1 class="private-invitation__heading">Svarfristen har gått ut</h1>' in html
+    assert "Skjemaet ble ikke sendt" not in html
+    assert COOKIE_NAME not in response.cookies
+
+
+def test_csrf_failure_on_velg_shows_the_posted_respondent(seeded):
+    """UX-DR52, FR-12: «Velg» posted without a token comes back with the chosen
+    respondent in the line, private and never stored, and writes no draft."""
+    _, bestemor = _ids(SIGMUND)
+    response = Client(enforce_csrf_checks=True).post(
+        STEP_1, {"action": "switch", "respondent": str(bestemor)}
     )
+    assert response.status_code == 403
+    assert "Jeg er bestemor" in page_text(response.content.decode())
+    assert "private" in response["Cache-Control"]
+    assert "no-store" in response["Cache-Control"]
+    assert COOKIE_NAME not in response.cookies
+
+
+def test_csrf_failure_deletes_a_broken_draft(seeded):
+    """AD-8, UX-DR52: a broken draft is deleted on the 403 re-render too."""
+    client = Client(enforce_csrf_checks=True)
+    client.cookies[COOKIE_NAME] = "broken"
+    response = client.post(STEP_1)
+    assert response.status_code == 403
+    assert response.cookies[COOKIE_NAME]["max-age"] == 0
+    assert response.cookies[COOKIE_NAME]["path"] == f"/{SIGMUND}/"
 
 
 def test_csrf_failure_falls_back_to_the_generic_page_on_any_error(seeded, monkeypatch):
@@ -556,7 +614,8 @@ def test_the_whole_flow_writes_nothing_and_uses_no_session(client, seeded, monke
     revisions = list(Household.objects.values_list("id", "revision"))
     requests = [
         ("get", STEP_1, {}, 200),
-        ("post", STEP_1, {f"attendance_{sigmund}": "yes"}, 200),
+        ("post", STEP_1, {f"attendance_{sigmund}": "yes"}, 303),
+        ("get", f"{STEP_1}?feil=1", {}, 200),
         ("post", STEP_1, _answers(SIGMUND, True, False), 302),
         ("get", DAYS, {}, 200),
         ("post", DAYS, {"action": "switch", "respondent": str(bestemor)}, 302),
