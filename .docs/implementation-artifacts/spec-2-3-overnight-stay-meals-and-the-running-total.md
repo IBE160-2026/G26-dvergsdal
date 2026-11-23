@@ -2,7 +2,8 @@
 title: 'Story 2.3: Overnight stay, meals and the running total'
 type: 'feature'
 created: '2026-11-23'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '895b2be381eabe79c0f1eb8c01438dccc1ed1511'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -10,7 +11,11 @@ context:
   - '{project-root}/.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md'
 warnings:
   - oversized
-deferred: []
+deferred:
+- summary: >-
+    Story 4.5: with a cabin or meal price of 0 the pay note («hver gjest betaler selv») and the cabin lead («Begge nettene betales …») on steps 3–4 still say guests pay; adjust the texts together with the programme's price-0 entry.
+  evidence: >-
+    low. Blind review; no price is 0 until the couple can edit Settings in Story 4.5.
 ---
 
 <intent-contract>
@@ -171,24 +176,24 @@ S = Sigmund + bestemor, A = Arild's household, E = Eva (alone), Y = Synne. Price
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/rules/days.py`, `wedding/rules/answer.py`, `wedding/rules/money.py`: `MEAL_KEYS`, `Answer`, `present_days`, the extended `normalise_answer` and `household_total`, with docstrings (FR-15, FR-16, FR-33, FR-70, FR-73, FR-75, NFR-2, AD-2, AD-12).
-- [ ] `wedding/templatetags/__init__.py`, `wedding/templatetags/money.py`: the `kroner` filter (spec-1-7 deferred).
-- [ ] `wedding/selectors.py`: `form_prices`.
-- [ ] `wedding/rsvp/steps.py`: `fields_template`, the two questions, `MEALS`, `total_url`.
-- [ ] `wedding/rsvp/draft.py`: v3 with `night` and `meals`.
-- [ ] `wedding/rsvp/forms.py`: `OvernightForm`, `MealsForm`, `PAY_NOTE`, the field-name helpers and all the texts.
-- [ ] `wedding/rsvp/views.py` and the templates `rsvp/step.html`, `rsvp/includes/{overnight_fields,meals_fields,total}.html`: steps 3–4, `_settled` with `Answer`, reopen-on-change, «Velg», the CSRF branch, `render_total`, the include from the registry, and the docstrings.
-- [ ] `guests/views.py`, `guests/urls.py`: pass `prices`, and add the `rsvp_total` view and route.
-- [ ] `guests/templates/guests/programme.html`: `|kroner`.
-- [ ] `static/js/rsvp-total.js` (remove `static/js/.gitkeep`), `static/css/site.css`: the script and the CSS block.
-- [ ] `tests/test_answer_rules.py`:
+- [x] `wedding/rules/days.py`, `wedding/rules/answer.py`, `wedding/rules/money.py`: `MEAL_KEYS`, `Answer`, `present_days`, the extended `normalise_answer` and `household_total`, with docstrings (FR-15, FR-16, FR-33, FR-70, FR-73, FR-75, NFR-2, AD-2, AD-12).
+- [x] `wedding/templatetags/__init__.py`, `wedding/templatetags/money.py`: the `kroner` filter (spec-1-7 deferred).
+- [x] `wedding/selectors.py`: `form_prices`.
+- [x] `wedding/rsvp/steps.py`: `fields_template`, the two questions, `MEALS`, `total_url`.
+- [x] `wedding/rsvp/draft.py`: v3 with `night` and `meals`.
+- [x] `wedding/rsvp/forms.py`: `OvernightForm`, `MealsForm`, `PAY_NOTE`, the field-name helpers and all the texts.
+- [x] `wedding/rsvp/views.py` and the templates `rsvp/step.html`, `rsvp/includes/{overnight_fields,meals_fields,total}.html`: steps 3–4, `_settled` with `Answer`, reopen-on-change, «Velg», the CSRF branch, `render_total`, the include from the registry, and the docstrings.
+- [x] `guests/views.py`, `guests/urls.py`: pass `prices`, and add the `rsvp_total` view and route.
+- [x] `guests/templates/guests/programme.html`: `|kroner`.
+- [x] `static/js/rsvp-total.js` (remove `static/js/.gitkeep`), `static/css/site.css`: the script and the CSS block.
+- [x] `tests/test_answer_rules.py`:
   - Table-driven over all 8 subsets of `DAY_KEYS`: `can_stay_overnight` and `offered_meals` per allowed set, i.e. every allowed day combination (epics AC).
   - `present_days`.
   - `normalise_answer` drops night and meals for a non-comer and for a removed day, and keeps them for an unchosen or refused set.
   - `household_total`: each paid option alone, everything (Sigmund 4 720), the Arild, Eva and Jonas/Ida totals from expected.toml, Filippa sat+sun 1 760, Synne sat-only 0, nobody coming 0, removed choices never counting, and price 0.
   - `kroner`: 0, 340, 1 450, 12 345.
   - Move the 2.2 normalise tests here or update them in place in `tests/test_days_rules.py`.
-- [ ] `tests/test_rsvp_overnight_meals.py`:
+- [x] `tests/test_rsvp_overnight_meals.py`:
   - Every matrix row.
   - «Velg» on steps 3–4 keeps choices.
   - Enter submits as «Fortsett».
@@ -198,8 +203,8 @@ S = Sigmund + bestemor, A = Arild's household, E = Eva (alone), Y = Synne. Price
   - 3 SELECTs per request, including `sum/`.
   - No DB rows or session.
   - Totals use U+00A0.
-- [ ] Update `tests/test_rsvp_days.py`, `tests/test_rsvp_who_is_coming.py` (frames → `allergier`), `tests/test_rsvp_draft.py` (v3, BROKEN cases, 8 people with every field < 4 KB) and `tests/test_programme_page.py` (`|kroner`, plus a price ≥ 1000 shown as «1 450 kr.»).
-- [ ] `docs/manual-test-plan.md`: Norwegian rows with empty date and result cells, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`). Before each: `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`.
+- [x] Update `tests/test_rsvp_days.py`, `tests/test_rsvp_who_is_coming.py` (frames → `allergier`), `tests/test_rsvp_draft.py` (v3, BROKEN cases, 8 people with every field < 4 KB) and `tests/test_programme_page.py` (`|kroner`, plus a price ≥ 1000 shown as «1 450 kr.»).
+- [x] `docs/manual-test-plan.md`: Norwegian rows with empty date and result cells, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`). Before each: `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`.
   - **MT-1 (2.3):** README «Svarskjemaet» to step 4.
   - **MT-30 (real submission, steps 1–4):**
     1. On `http://127.0.0.1:8000/test-sigmund0000000000/svar/`: both «Kommer», «Fortsett», «Ja», «Fortsett». Expect `/svar/overnatting/`, title «Steg 3 av 6: Overnatting – Invitasjon», «1 500 kr per person» and «Totalt for husstanden: 0 kr».
@@ -221,14 +226,14 @@ S = Sigmund + bestemor, A = Arild's household, E = Eva (alone), Y = Synne. Price
     - The amount «1 500 kr» never breaks over lines.
     - `.form-total` is right-aligned inside the sheet.
     - «Fortsett» is above «Tilbake», 12px apart.
-- [ ] `README.md`: the status line (2.3), «Svarskjemaet» (steps 3–4, the total, and that the total also updates while the guest chooses, with JavaScript; `POST /<kode>/svar/sum/`) and the tree (`static/js/`, `wedding/templatetags/`).
-- [ ] ARCHITECTURE-SPINE, EXPERIENCE.md, DESIGN.md: dated notes (2026-11-23, Story 2.3):
+- [x] `README.md`: the status line (2.3), «Svarskjemaet» (steps 3–4, the total, and that the total also updates while the guest chooses, with JavaScript; `POST /<kode>/svar/sum/`) and the tree (`static/js/`, `wedding/templatetags/`).
+- [x] ARCHITECTURE-SPINE, EXPERIENCE.md, DESIGN.md: dated notes (2026-11-23, Story 2.3):
   - AD-2: `Answer`, `present_days`, `rules/money.py`.
   - AD-7: `sum/?steg=` and its 204 cases, the visible total vs the empty status region, and reopen-on-change.
   - AD-8: format 3.
   - The microcopy for steps 3–4, PAY_NOTE, the error texts and the questions, all «avgjort av Claude 2026-11-23» with the reason (FR-16/FR-32/FR-70 and the form-step pattern; «Hvem/Hvilke» avoid du/dere).
   - In DESIGN, the running total component: the visible `.form-total` is not live, and the empty `role="status"` beside it gets the text.
-- [ ] `.docs/implementation-artifacts/deferred-work.md`: mark the three entries done, at `:58` (kroner, spec-1-7), `:179` (reopen/FR-75, spec-2-2) and `:187` (include from registry, spec-2-2). Leave the price-0 programme entry (`:62`, Story 4.5) open.
+- [x] `.docs/implementation-artifacts/deferred-work.md`: mark the three entries done, at `:58` (kroner, spec-1-7), `:179` (reopen/FR-75, spec-2-2) and `:187` (include from registry, spec-2-2). Leave the price-0 programme entry (`:62`, Story 4.5) open.
 
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` run, then all pass.
@@ -239,6 +244,31 @@ S = Sigmund + bestemor, A = Arild's household, E = Eva (alone), Y = Synne. Price
 ## Spec Change Log
 
 ## Review Triage Log
+
+### 2026-11-23 — Review pass
+- verdicts: 21 findings — high 0, medium 1, low 12, false 8, maybe-false 0
+- findings:
+  - `[low]` `[reject]` The error-summary link for a member whose days block a stay focuses «Ja» although the line says «Velg «Nei»» (blind) — every summary link goes to the group's first input (FR-22, the 2.1 convention); the error line under the legend is read with the group, and the arrow keys reach «Nei». A special case adds a branch for a rare state.
+  - `[low]` `[reject]` A refused «Ja» is dropped, so the group shows nothing chosen after the redirect (blind) — decided in the spec (the stay cannot be saved; `normalise_answer` would remove it), and the error line names the reason; MT-30 trinn 7 shows Filippa's group with the explanation.
+  - `[false]` `[reject]` Step 4 can render with no meal fieldsets (blind) — `form_steps` (`wedding/rules/form_steps.py:50`) leaves out «meals» when nobody present is offered a paid meal, so the step is never shown empty.
+  - `[low]` `[defer]` The pay note and the cabin lead still say guests pay when a price is 0 (blind) — belongs with the price-0 entry routed to Story 4.5, which first lets the couple save a 0.
+  - `[low]` `[reject]` `kroner` raises on None or a string (blind) — every caller passes an int from `form_prices`/Settings or `household_total`; a guard adds a branch for input that never reaches it.
+  - `[low]` `[reject]` A CSRF failure on `sum/` is untested (blind) — the script accepts only 200 and leaves the server-rendered total in place; nothing is written; the next «Fortsett» shows the right total.
+  - `[low]` `[reject]` `render_total` does not check step order (blind) — it writes nothing and returns only the household's own total from its own draft; documented by the implementer; same as the edge-case row.
+  - `[low]` `[patch]` The script rewrites the status region on every change, so the same total is announced again (blind) — `rsvp-total.js` now writes the status text only when the total changed.
+  - `[low]` `[reject]` `OvernightForm`/`MealsForm` extend `forms.Form` without fields, and the CSRF branch repeats the step choice (blind) — same pattern as `DaysForm` after 2.2 (no unused field declarations); the form classes hold the texts and validation in one place.
+  - `[false]` `[reject]` The process trail is missing from the diff (blind) — the session log, issues and PR are written after review (step 14); «avgjort av Claude» follows Rikke's goal-run rule of 2026-11-23; the cookie format bump is recorded in the spec and ARCHITECTURE-SPINE AD-8.
+  - `[low]` `[reject]` `kroner` on non-int input (edge-case) — same as the blind row: callers always pass ints.
+  - `[low]` `[reject]` When the newest request fails, an older total may stay on screen (edge-case) — needs a network failure mid-typing; the server re-renders the total on «Fortsett», which is the truth (AD-7); a retry adds complexity.
+  - `[low]` `[reject]` `sum/` is not gated by step order (edge-case) — same as the blind row.
+  - `[false]` `[reject]` The live update in the browser is not verified (intent-alignment) — MT-1 (2.3), MT-30, MT-31 and MT-32 were run by Claude in Edge after the review: 0 → 1 500 → 3 000 → 4 120 kr, `#total-status` filled, arrows change the sum.
+  - `[false]` `[reject]` FR-75 via «Endre» on the check page is not exercised (intent-alignment) — the check page is Story 2.5; the rule and the step-2 re-post path are tested, which is what «for example» allows now.
+  - `[false]` `[reject]` «Identical on check page and receipt» is not shown (intent-alignment) — those pages are Stories 2.5/2.6; both use `household_total`, the single rule this story adds.
+  - `[false]` `[reject]` The AC2 explanation is only server-tested (intent-alignment) — descriptive, no defect; also seen in Edge (MT-30 trinn 7).
+  - `[false]` `[reject]` The table test covers all 8 subsets, beyond the AC (intent-alignment) — descriptive, no defect.
+  - `[medium]` `[patch]` [orchestrator] At 180 px the error summary on step 3 runs past the sheet: «må du» and «overnatting» are cut at the right edge (screenshot svar-steg3-180-16.png) — fixed in `static/css/site.css` so long words wrap inside the box; re-measured in Edge.
+  - `[false]` `[reject]` Verification gap layer: no gaps found — nothing to route.
+  - `[low]` `[patch]` [implementer] In `test_one_day_is_blocked` the assertion that Filippa is absent from the draft's `night` uses the wrong key type, so it checks nothing — the assertion now uses the stored key type.
 
 ## Design Notes
 
@@ -252,3 +282,26 @@ S = Sigmund + bestemor, A = Arild's household, E = Eva (alone), Y = Synne. Price
 - `uv run pytest`: expected all green.
 - `uv run ruff check` and `uv run ruff format --check`: expected no findings.
 - `uv run djlint --check .`: expected no findings.
+
+## Auto Run Result
+
+## Status
+done
+
+## Summary
+Steps 3 «Overnatting» and 4 «Måltider» of the RSVP form, with prices shown before any choice, the one-day block with an explanation, and the household total rendered on the server and updated by a small script through `POST /<kode>/svar/sum/`. One `kroner` filter («1 500 kr») also used on the programme. Later steps reopen when the people or days present change (FR-75). The step registry names each step's include.
+
+## Files changed
+wedding/rules/{answer,days,money}.py, wedding/templatetags/money.py, wedding/selectors.py, wedding/rsvp/{steps,draft,forms,views}.py, rsvp templates (step.html, overnight_fields, meals_fields, total), guests/{views,urls}.py, programme.html, static/js/rsvp-total.js, static/css/site.css, tests (2 new files, 6 updated), README, manual test plan, ARCHITECTURE-SPINE, DESIGN.md, EXPERIENCE.md, deferred-work.md.
+
+## Review counts
+21 findings — high 0, medium 1, low 12, false 8; 3 patched, 1 deferred, 17 rejected.
+
+## Follow-up review recommendation
+false — the patches were small (CSS wrapping, one JS condition, one test assertion) and were re-verified with the full suite and the browser checks.
+
+## Verification
+uv run pytest -q: 1021 passed; ruff check, ruff format --check, djlint --check: clean. MT-1 (2.3), MT-30, MT-31, MT-32 run by Claude with Playwright 1.56.1 in Edge, before and after the patches.
+
+## Residual risks
+The script is covered only by the Edge runs, not by automated tests. Screen-reader announcement of the status region is not checked with NVDA/VoiceOver.
