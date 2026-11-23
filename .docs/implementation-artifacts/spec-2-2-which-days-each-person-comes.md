@@ -36,7 +36,7 @@ deferred:
   - summary: >-
       Step 2's look (day list, «Velg dagene for hver person», checkbox groups) and texts are [forslag], not rendered in a mockup or approved by Rikke.
     evidence: |-
-      Blind review. Screenshots from the Edge run are in the PR; Rikke approves or changes them (issues.md).
+      Blind review. Rikke sees it by running MT-27 locally and approves or changes them (issues.md).
     location: >-
       .docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md
     severity: low
