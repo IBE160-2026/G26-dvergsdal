@@ -353,6 +353,8 @@ flowchart TB
   end
 ```
 
+*(Changed 2026-11-23, Rikke's decision: the usability test in the first week of December 2026 runs locally on Rikke's machine with the course version and fictional test data, not on a public address. So the stricter log mask for link codes and the production hardening (AD-14, HTTPS, `CSRF_TRUSTED_ORIGINS`) are not needed before the test; they stay with the hosting story and go-live, see `deferred-work.md`.)*
+
 ## Capability → Architecture Map
 
 | Capability / Area | Lives in | Governed by |

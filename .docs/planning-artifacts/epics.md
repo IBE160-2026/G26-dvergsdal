@@ -37,7 +37,7 @@ This document breaks the requirements in the PRD, the UX design (DESIGN.md, EXPE
 
 ## Epic List
 
-The epics follow the PRD's priority tiers. Epics 1–3 are the T1 usability-test build (27 November 2026); the usability test in the first week of December is a real feedback point, so it is also an epic boundary. Epics 4–7 complete the course version (T2, 10 December 2026), in the PRD's T2 order. Epic 8 is T3, cut first; anything not done by 10 December moves to [2027] with the reason in the PRD change log. NFRs are cross-cutting and apply to every story; the NFRs named under each epic are the ones it first makes testable.
+The epics follow the PRD's priority tiers. Epics 1–3 are the T1 usability-test build (27 November 2026); the usability test in the first week of December is a real feedback point, so it is also an epic boundary. It runs locally on Rikke's machine, not on a public address (Rikke, 2026-11-23). Epics 4–7 complete the course version (T2, 10 December 2026), in the PRD's T2 order. Epic 8 is T3, cut first; anything not done by 10 December moves to [2027] with the reason in the PRD change log. NFRs are cross-cutting and apply to every story; the NFRs named under each epic are the ones it first makes testable.
 
 **Decision: three epics change the RSVP form.** Epics 2, 4 and 7 all change the form in `wedding/rsvp/`. Merging them was considered and rejected: the usability test after Epic 3 may change the form, and the PRD's cut order puts Epic 7's parts last in T2.
 
