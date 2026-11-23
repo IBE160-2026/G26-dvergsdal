@@ -1,0 +1,9 @@
+{% load money %}
+{% comment %}
+The household total (Story 2.3; FR-33, AD-7, AD-12, NFR-2; DESIGN.md › Running
+total): «Totalt for husstanden: <amount>», the amount from `household_total`
+written by the `kroner` filter. step.html shows it on steps 3 and 4, and
+`POST <base>/sum/` answers with this fragment alone, so the page and the
+running total cannot differ. Not a live region (UX-DR17).
+{% endcomment %}
+<p class="form-total">Totalt for husstanden: <strong>{{ total|kroner }}</strong></p>

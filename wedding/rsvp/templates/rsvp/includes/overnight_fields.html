@@ -1,0 +1,41 @@
+{% load money %}
+{% comment %}
+Step 3's fields (Story 2.3; FR-16, FR-22, FR-32, FR-70, UX-DR16; DESIGN.md ›
+Form step, EXPERIENCE.md › Microcopy). First why the cabin is paid for the
+whole weekend, the price per person (left out when it is 0) and why guests
+pay, all before any choice. Then one fieldset per coming person, the name as
+the legend, with «Ja, hytte hele helgen – <price>» and «Nei», nothing chosen
+until the guest chooses. Errors follow step 1: the error line under the
+legend, `aria-describedby` and `aria-invalid`; for someone whose days do not
+allow a stay, the line says why (FR-70). The texts come from OvernightForm.
+{% endcomment %}
+<p class="form-note">{{ lead }}</p>
+{% if cabin_price %}
+    <p class="form-price">
+        {{ price_label }}: <b>{{ cabin_price|kroner }}</b> {{ price_unit }}
+    </p>
+{% endif %}
+<p class="form-note">{{ pay_note }}</p>
+{% for group in groups %}
+    <fieldset class="form-group"
+              {% if group.error %}aria-describedby="{{ group.field }}_error"{% endif %}>
+        <legend>{{ group.name }}</legend>
+        {% if group.error %}
+            <p class="field-error" id="{{ group.field }}_error">
+                {% include "wedding/components/state-icon.html" with variant="error" class="field-error__icon" only %}
+                <span>Feil: {{ group.error }}</span>
+            </p>
+        {% endif %}
+        {% for value, label in choices %}
+            <label class="choice">
+                <input type="radio"
+                       name="{{ group.field }}"
+                       id="{{ group.field }}_{{ value }}"
+                       value="{{ value }}"
+                       {% if group.value == value %}checked{% endif %}
+                       {% if group.error %}aria-invalid="true"{% endif %}>
+                {{ label }}
+            </label>
+        {% endfor %}
+    </fieldset>
+{% endfor %}

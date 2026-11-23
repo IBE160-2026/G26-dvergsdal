@@ -7,7 +7,8 @@ private-invitation page G1 for the bare address and for every code that
 resolves to nobody (Story 1.4b, FR-5), the local style sample (Story 1.4a),
 and the site-wide error pages for 404, 500, 400 and a failed CSRF check
 (Story 1.8, FR-5, FR-6, AD-15), and the RSVP form under `/<code>/svar/`
-(Story 2.1, FR-12 to FR-14, FR-22, FR-41, AD-7, AD-8, AD-11).
+(Story 2.1, FR-12 to FR-14, FR-22, FR-41, AD-7, AD-8, AD-11) with its running
+total under `/<code>/svar/sum/` (Story 2.3, FR-33).
 
 Every guest view only reads (FR-3): one resolver lookup, then selectors. None
 of them touches the session, the messages framework or `request.user`, and
@@ -34,17 +35,18 @@ from django.urls import Resolver404, resolve, reverse
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.debug import sensitive_post_parameters
-from django.views.decorators.http import require_http_methods, require_safe
+from django.views.decorators.http import require_http_methods, require_POST, require_safe
 
 from wedding.actors import GuestActor
 from wedding.links import resolve_code
 from wedding.models import Settings
 from wedding.rsvp.steps import KEY_BY_SLUG, FormMount
-from wedding.rsvp.views import handle_step, render_after_csrf_failure
+from wedding.rsvp.views import handle_step, render_after_csrf_failure, render_total
 from wedding.rules.deadline import is_past_deadline
 from wedding.rules.households import household_names, speaks_to_one
 from wedding.selectors import (
     footer_contacts,
+    form_prices,
     household_guest_names,
     household_members,
     programme_prices,
@@ -220,6 +222,7 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
         mount=_guest_mount(actor.guest.code),
         members=household_members(actor.household),
         step=step,
+        prices=form_prices(settings),
         page_context=context,
     )
 
@@ -238,6 +241,32 @@ def rsvp(request: HttpRequest, code: str) -> HttpResponse:
 def rsvp_step(request: HttpRequest, code: str, slug: str) -> HttpResponse:
     """AD-7: a later step or the check page of the RSVP form, by its slug (frames until 2.5)."""
     return _rsvp(request, code, KEY_BY_SLUG.get(slug))
+
+
+@never_cache
+@sensitive_post_parameters()
+@require_POST
+def rsvp_total(request: HttpRequest, code: str) -> HttpResponse:
+    """FR-33, AD-7, AD-12 (Story 2.3): the running total of step 3 or 4, `?steg=<slug>`.
+
+    The script on the paid steps posts the step's form here on every change
+    and swaps in the returned fragment. Three SELECTs: the resolver, the
+    settings row and the members. An unknown code gives G1 with 404; after the
+    deadline, and whenever `render_total` has no total to give, it is 204 with
+    no body. It never sets a cookie and writes nothing.
+    """
+    actor = resolve_code(code)
+    if actor is None:
+        return _unknown_link(request)
+    settings = site_settings()
+    if is_past_deadline(settings.rsvp_deadline, timezone.now()):
+        return HttpResponse(status=204)
+    return render_total(
+        request,
+        members=household_members(actor.household),
+        slug=request.GET.get("steg", ""),
+        prices=form_prices(settings),
+    )
 
 
 # Error pages (Story 1.8, FR-5, FR-6, AD-15)
@@ -326,6 +355,7 @@ def _rsvp_after_csrf_failure(request: HttpRequest) -> HttpResponse | None:
         mount=_guest_mount(actor.guest.code),
         members=household_members(actor.household),
         step=step,
+        prices=form_prices(settings),
         page_context=_guest_context(actor, settings),
     )
 

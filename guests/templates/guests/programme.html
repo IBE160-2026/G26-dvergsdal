@@ -1,5 +1,5 @@
 {% extends "guests/info_page.html" %}
-{% load static %}
+{% load static money %}
 {% comment %}
 Programmet (Story 1.7; FR-9, FR-11, AD-17, UX-DR13; DESIGN.md › Info pages,
 Programme timeline, Programme icon, «Godt å vite», Voluntary line; approved in
@@ -11,7 +11,8 @@ focusable jump target labelled by its `h2`: the date line, the timeline as an
 name; CSS alternates the sides) and «Godt å vite». Information only, no
 sign-up (FR-9). The text lives here in the template (AD-17) and is the approved
 mockup's. The three meal prices come from the settings row through
-`programme_prices` (FR-32, AD-12), never from this template, so the programme
+`programme_prices` (FR-32, AD-12), never from this template, and are written
+by the `kroner` filter the RSVP form uses too (Story 2.3), so the programme
 and the RSVP form cannot differ. The times are the mockup's placeholders until
 Story 7.4 replaces them with the couple's real times.
 {% endcomment %}
@@ -90,7 +91,7 @@ Story 7.4 replaces them with the couple's real times.
             <ul>
                 <li>Fjellturen er for dem som kommer tidlig. Meld dere på i svarskjemaet, og ta med gode sko.</li>
                 <li>
-                    <strong>Middagen betales selv:</strong> {{ prices.friday_dinner }} kr.
+                    <strong>Middagen betales selv:</strong> {{ prices.friday_dinner|kroner }}.
                 </li>
                 <li>Badstue og stamp er for den som vil. Ta med badetøy.</li>
             </ul>
@@ -171,7 +172,7 @@ Story 7.4 replaces them with the couple's real times.
             <ul>
                 <li>Yoga er for den som vil. Ta med treningstøy.</li>
                 <li>
-                    <strong>Frokosten betales selv:</strong> {{ prices.saturday_breakfast }} kr.
+                    <strong>Frokosten betales selv:</strong> {{ prices.saturday_breakfast|kroner }}.
                 </li>
                 <li>
                     Vielsen er i Strandebarm kirke, og lunsjen er utenfor kirka. Til lunsjen serverer vi cider fra Hardanger.
@@ -214,7 +215,7 @@ Story 7.4 replaces them with the couple's real times.
             <h3>Godt å vite</h3>
             <ul>
                 <li>
-                    <strong>Frokosten betales selv:</strong> {{ prices.sunday_breakfast }} kr.
+                    <strong>Frokosten betales selv:</strong> {{ prices.sunday_breakfast|kroner }}.
                 </li>
             </ul>
         </div>

@@ -1,10 +1,11 @@
-"""The RSVP draft cookie (Stories 2.1, 2.2; AD-8).
+"""The RSVP draft cookie (Stories 2.1 to 2.3; AD-8).
 
 FR-78, AD-8: a round trip through `rsvp_draft`, its attributes (path `/<code>/`,
 HttpOnly, SameSite=Lax, Secure only in production, the 90-day backstop), and
 every kind of broken draft: each is deleted with the same path and the form
-starts empty, never with a server error. Format 2 (Story 2.2) adds `whole` and
-`days`; a format 1 cookie is broken. The step flow itself is in
+starts empty, never with a server error. Format 2 (Story 2.2) added `whole`
+and `days`, format 3 (Story 2.3) `night` and `meals`; a format 1 or 2 cookie
+is broken. The step flow itself is in
 test_rsvp_who_is_coming.py.
 """
 
@@ -36,7 +37,7 @@ def _ids(code: str) -> list[int]:
 def _payload(**changes) -> dict:
     sigmund, bestemor = _ids(SIGMUND)
     payload = {
-        "v": 2,
+        "v": 3,
         "started": "2026-11-21T10:00:00+00:00",
         "rev": 0,
         "resp": sigmund,
@@ -44,6 +45,8 @@ def _payload(**changes) -> dict:
         "done": ["who"],
         "whole": None,
         "days": {},
+        "night": {},
+        "meals": {},
     }
     return payload | changes
 
@@ -65,7 +68,7 @@ def _post_valid(client):
 
 def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     """AD-8: path `/<code>/`, HttpOnly, SameSite=Lax, not Secure locally, 90 days;
-    the payload has format 2, the household revision, the respondent, everyone's
+    the payload has format 3, the household revision, the respondent, everyone's
     attendance and step 1 done."""
     sigmund, bestemor = _ids(SIGMUND)
     response = _post_valid(client)
@@ -77,13 +80,15 @@ def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     assert not cookie["secure"]
     assert cookie["max-age"] == NINETY_DAYS
     payload = signing.loads(cookie.value, salt=SALT)
-    assert payload["v"] == 2
+    assert payload["v"] == 3
     assert payload["rev"] == 0
     assert payload["resp"] == sigmund
     assert payload["att"] == {str(sigmund): True, str(bestemor): False}
     assert payload["done"] == ["who"]
     assert payload["whole"] is None
     assert payload["days"] == {}
+    assert payload["night"] == {}
+    assert payload["meals"] == {}
     assert payload["started"].endswith("+00:00")
 
 
@@ -104,11 +109,11 @@ def test_round_trip_keeps_started_and_revision(client, seeded):
 
 
 def test_a_full_draft_for_eight_fits_in_a_cookie():
-    """AD-8: a household is at most 8, and its draft, with every day for everyone,
-    stays far below 4 KB."""
+    """AD-8: a household is at most 8, and its draft, with every day, a stay and
+    every meal for everyone, stays below 4 KB."""
     ids = range(10_000_000, 10_000_008)
     payload = {
-        "v": 2,
+        "v": 3,
         "started": "2026-11-21T10:00:00.123456+00:00",
         "rev": 123,
         "resp": ids[0],
@@ -116,6 +121,11 @@ def test_a_full_draft_for_eight_fits_in_a_cookie():
         "done": ["who", "days", "overnight", "meals", "allergies", "hike"],
         "whole": False,
         "days": {str(guest_id): ["fri", "sat", "sun"] for guest_id in ids},
+        "night": {str(guest_id): True for guest_id in ids},
+        "meals": {
+            str(guest_id): ["friday_dinner", "saturday_breakfast", "sunday_breakfast"]
+            for guest_id in ids
+        },
     }
     assert len(_signed(payload)) < 4096
 
@@ -148,6 +158,9 @@ BROKEN = {
     "not a dict": lambda: _signed([1, 2, 3]),
     "v 0": lambda: _signed(_payload(v=0)),
     "v 1 (Story 2.1)": lambda: _signed(_payload(v=1)),
+    "v 2 (Story 2.2)": lambda: _signed(
+        {k: v for k, v in _payload(v=2).items() if k not in ("night", "meals")}
+    ),
     "v true": lambda: _signed(_payload(v=True)),
     "missing key": lambda: _signed({k: v for k, v in _payload().items() if k != "rev"}),
     "naive started": lambda: _signed(_payload(started="2026-11-21T10:00:00")),
@@ -181,6 +194,18 @@ BROKEN = {
     ),
     "days not a list": lambda: _signed(_payload(whole=False, days={str(_ids(SIGMUND)[0]): "fri"})),
     "missing whole": lambda: _signed({k: v for k, v in _payload().items() if k != "whole"}),
+    "missing night": lambda: _signed({k: v for k, v in _payload().items() if k != "night"}),
+    "night a list": lambda: _signed(_payload(night=[True])),
+    "night not a bool": lambda: _signed(_payload(night={str(_ids(SIGMUND)[0]): "yes"})),
+    "night for a non-member": lambda: _signed(_payload(night={str(_ids(ARILD)[0]): True})),
+    "meals an unknown key": lambda: _signed(_payload(meals={str(_ids(SIGMUND)[0]): ["lunch"]})),
+    "meals an empty list": lambda: _signed(_payload(meals={str(_ids(SIGMUND)[0]): []})),
+    "a meal twice": lambda: _signed(
+        _payload(meals={str(_ids(SIGMUND)[0]): ["friday_dinner", "friday_dinner"]})
+    ),
+    "meals for a non-member": lambda: _signed(
+        _payload(meals={str(_ids(ARILD)[0]): ["friday_dinner"]})
+    ),
 }
 
 

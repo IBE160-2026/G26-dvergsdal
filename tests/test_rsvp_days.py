@@ -338,7 +338,7 @@ def test_broken_days_start_empty(client, seeded):
     """AD-8: a draft with `whole` "no" is broken: deleted, step 1 empty, no 500."""
     ids = _ids(ARILD)
     payload = {
-        "v": 2,
+        "v": 3,
         "started": "2026-11-21T10:00:00+00:00",
         "rev": 0,
         "resp": ids[0],
@@ -346,6 +346,8 @@ def test_broken_days_start_empty(client, seeded):
         "done": ["who"],
         "whole": "no",
         "days": {},
+        "night": {},
+        "meals": {},
     }
     client.cookies[COOKIE_NAME] = signing.dumps(payload, salt=SALT, compress=True)
     response = client.get(_url(ARILD))
@@ -458,7 +460,9 @@ def test_the_flow_writes_nothing_and_is_never_cached(client, seeded, monkeypatch
         assert all(statement.lstrip().upper().startswith("SELECT") for statement in sql)
         assert "private" in response["Cache-Control"]
         assert "no-store" in response["Cache-Control"]
-        assert "<script" not in response.content.decode()
+        # Story 2.3: only the paid steps load the running total's script.
+        scripts = 1 if path.endswith("/overnatting/") else 0
+        assert response.content.decode().count("<script") == scripts
         assert "sessionid" not in response.cookies
         assert "messages" not in response.cookies
     assert row_counts() == before

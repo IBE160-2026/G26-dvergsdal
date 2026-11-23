@@ -57,6 +57,7 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-7-the-programme-page.md`
   summary: Story 2.3: when the RSVP form picks a kroner display (thousands with a space, for example «1 450 kr»), use the same display for the programme's meal prices in «Godt å vite», which today print the plain int («340 kr.»).
   evidence: low. Every meal price is under 1000 kr, so the plain int reads correctly now; the first amount ≥ 1000 (the cabin weekend or a total) appears in Story 2.3.
+  status: done in Story 2.3 (the `kroner` filter in `wedding/templatetags/money.py` writes every amount in the form and the programme's three prices, with no-break spaces).
 
 - source_spec: `.docs/implementation-artifacts/spec-1-7-the-programme-page.md`
   summary: Story 4.5 (the settings admin page): a meal price of 0 (a fresh `migrate` without the seed, or a meal the couple pays for) renders «Middagen betales selv: 0 kr.» in the programme's «Godt å vite». Decide how a price of 0 is handled before the couple can save one: refuse it, or let the programme show the meal as free.
@@ -178,6 +179,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
   summary: Story 2.3: when step 2's answer changes, drop the later steps' `done` keys and the overnight/meal/hike choices that depended on a removed day (FR-75), in `_settled` (`wedding/rsvp/views.py`) and `normalise_answer`.
   evidence: low. Edge-case review; unreachable in 2.2 because the frames never mark a step done.
+  status: done in Story 2.3 (`normalise_answer` drops stays and meals the days no longer allow; `handle_step` removes overnight, meals, allergies and hike from `done` when `present_days` changes).
 
 - source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
   summary: Story 7.4: align the step-2 day summaries in `DAYS` (`wedding/rsvp/steps.py`) with the final programme text, or test them against `programme.html` as the names and dates already are.
@@ -186,6 +188,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
   summary: Story 2.3: `rsvp/step.html` chooses its include and the `h1` id by branching on the step key; pass the include name and heading id from the view when the third step arrives.
   evidence: low. Blind review.
+  status: done in Story 2.3 (`Step.fields_template` in the registry; the `h1` always has `id="sporsmal"`).
 
 - source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
   summary: Rikke: approve or change step 2's [forslag] texts and layout (day list, «Velg dagene for hver person», checkbox groups); run MT-27 locally to see it.
@@ -195,3 +198,9 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
   summary: After step 2 the address keeps `#velg-dager` on the next step, because the browser carries the fragment through the redirect. Revisit if the usability test notices it.
   evidence: low. Found by the orchestrator in Edge (MT-27); nothing scrolls since no later page has that id.
+
+## From Story 2.3 (2026-11-23)
+
+- source_spec: `.docs/implementation-artifacts/spec-2-3-overnight-stay-meals-and-the-running-total.md`
+  summary: Story 4.5: with a cabin or meal price of 0 the pay note («hver gjest betaler selv») and the cabin lead («Begge nettene betales …») on steps 3–4 still say guests pay; adjust the texts together with the programme's price-0 entry.
+  evidence: low. Blind review; no price is 0 until the couple can edit Settings in Story 4.5.
