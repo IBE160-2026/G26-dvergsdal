@@ -1014,6 +1014,12 @@ a:active {
   margin-bottom: 18px;
 }
 
+.error-summary,
+.error-summary > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .error-summary__heading {
   font-size: var(--font-size-label);
   line-height: var(--line-height-label);

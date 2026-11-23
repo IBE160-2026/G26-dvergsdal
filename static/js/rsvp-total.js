@@ -8,7 +8,8 @@
  * CSRF token). Only on 200 is `.form-total` replaced with the server's
  * fragment, and its text written to the empty `#total-status` region, so a
  * screen reader hears the new total once. Failures and late answers to an
- * older change are ignored. Vanilla, no build step.
+ * older change are ignored, and an unchanged total is not announced again.
+ * Vanilla, no build step.
  */
 (function () {
   "use strict";
@@ -34,9 +35,10 @@
           return;
         }
         var fresh = new DOMParser().parseFromString(html, "text/html").querySelector(".form-total");
-        if (fresh) {
+        var text = fresh && fresh.textContent.replace(/[ \t\r\n]+/g, " ").trim();
+        if (fresh && text !== current.textContent.replace(/[ \t\r\n]+/g, " ").trim()) {
           current.replaceWith(fresh);
-          status.textContent = fresh.textContent.replace(/[ \t\r\n]+/g, " ").trim();
+          status.textContent = text;
         }
       })
       .catch(function () {});

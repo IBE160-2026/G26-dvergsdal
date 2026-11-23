@@ -204,7 +204,7 @@ def test_one_day_is_blocked(client, seeded):
         {f"overnight_{arild}": "no", f"overnight_{marie}": "no", f"overnight_{filippa}": "yes"},
     )
     assert response.status_code == 303
-    assert str(filippa) not in _draft(response)["night"]
+    assert _draft(response)["night"] == {str(arild): False, str(marie): False}
     html = client.get(response["Location"]).content.decode()
     group = _groups(html)[2]
     assert _legend(group) == "Filippa"
