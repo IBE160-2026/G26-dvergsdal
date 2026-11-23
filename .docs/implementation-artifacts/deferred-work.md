@@ -190,6 +190,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
   summary: Rikke: approve or change step 2's [forslag] texts and layout (day list, «Velg dagene for hver person», checkbox groups); run MT-27 locally to see it.
   evidence: low. Blind review; no rendered mockup covers step 2.
+  status: avgjort av Claude 2026-11-23: kept unchanged, because they follow FR-14 og FR-70 and the form-step pattern in DESIGN.md, and nothing in the PRD or DESIGN.md contradicts them (goal-run rule, Rikke 2026-11-23).
 
 - source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
   summary: After step 2 the address keeps `#velg-dager` on the next step, because the browser carries the fragment through the redirect. Revisit if the usability test notices it.

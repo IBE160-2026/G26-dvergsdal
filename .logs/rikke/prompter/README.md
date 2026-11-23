@@ -7,3 +7,5 @@ Fra story 1.7 kjøres hver story i en egen, ny Claude Code-økt (`claude -p`), s
 - [run-story.sh](run-story.sh): starter en økt og fortsetter den automatisk etter 5-timersgrensen.
 
 `<scratchpad>` er en midlertidig mappe på Rikkes maskin (Playwright-skript, diff-filer og triage-utkast). Instruksen endres når en retrospektiv ber om det: punkt 7 fra [retrospektiven for epic 1](../967-2026-11-21-13-45-51-retrospektiv-epic-1.md) ga mindre commits, Spec Change Log, triage som PR-kommentar og arbeidsflytkontekst til to av gjennomgangsagentene.
+
+2026-11-23 fikk story-runner.md regelen «avgjør selv»: etter Rikkes påminnelse («Minner om at goal funksjonen tilsier at du skal svare ut disse selv») avgjør Claude foreslått ordlyd, specendringer som trengs for å oppfylle en AC og designdetaljer selv, skriver ned beslutningen med begrunnelse, og fører bare det som virkelig trenger Rikke i issues.md.

@@ -45,6 +45,7 @@ Launch every subagent a step calls for in one message; they run in the backgroun
 If the story cannot be completed: correct the spec (amend outside `<intent-contract>`, log it in Spec Change Log) and try implementation once more. If it still fails, add an entry to deferred-work.md and `.logs/rikke/issues.md`, set the spec status `blocked` with an Auto Run Result, leave the story `backlog` in sprint-status, commit, push and merge a PR only with what is safe to keep (the spec and the notes), log the session, and reply `STORY_RESULT: blocked: <reason>`.
 
 ## Rules learned in stories 1.4b–1.8 and the epic 1 retrospective
+- Decide yourself (Rikke, 2026-11-23: «goal funksjonen tilsier at du skal svare ut disse selv»): proposed wording, spec amendments needed to meet an AC, and design details are decided by you, recorded with the reason (Spec Change Log, dated DESIGN/EXPERIENCE note, log line «avgjort av Claude»), and not left as [forslag] or approval items. issues.md / «Til Rikke» only for what truly needs her: content only she can supply, checks on her own devices, money or hosting choices.
 - Every layout breakpoint is in em, and browser checks measure at the default text size and at 20px (DESIGN.md › Narrow widths).
 - Read the open action items in sprint-status.yaml and deferred-work.md entries naming this story; give them to the planner.
 - Browser measurements catch real defects (hero 18px too tall; a jump-link dot starting a line); always run them, also after patches.
