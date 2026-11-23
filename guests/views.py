@@ -185,7 +185,7 @@ def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
 # The guest mount of the one form in wedding/rsvp/. The views resolve the code,
 # read the settings, check the deadline and load the members, then hand the
 # step to wedding.rsvp.views: three SELECTs per request while the form is open.
-# After the deadline every address shows the closed page instead.
+# After the deadline every step address shows the closed page instead.
 
 RSVP_CLOSED = "guests/rsvp_closed.html"
 
@@ -299,9 +299,10 @@ def page_not_found(request: HttpRequest, exception: Exception) -> HttpResponse:
 def _rsvp_after_csrf_failure(request: HttpRequest) -> HttpResponse | None:
     """UX-DR52, AD-7: an RSVP step posted without a valid token, shown again; else None.
 
-    Only for a POST to `guests:rsvp` or `guests:rsvp_step` whose code resolves
-    while the form is open. The step is re-rendered with what was posted, a
-    focused notice and status 403; no draft is written.
+    Only for a POST to `guests:rsvp` or `guests:rsvp_step` (a known step) whose
+    code resolves. While the form is open, the step is re-rendered with what
+    was posted, a focused notice and status 403; no draft is written. After the
+    deadline it is the closed page, as on every step address (AD-11).
     """
     if request.method != "POST":
         return None
@@ -317,7 +318,8 @@ def _rsvp_after_csrf_failure(request: HttpRequest) -> HttpResponse | None:
         return None
     settings = site_settings()
     if is_past_deadline(settings.rsvp_deadline, timezone.now()):
-        return None
+        # AD-11: after the deadline every step address shows the closed page.
+        return render(request, RSVP_CLOSED, _guest_context(actor, settings))
     return render_after_csrf_failure(
         request,
         actor=actor,
@@ -363,6 +365,7 @@ def server_error(request: HttpRequest) -> HttpResponse:
     return HttpResponseServerError(render_to_string(SERVER_ERROR, _reachable(request)))
 
 
+@never_cache
 def bad_request(request: HttpRequest, exception: Exception) -> HttpResponse:
     """FR-5, AD-15: handler400, for a request Django cannot trust, such as a bad `Host`.
 

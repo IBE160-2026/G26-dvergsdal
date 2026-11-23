@@ -9,8 +9,9 @@ paths from the architecture memlog; each view resolves the code and shows G1
 with 404 for a code that resolves to nobody. The RSVP form (Story 2.1, AD-7)
 has step 1 at `/<code>/svar/` and its later steps and check page at
 `/<code>/svar/<slug>/` (`dager`, `overnatting`, `maltider`, `allergier`,
-`fjelltur`, `se-over`; wedding/rsvp/steps.py); an unknown slug gives «Vi finner
-ikke denne siden». `/<code>/personvern/` (Story 7.1) follows.
+`fjelltur`, `se-over`; wedding/rsvp/steps.py). After the deadline every step
+address shows the closed page; an unknown slug gives «Vi finner ikke denne
+siden» either way. `/<code>/personvern/` (Story 7.1) follows.
 """
 
 from django.conf import settings

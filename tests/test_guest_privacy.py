@@ -114,9 +114,15 @@ def _preview(html: str) -> dict[str, str]:
     return preview
 
 
-def _assert_private_headers(response) -> None:
+def _assert_private_headers(response, *, never_stored: bool = False) -> None:
+    """AD-15: noindex and same-origin; with `never_stored`, also `Cache-Control`
+    private and no-store, as every guest view and error handler sends since Story 2.1
+    (`/`, `/stil/`, robots.txt, static files and redirects do not)."""
     assert response["X-Robots-Tag"] == "noindex"
     assert response["Referrer-Policy"] == "same-origin"
+    if never_stored:
+        assert "private" in response["Cache-Control"]
+        assert "no-store" in response["Cache-Control"]
 
 
 # Headers (AD-15)
@@ -146,7 +152,7 @@ def test_a_csrf_failure_says_noindex_and_same_origin():
     guests.views.csrf_failure, Story 1.8)."""
     response = Client(enforce_csrf_checks=True).post("/")
     assert response.status_code == 403
-    _assert_private_headers(response)
+    _assert_private_headers(response, never_stored=True)
 
 
 @pytest.mark.parametrize("page", GUEST_PAGES)
@@ -155,7 +161,7 @@ def test_a_seeded_test_link_says_noindex_and_same_origin(client, seeded_codes, p
     same headers."""
     response = client.get(f"/{seeded_codes[0]}/{page}")
     assert response.status_code == 200
-    _assert_private_headers(response)
+    _assert_private_headers(response, never_stored=True)
 
 
 def test_static_files_say_noindex(settings):

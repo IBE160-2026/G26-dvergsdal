@@ -355,7 +355,7 @@ def test_every_error_page_is_private_and_never_writes(seeded, assert_loads_only_
     revisions = list(Household.objects.values_list("id", "revision"))
     response = make()
     assert response.status_code == status
-    _assert_private_headers(response)
+    _assert_private_headers(response, never_stored=True)
     html = response.content.decode()
     robots = [meta for meta in _head_tags(html).metas if meta.get("name") == "robots"]
     assert robots == [{"name": "robots", "content": "noindex"}]
