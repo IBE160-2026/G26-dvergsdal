@@ -460,6 +460,7 @@ a:active {
 }
 
 .notice__text {
+  min-width: 0;
   margin: 0;
 }
 

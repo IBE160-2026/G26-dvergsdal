@@ -415,10 +415,12 @@ class AllergiesForm(forms.Form):
                 posted[guest_id] = value == YES
         return posted
 
-    def posted_confirmed(self) -> list[int]:
-        """FR-27: the coming members whose confirmation was ticked."""
+    def posted_confirmed(self, respondent: int) -> list[int]:
+        """FR-27: the coming members other than `respondent` whose confirmation was ticked."""
         return [
-            guest_id for guest_id, _ in self.coming if self.data.get(confirm_field(guest_id)) == YES
+            guest_id
+            for guest_id, _ in self.coming
+            if guest_id != respondent and self.data.get(confirm_field(guest_id)) == YES
         ]
 
 

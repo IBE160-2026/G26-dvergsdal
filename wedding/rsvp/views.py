@@ -683,6 +683,8 @@ def _with_posted(
     coming = _coming(draft, members)
     if step == "allergies":
         form = AllergiesForm(coming, data=request.POST)
+        posted = posted_respondent(request.POST, _member_ids(members))
+        respondent = draft.resp if posted is None else posted
         ids = {guest_id for guest_id, _ in coming}
         alg = {guest_id: entry for guest_id, entry in draft.alg.items() if guest_id not in ids}
         cons = {guest_id: given for guest_id, given in draft.cons.items() if guest_id not in ids}
@@ -692,7 +694,7 @@ def _with_posted(
             done=list(draft.done),
             alg=alg | form.posted_entries(None if keep_long else draft.alg),
             cons=cons | form.posted_consent(),
-            conf=conf + form.posted_confirmed(),
+            conf=conf + form.posted_confirmed(respondent),
             long=form.long_notes(),
         )
     if step == "overnight":

@@ -40,7 +40,7 @@ CONSENT_TEMPLATE = (
 # the text fails this pair until both the version and the hash are updated.
 CONSENT_PAIR = (
     "2026-11-23",
-    "67439797dc41f985ad5f227ddc8f95c4b52ce73eb5c5526dc173f95476840a6b",
+    "efe8bd2e02e77e91ce4a116f165c10730924a7d9cee2787d8af8fa92b819f0ef",
 )
 
 pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
@@ -187,7 +187,8 @@ def test_enter_submits_as_fortsett(client, seeded):
 def test_the_consent_text_version_is_paired_with_its_text():
     """AD-18: CONSENT_TEXT_VERSION lives in wedding/services/ and changes with the
     text: this pair is the version and the template's sha256."""
-    digest = hashlib.sha256(CONSENT_TEMPLATE.read_bytes()).hexdigest()
+    text = CONSENT_TEMPLATE.read_bytes().decode("utf-8").replace("\r\n", "\n")
+    digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
     assert (CONSENT_TEXT_VERSION, digest) == CONSENT_PAIR
 
 
@@ -215,6 +216,7 @@ def test_sigmund_s_journey(client, seeded):
         {
             f"allergy_none_{sigmund}": "yes",
             f"consent_{sigmund}": "yes",
+            f"confirm_{sigmund}": "yes",
             f"allergies_{bestemor}": "lactose",
             f"consent_{bestemor}": "yes",
             f"confirm_{bestemor}": "yes",
