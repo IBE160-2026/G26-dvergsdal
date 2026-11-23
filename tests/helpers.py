@@ -8,7 +8,7 @@ import re
 
 from django.contrib.sessions.models import Session
 
-from wedding.models import Guest, Household, Settings, User
+from wedding.models import Guest, Household, Settings, Submission, User
 
 # NFR-7, UX-DR4: the nine images the front page shows (Story 1.4b plans them,
 # test_images.py keeps them within their budget, test_front_page.py checks that
@@ -70,7 +70,7 @@ def row_counts() -> dict[str, int]:
     sessions included, so a test can check that a request wrote nothing."""
     return {
         model.__name__: model.objects.count()
-        for model in (Household, Guest, Settings, User, Session)
+        for model in (Household, Guest, Settings, User, Session, Submission)
     }
 
 

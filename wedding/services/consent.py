@@ -4,7 +4,9 @@ AD-18: each recorded consent names the version of the text the guest read.
 The text is `wedding/rsvp/templates/rsvp/includes/consent_text.html`; change
 this constant in the same commit as the text (a test pairs the version with
 a hash of the template). Story 2.6b records it with each `Consent`
-(`wedding.services.answers.send_answer`).
+(`wedding.services.answers.send_answer`). Story 2.6c: the draft keeps the
+version shown on step 5 (`cv`), and `send_answer` refuses a consent answer
+given to another version (`ConsentTextChanged`).
 """
 
 CONSENT_TEXT_VERSION = "2026-11-23"
