@@ -3,7 +3,8 @@
 FR-25, FR-26, FR-27, FR-28, FR-75, AD-2, AD-18: `has_allergy_info`, each
 problem code of `allergy_problems` for the respondent and for someone else,
 `not_saved` with consent unanswered, «Nei» and «Ja», `clean_note`, and
-`normalise_answer` dropping allergy data for someone who stops coming. The
+`normalise_answer` dropping allergy data for someone who stops coming, and
+`consent_outcomes` (Story 2.6b) for «Ja», «Nei» and unanswered, coming or not. The
 form over HTTP is in test_rsvp_allergies.py; that `wedding/rules/` imports
 no Django is test_rules_purity.py, which scans every module there.
 """
@@ -15,11 +16,15 @@ from wedding.rules.allergies import (
     ALLERGY_KEYS,
     CONFIRM,
     CONFLICT,
+    DELETE,
     EMPTY,
+    KEEP,
     NOTE_MAX,
+    STORE,
     AllergyEntry,
     allergy_problems,
     clean_note,
+    consent_outcomes,
     has_allergy_info,
     not_saved,
 )
@@ -164,3 +169,23 @@ def test_the_total_ignores_allergies():
 def test_the_allergy_rules_are_pure():
     """AD-2: the new module imports no Django or project code outside the rules."""
     assert forbidden_imports(BASE_DIR / "wedding" / "rules", BASE_DIR) == []
+
+
+@pytest.mark.parametrize(
+    ("coming", "consent", "outcome"),
+    [
+        (True, True, STORE),
+        (True, False, DELETE),
+        (True, None, KEEP),
+        (False, True, DELETE),
+        (False, False, DELETE),
+        (False, None, DELETE),
+    ],
+)
+def test_consent_outcomes(coming, consent, outcome):
+    """FR-26, FR-75, NFR-3, AD-18 (Story 2.6b): «Ja» stores, «Nei» deletes,
+    unanswered keeps, and someone not coming always has their data deleted."""
+    given = {} if consent is None else {SIGMUND: consent}
+    allergies = {SIGMUND: LACTOSE}
+    result = consent_outcomes([SIGMUND, BESTEMOR], [SIGMUND] if coming else [], allergies, given)
+    assert result == {SIGMUND: outcome, BESTEMOR: DELETE}
