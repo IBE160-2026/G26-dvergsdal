@@ -1034,6 +1034,28 @@ a:active {
   margin-top: var(--space-6);
 }
 
+/* Story 2.2 (FR-14, FR-70; DESIGN.md › Form step): step 2's three days, each
+ * with its date in bold and what happens, as a plain list in body text that
+ * wraps inside the sheet; and the heading over the day groups after «Nei».
+ * The day checkboxes reuse .choice (26px, accent-color, row of at least
+ * 44px). No breakpoint of its own. */
+
+.day-list {
+  margin: var(--space-3) 0 0;
+  padding-left: 22px;
+}
+
+.day-list li + li {
+  margin-top: 4px;
+}
+
+.day-groups__heading {
+  margin-top: var(--space-6);
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-label);
+  font-weight: var(--font-weight-label);
+}
+
 /* ---------- Footer band (FR-6, UX-DR12; DESIGN.md › Footer band) ----------
  * Full-bleed green-dark, cream text, each phone number on its own row of at
  * least 44px. */

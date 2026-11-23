@@ -1,0 +1,66 @@
+{% comment %}
+Step 2's fields (Story 2.2; FR-14, FR-22, FR-70, UX-DR16, UX-DR19; DESIGN.md ›
+Form step, EXPERIENCE.md › Microcopy). First the three days with their date
+and what happens, from the step registry's `DAYS` (no date is template text).
+Then «Ja»/«Nei», a fieldset named by the `h1` question through
+`aria-labelledby`, with nothing chosen until the guest chooses. After «Nei»
+the same address shows «Velg dagene for hver person» at `#velg-dager` and one
+fieldset per coming person, the name as the legend, with a checkbox per day.
+Errors follow step 1: the error line under the legend (at the top of the
+«Ja»/«Nei» group, which has no legend), `aria-describedby` and
+`aria-invalid`. No script.
+{% endcomment %}
+<ul class="day-list">
+    {% for day in day_list %}
+        <li>
+            <strong>{{ day.label }}</strong>: {{ day.summary }}
+        </li>
+    {% endfor %}
+</ul>
+<fieldset class="form-group"
+          aria-labelledby="sporsmal"
+          {% if whole_error %}aria-describedby="{{ whole_field }}_error"{% endif %}>
+    {% if whole_error %}
+        <p class="field-error" id="{{ whole_field }}_error">
+            {% include "wedding/components/state-icon.html" with variant="error" class="field-error__icon" only %}
+            <span>Feil: {{ whole_error }}</span>
+        </p>
+    {% endif %}
+    {% for value, label in whole_choices %}
+        <label class="choice">
+            <input type="radio"
+                   name="{{ whole_field }}"
+                   id="{{ whole_field }}_{{ value }}"
+                   value="{{ value }}"
+                   {% if whole_value == value %}checked{% endif %}
+                   {% if whole_error %}aria-invalid="true"{% endif %}>
+            {{ label }}
+        </label>
+    {% endfor %}
+</fieldset>
+{% if show_groups %}
+    <h2 class="day-groups__heading" id="{{ groups_anchor }}">Velg dagene for hver person</h2>
+    {% for group in groups %}
+        <fieldset class="form-group"
+                  {% if group.error %}aria-describedby="{{ group.field }}_error"{% endif %}>
+            <legend>{{ group.name }}</legend>
+            {% if group.error %}
+                <p class="field-error" id="{{ group.field }}_error">
+                    {% include "wedding/components/state-icon.html" with variant="error" class="field-error__icon" only %}
+                    <span>Feil: {{ group.error }}</span>
+                </p>
+            {% endif %}
+            {% for box in group.boxes %}
+                <label class="choice">
+                    <input type="checkbox"
+                           name="{{ group.field }}"
+                           id="{{ box.id }}"
+                           value="{{ box.value }}"
+                           {% if box.checked %}checked{% endif %}
+                           {% if group.error %}aria-invalid="true"{% endif %}>
+                    {{ box.label }}
+                </label>
+            {% endfor %}
+        </fieldset>
+    {% endfor %}
+{% endif %}
