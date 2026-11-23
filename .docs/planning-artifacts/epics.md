@@ -37,7 +37,7 @@ This document breaks the requirements in the PRD, the UX design (DESIGN.md, EXPE
 
 ## Epic List
 
-The epics follow the PRD's priority tiers. Epics 1–3 are the T1 usability-test build (27 November 2026); the usability test in the first week of December is a real feedback point, so it is also an epic boundary. Epics 4–7 complete the course version (T2, 10 December 2026), in the PRD's T2 order. Epic 8 is T3, cut first; anything not done by 10 December moves to [2027] with the reason in the PRD change log. NFRs are cross-cutting and apply to every story; the NFRs named under each epic are the ones it first makes testable.
+The epics follow the PRD's priority tiers. Epics 1–3 are the T1 usability-test build (27 November 2026); the usability test in the first week of December is a real feedback point, so it is also an epic boundary. It runs locally on Rikke's machine, not on a public address (Rikke, 2026-11-23). Epics 4–7 complete the course version (T2, 10 December 2026), in the PRD's T2 order. Epic 8 is T3, cut first; anything not done by 10 December moves to [2027] with the reason in the PRD change log. NFRs are cross-cutting and apply to every story; the NFRs named under each epic are the ones it first makes testable.
 
 **Decision: three epics change the RSVP form.** Epics 2, 4 and 7 all change the form in `wedding/rsvp/`. Merging them was considered and rejected: the usability test after Epic 3 may change the form, and the PRD's cut order puts Epic 7's parts last in T2.
 
@@ -324,7 +324,7 @@ So that I understand the invitation without scrolling and always see where to an
 **Given** the nav «Svar» button or the «Svar» link in the deadline line
 **When** the guest activates either, without JavaScript
 **Then** the page jumps to the RSVP sheet (`#svar`), which is not hidden under the sticky bar (UX-DR6, UX-DR9)
-**And** the nav bar is sticky only when the viewport is at least 400px tall, keeps the three words on one line at 320px, and never becomes a menu button
+**And** the nav bar is sticky only when the viewport is at least 400px tall and at least 20em wide *(width condition added 2026-11-23 after the Epic 1 retrospective, R1: Story 1.5 built it, approved by Rikke)*, keeps the three words on one line at 320px, and never becomes a menu button
 
 **Given** «Alt om helgen»
 **When** it renders
@@ -1532,6 +1532,7 @@ So that I can plan the weekend.
 **Given** the guest pages after the full text is in
 **When** the tests run
 **Then** a test fails if any guest page still contains a square-bracket placeholder such as «[14:00]» or «[adresse]», so no placeholder reaches a guest
+**And** the one exception is «[stilling]» on Vår historie, which the test allows until Rikke's job title is decided *(added 2026-11-23: Rikke decided the placeholder stays through the course submission, since the title is not decided before then; see `deferred-work.md`)*
 
 *(Changed 2026-11-20 in Story 1.6: the map button from `mockups/info-praktisk.html` moved here, since there is no real address yet and no map service decided; the placeholder test was added so the placeholders that Story 1.6 keeps on Praktisk informasjon cannot be forgotten. See `deferred-work.md`.)*
 
@@ -1882,3 +1883,4 @@ One line per requirement. The full specification is in [DESIGN.md](ux-designs/ux
 | 2026-11-16 | **Rikke decided** while checking `expected.toml` in Story 1.3: a household that has not answered has no payment status and shows «Ikke svart», not «Ingenting å betale» (PRD FR-60, commit 9360654). Story 3.5 and Story 5.3 and the FR-60 line now say so, and `payment_status` is told whether the household has answered. |
 | 2026-11-16 | **Claude decided** (technical, from the Story 1.3 review): Story 3.1's `create_admin` makes real accounts with `is_test_data=False` through its own path and never uses the system actor. Story 1.3's `create_admin_user` is system-only and marks every account as test data, so reusing it would let the next `seed_testdata` delete Rikke's real accounts. Also in AD-16. |
 | 2026-11-21 | **Rikke confirmed** the numbers Claude chose in the 2026-11-16 review: «Trenger oppfølging» shows the first 2 items before «Vis alle n» (Story 3.2; still re-measured in the manual test plan), and login throttling after 5 failed logins for one username or 20 from one address within 15 minutes (Story 6.6), with link-code throttling that slows and never blocks (Story 8.6). No change to the stories. |
+| 2026-11-23 | **Rikke approved** reconciling the plan with Epic 1 (retrospective action 2, R1): the Story 1.5 AC now says the nav bar is sticky only when the viewport is at least 400px tall **and at least 20em wide**, as built and as in DESIGN.md. PRD FR-6, FR-7, FR-10 and FR-60 were reconciled the same day. |

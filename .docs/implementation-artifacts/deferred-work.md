@@ -165,3 +165,9 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
   summary: The CSRF 403 re-render of a step is still a POST response, so the browser's Back to it asks for a resubmission (the invalid-«Fortsett» case was fixed with PRG in 2.1). Revisit if the usability test meets it.
   evidence: low. Found by the orchestrator in Edge; only after an expired token or blocked cookies.
+
+## From Rikke's decisions (2026-11-23)
+
+- source_spec: `.docs/planning-artifacts/epics.md` (Story 7.4)
+  summary: Story 7.4: the placeholder test (a guest page with a square-bracket placeholder fails) must allow «[stilling]» in Vår historie (`guests/templates/guests/our_story.html`). Rikke's job title is not decided before the course submission, so the placeholder stays on purpose through submission. Allow exactly that one string on that one page, and fill it in, and remove the exception, once the title is decided.
+  evidence: high. Rikke, 2026-11-23: «[Stilling] skal stå slik den er siden det ikke er bestemt enda. Blir ikke bestemt før innlevering.»
