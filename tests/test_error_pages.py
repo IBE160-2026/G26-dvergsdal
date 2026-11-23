@@ -18,7 +18,6 @@ from pathlib import Path
 
 import pytest
 from django.conf import settings
-from django.contrib.sessions.models import Session
 from django.core.exceptions import DisallowedHost
 from django.db import DatabaseError
 from django.middleware.csrf import _get_failure_view
@@ -27,9 +26,9 @@ from django.urls import get_resolver
 
 import config.urls
 from guests import views
-from tests.helpers import IMPERSONAL_FORBIDDEN, page_text
+from tests.helpers import IMPERSONAL_FORBIDDEN, page_text, row_counts
 from tests.test_guest_privacy import _assert_private_headers, _head_tags, _preview
-from wedding.models import Guest, Household, Settings, User
+from wedding.models import Household, Settings
 
 SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
 SEED = tomllib.loads(SEED_FILE.read_text(encoding="utf-8"))
@@ -344,13 +343,6 @@ ERRORS = {
 WITHOUT_REQUEST = {"500-link", "500-unknown", "400"}
 
 
-def _row_counts() -> dict[str, int]:
-    return {
-        model.__name__: model.objects.count()
-        for model in (Household, Guest, Settings, User, Session)
-    }
-
-
 @pytest.mark.parametrize("error", ERRORS)
 def test_every_error_page_is_private_and_never_writes(seeded, assert_loads_only_own_host, error):
     """AD-15, FR-3, FR-4: every error page carries `X-Robots-Tag: noindex` and
@@ -359,11 +351,11 @@ def test_every_error_page_is_private_and_never_writes(seeded, assert_loads_only_
     request), only our own host, and it creates or changes no row."""
     make, status, title = ERRORS[error]
     bare = _preview(_get("/").content.decode())
-    before = _row_counts()
+    before = row_counts()
     revisions = list(Household.objects.values_list("id", "revision"))
     response = make()
     assert response.status_code == status
-    _assert_private_headers(response)
+    _assert_private_headers(response, never_stored=True)
     html = response.content.decode()
     robots = [meta for meta in _head_tags(html).metas if meta.get("name") == "robots"]
     assert robots == [{"name": "robots", "content": "noindex"}]
@@ -373,7 +365,7 @@ def test_every_error_page_is_private_and_never_writes(seeded, assert_loads_only_
         del expected["og:image"]
     assert preview == expected
     assert_loads_only_own_host(html)
-    assert _row_counts() == before
+    assert row_counts() == before
     assert list(Household.objects.values_list("id", "revision")) == revisions
 
 

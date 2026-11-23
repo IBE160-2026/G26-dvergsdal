@@ -1,0 +1,37 @@
+{% comment %}
+The respondent line (Story 2.1; FR-12, UX-DR18; DESIGN.md › Respondent line):
+«Jeg er <name>» on every form step, preset to the link's owner. In a household
+of two or more, «Bytt» opens a list of the members in the sheet. It is a
+`<details>`/`<summary>`, so it works without JavaScript and the summary exposes
+the button role and the expanded state; its accessible name is «Bytt hvem som
+svarer». «Velg» posts the whole form with `action=switch`, so the answers
+already chosen on the step are kept in the draft (EXPERIENCE.md › Respondent
+line; «Velg» is a proposal).
+{% endcomment %}
+<div class="respondent">
+    Jeg er <strong>{{ respondent_name }}</strong>
+    {% if members|length > 1 %}
+        <span aria-hidden="true">·</span>
+        <details class="respondent__switch">
+            <summary>
+                Bytt<span class="visually-hidden"> hvem som svarer</span>
+            </summary>
+            <fieldset class="form-group respondent__choices">
+                <legend>Hvem svarer?</legend>
+                {% for member in members %}
+                    <label class="choice">
+                        <input type="radio"
+                               name="respondent"
+                               value="{{ member.id }}"
+                               {% if member.id == respondent_id %}checked{% endif %}>
+                        {{ member.name }}
+                    </label>
+                {% endfor %}
+                <button class="button button--secondary respondent__choose"
+                        type="submit"
+                        name="action"
+                        value="switch">Velg</button>
+            </fieldset>
+        </details>
+    {% endif %}
+</div>

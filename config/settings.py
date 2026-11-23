@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     # Under runserver, WhiteNoise serves static files too, through the middleware,
-    # so they carry `X-Robots-Tag` like every other response (AD-15).
+    # so they carry `X-Robots-Tag` like every other response (AD-15). It must
+    # come before staticfiles; tests/test_guest_privacy.py checks the order.
     "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "wedding",
@@ -82,10 +83,13 @@ SECURE_REFERRER_POLICY = "same-origin"
 # config/urls.py.
 CSRF_FAILURE_VIEW = "guests.views.csrf_failure"
 
+# The RSVP form's templates live with the form in wedding/rsvp/ (AD-7, the
+# Structural Seed), which is a package and not an app, so its folder is listed
+# here; app templates are found through APP_DIRS (Story 2.1).
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "wedding" / "rsvp" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

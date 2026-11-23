@@ -92,3 +92,12 @@ def household_guest_names(household: Household) -> list[str]:
     return list(
         Guest.objects.filter(household=household).order_by("id").values_list("name", flat=True)
     )
+
+
+def household_members(household: Household) -> list[tuple[int, str]]:
+    """FR-12, FR-13, AD-7: `household`'s guests as (id, name), in the order they were added.
+
+    One SELECT; the RSVP form asks one question per member in this order, and
+    only these ids are accepted from a draft or a posted form.
+    """
+    return list(Guest.objects.filter(household=household).order_by("id").values_list("id", "name"))

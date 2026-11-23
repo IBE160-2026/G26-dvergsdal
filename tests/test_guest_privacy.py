@@ -8,7 +8,10 @@ same for every code and name nobody; `/robots.txt` routed above the catch-all;
 and `rel="noreferrer"` on every external link in the templates. Since Story
 1.5 the seeded links open the front page and the three info pages, which carry
 the same headers and, per page, the same title and preview for every guest.
-What a real browser and a real chat app show is MT-8 and MT-10 in
+Since Story 2.1 every guest response under `/<code>/` also says
+`Cache-Control: private, no-store`, the read views refuse a POST with 405,
+and `whitenoise.runserver_nostatic` is pinned before staticfiles. What a real
+browser and a real chat app show is MT-8 and MT-10 in
 docs/manual-test-plan.md.
 """
 
@@ -27,7 +30,11 @@ from config.logging_filters import NOT_LINK_CODES
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SEED = tomllib.loads((BASE_DIR / "wedding" / "fixtures" / "seed.toml").read_text(encoding="utf-8"))
-TEMPLATE_DIRS = (BASE_DIR / "wedding" / "templates", BASE_DIR / "guests" / "templates")
+TEMPLATE_DIRS = (
+    BASE_DIR / "wedding" / "templates",
+    BASE_DIR / "wedding" / "rsvp" / "templates",
+    BASE_DIR / "guests" / "templates",
+)
 
 UNKNOWN_CODE = "AAAAAAAAAAAAAAAAAAAAAA"
 # The front page and the info pages under a valid link (Story 1.5), with each
@@ -107,9 +114,15 @@ def _preview(html: str) -> dict[str, str]:
     return preview
 
 
-def _assert_private_headers(response) -> None:
+def _assert_private_headers(response, *, never_stored: bool = False) -> None:
+    """AD-15: noindex and same-origin; with `never_stored`, also `Cache-Control`
+    private and no-store, as every guest view and error handler sends since Story 2.1
+    (`/`, `/stil/`, robots.txt, static files and redirects do not)."""
     assert response["X-Robots-Tag"] == "noindex"
     assert response["Referrer-Policy"] == "same-origin"
+    if never_stored:
+        assert "private" in response["Cache-Control"]
+        assert "no-store" in response["Cache-Control"]
 
 
 # Headers (AD-15)
@@ -139,7 +152,7 @@ def test_a_csrf_failure_says_noindex_and_same_origin():
     guests.views.csrf_failure, Story 1.8)."""
     response = Client(enforce_csrf_checks=True).post("/")
     assert response.status_code == 403
-    _assert_private_headers(response)
+    _assert_private_headers(response, never_stored=True)
 
 
 @pytest.mark.parametrize("page", GUEST_PAGES)
@@ -148,7 +161,7 @@ def test_a_seeded_test_link_says_noindex_and_same_origin(client, seeded_codes, p
     same headers."""
     response = client.get(f"/{seeded_codes[0]}/{page}")
     assert response.status_code == 200
-    _assert_private_headers(response)
+    _assert_private_headers(response, never_stored=True)
 
 
 def test_static_files_say_noindex(settings):
@@ -160,6 +173,39 @@ def test_static_files_say_noindex(settings):
     assert response.status_code == 200
     assert response["Content-Type"] == "image/jpeg"
     _assert_private_headers(response)
+
+
+@pytest.mark.parametrize("path", [*GUEST_PAGES, "svar/", "svar/dager/"], ids=lambda p: p or "front")
+def test_guest_responses_are_private_and_never_stored(client, seeded_codes, path):
+    """AD-15 (Story 2.1, deferred B7): the front page, each info page, the RSVP
+    form's step 1 and a step's redirect say `Cache-Control` private and no-store,
+    so no shared or back-forward cache keeps a household's page, besides the
+    noindex and same-origin headers."""
+    response = client.get(f"/{seeded_codes[0]}/{path}")
+    assert response.status_code == (302 if path == "svar/dager/" else 200)
+    assert "private" in response["Cache-Control"]
+    assert "no-store" in response["Cache-Control"]
+    _assert_private_headers(response)
+
+
+@pytest.mark.parametrize("page", GUEST_PAGES)
+def test_read_views_refuse_a_post(client, seeded_codes, page):
+    """FR-3, AD-15 (Story 2.1, deferred B6): the front page and the info pages only
+    read, so a POST gets 405 (with the CSRF check off, as in the test client)
+    instead of being treated as a form; still private and never stored."""
+    response = client.post(f"/{seeded_codes[0]}/{page}")
+    assert response.status_code == 405
+    assert "no-store" in response["Cache-Control"]
+    _assert_private_headers(response)
+
+
+def test_runserver_nostatic_comes_before_staticfiles(settings):
+    """AD-15 (deferred B8): under runserver, WhiteNoise must serve static files
+    through the middleware, so they carry `X-Robots-Tag`; that needs
+    `whitenoise.runserver_nostatic` before `django.contrib.staticfiles` (the bug
+    MT-8 found in Story 1.4c)."""
+    apps = settings.INSTALLED_APPS
+    assert apps.index("whitenoise.runserver_nostatic") < apps.index("django.contrib.staticfiles")
 
 
 def test_noindex_middleware_comes_before_whitenoise(settings):
@@ -343,9 +389,12 @@ def test_every_fixed_route_stays_readable_in_the_log():
 # A link to another site: a literal `http(s):` address, or an address that comes
 # from a variable (`{{ … }}`), which may be anywhere. `{% url %}` and
 # `{% static %}` links are our own and are not matched, and neither are `tel:`
-# links (the footer's phone numbers, Story 1.5), which reach no site.
+# links (the footer's phone numbers, Story 1.5), which reach no site, in-page
+# `#` links (the RSVP error summary's, Story 2.1), and the RSVP form's
+# `{{ back_url }}`, which wedding/rsvp/views.py builds from our own routes.
 _EXTERNAL_LINK = re.compile(
-    r"""<a\b[^>]*\bhref=["']?(?!tel:)(?:https?:|[^"'>]*\{\{)[^>]*>""", re.IGNORECASE
+    r"""<a\b[^>]*\bhref=["']?(?!tel:|#|\{\{ back_url \}\})(?:https?:|[^"'>]*\{\{)[^>]*>""",
+    re.IGNORECASE,
 )
 
 
@@ -367,6 +416,8 @@ def test_noreferrer_checker_finds_a_bare_external_link():
         "<a href=\"{% static 'img/segl.png' %}\">Segl</a>"
         '<a href="#svar">Svar</a>'
         '<a href="tel:{{ contact.tel }}">{{ contact.name }} {{ contact.phone }}</a>'
+        '<a href="#{{ error.target }}">Velg om bestemor kommer</a>'
+        '<a class="button" href="{{ back_url }}">Tilbake</a>'
     )
     bad = '<a class="lenke" href="https://example.com/">Kart</a><a href="{{ map_url }}">Kart</a>'
     assert _links_without_noreferrer(good) == []

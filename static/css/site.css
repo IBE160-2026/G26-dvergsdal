@@ -17,7 +17,10 @@
  * timeline with Rikke's icons and «Godt å vite», one-sided below 260px and
  * drawn in CanvasText under forced colours (FR-9, UX-DR13, UX-DR30, UX-DR53,
  * NFR-5), with the values of mockups/info-program.html where DESIGN.md has
- * none. The error pages arrive in 1.8.
+ * none. The error pages arrive in 1.8. Story 2.1 adds the RSVP form: the
+ * form sheet, progress and respondent lines, choice rows, the error line and
+ * summary, and the actions (FR-13, FR-22, UX-DR16, UX-DR18, UX-DR19), and the
+ * front page's «Svar på invitasjonen» link.
  */
 
 /* ---------- Fonts: self-hosted WOFF2, SIL OFL (UX-DR2, AD-15) ----------
@@ -845,8 +848,8 @@ a:active {
  * The jump target of both «Svar» links, 20px below the garland: the heading,
  * the small gypsophila, «Barnefritt bryllup» and the full deadline. It takes
  * focus only from a link (tabindex="-1"), so no ring is drawn there; under
- * forced colours the system draws its own. The RSVP button arrives with
- * Story 2.1. */
+ * forced colours the system draws its own. Story 2.1 adds the primary link
+ * «Svar på invitasjonen» to the form, 16px below the deadline line. */
 
 .rsvp {
   margin-top: 20px;
@@ -874,8 +877,161 @@ a:active {
   margin: 0;
 }
 
+.rsvp .button {
+  margin-top: var(--space-4);
+}
+
 #svar:focus {
   outline-color: transparent;
+}
+
+/* ---------- RSVP form (Story 2.1; FR-13, FR-14, FR-22, UX-DR16, UX-DR18, UX-DR19; DESIGN.md › Form step) ----------
+ * One paper sheet per step on the green page (mockups/key-form-steps.html):
+ * the question, the progress line «Steg n av m: …» in body text, the
+ * respondent line with «Bytt» (a <details>, so it works without script), one
+ * borderless fieldset per person with native radios, and the actions:
+ * «Fortsett» above «Tilbake», both full width, 12px apart, 24px below the
+ * content. A choice row is one label, so the whole row is the target, at least
+ * 44px tall; the radio is 26px, drawn by the browser in green-dark through
+ * accent-color, which forced colours keep. A group error is a 22px triangle
+ * and «Feil: …» under the legend in the error colour; the error summary is an
+ * error notice with a heading and links at least 44px tall. The narrow
+ * gutter below 16.25em is under Narrow widths. */
+
+.form-page {
+  padding-top: 22px;
+  padding-bottom: 26px;
+}
+
+.form-sheet {
+  padding: 20px 18px;
+}
+
+.form-sheet h1 {
+  text-wrap: balance;
+}
+
+.form-sheet p {
+  margin: 0;
+}
+
+.form-progress {
+  margin-top: 6px;
+}
+
+.respondent {
+  margin-top: 4px;
+}
+
+.respondent__switch {
+  display: inline;
+}
+
+.respondent__switch > summary {
+  display: inline-flex;
+  align-items: center;
+  min-width: var(--space-target-min);
+  min-height: var(--space-target-min);
+  padding: 0 6px;
+  margin: 0 -6px;
+  list-style: none;
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.respondent__switch > summary::-webkit-details-marker {
+  display: none;
+}
+
+.respondent__switch > summary:hover,
+.respondent__switch[open] > summary {
+  text-decoration-thickness: 2px;
+}
+
+.respondent__choices {
+  margin-top: var(--space-2);
+}
+
+.respondent__choose {
+  margin-top: var(--space-2);
+}
+
+.form-group {
+  min-width: 0;
+  margin: 22px 0 0;
+  padding: 0;
+  border: none;
+}
+
+.form-group > legend {
+  margin: 0 0 4px;
+  padding: 0;
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-label);
+  font-weight: var(--font-weight-label);
+}
+
+.choice {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  min-height: var(--space-target-min);
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.choice input {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  accent-color: var(--color-green-dark);
+  cursor: pointer;
+}
+
+.form-sheet .field-error {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  margin: 0 0 6px;
+  color: var(--color-error);
+}
+
+.field-error__icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 3px;
+}
+
+.form-sheet .notice {
+  margin-bottom: 18px;
+}
+
+.error-summary__heading {
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-label);
+  font-weight: var(--font-weight-label);
+}
+
+.error-summary__list {
+  margin: 4px 0 0;
+  padding-left: 22px;
+}
+
+.error-summary__list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-target-min);
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
 }
 
 /* ---------- Footer band (FR-6, UX-DR12; DESIGN.md › Footer band) ----------
@@ -1292,6 +1448,15 @@ a:active {
   .programme-day .programme-timeline li:nth-child(even)::after {
     left: 0;
     right: auto;
+  }
+}
+
+/* Story 2.1 (UX-DR30, NFR-5): the RSVP form's sheet takes the narrow gutter
+ * at the same em width as the timeline, so its rows keep room at 180 CSS px
+ * and with a larger default text size. */
+@media (max-width: 16.2487em) {
+  .form-sheet {
+    padding-inline: var(--space-gutter-narrow);
   }
 }
 

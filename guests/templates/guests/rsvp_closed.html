@@ -1,0 +1,15 @@
+{% extends "guests/error_page.html" %}
+{% comment %}
+The RSVP form after the deadline (Story 2.1; FR-41, AD-11; EXPERIENCE.md ›
+Locked after deadline). Every `/<code>/svar/` address shows it once
+wedding.rules.deadline.is_past_deadline says the deadline has passed, with
+status 200 and nothing written. The deadline comes from the settings row; the
+back button and the couple's phones come from error_page.html (FR-6). The
+wording is a proposal. The front page's own after-deadline states are Story
+4.3.
+{% endcomment %}
+{% block title %}Svarfristen har gått ut – Invitasjon{% endblock title %}
+{% block heading %}Svarfristen har gått ut{% endblock heading %}
+{% block message %}
+    <p>Fristen gikk ut {{ deadline|date:"l j. F Y" }} kl. 23:59. Send oss en melding, så finner vi ut av det.</p>
+{% endblock message %}

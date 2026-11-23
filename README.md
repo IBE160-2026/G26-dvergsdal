@@ -6,7 +6,7 @@ Gruppeprosjekt i **IBE160 Programmering med KI** ved Høgskolen i Molde, høsten
 
 Repoet inneholder applikasjonen og dokumentasjonen av utvikling, testing og kvalitetssikring med KI.
 
-> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Papirarket, papirstrukturen, Rikkes bilder og siden for ugyldige lenker er på plass (story 1.4b). Alle sider ber søkemotorer om ikke å vise dem (`noindex`), en delt lenke viser samme forhåndsvisning for alle gjester, og loggen skriver aldri lenkekoder (story 1.4c). En testlenke åpner invitasjonens forside med meny, toppfelt, «Alt om helgen», svarfelt og bunnfelt med telefonnumrene, og de tre infosidene (Programmet, Praktisk informasjon, Vår historie) finnes med ramme (story 1.5). Praktisk informasjon har «Hopp til»-lenker og ett papirark per del, med plassholdertekst til brudeparets egen tekst kommer i story 7.4, og Vår historie har brudeparets egen historie i ni kapitler med signatur (story 1.6). Programmet har «Hopp til»-lenker og ett papirark per dag med tidslinje, Rikkes ikoner og «Godt å vite», der prisene på måltidene hentes fra innstillingene; klokkeslettene er plassholdere til story 7.4 (story 1.7). `http://127.0.0.1:8000/` og ukjente lenker viser siden for ugyldige lenker, «Dette er en privat invitasjon». Andre feil viser en rolig feilside i samme stil i stedet for Djangos egne sider, og under en gyldig lenke har feilsiden en knapp tilbake til invitasjonen og brudeparets telefonnumre (story 1.8, se [Feilsider](#feilsider)).
+> **Status:** Prosjektgrunnmuren er på plass (story 1.1): Django-prosjektet, innstillinger, brukermodellen, tester og sjekker. Husstander, gjester, personlige lenkekoder og innstillingene finnes i databasen (story 1.2), og `seed_testdata` fyller dem med fiktive testdata (story 1.3). Invitasjonens farger, skrift, knapper og varsler finnes som stilark, fonter og en felles grunnmal (story 1.4a), og de kan ses på stilprøven `/stil/` (se [Stilprøve](#stilprøve)). Papirarket, papirstrukturen, Rikkes bilder og siden for ugyldige lenker er på plass (story 1.4b). Alle sider ber søkemotorer om ikke å vise dem (`noindex`), en delt lenke viser samme forhåndsvisning for alle gjester, og loggen skriver aldri lenkekoder (story 1.4c). En testlenke åpner invitasjonens forside med meny, toppfelt, «Alt om helgen», svarfelt og bunnfelt med telefonnumrene, og de tre infosidene (Programmet, Praktisk informasjon, Vår historie) finnes med ramme (story 1.5). Praktisk informasjon har «Hopp til»-lenker og ett papirark per del, med plassholdertekst til brudeparets egen tekst kommer i story 7.4, og Vår historie har brudeparets egen historie i ni kapitler med signatur (story 1.6). Programmet har «Hopp til»-lenker og ett papirark per dag med tidslinje, Rikkes ikoner og «Godt å vite», der prisene på måltidene hentes fra innstillingene; klokkeslettene er plassholdere til story 7.4 (story 1.7). `http://127.0.0.1:8000/` og ukjente lenker viser siden for ugyldige lenker, «Dette er en privat invitasjon». Andre feil viser en rolig feilside i samme stil i stedet for Djangos egne sider, og under en gyldig lenke har feilsiden en knapp tilbake til invitasjonen og brudeparets telefonnumre (story 1.8, se [Feilsider](#feilsider)). Svarfeltet på forsiden har knappen «Svar på invitasjonen», som åpner svarskjemaets første steg, «Hvem kommer?»: én person svarer for hele husstanden og kan bytte hvem som svarer, og svaret huskes mellom stegene i en informasjonskapsel i nettleseren, ikke i databasen. Etter svarfristen sier skjemaet at fristen har gått ut. De andre stegene er foreløpig tomme rammer (story 2.1, se [Svarskjemaet](#svarskjemaet)).
 
 ## Forutsetninger
 
@@ -73,6 +73,12 @@ Terminalen der serveren kjører, viser `/[code]/` i stedet for lenkekoden, for e
 Innloggingen for brudeparet og hjelperne under `/admin/` kommer i story 3.1.
 
 `seed.toml` inneholder også de planlagte svarene, allergiene, samtykkene og betalingene. De lastes inn i senere stories (2.6d, 5.2 og 7.2). Fasiten for disse dataene, regnet ut for hånd før koden som regner dem ut, ligger i [wedding/fixtures/expected.toml](wedding/fixtures/expected.toml); commit-meldingen til fila forklarer hvordan tallene ble kontrollert.
+
+## Svarskjemaet
+
+Fyll inn testdata og start serveren (se [Testdata](#testdata)), åpne en testlenke, for eksempel <http://127.0.0.1:8000/test-sigmund0000000000/>, og trykk «Svar på invitasjonen» nederst i svarfeltet. Skjemaet åpnes på `/<kode>/svar/` med steg 1, «Hvem kommer?», der hver person i husstanden får «Kommer» eller «Kommer ikke». «Bytt» (i husstander med flere enn én person) endrer hvem som svarer.
+
+Bare steg 1 er bygd. «Fortsett» går videre til neste steg, men dagene, overnattingen, måltidene, allergiene, fjellturen og «Se over svaret» er foreløpig tomme rammer med «Tilbake», til story 2.2–2.5 fyller dem. Kommer ingen, går «Fortsett» rett til «Se over svaret». Ingenting lagres i databasen før svaret sendes (story 2.6a): svaret ligger i informasjonskapselen `rsvp_draft` i nettleseren. Svarfristen er 30 dager etter at `seed_testdata` ble kjørt; etter fristen viser alle adressene under `/<kode>/svar/` «Svarfristen har gått ut».
 
 ## Tester og sjekker
 
@@ -156,7 +162,8 @@ uv run --env-file .env manage.py runserver
 ├── wedding/                  Dataeieren: modeller (også brukermodellen) og forretningslogikk
 │   ├── rules/                Rene regelfunksjoner uten Django (summer, tellinger, frist)
 │   ├── services/             Den eneste koden som skriver til databasen
-│   ├── rsvp/                 Svarskjemaet, brukt av både gjester og brudeparet
+│   ├── rsvp/                 Svarskjemaet, brukt av både gjester og brudeparet: stegene, skjemaene, utkastet i informasjonskapselen og visningene
+│   │   └── templates/rsvp/   Malene for et steg, «Se over svaret» og delene (hvem som svarer, feiloppsummeringen)
 │   ├── selectors.py          Lesespørringer for visningene
 │   ├── actors.py             Hvem som handler: gjest, admin eller system
 │   ├── links.py              Gjør en personlig lenkekode om til en gjest
@@ -165,7 +172,7 @@ uv run --env-file .env manage.py runserver
 │   ├── templates/wedding/    Grunnmalen (base.html), felles deler som varselet, lenkeforhåndsvisningen og bunnfeltet, og robots.txt
 │   └── migrations/           Databasemigrasjoner
 ├── guests/                   Gjestesidene: forsiden og infosidene under /<kode>/, siden for ugyldige lenker og stilprøven /stil/
-│   └── templates/guests/errors/  Feilsidene for 404, 500, 400 og CSRF, med rammen error_page.html ved siden av (story 1.8)
+│   └── templates/guests/errors/  Feilsidene for 404, 500, 400 og CSRF, med rammen error_page.html ved siden av (story 1.8); siden for utløpt svarfrist, rsvp_closed.html, ligger ved siden av errors/ (story 2.1)
 ├── dashboard/                Sidene for brudeparet og hjelperne under /admin/
 ├── static/                   CSS, JavaScript, fonter og bilder, alt fra egen server
 │   ├── css/site.css          Stilarket: alle fargene, avstandene og skriftstørrelsene fra DESIGN.md
@@ -190,7 +197,7 @@ uv run --env-file .env manage.py runserver
 └── CLAUDE.md                 Laster inn AGENTS.md og sensorveiledningen, og krever sesjonslogg
 ```
 
-Hvorfor koden er delt slik, står i arkitekturen under. Mappen `rsvp/` er tom til historiene som trenger den.
+Hvorfor koden er delt slik, står i arkitekturen under.
 
 `.docs/` og `docs/` har forskjellige roller: `.docs/` er det BMad-verktøyene lager (stien er satt i `_bmad/config.toml`), mens `docs/` er fast referansestoff.
 

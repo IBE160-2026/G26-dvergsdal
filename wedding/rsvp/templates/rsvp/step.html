@@ -1,0 +1,78 @@
+{% extends "wedding/base.html" %}
+{% comment %}
+One step of the RSVP form (Story 2.1; FR-12, FR-13, FR-14, FR-22, AD-7,
+UX-DR16, UX-DR18, UX-DR19, UX-DR52; DESIGN.md › Form step, approved in
+mockups/key-form-steps.html). One paper sheet on the green page, with no nav
+bar and the footer band kept. In order: the CSRF notice or the error summary
+when there is one (both focused on load with `autofocus`, so no script is
+needed), the question as the `h1`, the progress line, the respondent line with
+«Bytt», one fieldset per member (`rows`, step 1 only) and the actions:
+«Fortsett» above «Tilbake». The later steps (Stories 2.2 to 2.5) are frames
+for now: no fieldsets and no «Fortsett».
+
+- Nothing is checked unless the draft or the posted form holds it (FR-14).
+- A group with an error has its error line under the legend, referenced by
+  the fieldset's `aria-describedby`, and its radios have `aria-invalid`. Each
+  summary link goes to that member's first radio (FR-22).
+- The first button in the form is a hidden copy of «Fortsett», so Enter in a
+  radio submits as «Fortsett» and not as «Velg» inside «Bytt», which comes
+  earlier in the form. It is not focusable and carries no answer.
+- No hidden fields and no script (AD-1, AD-8).
+{% endcomment %}
+{% block title %}{% if errors %}Feil: {% endif %}{{ progress }} – Invitasjon{% endblock title %}
+{% block content %}
+    <main class="column form-page">
+        <form class="paper-sheet form-sheet" method="post" novalidate>
+            {% csrf_token %}
+            {% if csrf_failed %}
+                {% include "wedding/components/notice.html" with variant="error" text="Skjemaet ble ikke sendt. Det skjer når siden har stått åpen lenge, eller når nettleseren ikke tar imot informasjonskapsler. Det du fylte ut, står her fortsatt. Prøv igjen." focus=True only %}
+            {% endif %}
+            {% if errors %}
+                {% include "rsvp/includes/error_summary.html" %}
+            {% endif %}
+            {% if rows %}
+                <button type="submit" hidden>Fortsett</button>
+            {% endif %}
+            <h1>{{ heading }}</h1>
+            <p class="form-progress">{{ progress }}</p>
+            {% include "rsvp/includes/respondent.html" %}
+            {% for row in rows %}
+                <fieldset class="form-group"
+                          {% if row.error %}aria-describedby="{{ row.field }}_error"{% endif %}>
+                    <legend>{{ row.name }}</legend>
+                    {% if row.error %}
+                        <p class="field-error" id="{{ row.field }}_error">
+                            {% include "wedding/components/state-icon.html" with variant="error" class="field-error__icon" only %}
+                            <span>Feil: {{ row.error }}</span>
+                        </p>
+                    {% endif %}
+                    <label class="choice">
+                        <input type="radio"
+                               name="{{ row.field }}"
+                               id="{{ row.field }}_yes"
+                               value="yes"
+                               {% if row.value == "yes" %}checked{% endif %}
+                               {% if row.error %}aria-invalid="true"{% endif %}>
+                        Kommer
+                    </label>
+                    <label class="choice">
+                        <input type="radio"
+                               name="{{ row.field }}"
+                               id="{{ row.field }}_no"
+                               value="no"
+                               {% if row.value == "no" %}checked{% endif %}
+                               {% if row.error %}aria-invalid="true"{% endif %}>
+                        Kommer ikke
+                    </label>
+                </fieldset>
+            {% endfor %}
+            <div class="form-actions">
+                {% if rows %}
+                    <button class="button" type="submit" name="action" value="continue">Fortsett</button>
+                {% endif %}
+                <a class="button button--secondary" href="{{ back_url }}">Tilbake</a>
+            </div>
+        </form>
+    </main>
+    {% include "wedding/components/footer-band.html" %}
+{% endblock content %}

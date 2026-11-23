@@ -1,0 +1,36 @@
+{% comment %}
+The state icon (Story 1.4a, UX-DR17, WCAG 1.4.1; moved out of notice.html in
+Story 2.1): a 22px SVG whose shape carries the state, so it never depends on
+colour alone. Success is a check, warning a circle with «!», error a triangle
+with «!», and anything else the info «i». Hidden from screen readers; the
+words beside it say the same. Used by the notice, and by the RSVP form's
+error summary and field error line (UX-DR16):
+
+    {% include "wedding/components/state-icon.html" with variant="error" class="field-error__icon" only %}
+{% endcomment %}
+<svg class="{{ class }}"
+     viewBox="0 0 24 24"
+     aria-hidden="true"
+     focusable="false"
+     fill="none"
+     stroke="currentColor"
+     stroke-width="2"
+     stroke-linecap="round"
+     stroke-linejoin="round">
+    {% if variant == "success" %}
+        <circle cx="12" cy="12" r="10" />
+        <path d="M7 12.4l3.3 3.3L17.2 8.8" stroke-width="2.4" />
+    {% elif variant == "warning" %}
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6.4v7.2" stroke-width="2.4" />
+        <circle cx="12" cy="17.3" r="1.5" fill="currentColor" stroke="none" />
+    {% elif variant == "error" %}
+        <path d="M12 2.6L22.4 20.8H1.6z" />
+        <path d="M12 9v5.6" stroke-width="2.4" />
+        <circle cx="12" cy="17.6" r="1.4" fill="currentColor" stroke="none" />
+    {% else %}
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="7.2" r="1.5" fill="currentColor" stroke="none" />
+        <path d="M12 10.6v7" stroke-width="2.4" />
+    {% endif %}
+</svg>
