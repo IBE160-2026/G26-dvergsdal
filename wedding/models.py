@@ -6,7 +6,8 @@ settings. Story 1.3 marks the households and users the seed command creates as
 test data (FR-72, AD-16). Story 2.6a adds a household's sent answer,
 `HouseholdAnswer` and one `PersonAnswer` per guest (FR-74, AD-4). Story 2.6b
 adds each guest's `Allergy` and the append-only `Consent` events (FR-26, FR-29,
-AD-18). Each later
+AD-18). Story 2.6c adds `Submission`, the one-time submission ids already
+written (AD-20, NFR-1). Each later
 table comes with the story that needs it.
 
 Only `wedding/services/` writes these models (AD-3), and only facts are stored,
@@ -259,3 +260,29 @@ class Consent(models.Model):
 
     def __str__(self):
         return f"Samtykke {self.pk}"
+
+
+class Submission(models.Model):
+    """A one-time submission id that has been written (Story 2.6c, AD-20, NFR-1).
+
+    Every write form carries a fresh id; the service records it in the same
+    transaction as the write, with what was written (`kind`, `object_id`). A
+    second POST with the same id finds it and writes nothing, so a double tap
+    or a resubmit never doubles an answer. A refused send records none.
+    """
+
+    ANSWER = "answer"
+    KINDS = ((ANSWER, "svar"),)
+
+    key = models.UUIDField("innsendings-id", unique=True)
+    kind = models.CharField("type", max_length=20, choices=KINDS)
+    object_id = models.PositiveBigIntegerField("id for det som ble lagret")
+    created_at = models.DateTimeField("tidspunkt")
+
+    class Meta:
+        ordering = ("created_at", "pk")
+        verbose_name = "innsending"
+        verbose_name_plural = "innsendinger"
+
+    def __str__(self):
+        return f"Innsending {self.pk}"
