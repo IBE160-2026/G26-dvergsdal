@@ -1,4 +1,4 @@
-"""The RSVP form's Django forms and their texts (Stories 2.1 to 2.4).
+"""The RSVP form's Django forms and their texts (Stories 2.1 to 2.5).
 
 FR-13, FR-14, FR-22: step 1 asks, for each household member, «Kommer» or
 «Kommer ikke», with nothing chosen in advance. Step 2 asks whether everyone
@@ -18,11 +18,16 @@ Step 5 (Story 2.4; FR-25 to FR-28, UX-DR21) asks each coming person for
 «Ja»/«Nei» to storing it, starting unanswered; for anyone but the respondent,
 «Jeg bekrefter at <name> vet om dette og er enig». Its texts are avgjort av
 Claude 2026-11-23 (EXPERIENCE.md, Microcopy).
+
+Step 6 (Story 2.5; FR-17, FR-22) asks each coming person present on Friday
+«Ja», «Nei» or «Kanskje» to the Friday hike, with nothing chosen in advance;
+its texts are avgjort av Claude 2026-11-23 (EXPERIENCE.md, Microcopy).
 """
 
 from django import forms
 
-from wedding.rsvp.steps import ALLERGIES, DAYS, MEALS
+from wedding.rsvp.steps import ALLERGIES, DAYS, HIKE, MEALS
+from wedding.rsvp.summary import join_words
 from wedding.rules.allergies import NOTE_MAX, AllergyEntry, clean_note
 from wedding.rules.days import DAY_KEYS, GAP, NO_DAY
 from wedding.templatetags.money import kroner
@@ -88,6 +93,11 @@ def consent_field(guest_id: int) -> str:
 def confirm_field(guest_id: int) -> str:
     """FR-27: the POST name of the respondent's confirmation for a member."""
     return f"confirm_{guest_id}"
+
+
+def hike_field(guest_id: int) -> str:
+    """FR-17: the POST name of a member's hike radios."""
+    return f"hike_{guest_id}"
 
 
 def _priced(label: str, price: int) -> str:
@@ -372,9 +382,9 @@ class AllergiesForm(forms.Form):
     @staticmethod
     def warning_text(names: list[str]) -> str:
         """FR-28: the warning when someone's allergy information will not be saved."""
-        joined = names[0] if len(names) == 1 else f"{', '.join(names[:-1])} og {names[-1]}"
         return (
-            f"Allergiopplysningene om {joined} blir ikke lagret uten et «Ja» til samtykke. "
+            f"Allergiopplysningene om {join_words(names)} blir ikke lagret uten et «Ja» til "
+            "samtykke. "
             "Dere kan sende svaret likevel, og heller si fra til oss direkte."
         )
 
@@ -422,6 +432,45 @@ class AllergiesForm(forms.Form):
             for guest_id, _ in self.coming
             if guest_id != respondent and self.data.get(confirm_field(guest_id)) == YES
         ]
+
+
+class HikeForm(forms.Form):
+    """FR-17, FR-22: step 6, «Hvem blir med på fjellturen fredag?».
+
+    `hike_<id>` is «yes», «no» or «maybe» for each member in `asked`, given
+    as (id, name) for every coming member present on Friday. This form reads
+    what was posted, ignoring a forged value and anyone not asked, and holds
+    the step's texts.
+    """
+
+    LEAD = (
+        "Fjellturen er fredag, for dem som kommer tidlig. "
+        "Svar «Kanskje» hvis dere ikke har bestemt dere ennå."
+    )
+    CHOICES = tuple(HIKE.items())
+
+    def __init__(self, asked: list[tuple[int, str]], *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.asked = asked
+
+    @staticmethod
+    def error_text(name: str) -> str:
+        """FR-22: the error line under a member's legend when they have no answer."""
+        return f"Velg «Ja», «Nei» eller «Kanskje» for {name}."
+
+    @staticmethod
+    def summary_text(name: str) -> str:
+        """FR-22, UX-DR16: the error summary's link to a member's hike group."""
+        return f"Svar om fjellturen for {name}"
+
+    def posted_hike(self) -> dict[int, str]:
+        """FR-17: each asked member's valid posted answer key."""
+        posted = {}
+        for guest_id, _ in self.asked:
+            value = self.data.get(hike_field(guest_id))
+            if value in HIKE:
+                posted[guest_id] = value
+        return posted
 
 
 def posted_respondent(data, member_ids: set[int]) -> int | None:
