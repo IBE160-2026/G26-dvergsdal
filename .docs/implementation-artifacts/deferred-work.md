@@ -113,7 +113,7 @@ Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the findin
 
 ## From Rikke's answers to the open points (2026-11-21)
 
-Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/967-2026-11-21-13-12-43-svar-pa-apne-punkter.md), for a polish story before the usability test.
+Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-12-43-svar-pa-apne-punkter.md), for a polish story before the usability test.
 
 - source_spec: `.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md`
   summary: Epic 1 polish (before the usability test): build Rikke's 2026-11-21 front-page choice. In `static/css/site.css` set `--letter-spacing-place-line` to 0.08em, `--space-page-padding-top` 46px, `--space-hero-padding-top` 26px, `--space-hero-padding-bottom` 22px, 4px below `.hero__illustration`, 2px below `.hero__invites` and the divider, 6px above `.hero__household` and 4px above `.hero__deadline`, and update the comment above `.hero`. Re-measure MT-11 at 360 × 560 and 320 × 568.
