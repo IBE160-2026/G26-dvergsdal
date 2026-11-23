@@ -144,7 +144,7 @@ Microcopy. "Decided" = memlog or the couple kept it in a render; all others are 
 | Send answer | Send svaret | proposal |
 | Not sent yet (check page) | Obs: Svaret er ikke sendt ennå. | decided (avgjort av Claude 2026-11-23, Story 2.5, FR-21) |
 | Check page heading | Se over svaret før du sender | decided (avgjort av Claude 2026-11-23, Story 2.5, FR-21) |
-| Receipt heading and sent line | Svaret er sendt · «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.» | proposal (render) |
+| Receipt heading and sent line | Svaret er sendt · «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.» | decided (avgjort av Claude 2026-11-24, Story 2.6a, FR-74: the sent page `/<code>/svar/sendt/` shows the heading and the sent line in a success notice, then «Til invitasjonen»; Story 2.7 adds the rest of the receipt) |
 | Receipt summary / payment details | Dette har dere svart · Slik betaler du | proposal (render) |
 | Status block | Svaret er sendt · Sendt av … · Totalt for husstanden: … · «Meldt betalt: 3 900 kr, 12. oktober.» · «Dere kan endre svaret fram til tirsdag 4. januar 2028 kl. 23:59.» · Se eller endre svar | button decided; rest proposal (render) |
 | Leave warning | Svaret er ikke sendt ennå. Det du har fylt ut, er tatt vare på på denne telefonen. · Bli og fullfør svaret · Gå uten å sende | proposal |
@@ -232,7 +232,7 @@ Behavioural. Visual specs: DESIGN.md › Components (same names). Visual-only co
 
 | State | Where | Treatment |
 |---|---|---|
-| Saving | Send, report payment, admin saves | Button shows "Sender …"/"Lagrer …"; entered data stays on screen. |
+| Saving | Send, report payment, admin saves | Button shows "Sender …"/"Lagrer …"; entered data stays on screen. *(Added 2026-11-24 in Story 2.6a: built on «Send svaret» by `static/js/rsvp-send.js`: the button reads «Sender …» with `aria-disabled="true"` (never `disabled`, so `action=send` is still posted), a second tap is stopped, and the label comes back when the page is restored from the back-forward cache.)* |
 | Saved | G6, G8, admin | Success notice with what was saved and when (NFR-1). |
 | Save failed | Any submit | Error notice: what happened, that nothing is lost, "Prøv igjen", and (guest side) the couple's phone numbers. Input kept, also when the cause is an expired form token. *(Added 2026-11-21 in Story 2.1: a form step that fails the CSRF check is shown again with status 403, the posted choices kept and a focused error notice at the top: «Feil: Skjemaet ble ikke sendt. Det skjer når siden har stått åpen lenge, eller når nettleseren ikke tar imot informasjonskapsler. Det du fylte ut, står her fortsatt. Prøv igjen.» (godkjent av Rikke 2026-11-23); the phones are in the footer band.)* |
 | Validation error | G4, G8, admin forms | Inline error with fix hint + focused error summary (FR-22). |
