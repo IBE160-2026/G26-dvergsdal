@@ -204,3 +204,23 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-3-overnight-stay-meals-and-the-running-total.md`
   summary: Story 4.5: with a cabin or meal price of 0 the pay note («hver gjest betaler selv») and the cabin lead («Begge nettene betales …») on steps 3–4 still say guests pay; adjust the texts together with the programme's price-0 entry.
   evidence: low. Blind review; no price is 0 until the couple can edit Settings in Story 4.5.
+
+## From Story 2.4 (2026-11-23)
+
+- source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
+  summary: Story 7.1: add the «Personvern» link (FR-66) to the consent text on step 5 when the privacy page exists.
+  evidence: decided in the spec; the page does not exist yet.
+- source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
+  summary: Story 2.5: the check page shows the FR-28 warning with `not_saved` from `wedding/rules/allergies.py`.
+  evidence: decided in the spec.
+- source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
+  summary: Story 2.6b reads `CONSENT_TEXT_VERSION` and the draft's `cons`/`conf` when storing allergies; AD-18's «no consent Ja across a revision change» is enforced by the revision check of 2.6c/2.9.
+  evidence: decided in the spec.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
+  summary: Story 7.1: the privacy page says that the answer in progress, including allergies a guest typed but did not consent to, lives only in the guest's own browser cookie until it is sent or expires (90 days).
+  evidence: low. Blind review; AD-8 keeps everything entered in the draft and nothing is stored on the server.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
+  summary: Story 2.6b/2.6c: record which consent-text version the guest saw, so a version change between step 5 and sending is caught together with the revision check.
+  evidence: low. Blind review; the draft holds no consent-text version today.

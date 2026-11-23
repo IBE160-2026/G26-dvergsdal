@@ -2,7 +2,8 @@
 title: 'Story 2.4: Allergies and consent'
 type: 'feature'
 created: '2026-11-23'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '301d1ebf0c97725af336062f416c3775db82329d'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -10,7 +11,15 @@ context:
   - '{project-root}/.docs/implementation-artifacts/spec-2-3-overnight-stay-meals-and-the-running-total.md'
 warnings:
   - oversized
-deferred: []
+deferred:
+- summary: >-
+    Story 7.1: the privacy page says that the answer in progress, including allergies a guest typed but did not consent to, lives only in the guest's own browser cookie until it is sent or expires (90 days).
+  evidence: >-
+    low. Blind review; AD-8 keeps everything entered in the draft and nothing is stored on the server.
+- summary: >-
+    Story 2.6b/2.6c: record which consent-text version the guest saw, so a version change between step 5 and sending is caught together with the revision check.
+  evidence: >-
+    low. Blind review; the draft holds no consent-text version today.
 ---
 
 <intent-contract>
@@ -85,26 +94,26 @@ deferred: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/rules/allergies.py`, `wedding/rules/answer.py`: `ALLERGY_KEYS`, `NOTE_MAX`, the entry type, `has_allergy_info`, `allergy_problems`, `not_saved`; `Answer` fields and `normalise_answer` dropping them for non-comers (FR-25–FR-28, FR-75, AD-2, AD-18).
-- [ ] `wedding/services/consent.py`: `CONSENT_TEXT_VERSION = "2026-11-23"` with a docstring (AD-18, FR-29; used by 2.6b).
-- [ ] `wedding/rsvp/steps.py`: `ALLERGIES` labels, the allergies `fields_template`.
-- [ ] `wedding/rsvp/draft.py`: format 4 with `alg`, `cons`, `conf`, `long` and their validators.
-- [ ] `wedding/rsvp/forms.py`: field helpers, `AllergiesForm` and every text above.
-- [ ] `wedding/rsvp/views.py`: `_allergy_fields`, `_allergies_step` (GET with warning and errors from the draft; POST: «Velg» keeps posted values; «Fortsett» writes, PRG on problems or a long note), `_with_posted` branch, `_settled`, `_later_step`, CSRF branch, docstrings.
-- [ ] `wedding/rsvp/templates/rsvp/step.html`, `rsvp/includes/allergy_fields.html`, `rsvp/includes/consent_text.html`: markup per Boundaries; every input labelled, each person's fieldset `aria-describedby` its error, the consent fieldset `aria-describedby="samtykke-tekst"`.
-- [ ] `static/js/rsvp-allergies.js`, `static/css/site.css`: the exclusive tick and the Story 2.4 CSS block (em breakpoints).
-- [ ] `tests/test_allergy_rules.py`: every matrix row at rule level (`has_allergy_info`, each problem code, respondent vs other, `not_saved` with None/False/True), `normalise_answer` dropping allergy data for a non-comer, purity.
-- [ ] `tests/test_rsvp_allergies.py`: every matrix row through the test client (Sigmund and Arild); the epics AC test «consent Ja for someone else with info, confirmation not ticked → field error»; the confirmation checkbox absent for the respondent and present for others, and moving after «Bytt»; consent radios start unchecked; FR-26 consent text present once; `CONSENT_TEXT_VERSION` paired with a sha256 of `consent_text.html` recorded in the test (a text change fails the test until the version and hash are updated); exactly one `<script` with src `js/rsvp-allergies.js`; Enter submits as «Fortsett»; Cache-Control private, no-store; no DB rows, session or messages; a 201-char note never reaches the cookie.
-- [ ] `tests/test_rsvp_draft.py`: v4; `BROKEN` cases for each new key (non-member id, unknown category, duplicate, note 201 chars, non-bool consent, non-list `conf`); size test: 8 people, each with all 7 categories, a 200-character note of varied text with æøå (different per person, deterministic), consent True, confirmed, plus the v3 fields filled → `< 4096`. If it fails, pass a compact serializer to `signing.dumps` (JSON with `ensure_ascii=False`) and record it under AD-8.
+- [x] `wedding/rules/allergies.py`, `wedding/rules/answer.py`: `ALLERGY_KEYS`, `NOTE_MAX`, the entry type, `has_allergy_info`, `allergy_problems`, `not_saved`; `Answer` fields and `normalise_answer` dropping them for non-comers (FR-25–FR-28, FR-75, AD-2, AD-18).
+- [x] `wedding/services/consent.py`: `CONSENT_TEXT_VERSION = "2026-11-23"` with a docstring (AD-18, FR-29; used by 2.6b).
+- [x] `wedding/rsvp/steps.py`: `ALLERGIES` labels, the allergies `fields_template`.
+- [x] `wedding/rsvp/draft.py`: format 4 with `alg`, `cons`, `conf`, `long` and their validators.
+- [x] `wedding/rsvp/forms.py`: field helpers, `AllergiesForm` and every text above.
+- [x] `wedding/rsvp/views.py`: `_allergy_fields`, `_allergies_step` (GET with warning and errors from the draft; POST: «Velg» keeps posted values; «Fortsett» writes, PRG on problems or a long note), `_with_posted` branch, `_settled`, `_later_step`, CSRF branch, docstrings.
+- [x] `wedding/rsvp/templates/rsvp/step.html`, `rsvp/includes/allergy_fields.html`, `rsvp/includes/consent_text.html`: markup per Boundaries; every input labelled, each person's fieldset `aria-describedby` its error, the consent fieldset `aria-describedby="samtykke-tekst"`.
+- [x] `static/js/rsvp-allergies.js`, `static/css/site.css`: the exclusive tick and the Story 2.4 CSS block (em breakpoints).
+- [x] `tests/test_allergy_rules.py`: every matrix row at rule level (`has_allergy_info`, each problem code, respondent vs other, `not_saved` with None/False/True), `normalise_answer` dropping allergy data for a non-comer, purity.
+- [x] `tests/test_rsvp_allergies.py`: every matrix row through the test client (Sigmund and Arild); the epics AC test «consent Ja for someone else with info, confirmation not ticked → field error»; the confirmation checkbox absent for the respondent and present for others, and moving after «Bytt»; consent radios start unchecked; FR-26 consent text present once; `CONSENT_TEXT_VERSION` paired with a sha256 of `consent_text.html` recorded in the test (a text change fails the test until the version and hash are updated); exactly one `<script` with src `js/rsvp-allergies.js`; Enter submits as «Fortsett»; Cache-Control private, no-store; no DB rows, session or messages; a 201-char note never reaches the cookie.
+- [x] `tests/test_rsvp_draft.py`: v4; `BROKEN` cases for each new key (non-member id, unknown category, duplicate, note 201 chars, non-bool consent, non-list `conf`); size test: 8 people, each with all 7 categories, a 200-character note of varied text with æøå (different per person, deterministic), consent True, confirmed, plus the v3 fields filled → `< 4096`. If it fails, pass a compact serializer to `signing.dumps` (JSON with `ensure_ascii=False`) and record it under AD-8.
 - [ ] Update `tests/test_rsvp_who_is_coming.py`, `tests/test_rsvp_overnight_meals.py`, `tests/test_rsvp_days.py` for the frame now being `fjelltur` and the allergies script.
-- [ ] `docs/manual-test-plan.md`: Norwegian rows, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`); before each `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`.
+- [x] `docs/manual-test-plan.md`: Norwegian rows, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`); before each `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`.
   - **MT-1 (2.4):** README «Svarskjemaet» to step 5.
   - **MT-33 (real submission, steps 1–5):** on `http://127.0.0.1:8000/test-sigmund0000000000/svar/`: both «Kommer», «Fortsett», «Ja», «Fortsett», «Ja» for both, «Fortsett», «Fortsett» (no meals). Expect `/svar/allergier/`, title «Steg 5 av 6: Allergier og matbehov – Invitasjon», no radio checked, the consent text, the confirmation only in bestemor's fieldset. Then: (a) with JS on, tick Laktose then «Ingen …» for bestemor → Laktose unticked; (b) with JS off (`javaScriptEnabled: false`), tick both and «Fortsett» → `?feil=1`, title starts «Feil: », focused summary link «Rett opp allergiene for bestemor», both still ticked; (c) untick «Ingen …», choose «Ja» for bestemor, «Fortsett» → error «Kryss av for at bestemor vet om dette og er enig …», link «Bekreft for bestemor» focuses the checkbox; (d) tick it, Sigmund «Ingen …» and «Ja», «Fortsett» → `/svar/fjelltur/`; (e) `page.goBack()` → `/svar/allergier/` with every choice kept, no `dialog` event; (f) set bestemor's consent to «Nei», «Fortsett», go back → the «Obs: Allergiopplysningene om bestemor blir ikke lagret …» warning, and «Fortsett» still goes to `/svar/fjelltur/`; (g) a 200-character note is accepted and typing a 201st character is not possible.
   - **MT-34 (keyboard only):** Sigmund's link, `page.keyboard` only through steps 1–5. On step 5 the Tab order is «Bytt», Sigmund's «Ingen …», his categories, his note, his Ja/Nei, bestemor's group the same plus her confirmation, «Fortsett», «Tilbake», the `tel:` links; Space toggles checkboxes; every focused element has `outline-style` `solid`; Enter in a checkbox goes to `/svar/fjelltur/`.
   - **MT-35 (layout):** Arild's step 5 in the error state (CONFLICT for Marie, CONFIRM for Filippa). Run at 360 × 640 and 180 × 320, then with 20px default text (CDP `Page.setFontSizes` `{ fontSizes: { standard: 20 } }`) at 360 × 640 and 320 × 568: `scrollWidth` ≤ `innerWidth`; every `.choice` ≥ 44px tall and inside the sheet; the textarea inside the sheet and ≥ 44px; the warning notice and error lines wrap without overflow; «Fortsett» above «Tilbake», 12px apart.
-- [ ] `README.md`: status line (story 2.4), «Svarskjemaet» (step 5, consent per person, nothing stored before send, the script only enhances), tree (`static/js/rsvp-allergies.js`, `wedding/services/consent.py`).
+- [x] `README.md`: status line (story 2.4), «Svarskjemaet» (step 5, consent per person, nothing stored before send, the script only enhances), tree (`static/js/rsvp-allergies.js`, `wedding/services/consent.py`).
 - [ ] ARCHITECTURE-SPINE, EXPERIENCE.md, DESIGN.md: dated notes (2026-11-23, Story 2.4): AD-8 format 4 and the measured size; AD-18 `CONSENT_TEXT_VERSION` location and the hash test; AD-2 `wedding/rules/allergies.py`; EXPERIENCE microcopy rows for step 5 (texts, errors, warning, consent text) «avgjort av Claude 2026-11-23» with reasons (FR-25–FR-28; mockup proposals kept; du→dere because the respondent answers for the household); Consent block: per-person Ja/Nei inside each fieldset (epics AC, UX-DR21) replaces the mockup's single household consent, with the shared explanation once above, referenced by each consent group; DESIGN.md Consent block and Text field notes to match.
-- [ ] `.docs/implementation-artifacts/deferred-work.md`: add «From Story 2.4»: the «Personvern» link in the consent text (Story 7.1); Story 2.5's check page uses `not_saved` for its FR-28 warning; Story 2.6b reads `CONSENT_TEXT_VERSION` and the draft's `cons`/`conf`, and AD-18's «no consent Ja across a revision change» is enforced by the revision check of 2.6c/2.9.
+- [x] `.docs/implementation-artifacts/deferred-work.md`: add «From Story 2.4»: the «Personvern» link in the consent text (Story 7.1); Story 2.5's check page uses `not_saved` for its FR-28 warning; Story 2.6b reads `CONSENT_TEXT_VERSION` and the draft's `cons`/`conf`, and AD-18's «no consent Ja across a revision change» is enforced by the revision check of 2.6c/2.9.
 
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` run, then all pass.
@@ -117,6 +126,34 @@ deferred: []
 ## Spec Change Log
 
 ## Review Triage Log
+
+### 2026-11-23 — Review pass
+- verdicts: 24 findings — high 0, medium 2, low 14, false 8, maybe-false 0
+- findings:
+  - `[false]` `[reject]` The 4 KB cookie test covers one note, and eight 200-character æøå notes escaped by JSON would exceed 4 KB (blind) — the test builds eight different notes (`_note(seed)` per person, `tests/test_rsvp_draft.py:120-188`), and the draft is signed with `compress=True`; Claude measured a worst case of eight random æøå notes of 200 characters with every category: 1 836 characters signed.
+  - `[low]` `[reject]` «Ingen allergier eller matbehov» alone triggers the not-saved warning and the confirmation (blind) — decided in the spec: FR-26 counts «Ingen …» as allergy information the kitchen relies on, so it needs consent like the rest; the warning is accurate.
+  - `[low]` `[reject]` A confirmation survives a switch to «Nei», so a later «Ja» arrives confirmed (blind) — the checkbox stays visible and ticked on the page (seen in Edge, MT-33 f), so the respondent sees the confirmation they gave; clearing it adds a branch for no shown harm.
+  - `[low]` `[defer]` «Nei» keeps the typed allergies in the guest's own draft cookie for up to 90 days (blind) — AD-8 decision (the draft holds what was entered; nothing is stored on the server); the privacy page (Story 7.1) should say the draft lives in the browser until sent or expired.
+  - `[low]` `[reject]` The browser's `maxlength` and the server's `len` count the note differently (blind) — the browser is the stricter side (UTF-16 units), so a real guest never meets the server error; only forged posts do, and they get the 201 error.
+  - `[low]` `[reject]` The «Ingen …» script has no automated test and does not clear the note (blind) — the server conflict rule is tested (`test_conflict`), the script ran in Edge (MT-33 a: Laktose unticked); not clearing typed text is the spec's decision (never delete what the guest wrote).
+  - `[low]` `[reject]` The conflict error does not point at the note (blind) — the line says «fylt inn noe annet for <navn>» and sits under the person's legend, next to both; marking the note too adds branches for a rare state.
+  - `[low]` `[reject]` `long` is only tested for people who stop coming (blind) — `Draft` validation rejects unknown ids like every other key (shared `_member_ids` check), and «Bytt» passes through `_settled`, which filters `long`; extra tests add no new protection.
+  - `[medium]` `[patch]` The consent-text hash test hashes raw bytes, so a Windows checkout with `core.autocrlf` turns the template into CRLF and the test fails (blind) — the test now hashes the text with `\r\n` normalised to `\n`.
+  - `[low]` `[defer]` The draft does not record which consent-text version the guest saw (blind) — Story 2.6b records `CONSENT_TEXT_VERSION` at send; the revision safeguard is already deferred to 2.6c/2.9 in deferred-work.md; added this case to that entry.
+  - `[false]` `[reject]` The process trail (session log, README of examples) is missing from the diff (blind) — the session log and PR are written after review (runner step 14).
+  - `[low]` `[patch]` Blank MT results; the README says «Ingenting lagres … før svaret sendes» twice in one paragraph (blind) — MT cells are filled after the browser run (step 10, not a defect); the README's first sentence is folded into the second.
+  - `[low]` `[reject]` «Velg» with a too-long note redirects without `?feil`, so the old note stays silently (edge-case) — `maxlength="200"` stops a real guest typing a 201st character (Edge, MT-33 g); only a forged post reaches it, and its next «Fortsett» shows the error.
+  - `[low]` `[reject]` `draft.long` can leave step 5 not done with no visible error until posted again (edge-case) — same forged-post-only path as the row above; the next «Fortsett» on step 5 shows the error.
+  - `[low]` `[reject]` `maxlength` vs `len` after `clean_note` (edge-case) — same as the blind row: the browser is stricter.
+  - `[low]` `[patch]` A forged `confirm_<respondent id>` is accepted into `conf` (edge-case) — `posted_confirmed` now leaves out the respondent.
+  - `[low]` `[reject]` Consent is kept for a coming member whose entry was dropped as empty (edge-case) — the consent answer is the guest's own choice and is shown on the page; Story 2.6b stores allergies only where an entry exists (its AC), so a consent without data stores nothing.
+  - `[false]` `[reject]` The CSS block adds no em breakpoint although the spec lists one (edge-case) — the spec asks for em breakpoints only where needed; MT-35 at 180 px and 20 px text shows none is needed after the notice fix below.
+  - `[false]` `[reject]` Verification gap layer: no gaps found — nothing to route.
+  - `[false]` `[reject]` The FR-28 warning is not on the check page (intent-alignment) — the check page is Story 2.5 («later the check page»); `not_saved` is the rule it will reuse, routed in deferred-work.md.
+  - `[false]` `[reject]` Consent decides nothing about database storage yet (intent-alignment) — the epics give storage with consent to Story 2.6b; this story writes nothing (tested).
+  - `[false]` `[reject]` The script's clearing is only checked manually (intent-alignment) — descriptive; ran in Edge (MT-33 a).
+  - `[false]` `[reject]` The 201-character server check may lack a request-level test (intent-alignment) — `test_note_200_and_201` in `tests/test_rsvp_allergies.py` posts 201 characters through the view.
+  - `[medium]` `[patch]` [orchestrator] At 180 × 320 the FR-28 warning runs 47 px past the viewport: «Allergiopplysningene» cannot wrap because `.notice__text` is a flex item without `min-width: 0` — `static/css/site.css` gives `.notice__text` `min-width: 0`; re-measured in Edge.
 
 ## Design Notes
 
@@ -131,3 +168,26 @@ deferred: []
 - `uv run pytest` -- expected: all green.
 - `uv run ruff check` and `uv run ruff format --check` -- expected: no findings.
 - `uv run djlint --check .` -- expected: no findings.
+
+## Auto Run Result
+
+## Status
+done
+
+## Summary
+Step 5 «Allergier og matbehov» of the RSVP form: per coming person «Ingen allergier eller matbehov», seven categories and a note of at most 200 characters, a per-person «Ja»/«Nei» consent with nothing chosen, and a confirmation for everyone but the respondent. The consent text appears once (versioned with `CONSENT_TEXT_VERSION`), an FR-28 warning names people whose information will not be saved, and nothing is written to the database (storage with consent is Story 2.6b). Draft cookie format 4.
+
+## Files changed
+wedding/rules/{allergies,answer}.py, wedding/services/consent.py, wedding/rsvp/{steps,draft,forms,views}.py, rsvp templates (step.html, allergy_fields, consent_text), static/js/rsvp-allergies.js, static/css/site.css, guests/views.py, tests (2 new files, 4 updated), README, manual test plan, ARCHITECTURE-SPINE, DESIGN.md, EXPERIENCE.md, deferred-work.md.
+
+## Review counts
+24 findings — high 0, medium 2, low 14, false 8; 4 patched, 2 deferred, 18 rejected.
+
+## Follow-up review recommendation
+false — the patches were small (a test hash normalised, one filter, one CSS property, one README sentence) and were re-verified with the full suite and the browser checks.
+
+## Verification
+uv run pytest -q: 1106 passed; ruff check, ruff format --check, djlint --check: clean. MT-1 (2.4), MT-33, MT-34, MT-35 run by Claude with Playwright 1.56.1 in Edge, before and after the patches (the first run found the 180px warning overflow).
+
+## Residual risks
+The «Ingen …» script is covered only by the Edge runs. Screen-reader reading of the consent group's aria-describedby is not checked with NVDA/VoiceOver.
