@@ -459,7 +459,8 @@ def test_enter_submits_as_fortsett(client, seeded, step):
 def test_the_flow_writes_nothing_and_is_never_cached(client, seeded):
     """AD-1, AD-8, FR-3, FR-33: steps 1 to 4 and the total: no row, no session,
     three SELECTs per request, private and never stored; scripts only on steps 3
-    and 4; the shown total is always `household_total` of the draft."""
+    and 4 and the allergies script on step 5; the shown total is always
+    `household_total` of the draft."""
     sigmund, bestemor = _ids(SIGMUND)
     over, meals = _url(SIGMUND, "overnatting"), _url(SIGMUND, "maltider")
     before = row_counts()
@@ -495,7 +496,8 @@ def test_the_flow_writes_nothing_and_is_never_cached(client, seeded):
         assert "no-store" in response["Cache-Control"]
         html = response.content.decode()
         paid = method == "get" and path.split("?")[0] in (over, meals)
-        assert html.count("<script") == (1 if paid else 0), path
+        allergies = method == "get" and path == _url(SIGMUND, "allergier")
+        assert html.count("<script") == (1 if paid or allergies else 0), path
         if total is not None:
             assert _total(html) == total, path
             assert f"{total.replace(' ', NBSP)}</strong>" in html

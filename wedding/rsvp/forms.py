@@ -1,4 +1,4 @@
-"""The RSVP form's Django forms and their texts (Stories 2.1 to 2.3).
+"""The RSVP form's Django forms and their texts (Stories 2.1 to 2.4).
 
 FR-13, FR-14, FR-22: step 1 asks, for each household member, «Kommer» or
 «Kommer ikke», with nothing chosen in advance. Step 2 asks whether everyone
@@ -12,11 +12,18 @@ inputs themselves, so the markup follows DESIGN.md's choice control and error
 line exactly; the forms validate, say what was posted, and hold each step's
 choice labels, error lines and error-summary texts. The texts of steps 2 to
 4 are avgjort av Claude 2026-11-23 (EXPERIENCE.md, Microcopy).
+
+Step 5 (Story 2.4; FR-25 to FR-28, UX-DR21) asks each coming person for
+«Ingen allergier eller matbehov» or fixed categories and a short note, and a
+«Ja»/«Nei» to storing it, starting unanswered; for anyone but the respondent,
+«Jeg bekrefter at <name> vet om dette og er enig». Its texts are avgjort av
+Claude 2026-11-23 (EXPERIENCE.md, Microcopy).
 """
 
 from django import forms
 
-from wedding.rsvp.steps import DAYS, MEALS
+from wedding.rsvp.steps import ALLERGIES, DAYS, MEALS
+from wedding.rules.allergies import NOTE_MAX, AllergyEntry, clean_note
 from wedding.rules.days import DAY_KEYS, GAP, NO_DAY
 from wedding.templatetags.money import kroner
 
@@ -56,6 +63,31 @@ def overnight_field(guest_id: int) -> str:
 def meals_field(guest_id: int) -> str:
     """FR-15: the POST name of a member's meal checkboxes."""
     return f"meals_{guest_id}"
+
+
+def allergy_field(guest_id: int) -> str:
+    """FR-25: the POST name of a member's allergy category checkboxes."""
+    return f"allergies_{guest_id}"
+
+
+def allergy_none_field(guest_id: int) -> str:
+    """FR-25: the POST name of a member's «Ingen allergier eller matbehov» checkbox."""
+    return f"allergy_none_{guest_id}"
+
+
+def note_field(guest_id: int) -> str:
+    """FR-25: the POST name of a member's allergy note."""
+    return f"note_{guest_id}"
+
+
+def consent_field(guest_id: int) -> str:
+    """FR-26: the POST name of a member's consent radios."""
+    return f"consent_{guest_id}"
+
+
+def confirm_field(guest_id: int) -> str:
+    """FR-27: the POST name of the respondent's confirmation for a member."""
+    return f"confirm_{guest_id}"
 
 
 def _priced(label: str, price: int) -> str:
@@ -261,6 +293,133 @@ class MealsForm(forms.Form):
             ticked = set(self.data.getlist(meals_field(guest_id)))
             meals[guest_id] = [meal for meal in offered if meal in ticked]
         return meals
+
+
+class AllergiesForm(forms.Form):
+    """FR-25 to FR-28, UX-DR21: step 5, «Allergier og matbehov».
+
+    For each coming member in `coming` (id, name): `allergy_none_<id>`
+    («yes»), `allergies_<id>` (category keys), `note_<id>`, `consent_<id>`
+    («yes»/«no») and `confirm_<id>` («yes»). Whether an answer is complete is
+    the rule `allergy_problems` (wedding/rules/allergies.py); this form reads
+    what was posted, ignoring forged values and members who are not coming,
+    and holds the step's texts.
+    """
+
+    LEAD = "Dette er valgfritt."
+    NONE_LABEL = "Ingen allergier eller matbehov"
+    OR_LINE = "Eller kryss av for det som gjelder:"
+    NOTE_HINT = f"Skriv bare det kjøkkenet trenger å vite, ingen diagnoser. Høyst {NOTE_MAX} tegn."
+    CONSENT_CHOICES = ((YES, "Ja"), (NO, "Nei"))
+
+    def __init__(self, coming: list[tuple[int, str]], *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.coming = coming
+
+    @staticmethod
+    def categories() -> list[tuple[str, str]]:
+        """FR-25: the fixed categories as (key, label), in form order."""
+        return list(ALLERGIES.items())
+
+    @staticmethod
+    def note_label(name: str) -> str:
+        """FR-25: the note's label."""
+        return f"Kort merknad om {name} (valgfritt)"
+
+    @staticmethod
+    def consent_legend(name: str) -> str:
+        """FR-26: the legend of a member's consent group."""
+        return f"Får vi lagre opplysningene om {name}?"
+
+    @staticmethod
+    def confirm_label(name: str) -> str:
+        """FR-27: the confirmation when answering for someone else."""
+        return f"Jeg bekrefter at {name} vet om dette og er enig"
+
+    @staticmethod
+    def conflict_text(name: str) -> str:
+        """FR-22, UX-DR21: the error line when «Ingen …» is ticked with something else."""
+        return (
+            "Du har krysset av for «Ingen allergier eller matbehov» og fylt inn noe annet "
+            f"for {name}. Velg det ene."
+        )
+
+    @staticmethod
+    def conflict_summary(name: str) -> str:
+        """FR-22, UX-DR16: the summary link for a conflict."""
+        return f"Rett opp allergiene for {name}"
+
+    @staticmethod
+    def confirm_text(name: str) -> str:
+        """FR-22, FR-27: the error line under a missing confirmation."""
+        return f"Kryss av for at {name} vet om dette og er enig, eller svar «Nei» på samtykket."
+
+    @staticmethod
+    def confirm_summary(name: str) -> str:
+        """FR-22, UX-DR16: the summary link for a missing confirmation."""
+        return f"Bekreft for {name}"
+
+    @staticmethod
+    def long_text(name: str) -> str:
+        """FR-22, FR-25: the error line for a note over `NOTE_MAX` characters."""
+        return f"Merknaden om {name} kan være høyst {NOTE_MAX} tegn."
+
+    @staticmethod
+    def long_summary(name: str) -> str:
+        """FR-22, UX-DR16: the summary link for a note that is too long."""
+        return f"Kort ned merknaden om {name}"
+
+    @staticmethod
+    def warning_text(names: list[str]) -> str:
+        """FR-28: the warning when someone's allergy information will not be saved."""
+        joined = names[0] if len(names) == 1 else f"{', '.join(names[:-1])} og {names[-1]}"
+        return (
+            f"Allergiopplysningene om {joined} blir ikke lagret uten et «Ja» til samtykke. "
+            "Dere kan sende svaret likevel, og heller si fra til oss direkte."
+        )
+
+    def _note(self, guest_id: int) -> str:
+        return clean_note(self.data.get(note_field(guest_id), ""))
+
+    def long_notes(self) -> list[int]:
+        """FR-25: the coming members whose posted note is longer than `NOTE_MAX`."""
+        return [guest_id for guest_id, _ in self.coming if len(self._note(guest_id)) > NOTE_MAX]
+
+    def posted_entries(self, previous: dict[int, AllergyEntry] | None) -> dict[int, AllergyEntry]:
+        """FR-25: each coming member's posted entry.
+
+        Unknown category keys are ignored. A note over `NOTE_MAX` characters
+        is replaced by the member's note in `previous`, so it never reaches
+        the draft; with `previous` None (the CSRF re-render) it is kept as
+        posted.
+        """
+        entries = {}
+        for guest_id, _ in self.coming:
+            ticked = set(self.data.getlist(allergy_field(guest_id)))
+            note = self._note(guest_id)
+            if previous is not None and len(note) > NOTE_MAX:
+                note = previous.get(guest_id, AllergyEntry()).note
+            entries[guest_id] = AllergyEntry(
+                cats=tuple(key for key in ALLERGIES if key in ticked),
+                none=self.data.get(allergy_none_field(guest_id)) == YES,
+                note=note,
+            )
+        return entries
+
+    def posted_consent(self) -> dict[int, bool]:
+        """FR-26: each coming member's posted «Ja» (True) or «Nei» (False)."""
+        posted = {}
+        for guest_id, _ in self.coming:
+            value = self.data.get(consent_field(guest_id))
+            if value in (YES, NO):
+                posted[guest_id] = value == YES
+        return posted
+
+    def posted_confirmed(self) -> list[int]:
+        """FR-27: the coming members whose confirmation was ticked."""
+        return [
+            guest_id for guest_id, _ in self.coming if self.data.get(confirm_field(guest_id)) == YES
+        ]
 
 
 def posted_respondent(data, member_ids: set[int]) -> int | None:

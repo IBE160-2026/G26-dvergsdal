@@ -239,7 +239,7 @@ def rsvp(request: HttpRequest, code: str) -> HttpResponse:
 @sensitive_post_parameters()
 @require_http_methods(["GET", "HEAD", "POST"])
 def rsvp_step(request: HttpRequest, code: str, slug: str) -> HttpResponse:
-    """AD-7: a later step or the check page of the RSVP form, by its slug (frames until 2.5)."""
+    """AD-7: a later step or the check page of the RSVP form, by its slug."""
     return _rsvp(request, code, KEY_BY_SLUG.get(slug))
 
 

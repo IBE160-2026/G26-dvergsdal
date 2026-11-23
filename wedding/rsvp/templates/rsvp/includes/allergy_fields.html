@@ -1,0 +1,103 @@
+{% comment %}
+Step 5's fields (Story 2.4; FR-22, FR-25 to FR-28, AD-18, UX-DR16, UX-DR21;
+DESIGN.md › Form step, Choice control, Text field, Consent block;
+EXPERIENCE.md › Choice control, Consent block). First the FR-28 warning when
+someone's information will not be saved (present at load, so not live and
+not focused), the lead and the consent text once (consent_text.html). Then
+one fieldset per coming person, the name as the legend: «Ingen allergier
+eller matbehov», the categories, the note (a Text field: label, hint, and on
+error the error line between label and field), the «Ja»/«Nei» consent group
+pointing to the consent text, nothing chosen until the guest chooses, and,
+for everyone but the respondent, the confirmation. A conflict's error line
+sits under the person's legend; a missing confirmation's under its
+checkbox. rsvp-allergies.js makes «Ingen …» exclusive with the categories;
+without it the server's conflict error does. The texts come from
+AllergiesForm.
+{% endcomment %}
+{% if warning %}
+    {% include "wedding/components/notice.html" with variant="warning" text=warning only %}
+{% endif %}
+<p class="form-note">{{ lead }}</p>
+{% include "rsvp/includes/consent_text.html" %}
+{% for group in groups %}
+    <fieldset class="form-group allergy-group"
+              data-allergy-group
+              {% if group.conflict %}aria-describedby="{{ group.none_field }}_error"{% endif %}>
+        <legend>{{ group.name }}</legend>
+        {% if group.conflict %}
+            <p class="field-error" id="{{ group.none_field }}_error">
+                {% include "wedding/components/state-icon.html" with variant="error" class="field-error__icon" only %}
+                <span>Feil: {{ group.conflict }}</span>
+            </p>
+        {% endif %}
+        <label class="choice">
+            <input type="checkbox"
+                   name="{{ group.none_field }}"
+                   id="{{ group.none_field }}"
+                   value="yes"
+                   data-allergy-none
+                   {% if group.none %}checked{% endif %}
+                   {% if group.conflict %}aria-invalid="true"{% endif %}>
+            {{ none_label }}
+        </label>
+        <p class="allergy-group__or">{{ or_line }}</p>
+        {% for box in group.boxes %}
+            <label class="choice">
+                <input type="checkbox"
+                       name="{{ group.field }}"
+                       id="{{ box.id }}"
+                       value="{{ box.value }}"
+                       data-allergy-category
+                       {% if box.checked %}checked{% endif %}>
+                {{ box.label }}
+            </label>
+        {% endfor %}
+        <div class="text-field{% if group.long %} text-field--error{% endif %}">
+            <label class="text-field__label" for="{{ group.note_field }}">{{ group.note_label }}</label>
+            {% if group.long %}
+                <p class="field-error" id="{{ group.note_field }}_error">
+                    {% include "wedding/components/state-icon.html" with variant="error" class="field-error__icon" only %}
+                    <span>Feil: {{ group.long }}</span>
+                </p>
+            {% endif %}
+            <textarea class="text-field__input"
+                      name="{{ group.note_field }}"
+                      id="{{ group.note_field }}"
+                      rows="4"
+                      maxlength="{{ note_max }}"
+                      aria-describedby="{{ group.note_field }}_hint{% if group.long %} {{ group.note_field }}_error{% endif %}"
+                      {% if group.long %}aria-invalid="true"{% endif %}>{{ group.note }}</textarea>
+            <p class="text-field__hint" id="{{ group.note_field }}_hint">{{ note_hint }}</p>
+        </div>
+        <fieldset class="form-group consent-group" aria-describedby="samtykke-tekst">
+            <legend>{{ group.consent_legend }}</legend>
+            {% for value, label in consent_choices %}
+                <label class="choice">
+                    <input type="radio"
+                           name="{{ group.consent_field }}"
+                           id="{{ group.consent_field }}_{{ value }}"
+                           value="{{ value }}"
+                           {% if group.consent_value == value %}checked{% endif %}>
+                    {{ label }}
+                </label>
+            {% endfor %}
+        </fieldset>
+        {% if group.confirm_field %}
+            <label class="choice consent-confirm">
+                <input type="checkbox"
+                       name="{{ group.confirm_field }}"
+                       id="{{ group.confirm_field }}"
+                       value="yes"
+                       {% if group.confirmed %}checked{% endif %}
+                       {% if group.confirm_error %}aria-invalid="true" aria-describedby="{{ group.confirm_field }}_error"{% endif %}>
+                {{ group.confirm_label }}
+            </label>
+            {% if group.confirm_error %}
+                <p class="field-error" id="{{ group.confirm_field }}_error">
+                    {% include "wedding/components/state-icon.html" with variant="error" class="field-error__icon" only %}
+                    <span>Feil: {{ group.confirm_error }}</span>
+                </p>
+            {% endif %}
+        {% endif %}
+    </fieldset>
+{% endfor %}

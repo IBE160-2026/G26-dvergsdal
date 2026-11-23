@@ -1,10 +1,12 @@
-"""The RSVP form's step registry, days, meals and addresses (Stories 2.1 to 2.3; AD-7, UX-DR19).
+"""The RSVP form's step registry, days, meals, allergies and addresses (Stories 2.1 to 2.4).
+
+AD-7, UX-DR19.
 
 Each step key from `wedding.rules.form_steps.STEP_KEYS` has its address slug,
 its Norwegian name for the progress line «Steg n av m: <name>», its
 question, the step's `h1`, and the template with its fields, which step.html
-includes. Steps 5 and 6 are frames until Stories 2.4 and 2.5, so their
-question is still their name and they have no fields. Step 1
+includes. Step 6 is a frame until Story 2.5, so its question is still its
+name and it has no fields. Step 1
 lives at the form's base address, the others at `<base>/<slug>/`, and the
 check page at `<base>/se-over/`. A `FormMount` says where the one form is
 mounted: for guests at `/<code>/svar/` (built in guests/views.py); the couple's
@@ -18,6 +20,9 @@ programme page (guests/templates/guests/programme.html).
 
 FR-15, FR-73 (Story 2.3): `MEALS` names each paid meal key from
 `wedding.rules.days.MEAL_KEYS`, as the meal checkboxes on step 4 show it.
+
+FR-25 (Story 2.4): `ALLERGIES` names each category key from
+`wedding.rules.allergies.ALLERGY_KEYS`, as the checkboxes on step 5 show it.
 """
 
 from dataclasses import dataclass
@@ -65,7 +70,13 @@ STEPS = {
             "Hvilke måltider skal vi bestille?",
             "rsvp/includes/meals_fields.html",
         ),
-        Step("allergies", "allergier", "Allergier og matbehov", "Allergier og matbehov", ""),
+        Step(
+            "allergies",
+            "allergier",
+            "Allergier og matbehov",
+            "Allergier og matbehov",
+            "rsvp/includes/allergy_fields.html",
+        ),
         Step("hike", "fjelltur", "Fjelltur fredag", "Fjelltur fredag", ""),
     )
 }
@@ -112,6 +123,17 @@ MEALS = {
         Meal("saturday_breakfast", "Frokost lørdag"),
         Meal("sunday_breakfast", "Frokost søndag"),
     )
+}
+
+# FR-25: the allergy categories' labels on step 5, in `ALLERGY_KEYS` order.
+ALLERGIES = {
+    "gluten": "Gluten",
+    "lactose": "Laktose",
+    "nuts": "Nøtter",
+    "shellfish": "Skalldyr",
+    "vegetarian": "Vegetar",
+    "vegan": "Veganer",
+    "other": "Annet",
 }
 
 # AD-7: the check page's slug and its key in the views; it is not a step.

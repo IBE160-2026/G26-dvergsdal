@@ -1,4 +1,4 @@
-"""The RSVP form's step handling, shared by every mount (Stories 2.1 to 2.3).
+"""The RSVP form's step handling, shared by every mount (Stories 2.1 to 2.4).
 
 AD-7: one server-rendered form, each step a plain POST validated by the
 server, then POST-redirect-GET to the next applicable step. AD-8: between
@@ -15,13 +15,18 @@ step 4 «Hvilke måltider skal vi bestille?» (FR-15, FR-16, FR-32, FR-33,
 FR-70, FR-73, Story 2.3) show their prices first and the household total
 from `household_total` (AD-12, NFR-2); `render_total` answers the running
 total's `POST <base>/sum/?steg=<slug>` with the same fragment and writes
-nothing. Allergies, the hike and the check page are frames that Stories 2.4
-and 2.5 fill: they show where the guest is, the respondent line and
-«Tilbake», so «Fortsett» always lands on a real address. A later step opens
+nothing. Step 5 «Allergier og matbehov» (FR-25 to FR-28, AD-18, UX-DR21,
+Story 2.4) asks each coming person for allergies and a «Ja»/«Nei» to
+storing them; it is done when nobody has a conflict, a missing confirmation
+or a note that is too long, and it warns, without blocking, whose
+information will not be saved. Nothing is stored before send. The hike and
+the check page are frames that Story 2.5 fills: they show where the guest
+is, the respondent line and «Tilbake», so «Fortsett» always lands on a real
+address. A later step opens
 only when every applicable step before it is done (`first_unfinished`).
 Every draft write runs `normalise_answer` (FR-75), so a person who stops
-coming loses their days, stay and meals, step 2 and step 3 stay done only
-while their answers are complete, and a change in who is there on which days
+coming loses their days, stay, meals and allergy answers, steps 2, 3 and 5
+stay done only while their answers are complete, and a change in who is there on which days
 reopens the steps after step 2.
 """
 
@@ -40,17 +45,31 @@ from wedding.rsvp.forms import (
     WHOLE_CHOICES,
     WHOLE_FIELD,
     YES,
+    AllergiesForm,
     DaysForm,
     MealsForm,
     OvernightForm,
     WhoIsComingForm,
+    allergy_field,
+    allergy_none_field,
     attendance_field,
+    confirm_field,
+    consent_field,
     days_field,
     meals_field,
+    note_field,
     overnight_field,
     posted_respondent,
 )
 from wedding.rsvp.steps import CHECK, DAYS, KEY_BY_SLUG, STEPS, FormMount
+from wedding.rules.allergies import (
+    CONFIRM,
+    CONFLICT,
+    EMPTY,
+    NOTE_MAX,
+    allergy_problems,
+    not_saved,
+)
 from wedding.rules.answer import Answer, normalise_answer, present_days
 from wedding.rules.days import can_stay_overnight, day_error, offered_meals
 from wedding.rules.form_steps import (
@@ -118,7 +137,16 @@ def _steps(draft: Draft | None, members: Members) -> tuple[str, ...]:
 
 def _answer(draft: Draft, members: Members) -> Answer:
     """AD-2: the draft's answer as the rules take it, with every member's attendance."""
-    return Answer(_attendance(draft, members), draft.whole, draft.days, draft.night, draft.meals)
+    return Answer(
+        _attendance(draft, members),
+        draft.whole,
+        draft.days,
+        draft.night,
+        draft.meals,
+        draft.alg,
+        draft.cons,
+        frozenset(draft.conf),
+    )
 
 
 def _present(draft: Draft | None, members: Members) -> dict | None:
@@ -142,22 +170,42 @@ def _days_complete(draft: Draft, members: Members) -> bool:
     )
 
 
+def _allergy_problems(draft: Draft, guest_id: int) -> tuple[str, ...]:
+    """FR-25, FR-27: `allergy_problems` for one member of the draft."""
+    return allergy_problems(
+        draft.alg.get(guest_id, EMPTY),
+        draft.cons.get(guest_id),
+        guest_id in draft.conf,
+        guest_id == draft.resp,
+    )
+
+
 def _settled(draft: Draft, members: Members) -> Draft:
-    """FR-75, AD-8: the draft as it is written: normalised, steps 2 and 3 done only when complete.
+    """FR-75, AD-8: the draft as written: normalised, steps 2, 3 and 5 done only when complete.
 
     Runs on every draft write, so days, stays and meals never outlive their
     person's «Kommer» or the days that allowed them, a new comer or a removed
     day sends the guest back to step 2, and step 3 stays done only while
-    every coming member has answered «Ja» or «Nei».
+    every coming member has answered «Ja» or «Nei». Step 5 stays done only
+    while no coming member has an allergy problem or a note that was too long
+    (Story 2.4), so a «Bytt» that leaves a confirmation missing reopens it.
     """
     answer = normalise_answer(_answer(draft, members))
     draft.whole, draft.days = answer.whole, dict(answer.days)
     draft.night, draft.meals = dict(answer.night), dict(answer.meals)
+    draft.alg, draft.cons = dict(answer.allergies), dict(answer.consent)
+    draft.conf = [guest_id for guest_id in draft.conf if guest_id in answer.confirmed]
     if "days" in draft.done and not _days_complete(draft, members):
         draft.done.remove("days")
     coming = _coming(draft, members)
     if "overnight" in draft.done and any(guest_id not in draft.night for guest_id, _ in coming):
         draft.done.remove("overnight")
+    coming_ids = {guest_id for guest_id, _ in coming}
+    draft.long = [guest_id for guest_id in draft.long if guest_id in coming_ids]
+    if "allergies" in draft.done and (
+        draft.long or any(_allergy_problems(draft, guest_id) for guest_id in coming_ids)
+    ):
+        draft.done.remove("allergies")
     return draft
 
 
@@ -333,6 +381,84 @@ def _meals_fields(
     return {"pay_note": PAY_NOTE, "hint": MealsForm.HINT, "groups": groups}
 
 
+def _allergy_fields(
+    coming: Members,
+    *,
+    respondent: int,
+    draft: Draft,
+    show_errors: bool,
+) -> tuple[dict[str, object], list[dict[str, str]]]:
+    """FR-22, FR-25 to FR-28, UX-DR21: step 5's lead, groups, warning and errors.
+
+    One group per coming member, filled from `draft` (after a CSRF failure,
+    a copy with the posted values merged in). The confirmation shows for
+    everyone but the `respondent`. With `show_errors`, each member's
+    problems from `allergy_problems` and a note that was too long get their
+    error lines, and the summary links them in page order. The FR-28
+    warning names whoever has information but no «Ja».
+    """
+    groups, errors = [], []
+    for guest_id, name in coming:
+        entry = draft.alg.get(guest_id, EMPTY)
+        consent = draft.cons.get(guest_id)
+        problems = _allergy_problems(draft, guest_id) if show_errors else ()
+        none_id = allergy_none_field(guest_id)
+        note_id = note_field(guest_id)
+        confirm_id = confirm_field(guest_id)
+        conflict = AllergiesForm.conflict_text(name) if CONFLICT in problems else ""
+        long = AllergiesForm.long_text(name) if show_errors and guest_id in draft.long else ""
+        confirm = AllergiesForm.confirm_text(name) if CONFIRM in problems else ""
+        if conflict:
+            errors.append({"target": none_id, "text": AllergiesForm.conflict_summary(name)})
+        if long:
+            errors.append({"target": note_id, "text": AllergiesForm.long_summary(name)})
+        if confirm:
+            errors.append({"target": confirm_id, "text": AllergiesForm.confirm_summary(name)})
+        field = allergy_field(guest_id)
+        groups.append(
+            {
+                "name": name,
+                "none_field": none_id,
+                "none": entry.none,
+                "field": field,
+                "boxes": [
+                    {
+                        "id": f"{field}_{key}",
+                        "value": key,
+                        "label": label,
+                        "checked": key in entry.cats,
+                    }
+                    for key, label in AllergiesForm.categories()
+                ],
+                "note_field": note_id,
+                "note": entry.note,
+                "note_label": AllergiesForm.note_label(name),
+                "consent_field": consent_field(guest_id),
+                "consent_legend": AllergiesForm.consent_legend(name),
+                "consent_value": "" if consent is None else (YES if consent else NO),
+                "confirm_field": confirm_id if guest_id != respondent else "",
+                "confirm_label": AllergiesForm.confirm_label(name),
+                "confirmed": guest_id in draft.conf,
+                "conflict": conflict,
+                "long": long,
+                "confirm_error": confirm,
+            }
+        )
+    unsaved = set(not_saved([guest_id for guest_id, _ in coming], draft.alg, draft.cons))
+    warning_names = [name for guest_id, name in coming if guest_id in unsaved]
+    fields = {
+        "lead": AllergiesForm.LEAD,
+        "warning": AllergiesForm.warning_text(warning_names) if warning_names else "",
+        "none_label": AllergiesForm.NONE_LABEL,
+        "or_line": AllergiesForm.OR_LINE,
+        "note_hint": AllergiesForm.NOTE_HINT,
+        "note_max": NOTE_MAX,
+        "consent_choices": AllergiesForm.CONSENT_CHOICES,
+        "groups": groups,
+    }
+    return fields, errors
+
+
 def _render_step(
     request: HttpRequest,
     *,
@@ -352,11 +478,11 @@ def _render_step(
 
     The question from the registry as the `h1`, the progress line, the
     respondent line and «Tilbake». `fields` is the step's own context
-    (`_who_fields`, `_days_fields`, `_overnight_fields`, `_meals_fields`),
-    shown through the registry's `fields_template`; with fields, the page
-    also has «Fortsett». A frame (steps 5 and 6 until Stories 2.4 and 2.5) has
-    none. `errors` are the error summary's links. `total`, on the paid steps,
-    is the household total from `household_total`, shown with the running
+    (`_who_fields`, `_days_fields`, `_overnight_fields`, `_meals_fields`,
+    `_allergy_fields`), shown through the registry's `fields_template`; with
+    fields, the page also has «Fortsett». A frame (step 6 until Story 2.5)
+    has none. `errors` are the error summary's links. `total`, on the paid
+    steps, is the household total from `household_total`, shown with the running
     total's address.
     """
     number, count = step_position(steps, key)
@@ -534,16 +660,41 @@ def _which_days(
     return HttpResponseRedirect(mount.url(next_step(_steps(new, members), "days"))), new
 
 
-def _with_posted(request: HttpRequest, draft: Draft, members: Members, step: str) -> Draft:
-    """FR-15, FR-16: a copy of `draft` with step 3's or step 4's valid posted choices merged in.
+def _with_posted(
+    request: HttpRequest,
+    draft: Draft,
+    members: Members,
+    step: str,
+    *,
+    keep_long: bool = False,
+) -> Draft:
+    """FR-15, FR-16, FR-25: a copy of `draft` with step 3's, 4's or 5's posted choices merged in.
 
     Nothing is validated: on step 3 each coming member's posted «Ja» or «Nei»
     replaces theirs (a «Ja» their days do not allow is removed when the draft
     is normalised, FR-70); on step 4 each member shown a meal group gets
-    exactly the offered meals that were ticked. The draft itself is not
-    changed, so the running total and the CSRF re-render can use the copy.
+    exactly the offered meals that were ticked; on step 5 each coming
+    member's entry, consent and confirmation are replaced by the posted ones,
+    and `long` names those whose note was too long (that note is not kept
+    unless `keep_long`, which only the CSRF re-render uses, since it writes
+    nothing). The draft itself is not changed, so the running total and the
+    CSRF re-render can use the copy.
     """
     coming = _coming(draft, members)
+    if step == "allergies":
+        form = AllergiesForm(coming, data=request.POST)
+        ids = {guest_id for guest_id, _ in coming}
+        alg = {guest_id: entry for guest_id, entry in draft.alg.items() if guest_id not in ids}
+        cons = {guest_id: given for guest_id, given in draft.cons.items() if guest_id not in ids}
+        conf = [guest_id for guest_id in draft.conf if guest_id not in ids]
+        return replace(
+            draft,
+            done=list(draft.done),
+            alg=alg | form.posted_entries(None if keep_long else draft.alg),
+            cons=cons | form.posted_consent(),
+            conf=conf + form.posted_confirmed(),
+            long=form.long_notes(),
+        )
     if step == "overnight":
         posted = OvernightForm(coming, data=request.POST).posted_night()
         return replace(draft, done=list(draft.done), night=draft.night | posted)
@@ -613,6 +764,55 @@ def _paid_step(
     return HttpResponseRedirect(mount.url(next_step(_steps(new, members), step))), new
 
 
+def _allergies_step(
+    request: HttpRequest,
+    *,
+    mount: FormMount,
+    members: Members,
+    draft: Draft,
+    steps: tuple[str, ...],
+    page_context: dict,
+) -> tuple[HttpResponse, Draft | None]:
+    """FR-22, FR-25 to FR-28, AD-8, UX-DR21: step 5. The response and the draft.
+
+    GET shows the consent text, a group per coming person and, when someone
+    has information but no «Ja», the FR-28 warning; with `?feil=1` the
+    errors, computed from the draft. «Fortsett» saves everything posted
+    (a note that is too long is not kept) and is done when nobody has a
+    problem; otherwise PRG to `?feil=1`. Missing consent never blocks.
+    «Velg» keeps the posted values without validating them.
+    """
+    url = mount.url("allergies")
+    if request.method != "POST":
+        fields, errors = _allergy_fields(
+            _coming(draft, members),
+            respondent=draft.resp,
+            draft=draft,
+            show_errors=ERRORS_QUERY in request.GET,
+        )
+        response = _render_step(
+            request,
+            key="allergies",
+            steps=steps,
+            mount=mount,
+            members=members,
+            respondent=draft.resp,
+            page_context=page_context,
+            fields=fields,
+            errors=errors,
+        )
+        return response, None
+    new = _switch_respondent(request, _with_posted(request, draft, members, "allergies"), members)
+    if request.POST.get("action") == SWITCH:
+        return HttpResponseRedirect(url), new
+    if "allergies" not in new.done:
+        new.done.append("allergies")
+    new = _settled(new, members)
+    if "allergies" not in new.done:
+        return _see_other(f"{url}?{ERRORS_QUERY}=1"), new
+    return HttpResponseRedirect(mount.url(next_step(_steps(new, members), "allergies"))), new
+
+
 def _later_step(
     request: HttpRequest,
     *,
@@ -623,7 +823,7 @@ def _later_step(
     prices: Prices,
     page_context: dict,
 ) -> tuple[HttpResponse, Draft | None]:
-    """AD-7, UX-DR19: steps 2 to 4, a later step's frame or the check page.
+    """AD-7, UX-DR19: steps 2 to 5, the hike's frame or the check page.
 
     Before step 1 is completed it sends the guest to step 1, a step that does
     not apply to the answers sends them on to the next one that does, and a
@@ -660,6 +860,15 @@ def _later_step(
             draft=draft,
             steps=steps,
             prices=prices,
+            page_context=page_context,
+        )
+    if step == "allergies":
+        return _allergies_step(
+            request,
+            mount=mount,
+            members=members,
+            draft=draft,
+            steps=steps,
             page_context=page_context,
         )
     if request.method == "POST":
@@ -733,7 +942,9 @@ def render_after_csrf_failure(
     a fresh token. On step 2 the posted «Ja»/«Nei» and days are kept, and the
     day groups show when «Nei» is posted or saved. On steps 3 and 4 the posted
     choices are merged into the saved ones, and the total is that of the
-    merged answer (FR-33). No draft is written, and a broken one is deleted.
+    merged answer (FR-33). On step 5 the posted ticks, notes, consent and
+    confirmations are shown, the confirmation following the posted
+    respondent. No draft is written, and a broken one is deleted.
     None when the step is not one the guest could have posted from (the
     caller then shows the generic page).
     """
@@ -774,6 +985,14 @@ def render_after_csrf_failure(
             else:
                 fields = _meals_fields(coming, present=present, meals=merged.meals, prices=prices)
             total = _total(merged, members, prices)
+        elif step == "allergies":
+            merged = _with_posted(request, draft, members, step, keep_long=True)
+            fields, _ = _allergy_fields(
+                _coming(merged, members),
+                respondent=draft.resp if posted is None else posted,
+                draft=merged,
+                show_errors=False,
+            )
     else:
         return None
     if posted is not None:

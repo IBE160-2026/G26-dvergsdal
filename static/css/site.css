@@ -1087,6 +1087,71 @@ a:active {
   font-variant-numeric: lining-nums tabular-nums;
 }
 
+/* Story 2.4 (FR-25 to FR-28, UX-DR21; DESIGN.md › Text field, Consent
+ * block): step 5. The consent text is body text before the people's groups;
+ * each person's consent group is a nested fieldset with the same legend
+ * style. The note is a Text field: field surface, 2px border, 20px body text,
+ * the label in label weight above and the hint in italics below; on error a
+ * 3px error border and the error line between label and field. The
+ * checkboxes and radios reuse .choice. No breakpoint of its own. */
+
+.form-sheet .consent-text {
+  margin-top: var(--space-3);
+}
+
+.consent-text p + p {
+  margin-top: var(--space-2);
+}
+
+.allergy-group__or {
+  margin: var(--space-2) 0 0;
+}
+
+.consent-group {
+  margin-top: var(--space-4);
+}
+
+.consent-confirm {
+  margin-top: var(--space-2);
+}
+
+.text-field {
+  margin-top: var(--space-4);
+}
+
+.text-field__label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-label);
+  font-weight: var(--font-weight-label);
+}
+
+.text-field__input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--space-target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 2px solid var(--color-field-border);
+  border-radius: 4px;
+  background-color: var(--color-field-surface);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--font-size-body);
+  resize: vertical;
+}
+
+.text-field--error .text-field__input {
+  border: 3px solid var(--color-error);
+}
+
+.text-field__hint {
+  margin-top: 4px;
+  font-style: italic;
+  color: var(--color-ink);
+}
+
 /* ---------- Footer band (FR-6, UX-DR12; DESIGN.md › Footer band) ----------
  * Full-bleed green-dark, cream text, each phone number on its own row of at
  * least 44px. */
