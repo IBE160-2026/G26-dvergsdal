@@ -61,6 +61,7 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-7-the-programme-page.md`
   summary: Story 4.5 (the settings admin page): a meal price of 0 (a fresh `migrate` without the seed, or a meal the couple pays for) renders «Middagen betales selv: 0 kr.» in the programme's «Godt å vite». Decide how a price of 0 is handled before the couple can save one: refuse it, or let the programme show the meal as free.
   evidence: low. `update_settings` accepts 0 (`wedding/services/settings.py:90`); invitations are not sent before the real prices are entered, so no guest sees it today.
+  decision: Rikke, 2026-11-21: let the programme show the meal as free (the couple covers it), and the RSVP form show it without a price. A price of 0 is allowed.
 
 - source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
   summary: Story 3.1: the error handlers are site-wide, so `/admin/` paths get the impersonal guest error pages («ta kontakt med brudeparet direkte»), and a 404 under `/admin/` gives G1. Decide the couple's own 404, 500 and CSRF pages there (for example by checking the path in `guests.views._reachable` or the handlers, or a dashboard frame). Add `admin` to `NOT_LINK_CODES` in `config/logging_filters.py`, as already planned.
@@ -109,3 +110,20 @@ Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the findin
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (D1, D2, S2, S3, A2, A3)
   summary: Code tidy-ups for the next story that touches each place: move the copied test helpers (`_row_counts`, `make_admin`, `_get`, `tel:` parsing) into `tests/helpers.py` or a fixture; split `tests/test_design_system.py` when Epic 2 adds form components; rename `_not_found` / `NOT_FOUND` in `guests/views.py`. In Story 3.1, add a test that every reserved first segment is in `NOT_LINK_CODES`, and a test that `guests` and `dashboard` never import each other.
   evidence: low. Maintainability only.
+
+## From Rikke's answers to the open points (2026-11-21)
+
+Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-12-43-svar-pa-apne-punkter.md), for a polish story before the usability test.
+
+- source_spec: `.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md`
+  summary: Epic 1 polish (before the usability test): build Rikke's 2026-11-21 front-page choice. In `static/css/site.css` set `--letter-spacing-place-line` to 0.08em, `--space-page-padding-top` 46px, `--space-hero-padding-top` 26px, `--space-hero-padding-bottom` 22px, 4px below `.hero__illustration`, 2px below `.hero__invites` and the divider, 6px above `.hero__household` and 4px above `.hero__deadline`, and update the comment above `.hero`. Re-measure MT-11 at 360 × 560 and 320 × 568.
+  evidence: high. Rikke chose B from screenshots (DESIGN.md › Hero spacing, note 2026-11-21); measured with injected CSS: place line 26px (one line), hero ends at 550px.
+  status: done 2026-11-21 on `docs/svar-pa-apne-punkter`, because `tests/test_design_system.py` checks that the CSS tokens match DESIGN.md, so the two had to change together. MT-11 still re-measures it in the browser.
+
+- source_spec: `.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md`
+  summary: Epic 1 polish: under `@media (forced-colors: active)` give the programme icons `forced-color-adjust: none`, a white background, `border-radius: 50%` and 4px padding, so they stay visible on a dark contrast theme (DESIGN.md › programme-icon). Check with Playwright `forcedColors: 'active'`, `colorScheme: 'dark'`.
+  evidence: high. Rikke chose this on 2026-11-21 from screenshots; today the dark PNGs almost disappear on the black sheet.
+
+- source_spec: `.docs/implementation-artifacts/spec-1-4c-guest-pages-stay-private-headers-link-previews-and-logs.md`
+  summary: Epic 1 polish: change the link preview to `og:title` «Bryllupsinvitasjon» and `og:description` «Åpne lenken for å se den.» in `wedding/templates/wedding/components/link-preview.html`, `tests/test_guest_privacy.py` and the expected result of MT-8 and MT-10 in `docs/manual-test-plan.md`; note the change in the 1.4c spec. Still no names, date or place.
+  evidence: high. Rikke's wording, 2026-11-21 (replaces «Invitasjon» / «En personlig invitasjon. Åpne lenken for å se den.»).
