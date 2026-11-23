@@ -1017,12 +1017,16 @@ def _later_step(
     A POST with `action=send` to the check page sends the answer through
     `send_answer` (FR-74, AD-3, Story 2.6a), deletes the draft and redirects
     (303) to the sent page; a member missing from the draft's attendance
-    sends the guest to step 1 instead. `DeadlinePassed` is left to the
+    sends the guest to step 1 instead (303), before the gate. `DeadlinePassed` is left to the
     mount's view (FR-41). Any other POST to the check page redirects (303)
     back to it and writes nothing.
     """
     if draft is None or "who" not in draft.done:
         return HttpResponseRedirect(mount.url("who")), None
+    sending = step == CHECK and request.method == "POST" and request.POST.get("action") == "send"
+    if sending and any(guest_id not in draft.att for guest_id, _ in members):
+        # FR-13, AD-9: a member added after step 1 has no «Kommer»; ask it first.
+        return _see_other(mount.url("who")), None
     # FR-75, AD-7: the stored `done` is not trusted on its own; a member added
     # after step 2 has no days, so step 2 is not done for the gate.
     draft = _settled(draft, members)
@@ -1073,8 +1077,6 @@ def _later_step(
     if request.method == "POST":
         if request.POST.get("action") != "send":
             return _see_other(mount.url(CHECK)), None
-        if any(guest_id not in draft.att for guest_id, _ in members):
-            return _see_other(mount.url("who")), None
         send_answer(
             actor,
             household=actor.household if isinstance(actor, GuestActor) else None,

@@ -152,14 +152,19 @@ def test_partial_days(deadline):
 
 
 def test_a_re_send_updates_the_rows(deadline):
-    """AD-9 (matrix «Re-send»): still one HouseholdAnswer, rows updated, revision 2."""
+    """AD-9 (matrix «Re-send»): the second send updates the same rows (one
+    HouseholdAnswer, one PersonAnswer per guest) with the new sender and time,
+    and the revision rises by exactly one more."""
     sigmund, bestemor = _ids(SIGMUND)
     earlier = LAST_SECOND - datetime.timedelta(hours=1)
-    _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), now=earlier)
+    first = _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), now=earlier)
+    rows = dict(PersonAnswer.objects.values_list("guest_id", "pk"))
+    assert Guest.objects.get(code=SIGMUND).household.revision == 1
     _send(_actor(SIGMUND), SIGMUND, bestemor, Answer({sigmund: True, bestemor: False}, True))
     sent = HouseholdAnswer.objects.get()
-    assert (sent.sent_by_name, sent.sent_at) == ("bestemor", LAST_SECOND)
-    assert PersonAnswer.objects.count() == 2
+    assert sent.pk == first.pk
+    assert (sent.sent_by_id, sent.sent_by_name, sent.sent_at) == (bestemor, "bestemor", LAST_SECOND)
+    assert dict(PersonAnswer.objects.values_list("guest_id", "pk")) == rows
     assert _row(bestemor) == NOTHING
     assert _row(sigmund)["cabin"] is False
     assert Guest.objects.get(code=SIGMUND).household.revision == 2

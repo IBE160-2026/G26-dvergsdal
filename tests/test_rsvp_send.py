@@ -142,20 +142,21 @@ def test_the_deadline_passes_at_send(client, seeded, monkeypatch):
     assert row_counts() == before
 
 
-def test_a_missing_member_goes_to_step_1(client, seeded):
-    """FR-13, AD-9 (matrix «Missing member»): a member added after step 1 is
-    never sent for. The gate already sends the guest back to the first step
-    that now lacks an answer (here the cabin), before the send branch's own
-    check for a member missing from step 1; nothing is written."""
-    _sigmund_to_check(client)
-    household = Guest.objects.get(code=SIGMUND).household
-    # The service for adding a member comes in Epic 6; the test moves a guest in.
+def test_a_member_missing_from_step_1_goes_to_step_1(client, seeded):
+    """FR-13, AD-9 (matrix «Missing member»): nobody coming reaches the check
+    page; a guest then moved into the household is not in the draft's
+    attendance, so «Send svaret» sends the guest to step 1 (303) and nothing
+    is written."""
+    sigmund, bestemor = _ids(SIGMUND)
+    client.post(_url(SIGMUND), {f"attendance_{sigmund}": "no", f"attendance_{bestemor}": "no"})
+    assert client.get(_url(SIGMUND, "se-over")).status_code == 200
     newcomer = create_household(SYSTEM, [NewGuest("Ny gjest")]).guests.get()
-    Guest.objects.filter(pk=newcomer.pk).update(household=household)
+    Guest.objects.filter(pk=newcomer.pk).update(household=Guest.objects.get(code=SIGMUND).household)
     response = _send(client)
-    assert response.status_code == 302
-    assert response["Location"] == _url(SIGMUND, "overnatting")
+    assert response.status_code == 303
+    assert response["Location"] == _url(SIGMUND)
     assert HouseholdAnswer.objects.count() == 0
+    assert PersonAnswer.objects.count() == 0
 
 
 def test_a_post_without_send_writes_nothing(client, seeded):
