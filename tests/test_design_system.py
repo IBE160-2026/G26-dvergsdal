@@ -342,7 +342,8 @@ def test_press_never_rings_the_whole_page():
     """UX-DR15: browsers mark every ancestor of a pressed element `:active`, so the
     press ring is limited to interactive elements; no bare `:active` selector."""
     allowed = re.compile(
-        r"(\.button(--[a-z-]+)?|a|:where\(a, button, input, select, textarea, summary\)):active"
+        r'(\.button(--[a-z-]+|\[aria-disabled="true"\])?|a|'
+        r":where\(a, button, input, select, textarea, summary\)):active"
     )
     actives = [
         part

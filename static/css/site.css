@@ -351,7 +351,8 @@ a:active {
  * .button is the primary button; modifiers give the secondary, outlined on
  * green and destructive buttons. Hover and press thicken the outline to 3px;
  * the padding shrinks by the same amount so the button keeps its size. The
- * «Sender …» busy state arrives with Story 2.6a. */
+ * «Sender …» busy state (Story 2.6a) is `aria-disabled="true"`, set by
+ * rsvp-send.js: same colours, a progress cursor. */
 
 .button {
   --button-border-width: 2px;
@@ -381,6 +382,15 @@ a:active {
 .button:hover,
 .button:active {
   background-color: var(--color-green-dark-hover);
+}
+
+.button[aria-disabled="true"],
+.button[aria-disabled="true"]:hover,
+.button[aria-disabled="true"]:active {
+  --button-border-width: 2px;
+
+  background-color: var(--color-green-dark);
+  cursor: progress;
 }
 
 .button--secondary,
@@ -1204,6 +1214,20 @@ a:active {
 
 .check-list__missing {
   color: var(--color-ink-muted);
+}
+
+/* Story 2.6a (FR-74, UX-DR24): «Svaret er sendt». The success notice holds
+ * the `h1` and the sent line, which wraps inside the sheet. No breakpoint of
+ * its own; Story 2.7 completes the receipt. */
+
+.sent-notice h1 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.sent-notice p {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
 }
 
 /* ---------- Footer band (FR-6, UX-DR12; DESIGN.md › Footer band) ----------

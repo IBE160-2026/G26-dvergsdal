@@ -7,9 +7,10 @@ and not counted when nobody comes Friday, its errors and «Velg»; the check
 page's order (notice, `h1`, one block per applicable step, the total from
 `household_total`, «Send svaret» above «Tilbake»), «Ikke oppgitt», the FR-28
 warning, each «Endre» link and its return with `?fra=se-over`; a POST to the
-check page writes nothing, and a walk through steps 1 to 6 and the check page
-writes no row and is never cached. The rule is in test_answer_rules.py; the
-browser runs are MT-36 to MT-38 in docs/manual-test-plan.md.
+check page without `action=send` writes nothing, and a walk through steps 1
+to 6 and the check page, stopping before the send, writes no row and is never
+cached. Sending itself is tested in test_rsvp_send.py (Story 2.6a). The rule
+is in test_answer_rules.py; the browser runs are MT-36 to MT-38 in docs/manual-test-plan.md.
 """
 
 import re
@@ -285,14 +286,17 @@ def test_csrf_failure_on_the_hike_keeps_the_posted_radios(seeded):
     assert COOKIE_NAME not in response.cookies
 
 
-def test_csrf_failure_on_the_check_page_is_the_generic_page(seeded):
-    """UX-DR52: the check page keeps the generic 403 page until Story 2.6a."""
+def test_csrf_failure_on_the_check_page_shows_the_check_page(seeded):
+    """UX-DR52 (Story 2.6a): the check page is shown again with the focused notice,
+    not the generic 403 page."""
     client = Client()
     _sigmund_to_check(client)
     client.handler.enforce_csrf_checks = True
     response = client.post(_url(SIGMUND, "se-over"), {"action": "send"})
     assert response.status_code == 403
-    assert "Skjemaet ble ikke sendt</h1>" in response.content.decode()
+    html = response.content.decode()
+    assert "Skjemaet ble ikke sendt</h1>" not in html
+    assert "<h1>Se over svaret før du sender</h1>" in html
 
 
 def test_a_format_4_draft_is_deleted(client, seeded):
@@ -367,7 +371,10 @@ def test_the_check_page_in_order(client, seeded):
     assert form.index("Send svaret") < form.index(">Tilbake</a>")
     assert f'href="{_url(SIGMUND, "fjelltur")}">Tilbake</a>' in html
     assert "Jeg er" not in text
-    assert "<script" not in html
+    # Story 2.6a: the only script is the busy state of «Send svaret».
+    assert re.findall(r"<script[^>]*>", html) == [
+        '<script src="/static/js/rsvp-send.js" defer></script>'[:-9]
+    ]
     # AD-8: no hidden field but the CSRF token.
     assert re.findall(r'type="hidden" name="(\w+)"', html) == ["csrfmiddlewaretoken"]
 
@@ -628,12 +635,12 @@ def test_endre_adding_a_day_goes_through_the_new_questions(client, seeded):
     assert "Filippa: kanskje" in hike
 
 
-def test_send_svaret_writes_nothing(client, seeded):
-    """Story 2.6a builds sending, matrix «Send svaret»: 303 back, no draft change,
-    no row."""
+def test_a_post_without_send_writes_nothing(client, seeded):
+    """AD-7 (Story 2.6a, matrix «No action»): a check-page POST without
+    `action=send` redirects (303) back, with no draft change and no row."""
     _sigmund_to_check(client)
     before = row_counts()
-    response = client.post(_url(SIGMUND, "se-over"), {"action": "send"})
+    response = client.post(_url(SIGMUND, "se-over"), {})
     assert response.status_code == 303
     assert response["Location"] == _url(SIGMUND, "se-over")
     assert COOKIE_NAME not in response.cookies
@@ -641,7 +648,7 @@ def test_send_svaret_writes_nothing(client, seeded):
 
 
 def test_the_walk_writes_nothing_and_is_never_cached(client, seeded):
-    """AD-1, AD-8, FR-3: steps 1 to 6 and the check page write no row, use no
+    """AD-1, AD-8, FR-3: steps 1 to 6 and the check page, before the send, write no row, use no
     session and no messages, and every response is private and never stored."""
     before = row_counts()
     sigmund, bestemor = _ids(SIGMUND)
@@ -661,7 +668,7 @@ def test_the_walk_writes_nothing_and_is_never_cached(client, seeded):
         ("post", _url(SIGMUND, "fjelltur"), {f"hike_{sigmund}": "yes", f"hike_{bestemor}": "no"}),
         ("get", _url(SIGMUND, "se-over"), {}),
         ("get", f"{_url(SIGMUND, 'maltider')}{FROM}", {}),
-        ("post", _url(SIGMUND, "se-over"), {"action": "send"}),
+        ("post", _url(SIGMUND, "se-over"), {}),
     ]
     for method, path, data in requests:
         response = getattr(client, method)(path, data)

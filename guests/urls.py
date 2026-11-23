@@ -11,9 +11,10 @@ has step 1 at `/<code>/svar/` and its later steps and check page at
 `/<code>/svar/<slug>/` (`dager`, `overnatting`, `maltider`, `allergier`,
 `fjelltur`, `se-over`; wedding/rsvp/steps.py). The running total (Story 2.3,
 AD-7) is `POST /<code>/svar/sum/?steg=<slug>`, before `<slug>` so it is never
-taken for a step. After the deadline every step address shows the closed page
-and the total answers 204; an unknown slug gives «Vi finner ikke denne siden»
-either way. `/<code>/personvern/` (Story 7.1) follows.
+taken for a step. «Svaret er sendt» (Story 2.6a, FR-74) is
+`/<code>/svar/sendt/`, also before `<slug>`. After the deadline every step
+address shows the closed page and the total answers 204; an unknown slug
+gives «Vi finner ikke denne siden» either way. `/<code>/personvern/` (Story 7.1) follows.
 """
 
 from django.conf import settings
@@ -36,5 +37,6 @@ urlpatterns += [
     path("<str:code>/historie/", views.info_page, {"page": "our_story"}, name="our_story"),
     path("<str:code>/svar/", views.rsvp, name="rsvp"),
     path("<str:code>/svar/sum/", views.rsvp_total, name="rsvp_total"),
+    path("<str:code>/svar/sendt/", views.rsvp_sent, name="rsvp_sent"),
     path("<str:code>/svar/<str:slug>/", views.rsvp_step, name="rsvp_step"),
 ]

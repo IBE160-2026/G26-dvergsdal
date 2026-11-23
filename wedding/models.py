@@ -3,7 +3,9 @@
 Story 1.1 added the custom `User`, so that it is `AUTH_USER_MODEL` from the very
 first migration (AD-10). Story 1.2 adds households, guests and the single-row
 settings. Story 1.3 marks the households and users the seed command creates as
-test data (FR-72, AD-16). Each later table comes with the story that needs it.
+test data (FR-72, AD-16). Story 2.6a adds a household's sent answer,
+`HouseholdAnswer` and one `PersonAnswer` per guest (FR-74, AD-4). Each later
+table comes with the story that needs it.
 
 Only `wedding/services/` writes these models (AD-3), and only facts are stored,
 never derived values such as totals or a household's display name (AD-4).
@@ -11,6 +13,8 @@ never derived values such as totals or a household's display name (AD-4).
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from wedding.rules.days import HIKE_ANSWERS, HIKE_LABELS
 
 PHONE_MAX_LENGTH = 30
 
@@ -113,3 +117,67 @@ class Settings(models.Model):
 
     def __str__(self):
         return "Innstillinger"
+
+
+class HouseholdAnswer(models.Model):
+    """A household's sent answer: who sent it and when (Story 2.6a, FR-74, AD-4, AD-9).
+
+    Written only by `wedding.services.answers.send_answer`. `sent_by_name`
+    keeps the sender's name as text, so it stays if the guest is removed.
+    Nothing derived is stored: no total and no status.
+    """
+
+    household = models.OneToOneField(
+        Household, on_delete=models.CASCADE, related_name="answer", verbose_name="husstand"
+    )
+    sent_by = models.ForeignKey(
+        Guest,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="+",
+        verbose_name="sendt av",
+    )
+    sent_by_name = models.CharField("sendt av (navn)", max_length=100)
+    sent_at = models.DateTimeField("sendt")
+
+    class Meta:
+        verbose_name = "svar fra husstand"
+        verbose_name_plural = "svar fra husstander"
+
+    def __str__(self):
+        return f"Svar fra husstand {self.household_id}"
+
+
+class PersonAnswer(models.Model):
+    """One guest's sent answer (Story 2.6a, FR-13 to FR-17, FR-74, AD-4).
+
+    The normalised answer as facts: coming, the days, the cabin, the paid
+    meals and the Friday hike (blank when not asked). Someone not coming has
+    every other field False or blank.
+    """
+
+    guest = models.OneToOneField(
+        Guest, on_delete=models.CASCADE, related_name="answer", verbose_name="gjest"
+    )
+    coming = models.BooleanField("kommer")
+    friday = models.BooleanField("fredag", default=False)
+    saturday = models.BooleanField("lørdag", default=False)
+    sunday = models.BooleanField("søndag", default=False)
+    cabin = models.BooleanField("overnatting i hytte", default=False)
+    friday_dinner = models.BooleanField("middag fredag", default=False)
+    saturday_breakfast = models.BooleanField("frokost lørdag", default=False)
+    sunday_breakfast = models.BooleanField("frokost søndag", default=False)
+    hike = models.CharField(
+        "fjelltur fredag",
+        max_length=5,
+        blank=True,
+        choices=[(key, HIKE_LABELS[key]) for key in HIKE_ANSWERS],
+    )
+
+    class Meta:
+        ordering = ("guest_id",)
+        verbose_name = "svar fra gjest"
+        verbose_name_plural = "svar fra gjester"
+
+    def __str__(self):
+        return f"Svar fra gjest {self.guest_id}"
