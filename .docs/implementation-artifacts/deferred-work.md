@@ -145,6 +145,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
   summary: Stories 2.2–2.5: give the step registry (`wedding/rsvp/steps.py`) a `question` field so each step's heading lives in one place, and keep the yes/no values and summary texts next to the form they belong to.
   evidence: low. Blind review; step 1's question is hard-coded in `_render_step` today.
+  status: done in Story 2.2 (`Step.question` in `wedding/rsvp/steps.py` is each step's `h1`; the yes/no values, choice labels, error lines and summary texts of steps 1 and 2 are in `wedding/rsvp/forms.py` next to `WhoIsComingForm` and `DaysForm`).
 
 - source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
   summary: Story 4.4 (the couple's mount): test the non-guest branches of `_owner` and `_merged` in `wedding/rsvp/views.py` (first member as respondent, revision 0) when the form is mounted for the couple.
@@ -171,3 +172,25 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/planning-artifacts/epics.md` (Story 7.4)
   summary: Story 7.4: the placeholder test (a guest page with a square-bracket placeholder fails) must allow «[stilling]» in Vår historie (`guests/templates/guests/our_story.html`). Rikke's job title is not decided before the course submission, so the placeholder stays on purpose through submission. Allow exactly that one string on that one page, and fill it in, and remove the exception, once the title is decided.
   evidence: high. Rikke, 2026-11-23: «[Stilling] skal stå slik den er siden det ikke er bestemt enda. Blir ikke bestemt før innlevering.»
+
+## From Story 2.2 (2026-11-23)
+
+- source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
+  summary: Story 2.3: when step 2's answer changes, drop the later steps' `done` keys and the overnight/meal/hike choices that depended on a removed day (FR-75), in `_settled` (`wedding/rsvp/views.py`) and `normalise_answer`.
+  evidence: low. Edge-case review; unreachable in 2.2 because the frames never mark a step done.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
+  summary: Story 7.4: align the step-2 day summaries in `DAYS` (`wedding/rsvp/steps.py`) with the final programme text, or test them against `programme.html` as the names and dates already are.
+  evidence: low. Blind and intent-alignment review.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
+  summary: Story 2.3: `rsvp/step.html` chooses its include and the `h1` id by branching on the step key; pass the include name and heading id from the view when the third step arrives.
+  evidence: low. Blind review.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
+  summary: Rikke: approve or change step 2's [forslag] texts and layout (day list, «Velg dagene for hver person», checkbox groups); screenshots are in the PR for Story 2.2.
+  evidence: low. Blind review; no rendered mockup covers step 2.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
+  summary: After step 2 the address keeps `#velg-dager` on the next step, because the browser carries the fragment through the redirect. Revisit if the usability test notices it.
+  evidence: low. Found by the orchestrator in Edge (MT-27); nothing scrolls since no later page has that id.
