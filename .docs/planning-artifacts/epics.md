@@ -1532,6 +1532,7 @@ So that I can plan the weekend.
 **Given** the guest pages after the full text is in
 **When** the tests run
 **Then** a test fails if any guest page still contains a square-bracket placeholder such as «[14:00]» or «[adresse]», so no placeholder reaches a guest
+**And** the one exception is «[stilling]» on Vår historie, which the test allows until Rikke's job title is decided *(added 2026-11-23: Rikke decided the placeholder stays through the course submission, since the title is not decided before then; see `deferred-work.md`)*
 
 *(Changed 2026-11-20 in Story 1.6: the map button from `mockups/info-praktisk.html` moved here, since there is no real address yet and no map service decided; the placeholder test was added so the placeholders that Story 1.6 keeps on Praktisk informasjon cannot be forgotten. See `deferred-work.md`.)*
 
