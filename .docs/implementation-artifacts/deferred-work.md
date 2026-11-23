@@ -217,6 +217,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 2.6b reads `CONSENT_TEXT_VERSION` and the draft's `cons`/`conf` when storing allergies; AD-18's «no consent Ja across a revision change» is enforced by the revision check of 2.6c/2.9.
   evidence: decided in the spec.
+  status: storage done in Story 2.6b (wedding/services/answers.py); the «no consent Ja across a revision change» part stays with Story 2.6c/2.9.
 
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 7.1: the privacy page says that the answer in progress, including allergies a guest typed but did not consent to, lives only in the guest's own browser cookie until it is sent or expires (90 days).
@@ -225,6 +226,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 2.6b/2.6c: record which consent-text version the guest saw, so a version change between step 5 and sending is caught together with the revision check.
   evidence: low. Blind review; the draft holds no consent-text version today.
+  status: moved to Story 2.6c (2026-11-24): it bumps the draft format once for both the total snapshot and the seen version; 2.6b records the version current at send.
 
 ## From Story 2.5 (2026-11-23)
 
@@ -242,3 +244,13 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-6a-send-the-answer.md`
   summary: Story 2.6c: the «Sender …» button stays busy if the navigation is aborted (Esc or a network failure) or the send fails; reset it so the guest can try again.
   evidence: low. Edge Case Hunter and Blind review; a reload restores it today.
+
+## From Story 2.6b (2026-11-24)
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6b-allergies-are-stored-only-with-consent.md`
+  summary: Story 2.6c: two concurrent first sends for one household can both create a guest's `Allergy` (or `PersonAnswer`) and the second fails with an IntegrityError; the submission id and revision check (or a row lock) should make the second send safe.
+  evidence: Edge Case Hunter; `send_answer` takes no row lock.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6b-allergies-are-stored-only-with-consent.md`
+  summary: The story that adds guest deletion (4.x/7.2): test that deleting the respondent sets other guests' `Consent.given_by` to null and keeps `given_by_name`, and that deleting a guest removes their `Allergy` and `Consent` rows (AD-4).
+  evidence: Verification-gap review; no guest-deletion path exists yet.

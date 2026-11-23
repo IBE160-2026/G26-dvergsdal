@@ -2,7 +2,8 @@
 title: 'Story 2.6b: Allergies are stored only with consent'
 type: 'feature'
 created: '2026-11-24'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '3c1ae5f38bbdab0842a3cf27fd78e839eefe8c34'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -11,7 +12,11 @@ context:
   - '{project-root}/.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md'
 warnings:
   - oversized
-deferred: []
+deferred:
+- summary: "Story 2.6c: two concurrent first sends for one household can both create a guest's `Allergy` (or `PersonAnswer`) and the second fails with an IntegrityError; the submission id and revision check (or a row lock) should make the second send safe."
+  evidence: "Edge Case Hunter; send_answer takes no row lock."
+- summary: "The story that adds guest deletion (4.x/7.2): test that deleting the respondent sets other guests' `Consent.given_by` to null and keeps `given_by_name`, and that deleting a guest removes their `Allergy` and `Consent` rows (AD-4)."
+  evidence: "Verification-gap review; no guest-deletion path exists yet."
 ---
 
 <intent-contract>
@@ -71,20 +76,20 @@ deferred: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/rules/allergies.py` — `STORE`/`DELETE`/`KEEP`, `consent_outcomes` (AD-18, FR-75, NFR-3).
-- [ ] `wedding/models.py`, migration `0006` — `Allergy`, `Consent` (FR-26, FR-29, AD-4, AD-18).
-- [ ] `wedding/services/answers.py`, `wedding/services/consent.py` docstring — conflict/confirm refusal before writes, apply outcomes, record consent events (FR-26, FR-29, AD-18).
-- [ ] `wedding/rsvp/views.py` — module docstring only.
-- [ ] `tests/test_allergy_rules.py`, `tests/test_rules_purity.py` — `consent_outcomes` truth table: Ja/Nei/unanswered × coming/not coming.
-- [ ] `tests/test_send_answer.py` — every matrix row with `now` fixed, for the respondent and for another member, on a first send and on a re-send (epics AC); `Consent` fields (event, at, given_by, given_by_name, `text_version == CONSENT_TEXT_VERSION`, `given_by_user` None); earlier `Consent` rows survive a re-send; refused sends write no `Allergy`/`Consent`; migration fields (one Boolean per `ALLERGY_KEYS`, no derived field); `str()` of both models contains no name, category or note; with `caplog` at DEBUG a send logs no name or note.
-- [ ] `tests/test_rsvp_send.py` — test-client journey on Sigmund's link: Sigmund gluten Ja, bestemor nuts Nei → after send, `Allergy` only for Sigmund, two `Consent` rows (given, refused); then a fresh draft re-send where Sigmund's allergy is changed with consent unanswered → the check page shows the FR-28 warning naming Sigmund, and after send his `Allergy` is unchanged.
-- [ ] `docs/manual-test-plan.md` — Norwegian rows MT-42 to MT-44, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`); before each `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`:
+- [x] `wedding/rules/allergies.py` — `STORE`/`DELETE`/`KEEP`, `consent_outcomes` (AD-18, FR-75, NFR-3).
+- [x] `wedding/models.py`, migration `0006` — `Allergy`, `Consent` (FR-26, FR-29, AD-4, AD-18).
+- [x] `wedding/services/answers.py`, `wedding/services/consent.py` docstring — conflict/confirm refusal before writes, apply outcomes, record consent events (FR-26, FR-29, AD-18).
+- [x] `wedding/rsvp/views.py` — module docstring only.
+- [x] `tests/test_allergy_rules.py`, `tests/test_rules_purity.py` — `consent_outcomes` truth table: Ja/Nei/unanswered × coming/not coming.
+- [x] `tests/test_send_answer.py` — every matrix row with `now` fixed, for the respondent and for another member, on a first send and on a re-send (epics AC); `Consent` fields (event, at, given_by, given_by_name, `text_version == CONSENT_TEXT_VERSION`, `given_by_user` None); earlier `Consent` rows survive a re-send; refused sends write no `Allergy`/`Consent`; migration fields (one Boolean per `ALLERGY_KEYS`, no derived field); `str()` of both models contains no name, category or note; with `caplog` at DEBUG a send logs no name or note.
+- [x] `tests/test_rsvp_send.py` — test-client journey on Sigmund's link: Sigmund gluten Ja, bestemor nuts Nei → after send, `Allergy` only for Sigmund, two `Consent` rows (given, refused); then a fresh draft re-send where Sigmund's allergy is changed with consent unanswered → the check page shows the FR-28 warning naming Sigmund, and after send his `Allergy` is unchanged.
+- [x] `docs/manual-test-plan.md` — Norwegian rows MT-42 to MT-44, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`); before each `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`:
   - **MT-42 (ekte sending med samtykke):** `http://127.0.0.1:8000/test-sigmund0000000000/svar/`: both coming, whole weekend, any cabin/meals, step 5: Sigmund «Gluten», note «Tåler litt», «Ja»; bestemor «Nøtter», «Nei»; step 6 any; «Se over svaret» shows the Obs warning naming bestemor only; «Send svaret» → `/svar/sendt/`. `uv run manage.py shell -c` prints for the household: one `Allergy` (Sigmund: `gluten` True, note «Tåler litt»), none for bestemor; `Consent` rows Sigmund `given`, bestemor `refused`, both `given_by_name` «Sigmund», `text_version` «2026-11-23». Then a second pass: open `/svar/` again, same answers but bestemor «Ja» with «Jeg bekrefter at bestemor vet om dette og er enig» ticked and Sigmund's consent left unanswered with «Laktose» added → shell shows bestemor `nuts` True, Sigmund's row unchanged (gluten only), and four `Consent` rows in total.
   - **MT-43 (bare tastatur):** the MT-42 first pass with `page.keyboard` only (Tab, Space, arrow keys, Enter) from `/svar/` to `/svar/sendt/`; the consent radios and the confirm checkbox are reachable; focused elements have `outline-style` `solid`; the shell shows the same rows as MT-42's first pass.
   - **MT-44 (oppsett):** step 5 (`/svar/allergier/`) with both people's entries and the confirm box shown, and «Se over svaret» with the Obs warning; at 360 × 640 and 180 × 320, then with 20px default text (CDP `Page.setFontSizes` `{ fontSizes: { standard: 20 } }`) at both: `scrollWidth` ≤ `innerWidth`; radios and checkboxes ≥ 44px tall rows; the warning wraps inside the sheet.
-- [ ] `README.md` — status sentence (story 2.6b: allergies are stored only for people with «Ja», «Nei» deletes them, unanswered on a re-send keeps them, each consent recorded with who, when and the text version); «Svarskjemaet» paragraph updated.
+- [x] `README.md` — status sentence (story 2.6b: allergies are stored only for people with «Ja», «Nei» deletes them, unanswered on a re-send keeps them, each consent recorded with who, when and the text version); «Svarskjemaet» paragraph updated.
 - [ ] ARCHITECTURE-SPINE.md — dated notes (2026-11-24, Story 2.6b): AD-4 stored list gains `Allergy`/`Consent` fields and migration `0006`; AD-18: `consent_outcomes`, «Ja with nothing entered deletes», «not coming deletes (FR-75)», version recorded at send and the seen-version check moved to 2.6c.
-- [ ] `.docs/implementation-artifacts/deferred-work.md` — mark the 2.4 entry «Story 2.6b reads CONSENT_TEXT_VERSION …» done in 2.6b for storage; the «no consent Ja across a revision change» part stays with 2.6c/2.9. Mark the «record which consent-text version the guest saw» entry as moved to Story 2.6c (draft format bump shared with the total snapshot). Add «From Story 2.6b» if review defers anything.
+- [x] `.docs/implementation-artifacts/deferred-work.md` — mark the 2.4 entry «Story 2.6b reads CONSENT_TEXT_VERSION …» done in 2.6b for storage; the «no consent Ja across a revision change» part stays with 2.6c/2.9. Mark the «record which consent-text version the guest saw» entry as moved to Story 2.6c (draft format bump shared with the total snapshot). Add «From Story 2.6b» if review defers anything.
 
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` run, then all pass and `uv run manage.py makemigrations --check --dry-run` reports no changes.
@@ -97,6 +102,32 @@ deferred: []
 ## Spec Change Log
 
 ## Review Triage Log
+
+### 2026-11-24 — Review pass
+- verdicts: 22 findings — high 0, medium 2, low 9, false 11, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` MT-42 expects «fire» consent rows, but round 1 writes two and round 2 one (blind) — confirmed by the Playwright run (three rows); the expected result now says three and names them.
+  - `[medium]` `[defer]` Two concurrent first sends for one household can both create the guest's `Allergy` and the second fails with an IntegrityError (edge-case) — `send_answer` takes no row lock; the same holds for `PersonAnswer` from 2.6a. Repeated and concurrent sends are Story 2.6c's scope (submission id and revision check).
+  - `[low]` `[patch]` The test helper `_with` drops `Answer.days`, so a partial-day base answer falls back to the whole weekend (edge-case) — `_with` now passes `days` through.
+  - `[low]` `[defer]` No test pins the deletion contract: `Consent.given_by` SET_NULL with `given_by_name` kept, and `Allergy`/`Consent` cascading with the guest (verification-gap, blind) — no guest-deletion path exists yet; the test belongs with the story that adds deletion (4.x/7.2).
+  - `[low]` `[reject]` On a re-send with unchanged allergy data and consent unanswered, the FR-28 warning says the data «blir ikke lagret» although the stored data is kept (intent-alignment, reading R2) — decided in the spec (planner decision 6, the FR-28 notice covers AC3); comparing the draft with stored data adds a branch and a database read on the check page for a rare case.
+  - `[low]` `[reject]` Re-sends with the same answer add identical `Consent` events (blind) — the table is an event log (AD-18: one event per answered consent per send); duplicates record that the guest confirmed again.
+  - `[low]` `[reject]` The log assertion in `test_no_names_or_notes_in_str_or_logs` passes trivially because nothing logs (blind) — it is a guard against a future log line; harmless.
+  - `[low]` `[reject]` No database CheckConstraint for «given_by or given_by_user» or for «none with a category» (blind) — the only writer is `send_answer`, which checks `allergy_problems` first; a constraint is added complexity for a state no code reaches.
+  - `[low]` `[reject]` `Consent.EVENTS` is a tuple and not `TextChoices` (blind) — cosmetic; ruff RUF012 drove the tuple.
+  - `[low]` `[reject]` Missing tests for «Nei» or not coming when no `Allergy` row exists, and unanswered with no row (blind) — the delete of nothing is Django's no-op; the truth table and service tests cover the outcomes.
+  - `[low]` `[reject]` The diff only documents MT rows without evidence of a run (intent-alignment) — MT-42 to MT-44 have since been run in Edge and recorded.
+  - `[false]` `[reject]` `consent_outcomes` is not added to `tests/test_rules_purity.py` (edge-case) — that test scans every module in `wedding/rules/`, so the new function is covered.
+  - `[false]` `[reject]` FR-29 «who gave it» cannot tell self from another member (intent-alignment) — `Consent.guest` against `given_by` tells them apart; `given_by_user` waits for the couple's stories.
+  - `[false]` `[reject]` Behaviour beyond the five ACs (FR-75 delete, FR-25/27 refusal in the service) (intent-alignment) — both are in the spec and trace to FR-75, NFR-3 and FR-27.
+  - `[false]` `[reject]` MT-42–44 results blank (blind) — recorded after the run.
+  - `[false]` `[reject]` «Ja» with nothing entered records a `given` event (blind) — the event records the answer the guest gave (FR-29); no health data is stored.
+  - `[false]` `[reject]` `given_by_name` may be shorter than a guest name (blind) — both are `max_length=100` (`wedding/models.py:74`).
+  - `[false]` `[reject]` `models.py` importing `NOTE_MAX` couples the migration to a constant (blind) — Django migrations always freeze field values; a change to `NOTE_MAX` makes `makemigrations --check` fail in CI.
+  - `[false]` `[reject]` The service does not check note length (blind) — the form (`wedding/rsvp/forms.py:396`) and the signed draft decoder (`wedding/rsvp/draft.py:235`) both refuse notes over `NOTE_MAX`.
+  - `[false]` `[reject]` Spec moved to in-review with no review notes (blind) — this pass writes them.
+  - `[false]` `[reject]` The seen-version hand-off to 2.6c is one-directional (blind) — 2.6c has no spec yet; deferred-work.md is where its planner reads hand-offs.
+  - `[false]` `[reject]` No session log in the change (blind) — written at the end of the story.
 
 ## Design Notes
 
@@ -112,3 +143,22 @@ deferred: []
 - `uv run ruff check` and `uv run ruff format --check` -- expected: no findings.
 - `uv run djlint --check .` -- expected: no findings.
 - `uv run manage.py makemigrations --check --dry-run` -- expected: no changes.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** Sending now stores allergy data only with consent. Migration 0006 adds `Allergy` (one per guest: category booleans, `none`, `note`) and `Consent` (event log: given, refused or withdrawn, with time, giver, giver's name and `CONSENT_TEXT_VERSION`). The pure rule `consent_outcomes` decides per guest: «Ja» stores (or deletes when nothing is entered), «Nei» or not coming deletes, unanswered keeps. `send_answer` refuses allergy problems before any write and applies the outcomes in its transaction, with one `Consent` event per coming guest who answered. The check page's FR-28 warning covers AC3. Recording the seen consent-text version moved to 2.6c.
+
+**Files changed:**
+- `wedding/rules/allergies.py`, `wedding/models.py`, `wedding/migrations/0006_allergy_consent.py`, `wedding/services/answers.py`, `wedding/services/consent.py`, `wedding/rsvp/views.py` (docstring).
+- `tests/test_allergy_rules.py`, `tests/test_send_answer.py`, `tests/test_rsvp_send.py`.
+- `README.md`, `docs/manual-test-plan.md`, `ARCHITECTURE-SPINE.md`, `deferred-work.md`.
+
+**Review:** 22 findings — 2 patched (MT-42 expected three consent rows, not four; test helper `_with` kept chosen days), 2 deferred (concurrent first send to 2.6c, deletion-contract test to the deletion story), 18 rejected with reasons in the triage log.
+
+**Follow-up review recommendation:** false. The patches touched only a test helper and the test plan.
+
+**Verification:** `uv run pytest` 1218 passed; ruff, ruff format and djlint clean. MT-42, MT-43, MT-44 run by Claude with Playwright in Edge 158, database rows read through `manage.py shell`. The patches changed no application code, so the browser run stands.
+
+**Residual risks:** a concurrent double first send can raise an IntegrityError (2.6c); a re-send with unchanged data and unanswered consent shows the «blir ikke lagret» warning although the stored data is kept.
