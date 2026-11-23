@@ -3,7 +3,9 @@
  *
  * Every value comes from DESIGN.md (frontmatter and Components table); the
  * tests in tests/test_design_system.py read this file and compare it with
- * DESIGN.md. No JavaScript, no external URLs, no motion that runs by itself.
+ * DESIGN.md. No external URLs and no motion that runs by itself; the only
+ * script is the RSVP form's running total (static/js/rsvp-total.js), which
+ * styles nothing.
  * Story 1.4b adds the paper texture, the paper sheet, the page column and
  * the private-invitation page (G1). Story 1.5 adds the guest pages' nav bar,
  * the front page (hero, lead-in, «Alt om helgen», RSVP sheet), the footer
@@ -20,7 +22,9 @@
  * none. The error pages arrive in 1.8. Story 2.1 adds the RSVP form: the
  * form sheet, progress and respondent lines, choice rows, the error line and
  * summary, and the actions (FR-13, FR-22, UX-DR16, UX-DR18, UX-DR19), and the
- * front page's «Svar på invitasjonen» link.
+ * front page's «Svar på invitasjonen» link. Story 2.2 adds the day list and
+ * Story 2.3 the price line, the notes and the household total on the paid
+ * steps (FR-32, FR-33).
  */
 
 /* ---------- Fonts: self-hosted WOFF2, SIL OFL (UX-DR2, AD-15) ----------
@@ -1054,6 +1058,27 @@ a:active {
   font-size: var(--font-size-label);
   line-height: var(--line-height-label);
   font-weight: var(--font-weight-label);
+}
+
+/* Story 2.3 (FR-16, FR-32, FR-33; DESIGN.md › Form step, Running total):
+ * steps 3 and 4 show why and what guests pay in body text before the
+ * choices, and the household total under them: right-aligned above a
+ * divider, with lining, tabular figures so the amount does not jump when it
+ * changes. The amount's spaces are no-break spaces (the `kroner` filter), so
+ * «1 500 kr» never breaks. The radios and checkboxes reuse .choice. No
+ * breakpoint of its own. */
+
+.form-sheet .form-note,
+.form-sheet .form-price {
+  margin-top: var(--space-3);
+}
+
+.form-sheet .form-total {
+  margin-top: var(--space-6);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-divider);
+  text-align: right;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 /* ---------- Footer band (FR-6, UX-DR12; DESIGN.md › Footer band) ----------

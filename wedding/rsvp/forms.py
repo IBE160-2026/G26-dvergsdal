@@ -1,19 +1,24 @@
-"""The RSVP form's Django forms and their texts (Stories 2.1, 2.2).
+"""The RSVP form's Django forms and their texts (Stories 2.1 to 2.3).
 
 FR-13, FR-14, FR-22: step 1 asks, for each household member, «Kommer» or
 «Kommer ikke», with nothing chosen in advance. Step 2 asks whether everyone
 coming is there the whole weekend, «Ja» or «Nei», and after «Nei» which days
-each coming person comes (FR-14, FR-70). The server validates every POST; a
+each coming person comes (FR-14, FR-70). Step 3 asks each coming person
+«Ja» or «Nei» to a cabin for the whole weekend, and step 4 which paid meals
+each wants, both with their prices and why guests pay (FR-15, FR-16, FR-32,
+FR-70, FR-73, Story 2.3). The server validates every POST; a
 missing or forged value is an error on that group. The templates write the
 inputs themselves, so the markup follows DESIGN.md's choice control and error
 line exactly; the forms validate, say what was posted, and hold each step's
-choice labels, error lines and error-summary texts. The texts marked
-[forslag] in EXPERIENCE.md are proposals.
+choice labels, error lines and error-summary texts. The texts of steps 2 to
+4 are avgjort av Claude 2026-11-23 (EXPERIENCE.md, Microcopy).
 """
 
 from django import forms
 
+from wedding.rsvp.steps import DAYS, MEALS
 from wedding.rules.days import DAY_KEYS, GAP, NO_DAY
+from wedding.templatetags.money import kroner
 
 YES = "yes"
 NO = "no"
@@ -23,6 +28,14 @@ WHOLE_CHOICES = (
     (NO, "Nei, jeg velger dager for hver person"),
 )
 WHOLE_FIELD = "whole"
+# FR-32: the en dash between a choice and its price, as on the mockup.
+DASH = "\N{EN DASH}"
+
+# FR-32: why guests pay, on steps 3 and 4 (avgjort av Claude 2026-11-23).
+PAY_NOTE = (
+    "Dette er Hardingasetes priser, og hver gjest betaler selv. "
+    "Lunsj og middag på bryllupsdagen dekker vi."
+)
 
 
 def attendance_field(guest_id: int) -> str:
@@ -33,6 +46,21 @@ def attendance_field(guest_id: int) -> str:
 def days_field(guest_id: int) -> str:
     """FR-14: the POST name of a member's day checkboxes."""
     return f"days_{guest_id}"
+
+
+def overnight_field(guest_id: int) -> str:
+    """FR-16: the POST name of a member's overnight radios."""
+    return f"overnight_{guest_id}"
+
+
+def meals_field(guest_id: int) -> str:
+    """FR-15: the POST name of a member's meal checkboxes."""
+    return f"meals_{guest_id}"
+
+
+def _priced(label: str, price: int) -> str:
+    """FR-32: the label, a dash and the price, or the label alone at price 0 (Rikke 2026-11-21)."""
+    return f"{label} {DASH} {kroner(price)}" if price else label
 
 
 class WhoIsComingForm(forms.Form):
@@ -139,6 +167,100 @@ class DaysForm(forms.Form):
             ticked = set(self.data.getlist(days_field(guest_id)))
             days[guest_id] = [day for day in DAY_KEYS if day in ticked]
         return days
+
+
+class OvernightForm(forms.Form):
+    """FR-16, FR-22, FR-32, FR-70: step 3, «Hvem skal overnatte på Hardingasete?».
+
+    `overnight_<id>` is «yes» or «no» for each coming member; `coming` is
+    them as (id, name). Whether a person can stay is the rule
+    `can_stay_overnight` (wedding/rules/days.py); this form reads what was
+    posted, ignoring a forged value and a member who is not coming, and holds
+    the step's texts.
+    """
+
+    PRICE_LABEL = "Hytte hele helgen"
+    PRICE_UNIT = "per person"
+    YES_LABEL = "Ja, hytte hele helgen"
+    NO_LABEL = "Nei"
+
+    def __init__(self, coming: list[tuple[int, str]], *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.coming = coming
+
+    @staticmethod
+    def lead() -> str:
+        """FR-16, FR-70: why the cabin is paid for both nights, with the dates from `DAYS`."""
+        first, last = DAYS[DAY_KEYS[0]], DAYS[DAY_KEYS[-1]]
+        return (
+            f"Hyttene er leid for hele helgen, fra {first.name.lower()} {first.date} til "
+            f"{last.name.lower()} {last.date}. Begge nettene betales, også for den som bare "
+            "sover der én natt."
+        )
+
+    @classmethod
+    def choices(cls, price: int) -> tuple[tuple[str, str], ...]:
+        """FR-16, FR-32: «Ja, hytte hele helgen» with the price, and «Nei»."""
+        return ((YES, _priced(cls.YES_LABEL, price)), (NO, cls.NO_LABEL))
+
+    @staticmethod
+    def error_text(name: str) -> str:
+        """FR-22: the error line under a member's legend when they have no answer."""
+        return f"Velg «Ja» eller «Nei» for {name}."
+
+    @staticmethod
+    def blocked_text(name: str, days: list[str]) -> str:
+        """FR-22, FR-70: the error line for a member whose days do not allow a stay."""
+        day_names = " og ".join(DAYS[day].name.lower() for day in DAY_KEYS if day in days)
+        return (
+            "For å overnatte må man være med minst to dager på rad, og "
+            f"{name} kommer bare {day_names}. Velg «Nei», eller gå tilbake og velg flere "
+            f"dager for {name}."
+        )
+
+    @staticmethod
+    def summary_text(name: str) -> str:
+        """FR-22, UX-DR16: the error summary's link to a member's overnight group."""
+        return f"Velg overnatting for {name}"
+
+    def posted_night(self) -> dict[int, bool]:
+        """FR-16: each coming member's valid posted «Ja» (True) or «Nei» (False)."""
+        posted = {}
+        for guest_id, _ in self.coming:
+            value = self.data.get(overnight_field(guest_id))
+            if value in (YES, NO):
+                posted[guest_id] = value == YES
+        return posted
+
+
+class MealsForm(forms.Form):
+    """FR-15, FR-32, FR-73: step 4, «Hvilke måltider skal vi bestille?».
+
+    `meals_<id>` holds the ticked meal keys of each member in `shown`, given
+    as (id, name, offered meal keys) for every coming member who is offered a
+    paid meal (`offered_meals`, wedding/rules/days.py). Choosing no meal is
+    fine, so there is nothing to refuse: a forged key or a meal not offered to
+    that member is ignored.
+    """
+
+    HINT = "Kryss av for måltidene hver person skal ha. Det er greit å ikke velge noen."
+
+    def __init__(self, shown: list[tuple[int, str, tuple[str, ...]]], *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.shown = shown
+
+    @staticmethod
+    def meal_label(key: str, price: int) -> str:
+        """FR-15, FR-32: the meal's name with its price, as «Middag fredag» and 340 kr."""
+        return _priced(MEALS[key].name, price)
+
+    def posted_meals(self) -> dict[int, list[str]]:
+        """FR-15, FR-73: each shown member's ticked offered meal keys, in offered order."""
+        meals = {}
+        for guest_id, _, offered in self.shown:
+            ticked = set(self.data.getlist(meals_field(guest_id)))
+            meals[guest_id] = [meal for meal in offered if meal in ticked]
+        return meals
 
 
 def posted_respondent(data, member_ids: set[int]) -> int | None:

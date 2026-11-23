@@ -1,4 +1,4 @@
-"""The RSVP form's step handling, shared by every mount (Stories 2.1, 2.2).
+"""The RSVP form's step handling, shared by every mount (Stories 2.1 to 2.3).
 
 AD-7: one server-rendered form, each step a plain POST validated by the
 server, then POST-redirect-GET to the next applicable step. AD-8: between
@@ -10,14 +10,22 @@ checks the deadline and loads the members, then calls `handle_step`.
 Step 1 «Hvem kommer?» (FR-12, FR-13, FR-14, FR-22, Story 2.1) and step 2
 «Er alle som kommer, med hele helgen?» (FR-14, FR-70, Story 2.2) are built
 here. Step 2 is one address: after «Nei» it shows a day group per coming
-person at `#velg-dager`. Overnight stay, meals, allergies, the hike and the
-check page are frames that Stories 2.3 to 2.5 fill: they show where the guest
-is, the respondent line and «Tilbake», so «Fortsett» always lands on a real
-address. A later step opens only when every applicable step before it is done
-(`first_unfinished`). Every draft write runs `normalise_answer` (FR-75), so a
-person who stops coming loses their days, and step 2 stays done only while
-its answer is complete.
+person at `#velg-dager`. Step 3 «Hvem skal overnatte på Hardingasete?» and
+step 4 «Hvilke måltider skal vi bestille?» (FR-15, FR-16, FR-32, FR-33,
+FR-70, FR-73, Story 2.3) show their prices first and the household total
+from `household_total` (AD-12, NFR-2); `render_total` answers the running
+total's `POST <base>/sum/?steg=<slug>` with the same fragment and writes
+nothing. Allergies, the hike and the check page are frames that Stories 2.4
+and 2.5 fill: they show where the guest is, the respondent line and
+«Tilbake», so «Fortsett» always lands on a real address. A later step opens
+only when every applicable step before it is done (`first_unfinished`).
+Every draft write runs `normalise_answer` (FR-75), so a person who stops
+coming loses their days, stay and meals, step 2 and step 3 stay done only
+while their answers are complete, and a change in who is there on which days
+reopens the steps after step 2.
 """
+
+from dataclasses import replace
 
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -28,18 +36,23 @@ from wedding.rsvp.draft import Draft, delete_draft, read_draft, write_draft
 from wedding.rsvp.forms import (
     ATTENDANCE_CHOICES,
     NO,
+    PAY_NOTE,
     WHOLE_CHOICES,
     WHOLE_FIELD,
     YES,
     DaysForm,
+    MealsForm,
+    OvernightForm,
     WhoIsComingForm,
     attendance_field,
     days_field,
+    meals_field,
+    overnight_field,
     posted_respondent,
 )
-from wedding.rsvp.steps import CHECK, DAYS, STEPS, FormMount
-from wedding.rules.answer import normalise_answer
-from wedding.rules.days import day_error
+from wedding.rsvp.steps import CHECK, DAYS, KEY_BY_SLUG, STEPS, FormMount
+from wedding.rules.answer import Answer, normalise_answer, present_days
+from wedding.rules.days import can_stay_overnight, day_error, offered_meals
 from wedding.rules.form_steps import (
     first_unfinished,
     form_steps,
@@ -47,15 +60,23 @@ from wedding.rules.form_steps import (
     previous_step,
     step_position,
 )
+from wedding.rules.money import CABIN, household_total
 
 STEP_TEMPLATE = "rsvp/step.html"
 CHECK_TEMPLATE = "rsvp/check_frame.html"
+TOTAL_TEMPLATE = "rsvp/includes/total.html"
 SWITCH = "switch"
 # FR-22: the query that asks a step to show its errors after an invalid «Fortsett».
 ERRORS_QUERY = "feil"
 # AD-7, Story 2.2: where step 2's day groups start, after «Nei».
 DAY_GROUPS_ANCHOR = "velg-dager"
+# FR-75, AD-7 (Story 2.3): the steps whose questions follow from who is there
+# on which days, so a change in that sends the guest through them again.
+REOPENED_ON_CHANGE = ("overnight", "meals", "allergies", "hike")
+# FR-33, AD-7: the steps with prices, which show the running total.
+PAID_STEPS = ("overnight", "meals")
 Members = list[tuple[int, str]]
+Prices = dict[str, int]
 
 
 def _member_ids(members: Members) -> set[int]:
@@ -95,6 +116,23 @@ def _steps(draft: Draft | None, members: Members) -> tuple[str, ...]:
     return form_steps([attendance[guest_id] for guest_id, _ in members], days)
 
 
+def _answer(draft: Draft, members: Members) -> Answer:
+    """AD-2: the draft's answer as the rules take it, with every member's attendance."""
+    return Answer(_attendance(draft, members), draft.whole, draft.days, draft.night, draft.meals)
+
+
+def _present(draft: Draft | None, members: Members) -> dict | None:
+    """FR-75, UX-DR19: who is there on which days, or None before step 1 is completed."""
+    if draft is None or "who" not in draft.done:
+        return None
+    return present_days(_answer(draft, members))
+
+
+def _total(draft: Draft, members: Members, prices: Prices) -> int:
+    """FR-33, AD-12, NFR-2: the household total of the draft, from `household_total`."""
+    return household_total(_answer(draft, members), prices)
+
+
 def _days_complete(draft: Draft, members: Members) -> bool:
     """FR-14, FR-70: step 2 is answered: «Ja», or «Nei» with an allowed set for everyone coming."""
     if draft.whole is None:
@@ -105,14 +143,21 @@ def _days_complete(draft: Draft, members: Members) -> bool:
 
 
 def _settled(draft: Draft, members: Members) -> Draft:
-    """FR-75, AD-8: the draft as it is written: normalised, and step 2 done only when complete.
+    """FR-75, AD-8: the draft as it is written: normalised, steps 2 and 3 done only when complete.
 
-    Runs on every draft write, so days never outlive their person's «Kommer»
-    and a new comer or a removed day sends the guest back to step 2.
+    Runs on every draft write, so days, stays and meals never outlive their
+    person's «Kommer» or the days that allowed them, a new comer or a removed
+    day sends the guest back to step 2, and step 3 stays done only while
+    every coming member has answered «Ja» or «Nei».
     """
-    draft.whole, draft.days = normalise_answer(_attendance(draft, members), draft.whole, draft.days)
+    answer = normalise_answer(_answer(draft, members))
+    draft.whole, draft.days = answer.whole, dict(answer.days)
+    draft.night, draft.meals = dict(answer.night), dict(answer.meals)
     if "days" in draft.done and not _days_complete(draft, members):
         draft.done.remove("days")
+    coming = _coming(draft, members)
+    if "overnight" in draft.done and any(guest_id not in draft.night for guest_id, _ in coming):
+        draft.done.remove("overnight")
     return draft
 
 
@@ -206,6 +251,88 @@ def _days_fields(
     return fields, errors
 
 
+def _overnight_fields(
+    coming: Members,
+    *,
+    present: dict,
+    night: dict[int, bool],
+    prices: Prices,
+    show_errors: bool,
+) -> tuple[dict[str, object], list[dict[str, str]]]:
+    """FR-16, FR-22, FR-32, FR-70: step 3's lead, price, groups and errors.
+
+    One group per coming member with «Ja»/«Nei» checked from `night`. With
+    `show_errors`, each member with no answer gets an error line: «Velg «Ja»
+    eller «Nei» …» when their days in `present` allow a stay, and the reason
+    why not otherwise (a refused «Ja» is never saved, so it shows here).
+    """
+    groups, errors = [], []
+    for guest_id, name in coming:
+        field = overnight_field(guest_id)
+        stays = night.get(guest_id)
+        error = ""
+        if show_errors and stays is None:
+            days = present[guest_id]
+            if can_stay_overnight(days):
+                error = OvernightForm.error_text(name)
+            else:
+                error = OvernightForm.blocked_text(name, sorted(days))
+        groups.append(
+            {
+                "name": name,
+                "field": field,
+                "value": "" if stays is None else (YES if stays else NO),
+                "error": error,
+            }
+        )
+        if error:
+            errors.append({"target": f"{field}_{YES}", "text": OvernightForm.summary_text(name)})
+    fields = {
+        "lead": OvernightForm.lead(),
+        "price_label": OvernightForm.PRICE_LABEL,
+        "price_unit": OvernightForm.PRICE_UNIT,
+        "cabin_price": prices[CABIN],
+        "pay_note": PAY_NOTE,
+        "choices": OvernightForm.choices(prices[CABIN]),
+        "groups": groups,
+    }
+    return fields, errors
+
+
+def _meal_groups(coming: Members, present: dict) -> list[tuple[int, str, tuple[str, ...]]]:
+    """FR-15, FR-73: (id, name, offered meal keys) for each coming member offered a meal."""
+    shown = []
+    for guest_id, name in coming:
+        if offered := offered_meals(present[guest_id]):
+            shown.append((guest_id, name, offered))
+    return shown
+
+
+def _meals_fields(
+    coming: Members, *, present: dict, meals: dict[int, list[str]], prices: Prices
+) -> dict[str, object]:
+    """FR-15, FR-32, FR-73: step 4's note, hint and one group per member offered a meal.
+
+    Each group has a checkbox per offered meal with its price, ticked from
+    `meals`. Saturday's lunch and dinner are never asked about.
+    """
+    groups = []
+    for guest_id, name, offered in _meal_groups(coming, present):
+        field = meals_field(guest_id)
+        chosen = meals.get(guest_id, [])
+        boxes = [
+            {
+                "id": f"{field}_{meal}",
+                "value": meal,
+                "label": MealsForm.meal_label(meal, prices[meal]),
+                "checked": meal in chosen,
+            }
+            for meal in offered
+        ]
+        groups.append({"name": name, "field": field, "boxes": boxes})
+    return {"pay_note": PAY_NOTE, "hint": MealsForm.HINT, "groups": groups}
+
+
 def _render_step(
     request: HttpRequest,
     *,
@@ -217,18 +344,22 @@ def _render_step(
     page_context: dict[str, object],
     fields: dict[str, object] | None = None,
     errors: list[dict[str, str]] | None = None,
+    total: int | None = None,
     csrf_failed: bool = False,
     status: int = 200,
 ) -> HttpResponse:
-    """FR-12, FR-14, FR-22, UX-DR16, UX-DR18, UX-DR19: one step's page.
+    """FR-12, FR-14, FR-22, FR-33, UX-DR16, UX-DR18, UX-DR19: one step's page.
 
     The question from the registry as the `h1`, the progress line, the
     respondent line and «Tilbake». `fields` is the step's own context
-    (`_who_fields`, `_days_fields`); with fields, the page also has
-    «Fortsett». A frame (steps 3 to 6 until Stories 2.3 to 2.5) has none.
-    `errors` are the error summary's links.
+    (`_who_fields`, `_days_fields`, `_overnight_fields`, `_meals_fields`),
+    shown through the registry's `fields_template`; with fields, the page
+    also has «Fortsett». A frame (steps 5 and 6 until Stories 2.4 and 2.5) has
+    none. `errors` are the error summary's links. `total`, on the paid steps,
+    is the household total from `household_total`, shown with the running
+    total's address.
     """
-    number, total = step_position(steps, key)
+    number, count = step_position(steps, key)
     step = STEPS[key]
     previous = previous_step(steps, key)
     context = (
@@ -237,8 +368,11 @@ def _render_step(
         | {
             "key": key,
             "has_fields": fields is not None,
+            "fields_template": step.fields_template if fields is not None else "",
+            "total": total,
+            "total_url": mount.total_url(key) if total is not None else "",
             "heading": step.question,
-            "progress": f"Steg {number} av {total}: {step.name}",
+            "progress": f"Steg {number} av {count}: {step.name}",
             "respondent_id": respondent,
             "respondent_name": dict(members)[respondent],
             "members": [{"id": guest_id, "name": name} for guest_id, name in members],
@@ -400,6 +534,85 @@ def _which_days(
     return HttpResponseRedirect(mount.url(next_step(_steps(new, members), "days"))), new
 
 
+def _with_posted(request: HttpRequest, draft: Draft, members: Members, step: str) -> Draft:
+    """FR-15, FR-16: a copy of `draft` with step 3's or step 4's valid posted choices merged in.
+
+    Nothing is validated: on step 3 each coming member's posted «Ja» or «Nei»
+    replaces theirs (a «Ja» their days do not allow is removed when the draft
+    is normalised, FR-70); on step 4 each member shown a meal group gets
+    exactly the offered meals that were ticked. The draft itself is not
+    changed, so the running total and the CSRF re-render can use the copy.
+    """
+    coming = _coming(draft, members)
+    if step == "overnight":
+        posted = OvernightForm(coming, data=request.POST).posted_night()
+        return replace(draft, done=list(draft.done), night=draft.night | posted)
+    shown = _meal_groups(coming, present_days(_answer(draft, members)))
+    posted = MealsForm(shown, data=request.POST).posted_meals()
+    kept = {guest_id: meals for guest_id, meals in draft.meals.items() if guest_id not in posted}
+    chosen = {guest_id: meals for guest_id, meals in posted.items() if meals}
+    return replace(draft, done=list(draft.done), meals=kept | chosen)
+
+
+def _paid_step(
+    request: HttpRequest,
+    *,
+    step: str,
+    mount: FormMount,
+    members: Members,
+    draft: Draft,
+    steps: tuple[str, ...],
+    prices: Prices,
+    page_context: dict,
+) -> tuple[HttpResponse, Draft | None]:
+    """FR-15, FR-16, FR-22, FR-32, FR-33, FR-70, FR-73: step 3 or 4. The response and the draft.
+
+    GET shows the prices before any choice, a group per coming member (on
+    step 4 only those offered a meal) and the household total. «Fortsett»
+    saves the valid posted choices; step 3 is done when every coming member
+    has «Ja» or «Nei» and no «Ja» was refused, otherwise `?feil=1` shows the
+    errors, computed from the draft (PRG). Step 4 has no error: no meal is a
+    fine answer. «Velg» keeps the posted choices without marking the step done.
+    """
+    url = mount.url(step)
+    if request.method != "POST":
+        coming = _coming(draft, members)
+        present = present_days(_answer(draft, members))
+        if step == "overnight":
+            fields, errors = _overnight_fields(
+                coming,
+                present=present,
+                night=draft.night,
+                prices=prices,
+                show_errors=ERRORS_QUERY in request.GET,
+            )
+        else:
+            fields = _meals_fields(coming, present=present, meals=draft.meals, prices=prices)
+            errors = []
+        response = _render_step(
+            request,
+            key=step,
+            steps=steps,
+            mount=mount,
+            members=members,
+            respondent=draft.resp,
+            page_context=page_context,
+            fields=fields,
+            errors=errors,
+            total=_total(draft, members, prices),
+        )
+        return response, None
+    new = _switch_respondent(request, _with_posted(request, draft, members, step), members)
+    if request.POST.get("action") == SWITCH:
+        return HttpResponseRedirect(url), new
+    if step not in new.done:
+        new.done.append(step)
+    new = _settled(new, members)
+    if step not in new.done:
+        return _see_other(f"{url}?{ERRORS_QUERY}=1"), new
+    return HttpResponseRedirect(mount.url(next_step(_steps(new, members), step))), new
+
+
 def _later_step(
     request: HttpRequest,
     *,
@@ -407,9 +620,10 @@ def _later_step(
     mount: FormMount,
     members: Members,
     draft: Draft | None,
+    prices: Prices,
     page_context: dict,
 ) -> tuple[HttpResponse, Draft | None]:
-    """AD-7, UX-DR19: step 2, a later step's frame or the check page.
+    """AD-7, UX-DR19: steps 2 to 4, a later step's frame or the check page.
 
     Before step 1 is completed it sends the guest to step 1, a step that does
     not apply to the answers sends them on to the next one that does, and a
@@ -437,6 +651,17 @@ def _later_step(
             steps=steps,
             page_context=page_context,
         )
+    if step in PAID_STEPS:
+        return _paid_step(
+            request,
+            step=step,
+            mount=mount,
+            members=members,
+            draft=draft,
+            steps=steps,
+            prices=prices,
+            page_context=page_context,
+        )
     if request.method == "POST":
         new = _switched(request, draft, members) if request.POST.get("action") == SWITCH else None
         return HttpResponseRedirect(mount.url(step)), new
@@ -461,22 +686,31 @@ def handle_step(
     mount: FormMount,
     members: Members,
     step: str,
+    prices: Prices,
     page_context: dict[str, object],
 ) -> HttpResponse:
     """AD-7, AD-8, FR-75: GET or POST one step (a key of `STEPS`, or `CHECK`) of the form.
 
     Reads the draft cookie, answers the step, and writes the draft only on a
-    «Fortsett» (valid or not) or a «Velg», always normalised. A broken draft is
-    deleted and the form starts empty. Nothing is written to the database.
+    «Fortsett» (valid or not) or a «Velg», always normalised. When the write
+    changes who is there on which days (`present_days`), by step 1, step 2 or
+    «Velg», the steps after step 2 are no longer done, so the guest goes
+    through the questions that now ask more. `prices` are `form_prices` of the
+    settings. A broken draft is deleted and the form starts empty. Nothing is
+    written to the database.
     """
     draft, broken = read_draft(request, _member_ids(members))
+    before = _present(draft, members)
     arguments = {"mount": mount, "members": members, "draft": draft, "page_context": page_context}
     if step == "who":
         response, new = _who_is_coming(request, actor=actor, **arguments)
     else:
-        response, new = _later_step(request, step=step, **arguments)
+        response, new = _later_step(request, step=step, prices=prices, **arguments)
     if new is not None:
-        write_draft(response, _settled(new, members), mount)
+        new = _settled(new, members)
+        if _present(new, members) != before:
+            new.done = [key for key in new.done if key not in REOPENED_ON_CHANGE]
+        write_draft(response, new, mount)
     elif broken:
         delete_draft(response, mount)
     return response
@@ -489,6 +723,7 @@ def render_after_csrf_failure(
     mount: FormMount,
     members: Members,
     step: str,
+    prices: Prices,
     page_context: dict[str, object],
 ) -> HttpResponse | None:
     """UX-DR52: a step POSTed without a valid CSRF token, shown again with status 403.
@@ -496,14 +731,17 @@ def render_after_csrf_failure(
     The posted valid choices stay checked, with no field errors, and a focused
     error notice at the top says what happened and to try again; the page has
     a fresh token. On step 2 the posted «Ja»/«Nei» and days are kept, and the
-    day groups show when «Nei» is posted or saved. No draft is written, and a
-    broken one is deleted. None when the step is not one the guest could have
-    posted from (the caller then shows the generic page).
+    day groups show when «Nei» is posted or saved. On steps 3 and 4 the posted
+    choices are merged into the saved ones, and the total is that of the
+    merged answer (FR-33). No draft is written, and a broken one is deleted.
+    None when the step is not one the guest could have posted from (the
+    caller then shows the generic page).
     """
     draft, broken = read_draft(request, _member_ids(members))
     posted = posted_respondent(request.POST, _member_ids(members))
     steps = _steps(draft, members)
     fields = None
+    total = None
     if step == "who":
         saved = draft.att if draft is not None else {}
         checked = saved | WhoIsComingForm(members, data=request.POST).posted_attendance()
@@ -525,6 +763,17 @@ def render_after_csrf_failure(
                 show_groups=posted_whole is False or draft.whole is False,
                 show_errors=False,
             )
+        elif step in PAID_STEPS:
+            merged = _with_posted(request, draft, members, step)
+            coming = _coming(merged, members)
+            present = present_days(_answer(merged, members))
+            if step == "overnight":
+                fields, _ = _overnight_fields(
+                    coming, present=present, night=merged.night, prices=prices, show_errors=False
+                )
+            else:
+                fields = _meals_fields(coming, present=present, meals=merged.meals, prices=prices)
+            total = _total(merged, members, prices)
     else:
         return None
     if posted is not None:
@@ -540,9 +789,31 @@ def render_after_csrf_failure(
         respondent=respondent,
         page_context=page_context,
         fields=fields,
+        total=total,
         csrf_failed=True,
         status=403,
     )
     if broken:
         delete_draft(response, mount)
     return response
+
+
+def render_total(
+    request: HttpRequest, *, members: Members, slug: str, prices: Prices
+) -> HttpResponse:
+    """AD-7, FR-33, NFR-2: the running total for `POST <base>/sum/?steg=<slug>`.
+
+    The posted choices of step 3 (`overnatting`) or step 4 (`maltider`) are
+    merged into a copy of the draft, and the response is the total fragment
+    (rsvp/includes/total.html, the same the step shows) with that answer's
+    `household_total`. 204 with no body for any other `slug`, and without a
+    usable draft (none, broken, or step 1 not completed). It never sets or
+    deletes a cookie and writes nothing, so the draft changes only on
+    «Fortsett» or «Velg». The mount's view checks the code and the deadline.
+    """
+    step = KEY_BY_SLUG.get(slug)
+    draft, _ = read_draft(request, _member_ids(members))
+    if step not in PAID_STEPS or draft is None or "who" not in draft.done:
+        return HttpResponse(status=204)
+    merged = _with_posted(request, draft, members, step)
+    return render(request, TOTAL_TEMPLATE, {"total": _total(merged, members, prices)})

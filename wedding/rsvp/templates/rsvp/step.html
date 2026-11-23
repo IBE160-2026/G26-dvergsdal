@@ -1,16 +1,25 @@
 {% extends "wedding/base.html" %}
+{% load static %}
 {% comment %}
-One step of the RSVP form (Stories 2.1, 2.2; FR-12, FR-13, FR-14, FR-22,
-FR-70, AD-7, UX-DR16, UX-DR18, UX-DR19, UX-DR52; DESIGN.md › Form step,
+One step of the RSVP form (Stories 2.1 to 2.3; FR-12 to FR-16, FR-22, FR-32,
+FR-33, FR-70, FR-73, AD-7, UX-DR16 to UX-DR19, UX-DR52; DESIGN.md › Form step,
 approved in mockups/key-form-steps.html). One paper sheet on the green page,
 with no nav bar and the footer band kept. In order: the CSRF notice or the
 error summary when there is one (both focused on load with `autofocus`, so no
 script is needed), the question from the step registry as the `h1`, the
-progress line, the respondent line with «Bytt», the step's own fields and the
-actions: «Fortsett» above «Tilbake». Each step's fields are an include picked
-by its key: step 1 in who_fields.html, step 2 in days_fields.html (whose
-«Ja»/«Nei» group is named by the `h1`, id `sporsmal`). The later steps
-(Stories 2.3 to 2.5) are frames for now: no fields and no «Fortsett».
+progress line, the respondent line with «Bytt», the step's own fields, the
+running total on the paid steps and the actions: «Fortsett» above «Tilbake».
+Each step's fields are the include the step registry names
+(`fields_template`, wedding/rsvp/steps.py); the `h1` always has the id
+`sporsmal`, which names step 2's «Ja»/«Nei» group. Allergies and the hike
+(Stories 2.4, 2.5) are frames for now: no fields and no «Fortsett».
+
+On steps 3 and 4 (`total` given) the household total from `household_total`
+stands under the fields (total.html), with an empty `role="status"` beside
+it: the visible total is in the page at load, so it is not a live region
+(UX-DR17), and only the status region gets the new text. The form carries
+the total's address, and rsvp-total.js posts the form there on every change
+and swaps in the fragment; without JavaScript the next page shows the total.
 
 - Nothing is checked unless the draft or the posted form holds it (FR-14).
 - A group with an error has its error line under the legend, referenced by
@@ -19,12 +28,20 @@ by its key: step 1 in who_fields.html, step 2 in days_fields.html (whose
 - The first button in the form is a hidden copy of «Fortsett», so Enter in a
   radio or checkbox submits as «Fortsett» and not as «Velg» inside «Bytt»,
   which comes earlier in the form. It is not focusable and carries no answer.
-- No hidden fields and no script (AD-1, AD-8).
+- No hidden fields (AD-1, AD-8), and no script except on the paid steps.
 {% endcomment %}
 {% block title %}{% if errors %}Feil: {% endif %}{{ progress }} – Invitasjon{% endblock title %}
+{% block head %}
+    {% if total is not None %}
+        <script src="{% static 'js/rsvp-total.js' %}" defer></script>
+    {% endif %}
+{% endblock head %}
 {% block content %}
     <main class="column form-page">
-        <form class="paper-sheet form-sheet" method="post" novalidate>
+        <form class="paper-sheet form-sheet"
+              method="post"
+              novalidate
+              {% if total is not None %}data-total-url="{{ total_url }}"{% endif %}>
             {% csrf_token %}
             {% if csrf_failed %}
                 {% include "wedding/components/notice.html" with variant="error" text="Skjemaet ble ikke sendt. Det skjer når siden har stått åpen lenge, eller når nettleseren ikke tar imot informasjonskapsler. Det du fylte ut, står her fortsatt. Prøv igjen." focus=True only %}
@@ -35,13 +52,15 @@ by its key: step 1 in who_fields.html, step 2 in days_fields.html (whose
             {% if has_fields %}
                 <button type="submit" hidden>Fortsett</button>
             {% endif %}
-            <h1{% if key == "days" %} id="sporsmal"{% endif %}>{{ heading }}</h1>
+            <h1 id="sporsmal">{{ heading }}</h1>
             <p class="form-progress">{{ progress }}</p>
             {% include "rsvp/includes/respondent.html" %}
-            {% if key == "who" %}
-                {% include "rsvp/includes/who_fields.html" %}
-            {% elif key == "days" %}
-                {% include "rsvp/includes/days_fields.html" %}
+            {% if fields_template %}
+                {% include fields_template %}
+            {% endif %}
+            {% if total is not None %}
+                {% include "rsvp/includes/total.html" %}
+                <p class="visually-hidden" role="status" id="total-status"></p>
             {% endif %}
             <div class="form-actions">
                 {% if has_fields %}

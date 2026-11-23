@@ -1,18 +1,23 @@
-"""The RSVP form's step registry, days and addresses (Stories 2.1, 2.2; AD-7, UX-DR19).
+"""The RSVP form's step registry, days, meals and addresses (Stories 2.1 to 2.3; AD-7, UX-DR19).
 
 Each step key from `wedding.rules.form_steps.STEP_KEYS` has its address slug,
-its Norwegian name for the progress line «Steg n av m: <name>» and its
-question, the step's `h1`. Steps 3 to 6 are frames until Stories 2.3 to 2.5,
-so their question is still their name. Step 1
+its Norwegian name for the progress line «Steg n av m: <name>», its
+question, the step's `h1`, and the template with its fields, which step.html
+includes. Steps 5 and 6 are frames until Stories 2.4 and 2.5, so their
+question is still their name and they have no fields. Step 1
 lives at the form's base address, the others at `<base>/<slug>/`, and the
 check page at `<base>/se-over/`. A `FormMount` says where the one form is
 mounted: for guests at `/<code>/svar/` (built in guests/views.py); the couple's
-override mount comes in Story 4.4.
+override mount comes in Story 4.4. The running total on the paid steps is
+posted to `<base>/sum/?steg=<slug>` (AD-7, Story 2.3).
 
 FR-14, FR-70, AD-17 (Story 2.2): `DAYS` names each day key from
 `wedding.rules.days.DAY_KEYS` with its weekday, its date and what happens that
 day. It is the only place the form holds the dates; a test ties them to the
 programme page (guests/templates/guests/programme.html).
+
+FR-15, FR-73 (Story 2.3): `MEALS` names each paid meal key from
+`wedding.rules.days.MEAL_KEYS`, as the meal checkboxes on step 4 show it.
 """
 
 from dataclasses import dataclass
@@ -20,24 +25,48 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Step:
-    """One step: its key, its address slug, its name in the progress line and its question."""
+    """One step: its key, address slug, name in the progress line, question and fields.
+
+    `fields_template` is the include with the step's fields, or "" for a
+    frame with none.
+    """
 
     key: str
     slug: str
     name: str
     question: str
+    fields_template: str
 
 
 STEPS = {
     step.key: step
     for step in (
-        Step("who", "", "Hvem kommer", "Hvem kommer?"),
-        # The days question is a proposal (EXPERIENCE.md, Microcopy).
-        Step("days", "dager", "Dager", "Er alle som kommer, med hele helgen?"),
-        Step("overnight", "overnatting", "Overnatting", "Overnatting"),
-        Step("meals", "maltider", "Måltider", "Måltider"),
-        Step("allergies", "allergier", "Allergier og matbehov", "Allergier og matbehov"),
-        Step("hike", "fjelltur", "Fjelltur fredag", "Fjelltur fredag"),
+        Step("who", "", "Hvem kommer", "Hvem kommer?", "rsvp/includes/who_fields.html"),
+        # The questions of steps 2 to 4 are avgjort av Claude 2026-11-23
+        # (EXPERIENCE.md, Microcopy); «Hvem …?» and «Hvilke …?» need no du/dere.
+        Step(
+            "days",
+            "dager",
+            "Dager",
+            "Er alle som kommer, med hele helgen?",
+            "rsvp/includes/days_fields.html",
+        ),
+        Step(
+            "overnight",
+            "overnatting",
+            "Overnatting",
+            "Hvem skal overnatte på Hardingasete?",
+            "rsvp/includes/overnight_fields.html",
+        ),
+        Step(
+            "meals",
+            "maltider",
+            "Måltider",
+            "Hvilke måltider skal vi bestille?",
+            "rsvp/includes/meals_fields.html",
+        ),
+        Step("allergies", "allergier", "Allergier og matbehov", "Allergier og matbehov", ""),
+        Step("hike", "fjelltur", "Fjelltur fredag", "Fjelltur fredag", ""),
     )
 }
 
@@ -67,12 +96,33 @@ DAYS = {
     )
 }
 
+
+@dataclass(frozen=True)
+class Meal:
+    """FR-15, FR-73: one paid meal: its key and its name on step 4."""
+
+    key: str
+    name: str
+
+
+MEALS = {
+    meal.key: meal
+    for meal in (
+        Meal("friday_dinner", "Middag fredag"),
+        Meal("saturday_breakfast", "Frokost lørdag"),
+        Meal("sunday_breakfast", "Frokost søndag"),
+    )
+}
+
 # AD-7: the check page's slug and its key in the views; it is not a step.
 CHECK = "check"
 CHECK_SLUG = "se-over"
 
 # Every slug under the base address, to the step key (or CHECK) it opens.
 KEY_BY_SLUG = {step.slug: step.key for step in STEPS.values() if step.slug} | {CHECK_SLUG: CHECK}
+
+# AD-7, Story 2.3: the running total's address under the base address.
+TOTAL_SLUG = "sum"
 
 
 @dataclass(frozen=True)
@@ -93,3 +143,7 @@ class FormMount:
             return f"{self.base_path}{CHECK_SLUG}/"
         slug = STEPS[key].slug
         return f"{self.base_path}{slug}/" if slug else self.base_path
+
+    def total_url(self, key: str) -> str:
+        """AD-7, FR-33: where step `key` posts its choices for the running total."""
+        return f"{self.base_path}{TOTAL_SLUG}/?steg={STEPS[key].slug}"

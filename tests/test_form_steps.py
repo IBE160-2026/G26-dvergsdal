@@ -96,10 +96,21 @@ def test_registry_has_every_step_with_its_slug_and_name():
         "allergies": ("allergier", "Allergier og matbehov"),
         "hike": ("fjelltur", "Fjelltur fredag"),
     }
-    # Story 2.2: each step's question; steps 3 to 6 keep their name until 2.3-2.5.
+    # Stories 2.2, 2.3: each step's question and fields; steps 5 and 6 keep
+    # their name and have no fields until 2.4-2.5.
     assert STEPS["who"].question == "Hvem kommer?"
     assert STEPS["days"].question == "Er alle som kommer, med hele helgen?"
-    assert all(STEPS[key].question == STEPS[key].name for key in ALL[2:])
+    assert STEPS["overnight"].question == "Hvem skal overnatte på Hardingasete?"
+    assert STEPS["meals"].question == "Hvilke måltider skal vi bestille?"
+    assert all(STEPS[key].question == STEPS[key].name for key in ALL[4:])
+    assert {key: step.fields_template for key, step in STEPS.items()} == {
+        "who": "rsvp/includes/who_fields.html",
+        "days": "rsvp/includes/days_fields.html",
+        "overnight": "rsvp/includes/overnight_fields.html",
+        "meals": "rsvp/includes/meals_fields.html",
+        "allergies": "",
+        "hike": "",
+    }
     assert CHECK_SLUG == "se-over"
     assert KEY_BY_SLUG == {
         "dager": "days",

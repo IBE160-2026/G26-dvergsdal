@@ -1,0 +1,26 @@
+{% comment %}
+Step 4's fields (Story 2.3; FR-15, FR-32, FR-73; DESIGN.md › Form step,
+EXPERIENCE.md › Microcopy). Why guests pay and how to choose, then one
+fieldset per coming person who is offered a paid meal, the name as the
+legend, with a checkbox per offered meal labelled with its price
+(the name alone when the price is 0). Saturday's
+lunch and dinner are never asked about. Choosing nothing is fine, so the step
+has no error. The texts come from MealsForm and the step registry's `MEALS`.
+{% endcomment %}
+<p class="form-note">{{ pay_note }}</p>
+<p class="form-note">{{ hint }}</p>
+{% for group in groups %}
+    <fieldset class="form-group">
+        <legend>{{ group.name }}</legend>
+        {% for box in group.boxes %}
+            <label class="choice">
+                <input type="checkbox"
+                       name="{{ group.field }}"
+                       id="{{ box.id }}"
+                       value="{{ box.value }}"
+                       {% if box.checked %}checked{% endif %}>
+                {{ box.label }}
+            </label>
+        {% endfor %}
+    </fieldset>
+{% endfor %}
