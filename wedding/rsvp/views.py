@@ -1,4 +1,4 @@
-"""The RSVP form's step handling, shared by every mount (Stories 2.1 to 2.4).
+"""The RSVP form's step handling, shared by every mount (Stories 2.1 to 2.5).
 
 AD-7: one server-rendered form, each step a plain POST validated by the
 server, then POST-redirect-GET to the next applicable step. AD-8: between
@@ -19,11 +19,14 @@ nothing. Step 5 «Allergier og matbehov» (FR-25 to FR-28, AD-18, UX-DR21,
 Story 2.4) asks each coming person for allergies and a «Ja»/«Nei» to
 storing them; it is done when nobody has a conflict, a missing confirmation
 or a note that is too long, and it warns, without blocking, whose
-information will not be saved. Nothing is stored before send. The hike and
-the check page are frames that Story 2.5 fills: they show where the guest
-is, the respondent line and «Tilbake», so «Fortsett» always lands on a real
-address. A later step opens
-only when every applicable step before it is done (`first_unfinished`).
+information will not be saved. Nothing is stored before send. Step 6
+«Hvem blir med på fjellturen fredag?» (FR-17, Story 2.5) asks «Ja», «Nei»
+or «Kanskje» of each coming person present on Friday. The check page (FR-21,
+FR-28, UX-DR23, Story 2.5) shows the answer from `check_parts`
+(wedding/rsvp/summary.py) with an «Endre» link per part; a step opened with
+`?fra=se-over` returns to the check page on «Fortsett» (`_continue_url`).
+«Send svaret» is shown, but its POST writes nothing until Story 2.6a.
+A later step opens only when every applicable step before it is done (`first_unfinished`).
 Every draft write runs `normalise_answer` (FR-75), so a person who stops
 coming loses their days, stay, meals and allergy answers, steps 2, 3 and 5
 stay done only while their answers are complete, and a change in who is there on which days
@@ -47,6 +50,7 @@ from wedding.rsvp.forms import (
     YES,
     AllergiesForm,
     DaysForm,
+    HikeForm,
     MealsForm,
     OvernightForm,
     WhoIsComingForm,
@@ -56,12 +60,14 @@ from wedding.rsvp.forms import (
     confirm_field,
     consent_field,
     days_field,
+    hike_field,
     meals_field,
     note_field,
     overnight_field,
     posted_respondent,
 )
-from wedding.rsvp.steps import CHECK, DAYS, KEY_BY_SLUG, STEPS, FormMount
+from wedding.rsvp.steps import CHECK, CHECK_SLUG, DAYS, KEY_BY_SLUG, STEPS, FormMount
+from wedding.rsvp.summary import FROM_QUERY, check_parts
 from wedding.rules.allergies import (
     CONFIRM,
     CONFLICT,
@@ -82,7 +88,7 @@ from wedding.rules.form_steps import (
 from wedding.rules.money import CABIN, household_total
 
 STEP_TEMPLATE = "rsvp/step.html"
-CHECK_TEMPLATE = "rsvp/check_frame.html"
+CHECK_TEMPLATE = "rsvp/check.html"
 TOTAL_TEMPLATE = "rsvp/includes/total.html"
 SWITCH = "switch"
 # FR-22: the query that asks a step to show its errors after an invalid «Fortsett».
@@ -146,6 +152,7 @@ def _answer(draft: Draft, members: Members) -> Answer:
         draft.alg,
         draft.cons,
         frozenset(draft.conf),
+        draft.hike,
     )
 
 
@@ -180,6 +187,12 @@ def _allergy_problems(draft: Draft, guest_id: int) -> tuple[str, ...]:
     )
 
 
+def _hiking(draft: Draft, members: Members) -> Members:
+    """FR-17: the coming members present on Friday as (id, name), in household order."""
+    present = present_days(_answer(draft, members))
+    return [(guest_id, name) for guest_id, name in members if "fri" in present.get(guest_id, ())]
+
+
 def _settled(draft: Draft, members: Members) -> Draft:
     """FR-75, AD-8: the draft as written: normalised, steps 2, 3 and 5 done only when complete.
 
@@ -189,12 +202,15 @@ def _settled(draft: Draft, members: Members) -> Draft:
     every coming member has answered «Ja» or «Nei». Step 5 stays done only
     while no coming member has an allergy problem or a note that was too long
     (Story 2.4), so a «Bytt» that leaves a confirmation missing reopens it.
+    Step 6 stays done only while every member present on Friday has a hike
+    answer (Story 2.5, FR-17).
     """
     answer = normalise_answer(_answer(draft, members))
     draft.whole, draft.days = answer.whole, dict(answer.days)
     draft.night, draft.meals = dict(answer.night), dict(answer.meals)
     draft.alg, draft.cons = dict(answer.allergies), dict(answer.consent)
     draft.conf = [guest_id for guest_id in draft.conf if guest_id in answer.confirmed]
+    draft.hike = dict(answer.hike)
     if "days" in draft.done and not _days_complete(draft, members):
         draft.done.remove("days")
     coming = _coming(draft, members)
@@ -206,6 +222,9 @@ def _settled(draft: Draft, members: Members) -> Draft:
         draft.long or any(_allergy_problems(draft, guest_id) for guest_id in coming_ids)
     ):
         draft.done.remove("allergies")
+    hiking = _hiking(draft, members)
+    if "hike" in draft.done and any(guest_id not in draft.hike for guest_id, _ in hiking):
+        draft.done.remove("hike")
     return draft
 
 
@@ -215,6 +234,44 @@ def _merged(draft: Draft | None, actor: Actor, members: Members) -> Draft:
         return draft
     revision = actor.household.revision if isinstance(actor, GuestActor) else 0
     return Draft.new(revision=revision, respondent=_owner(actor, members), now=timezone.now())
+
+
+def _from_check(request: HttpRequest) -> bool:
+    """UX-DR23, AD-7: whether the step was opened from the check page's «Endre» link."""
+    return request.GET.get(FROM_QUERY) == CHECK_SLUG
+
+
+def _keep_from(request: HttpRequest, url: str, query: str = "") -> str:
+    """UX-DR23: `url` with `query` and, when the step came from the check page, `fra`.
+
+    A `#fragment` in `url` stays last.
+    """
+    path, hash_mark, fragment = url.partition("#")
+    back = f"{FROM_QUERY}={CHECK_SLUG}" if _from_check(request) else ""
+    if parts := [part for part in (query, back) if part]:
+        path = f"{path}?{'&'.join(parts)}"
+    return f"{path}{hash_mark}{fragment}"
+
+
+def _error_url(request: HttpRequest, url: str) -> str:
+    """FR-22, UX-DR23: a step's error address `?feil=1`, keeping `fra`."""
+    return _keep_from(request, url, f"{ERRORS_QUERY}=1")
+
+
+def _continue_url(
+    request: HttpRequest, mount: FormMount, members: Members, draft: Draft, step: str
+) -> str:
+    """AD-7, UX-DR23: where a valid «Fortsett» on `step` goes.
+
+    The next applicable step; from the check page (`?fra=se-over`), the first
+    unfinished step, or the check page when every step is done. A change that
+    reopens later steps (`REOPENED_ON_CHANGE`, cleared after this) is caught
+    by the check page's own gate.
+    """
+    steps = _steps(draft, members)
+    if _from_check(request):
+        return mount.url(first_unfinished(steps, draft.done, None))
+    return mount.url(next_step(steps, step))
 
 
 def _see_other(url: str) -> HttpResponse:
@@ -459,6 +516,13 @@ def _allergy_fields(
     return fields, errors
 
 
+def _back_url(request: HttpRequest, mount: FormMount, previous: str | None) -> str:
+    """UX-DR18, UX-DR23: «Tilbake»: the check page when opened from it, else the step before."""
+    if _from_check(request):
+        return mount.url(CHECK)
+    return mount.exit_url if previous is None else mount.url(previous)
+
+
 def _render_step(
     request: HttpRequest,
     *,
@@ -479,11 +543,11 @@ def _render_step(
     The question from the registry as the `h1`, the progress line, the
     respondent line and «Tilbake». `fields` is the step's own context
     (`_who_fields`, `_days_fields`, `_overnight_fields`, `_meals_fields`,
-    `_allergy_fields`), shown through the registry's `fields_template`; with
-    fields, the page also has «Fortsett». A frame (step 6 until Story 2.5)
-    has none. `errors` are the error summary's links. `total`, on the paid
-    steps, is the household total from `household_total`, shown with the running
-    total's address.
+    `_allergy_fields`, `_hike_fields`), shown through the registry's
+    `fields_template`; with fields, the page also has «Fortsett». `errors`
+    are the error summary's links. `total`, on the paid steps, is the
+    household total from `household_total`, shown with the running total's
+    address.
     """
     number, count = step_position(steps, key)
     step = STEPS[key]
@@ -502,7 +566,7 @@ def _render_step(
             "respondent_id": respondent,
             "respondent_name": dict(members)[respondent],
             "members": [{"id": guest_id, "name": name} for guest_id, name in members],
-            "back_url": mount.exit_url if previous is None else mount.url(previous),
+            "back_url": _back_url(request, mount, previous),
             "errors": errors or [],
             "csrf_failed": csrf_failed,
         }
@@ -511,10 +575,32 @@ def _render_step(
 
 
 def _render_check(
-    request: HttpRequest, *, steps: tuple[str, ...], mount: FormMount, page_context: dict
+    request: HttpRequest,
+    *,
+    steps: tuple[str, ...],
+    mount: FormMount,
+    members: Members,
+    draft: Draft,
+    prices: Prices,
+    page_context: dict,
 ) -> HttpResponse:
-    """AD-7: the check page's frame, filled in Story 2.5: its heading and «Tilbake»."""
-    context = page_context | {"back_url": mount.url(steps[-1])}
+    """FR-21, FR-28, FR-33, UX-DR23: the check page.
+
+    One block per applicable step from `check_parts`, the household total
+    from `household_total` (AD-12), «Send svaret» and «Tilbake» to the last
+    applicable step.
+    """
+    context = page_context | {
+        "parts": check_parts(
+            _answer(draft, members),
+            members=members,
+            respondent=draft.resp,
+            steps=steps,
+            mount=mount,
+        ),
+        "total": _total(draft, members, prices),
+        "back_url": mount.url(steps[-1]),
+    }
     return render(request, CHECK_TEMPLATE, context)
 
 
@@ -527,7 +613,7 @@ def _switch_respondent(request: HttpRequest, draft: Draft, members: Members) -> 
 
 
 def _switched(request: HttpRequest, draft: Draft, members: Members) -> Draft:
-    """FR-12, UX-DR18: «Velg» in «Bytt» on step 1 or a frame.
+    """FR-12, UX-DR18: «Velg» in «Bytt» on step 1.
 
     The posted respondent replaces the current one when they are a member;
     every valid posted attendance is kept in the draft without validating the
@@ -567,20 +653,20 @@ def _who_is_coming(
         return response, None
     if request.POST.get("action") == SWITCH:
         new = _switched(request, _merged(draft, actor, members), members)
-        return HttpResponseRedirect(mount.url("who")), new
+        return HttpResponseRedirect(_keep_from(request, mount.url("who"))), new
     form = WhoIsComingForm(members, data=request.POST)
     if not form.is_valid():
         # FR-22, AD-7: POST-redirect-GET for errors too, so Back to the error
         # page never asks to resubmit. The valid choices and respondent are kept
         # in the draft, step 1 stays not done, and the GET shows the errors.
         new = _switched(request, _merged(draft, actor, members), members)
-        return _see_other(f"{mount.url('who')}?{ERRORS_QUERY}=1"), new
+        return _see_other(_error_url(request, mount.url("who"))), new
     new = _switch_respondent(request, _merged(draft, actor, members), members)
     new.att = form.attendance()
     if "who" not in new.done:
         new.done.append("who")
-    steps = _steps(_settled(new, members), members)
-    return HttpResponseRedirect(mount.url(next_step(steps, "who"))), new
+    new = _settled(new, members)
+    return HttpResponseRedirect(_continue_url(request, mount, members, new, "who")), new
 
 
 def _days_switched(request: HttpRequest, draft: Draft, members: Members) -> Draft:
@@ -641,23 +727,25 @@ def _which_days(
         )
         return response, None
     if request.POST.get("action") == SWITCH:
-        return HttpResponseRedirect(url), _days_switched(request, draft, members)
+        return HttpResponseRedirect(_keep_from(request, url)), _days_switched(
+            request, draft, members
+        )
     form = DaysForm(coming, data=request.POST)
     whole = form.posted_whole()
     new = _switch_respondent(request, draft, members)
     if whole is None:
-        return _see_other(f"{url}?{ERRORS_QUERY}=1"), new
+        return _see_other(_error_url(request, url)), new
     if whole is False and new.whole is not False and not form.has_posted_days():
         new.whole, new.days = False, {}
-        return HttpResponseRedirect(f"{url}#{DAY_GROUPS_ANCHOR}"), new
+        return HttpResponseRedirect(_keep_from(request, f"{url}#{DAY_GROUPS_ANCHOR}")), new
     new.whole = whole
     new.days = {} if whole else form.posted_days()
     if "days" not in new.done:
         new.done.append("days")
     new = _settled(new, members)
     if "days" not in new.done:
-        return _see_other(f"{url}?{ERRORS_QUERY}=1"), new
-    return HttpResponseRedirect(mount.url(next_step(_steps(new, members), "days"))), new
+        return _see_other(_error_url(request, url)), new
+    return HttpResponseRedirect(_continue_url(request, mount, members, new, "days")), new
 
 
 def _with_posted(
@@ -668,7 +756,7 @@ def _with_posted(
     *,
     keep_long: bool = False,
 ) -> Draft:
-    """FR-15, FR-16, FR-25: a copy of `draft` with step 3's, 4's or 5's posted choices merged in.
+    """FR-15 to FR-17, FR-25: a copy of `draft` with step 3's to 6's posted choices merged in.
 
     Nothing is validated: on step 3 each coming member's posted «Ja» or «Nei»
     replaces theirs (a «Ja» their days do not allow is removed when the draft
@@ -677,10 +765,14 @@ def _with_posted(
     member's entry, consent and confirmation are replaced by the posted ones,
     and `long` names those whose note was too long (that note is not kept
     unless `keep_long`, which only the CSRF re-render uses, since it writes
-    nothing). The draft itself is not changed, so the running total and the
+    nothing); on step 6 each member present on Friday gets their posted hike
+    answer. The draft itself is not changed, so the running total and the
     CSRF re-render can use the copy.
     """
     coming = _coming(draft, members)
+    if step == "hike":
+        posted = HikeForm(_hiking(draft, members), data=request.POST).posted_hike()
+        return replace(draft, done=list(draft.done), hike=draft.hike | posted)
     if step == "allergies":
         form = AllergiesForm(coming, data=request.POST)
         posted = posted_respondent(request.POST, _member_ids(members))
@@ -757,13 +849,13 @@ def _paid_step(
         return response, None
     new = _switch_respondent(request, _with_posted(request, draft, members, step), members)
     if request.POST.get("action") == SWITCH:
-        return HttpResponseRedirect(url), new
+        return HttpResponseRedirect(_keep_from(request, url)), new
     if step not in new.done:
         new.done.append(step)
     new = _settled(new, members)
     if step not in new.done:
-        return _see_other(f"{url}?{ERRORS_QUERY}=1"), new
-    return HttpResponseRedirect(mount.url(next_step(_steps(new, members), step))), new
+        return _see_other(_error_url(request, url)), new
+    return HttpResponseRedirect(_continue_url(request, mount, members, new, step)), new
 
 
 def _allergies_step(
@@ -806,13 +898,78 @@ def _allergies_step(
         return response, None
     new = _switch_respondent(request, _with_posted(request, draft, members, "allergies"), members)
     if request.POST.get("action") == SWITCH:
-        return HttpResponseRedirect(url), new
+        return HttpResponseRedirect(_keep_from(request, url)), new
     if "allergies" not in new.done:
         new.done.append("allergies")
     new = _settled(new, members)
     if "allergies" not in new.done:
-        return _see_other(f"{url}?{ERRORS_QUERY}=1"), new
-    return HttpResponseRedirect(mount.url(next_step(_steps(new, members), "allergies"))), new
+        return _see_other(_error_url(request, url)), new
+    return HttpResponseRedirect(_continue_url(request, mount, members, new, "allergies")), new
+
+
+def _hike_fields(
+    asked: Members, *, hike: dict[int, str], show_errors: bool
+) -> tuple[dict[str, object], list[dict[str, str]]]:
+    """FR-17, FR-22: step 6's lead, one group per member present on Friday, and errors.
+
+    Each group has «Ja», «Nei» and «Kanskje», checked from `hike`; with
+    `show_errors`, each member with no answer gets an error line.
+    """
+    groups, errors = [], []
+    for guest_id, name in asked:
+        field = hike_field(guest_id)
+        error = HikeForm.error_text(name) if show_errors and guest_id not in hike else ""
+        groups.append(
+            {"name": name, "field": field, "value": hike.get(guest_id, ""), "error": error}
+        )
+        if error:
+            errors.append({"target": f"{field}_{YES}", "text": HikeForm.summary_text(name)})
+    return {"lead": HikeForm.LEAD, "choices": HikeForm.CHOICES, "groups": groups}, errors
+
+
+def _hike_step(
+    request: HttpRequest,
+    *,
+    mount: FormMount,
+    members: Members,
+    draft: Draft,
+    steps: tuple[str, ...],
+    page_context: dict,
+) -> tuple[HttpResponse, Draft | None]:
+    """FR-17, FR-22: step 6. The response and the draft.
+
+    GET shows a «Ja»/«Nei»/«Kanskje» group per coming member present on
+    Friday, nothing checked until chosen; with `?feil=1` the errors, computed
+    from the draft. «Fortsett» saves the valid posted answers and is done when
+    everyone asked has one; otherwise PRG to `?feil=1`. «Velg» keeps the
+    posted answers without validating them.
+    """
+    url = mount.url("hike")
+    if request.method != "POST":
+        fields, errors = _hike_fields(
+            _hiking(draft, members), hike=draft.hike, show_errors=ERRORS_QUERY in request.GET
+        )
+        response = _render_step(
+            request,
+            key="hike",
+            steps=steps,
+            mount=mount,
+            members=members,
+            respondent=draft.resp,
+            page_context=page_context,
+            fields=fields,
+            errors=errors,
+        )
+        return response, None
+    new = _switch_respondent(request, _with_posted(request, draft, members, "hike"), members)
+    if request.POST.get("action") == SWITCH:
+        return HttpResponseRedirect(_keep_from(request, url)), new
+    if "hike" not in new.done:
+        new.done.append("hike")
+    new = _settled(new, members)
+    if "hike" not in new.done:
+        return _see_other(_error_url(request, url)), new
+    return HttpResponseRedirect(_continue_url(request, mount, members, new, "hike")), new
 
 
 def _later_step(
@@ -825,13 +982,13 @@ def _later_step(
     prices: Prices,
     page_context: dict,
 ) -> tuple[HttpResponse, Draft | None]:
-    """AD-7, UX-DR19: steps 2 to 5, the hike's frame or the check page.
+    """AD-7, UX-DR19: steps 2 to 6 or the check page.
 
     Before step 1 is completed it sends the guest to step 1, a step that does
     not apply to the answers sends them on to the next one that does, and a
     step with an applicable step before it not done sends them to that one.
-    A frame's POST only handles «Velg» in «Bytt»; anything else goes back to
-    the address.
+    Any POST to the check page redirects (303) back to it and writes
+    nothing: sending is Story 2.6a.
     """
     if draft is None or "who" not in draft.done:
         return HttpResponseRedirect(mount.url("who")), None
@@ -873,18 +1030,25 @@ def _later_step(
             steps=steps,
             page_context=page_context,
         )
+    if step == "hike":
+        return _hike_step(
+            request,
+            mount=mount,
+            members=members,
+            draft=draft,
+            steps=steps,
+            page_context=page_context,
+        )
     if request.method == "POST":
-        new = _switched(request, draft, members) if request.POST.get("action") == SWITCH else None
-        return HttpResponseRedirect(mount.url(step)), new
-    if step == CHECK:
-        return _render_check(request, steps=steps, mount=mount, page_context=page_context), None
-    response = _render_step(
+        # Story 2.6a builds «Send svaret»; until then nothing is written.
+        return _see_other(mount.url(CHECK)), None
+    response = _render_check(
         request,
-        key=step,
         steps=steps,
         mount=mount,
         members=members,
-        respondent=draft.resp,
+        draft=draft,
+        prices=prices,
         page_context=page_context,
     )
     return response, None
@@ -946,7 +1110,8 @@ def render_after_csrf_failure(
     choices are merged into the saved ones, and the total is that of the
     merged answer (FR-33). On step 5 the posted ticks, notes, consent and
     confirmations are shown, the confirmation following the posted
-    respondent. No draft is written, and a broken one is deleted.
+    respondent. On step 6 the posted hike answers are shown. No draft is
+    written, and a broken one is deleted.
     None when the step is not one the guest could have posted from (the
     caller then shows the generic page).
     """
@@ -995,6 +1160,9 @@ def render_after_csrf_failure(
                 draft=merged,
                 show_errors=False,
             )
+        elif step == "hike":
+            merged = _with_posted(request, draft, members, step)
+            fields, _ = _hike_fields(_hiking(merged, members), hike=merged.hike, show_errors=False)
     else:
         return None
     if posted is not None:
