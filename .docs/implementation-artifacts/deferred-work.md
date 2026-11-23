@@ -188,7 +188,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
   evidence: low. Blind review.
 
 - source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
-  summary: Rikke: approve or change step 2's [forslag] texts and layout (day list, «Velg dagene for hver person», checkbox groups); screenshots are in the PR for Story 2.2.
+  summary: Rikke: approve or change step 2's [forslag] texts and layout (day list, «Velg dagene for hver person», checkbox groups); run MT-27 locally to see it.
   evidence: low. Blind review; no rendered mockup covers step 2.
 
 - source_spec: `.docs/implementation-artifacts/spec-2-2-which-days-each-person-comes.md`
