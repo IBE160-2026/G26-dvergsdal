@@ -324,7 +324,7 @@ So that I understand the invitation without scrolling and always see where to an
 **Given** the nav «Svar» button or the «Svar» link in the deadline line
 **When** the guest activates either, without JavaScript
 **Then** the page jumps to the RSVP sheet (`#svar`), which is not hidden under the sticky bar (UX-DR6, UX-DR9)
-**And** the nav bar is sticky only when the viewport is at least 400px tall, keeps the three words on one line at 320px, and never becomes a menu button
+**And** the nav bar is sticky only when the viewport is at least 400px tall and at least 20em wide *(width condition added 2026-11-23 after the Epic 1 retrospective, R1: Story 1.5 built it, approved by Rikke)*, keeps the three words on one line at 320px, and never becomes a menu button
 
 **Given** «Alt om helgen»
 **When** it renders
@@ -1882,3 +1882,4 @@ One line per requirement. The full specification is in [DESIGN.md](ux-designs/ux
 | 2026-11-16 | **Rikke decided** while checking `expected.toml` in Story 1.3: a household that has not answered has no payment status and shows «Ikke svart», not «Ingenting å betale» (PRD FR-60, commit 9360654). Story 3.5 and Story 5.3 and the FR-60 line now say so, and `payment_status` is told whether the household has answered. |
 | 2026-11-16 | **Claude decided** (technical, from the Story 1.3 review): Story 3.1's `create_admin` makes real accounts with `is_test_data=False` through its own path and never uses the system actor. Story 1.3's `create_admin_user` is system-only and marks every account as test data, so reusing it would let the next `seed_testdata` delete Rikke's real accounts. Also in AD-16. |
 | 2026-11-21 | **Rikke confirmed** the numbers Claude chose in the 2026-11-16 review: «Trenger oppfølging» shows the first 2 items before «Vis alle n» (Story 3.2; still re-measured in the manual test plan), and login throttling after 5 failed logins for one username or 20 from one address within 15 minutes (Story 6.6), with link-code throttling that slows and never blocks (Story 8.6). No change to the stories. |
+| 2026-11-23 | **Rikke approved** reconciling the plan with Epic 1 (retrospective action 2, R1): the Story 1.5 AC now says the nav bar is sticky only when the viewport is at least 400px tall **and at least 20em wide**, as built and as in DESIGN.md. PRD FR-6, FR-7, FR-10 and FR-60 were reconciled the same day. |

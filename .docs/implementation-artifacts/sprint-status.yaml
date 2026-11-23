@@ -126,7 +126,7 @@ action_items:
       nav >=400px tall and >=20em wide), FR-10 (map button to 7.4), FR-60 in the change
       log and status table; Story 1.5 AC in epics.md"
     owner: "Rikke approves, Claude writes"
-    status: open
+    status: done
     ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
   - id: "epic-1-retro-item-3-repo-hygiene-remove-content-invoke-resid"
     epic: 1
