@@ -12,6 +12,9 @@ choice.
 Story 2.4: the answer also holds each person's allergy entry, consent and
 the respondent's confirmation; `normalise_answer` drops them for anyone who
 is not coming (FR-75), and drops an entry with no information in it.
+
+Story 2.5: the answer also holds each person's Friday hike answer;
+`normalise_answer` keeps it only for someone present on Friday (FR-17, FR-75).
 """
 
 from collections.abc import Iterable, Mapping
@@ -20,6 +23,7 @@ from dataclasses import dataclass, field
 from wedding.rules.allergies import AllergyEntry, has_allergy_info
 from wedding.rules.days import (
     DAY_KEYS,
+    HIKE_ANSWERS,
     WHOLE_WEEKEND,
     can_stay_overnight,
     day_error,
@@ -38,7 +42,8 @@ class Answer:
     meal keys. Story 2.4 (FR-25 to FR-27): `allergies` is each member's
     `AllergyEntry`, `consent` each member's «Ja» (True) or «Nei» (False) to
     storing it (no entry: unanswered), and `confirmed` the members the
-    respondent has confirmed know and agree.
+    respondent has confirmed know and agree. Story 2.5 (FR-17): `hike` is
+    each member's answer to the Friday hike, one of `HIKE_ANSWERS`.
     """
 
     attendance: Mapping[int, bool]
@@ -49,6 +54,7 @@ class Answer:
     allergies: Mapping[int, AllergyEntry] = field(default_factory=dict)
     consent: Mapping[int, bool] = field(default_factory=dict)
     confirmed: frozenset[int] = frozenset()
+    hike: Mapping[int, str] = field(default_factory=dict)
 
 
 def present_days(answer: Answer) -> dict[int, frozenset[str]]:
@@ -103,7 +109,9 @@ def normalise_answer(answer: Answer) -> Answer:
     members and only the keys `offered_meals` offers for their days, in that
     order; a member left with no meal is left out. Allergy entries, consent
     and confirmations are kept only for coming members (FR-75, Story 2.4), and
-    an entry with no information is left out.
+    an entry with no information is left out. A hike answer is kept only for
+    a member present on Friday and only when it is one of `HIKE_ANSWERS`
+    (FR-17, FR-75, Story 2.5).
     """
     whole, days = _kept_days(answer)
     present = present_days(Answer(answer.attendance, whole, days))
@@ -125,4 +133,11 @@ def normalise_answer(answer: Answer) -> Answer:
     }
     consent = {guest_id: given for guest_id, given in answer.consent.items() if guest_id in present}
     confirmed = frozenset(guest_id for guest_id in answer.confirmed if guest_id in present)
-    return Answer(dict(answer.attendance), whole, days, night, meals, allergies, consent, confirmed)
+    hike = {
+        guest_id: choice
+        for guest_id, choice in answer.hike.items()
+        if guest_id in present and "fri" in present[guest_id] and choice in HIKE_ANSWERS
+    }
+    return Answer(
+        dict(answer.attendance), whole, days, night, meals, allergies, consent, confirmed, hike
+    )

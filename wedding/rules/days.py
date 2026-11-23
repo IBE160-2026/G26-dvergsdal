@@ -11,6 +11,9 @@ be offered follow from their days: Friday dinner on Friday, Saturday breakfast
 only after a night from Friday to Saturday, and Sunday breakfast on Sunday.
 The meal keys match `programme_prices` (wedding/selectors.py) and seed.toml;
 Story 2.3 builds the questions on them, in the order of `MEAL_KEYS`.
+
+FR-17 (Story 2.5): each person present on Friday answers the Friday hike with
+one of `HIKE_ANSWERS` («Ja», «Nei», «Kanskje»), the keys seed.toml uses.
 """
 
 from collections.abc import Iterable
@@ -19,6 +22,9 @@ DAY_KEYS = ("fri", "sat", "sun")
 WHOLE_WEEKEND = frozenset(DAY_KEYS)
 # FR-15, FR-73: the paid meals, in the order `offered_meals` returns them.
 MEAL_KEYS = ("friday_dinner", "saturday_breakfast", "sunday_breakfast")
+
+# FR-17: the answers to the Friday hike, in the order the form shows them.
+HIKE_ANSWERS = ("yes", "no", "maybe")
 
 # FR-14, FR-70: what `day_error` returns for a set that is not allowed.
 NO_DAY = "none"
