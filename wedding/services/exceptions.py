@@ -37,3 +37,15 @@ class InvalidSettings(ServiceError):
     """FR-64, AD-12: a setting is not valid, for example a negative price."""
 
     default_message = "Innstillingene ble ikke lagret."
+
+
+class DeadlinePassed(ServiceError):
+    """FR-41, AD-11 (Story 2.6a): a guest sent an answer after the deadline."""
+
+    default_message = "Svarfristen har gått ut."
+
+
+class InvalidAnswer(ServiceError):
+    """FR-74, AD-9 (Story 2.6a): the answer does not cover the household as it is now."""
+
+    default_message = "Svaret ble ikke sendt."

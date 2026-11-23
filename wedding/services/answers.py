@@ -1,0 +1,90 @@
+"""Sending a household's answer (Story 2.6a; FR-41, FR-74, FR-75, AD-3, AD-4, AD-9, NFR-2).
+
+`send_answer` is the RSVP form's one write: the normalised answer as one
+`PersonAnswer` per guest and the household's `HouseholdAnswer`, in one
+transaction, and `Household.revision` raised. Allergies and consent are stored
+in Story 2.6b, and the submission id and revision check in Story 2.6c.
+"""
+
+from datetime import datetime
+
+from django.db import transaction
+from django.db.models import F
+
+from wedding.actors import Actor, AdminActor, GuestActor
+from wedding.models import Guest, Household, HouseholdAnswer, PersonAnswer, Settings
+from wedding.rules.answer import Answer, normalise_answer, present_days
+from wedding.rules.days import MEAL_KEYS
+from wedding.rules.deadline import is_past_deadline
+from wedding.services.exceptions import DeadlinePassed, InvalidAnswer, NotAllowed
+
+# The `PersonAnswer` field for each day key in `wedding.rules.days`; the meal
+# keys (`MEAL_KEYS`) are the field names themselves.
+DAY_FIELDS = {"fri": "friday", "sat": "saturday", "sun": "sunday"}
+
+
+def _answer_ids(answer: Answer) -> set[int]:
+    """AD-3: every guest id the answer names, in any of its mappings."""
+    ids = set(answer.attendance) | set(answer.confirmed)
+    for mapping in (
+        answer.days,
+        answer.night,
+        answer.meals,
+        answer.allergies,
+        answer.consent,
+        answer.hike,
+    ):
+        ids |= set(mapping)
+    return ids
+
+
+def send_answer(
+    actor: Actor, *, household: Household, respondent: int, answer: Answer, now: datetime
+) -> HouseholdAnswer:
+    """FR-41, FR-74, FR-75, AD-3, AD-4, AD-9, NFR-2: write `household`'s answer.
+
+    Refusals, in order, write nothing: an admin actor (`NotAllowed`; the
+    couple's override is Story 4.4); a guest actor from another household, or
+    a respondent or answer id that is not a guest of `household`
+    (`NotAllowed`); a guest of the household without an attendance entry
+    (`InvalidAnswer`); a guest actor after the deadline (`DeadlinePassed`; the
+    system actor is not bound by it). Then the answer is normalised, one
+    `PersonAnswer` per guest and the `HouseholdAnswer` (sent by `respondent`,
+    at `now`) are created or updated, and the revision rises by one.
+    """
+    with transaction.atomic():
+        if isinstance(actor, AdminActor):
+            raise NotAllowed()
+        if isinstance(actor, GuestActor) and actor.household.pk != household.pk:
+            raise NotAllowed()
+        guests = {guest.pk: guest for guest in Guest.objects.filter(household=household)}
+        if respondent not in guests or not _answer_ids(answer) <= set(guests):
+            raise NotAllowed()
+        if set(guests) - set(answer.attendance):
+            raise InvalidAnswer()
+        if isinstance(actor, GuestActor) and is_past_deadline(
+            Settings.objects.get().rsvp_deadline, now
+        ):
+            raise DeadlinePassed()
+        answer = normalise_answer(answer)
+        present = present_days(answer)
+        for guest_id, guest in guests.items():
+            days = present.get(guest_id, frozenset())
+            meals = set(answer.meals.get(guest_id, ())) if guest_id in present else set()
+            PersonAnswer.objects.update_or_create(
+                guest=guest,
+                defaults={
+                    "coming": guest_id in present,
+                    **{field: key in days for key, field in DAY_FIELDS.items()},
+                    "cabin": guest_id in present and answer.night.get(guest_id) is True,
+                    **{field: field in meals for field in MEAL_KEYS},
+                    "hike": answer.hike.get(guest_id, "") if guest_id in present else "",
+                },
+            )
+        sender = guests[respondent]
+        sent, _ = HouseholdAnswer.objects.update_or_create(
+            household=household,
+            defaults={"sent_by": sender, "sent_by_name": sender.name, "sent_at": now},
+        )
+        Household.objects.filter(pk=household.pk).update(revision=F("revision") + 1)
+    return sent

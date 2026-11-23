@@ -7,4 +7,6 @@ writes check the role with `permissions.require_couple` (AD-10).
 `tests/test_only_services_write.py` fails if code outside this package calls one
 of the ORM write methods it lists (`save`, `delete`, `create`, `update` and their
 bulk and get-or-create forms).
+
+`answers.py` (Story 2.6a) holds `send_answer`, the guest form's one write.
 """

@@ -7,7 +7,7 @@ view built on them never writes either (FR-3).
 
 from collections.abc import Iterable
 
-from wedding.models import Guest, Household, Settings, User
+from wedding.models import Guest, Household, HouseholdAnswer, Settings, User
 from wedding.rules.contacts import tel_number
 from wedding.rules.money import CABIN
 
@@ -114,3 +114,11 @@ def household_members(household: Household) -> list[tuple[int, str]]:
     only these ids are accepted from a draft or a posted form.
     """
     return list(Guest.objects.filter(household=household).order_by("id").values_list("id", "name"))
+
+
+def household_answer(household: Household) -> HouseholdAnswer | None:
+    """FR-74, AD-4 (Story 2.6a): `household`'s sent answer, or None before it has sent one.
+
+    One SELECT; nothing from another household.
+    """
+    return HouseholdAnswer.objects.filter(household=household).first()
