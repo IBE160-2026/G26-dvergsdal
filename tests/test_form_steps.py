@@ -1,9 +1,12 @@
-"""Which steps the RSVP form has, and the step registry (Story 2.1).
+"""Which steps the RSVP form has, and the step registry (Stories 2.1, 2.2).
 
 FR-14, UX-DR19, AD-7: `form_steps` for step 1 not completed, someone coming
 and nobody coming, over every household shape in seed.toml; `step_position`,
 `next_step` and `previous_step`; and the registry's slugs and names in
-wedding/rsvp/steps.py, with the addresses a mount builds.
+wedding/rsvp/steps.py, with the addresses a mount builds. Story 2.2: the
+seeded days decide overnight stay, meals and the hike, a refused or unchosen
+set counts as the whole weekend, `first_unfinished`, and the registry's
+questions and days.
 """
 
 import tomllib
@@ -11,9 +14,11 @@ from pathlib import Path
 
 import pytest
 
-from wedding.rsvp.steps import CHECK, CHECK_SLUG, KEY_BY_SLUG, STEPS, FormMount
+from wedding.rsvp.steps import CHECK, CHECK_SLUG, DAYS, KEY_BY_SLUG, STEPS, FormMount
+from wedding.rules.days import DAY_KEYS
 from wedding.rules.form_steps import (
     STEP_KEYS,
+    first_unfinished,
     form_steps,
     next_step,
     previous_step,
@@ -91,6 +96,10 @@ def test_registry_has_every_step_with_its_slug_and_name():
         "allergies": ("allergier", "Allergier og matbehov"),
         "hike": ("fjelltur", "Fjelltur fredag"),
     }
+    # Story 2.2: each step's question; steps 3 to 6 keep their name until 2.3-2.5.
+    assert STEPS["who"].question == "Hvem kommer?"
+    assert STEPS["days"].question == "Er alle som kommer, med hele helgen?"
+    assert all(STEPS[key].question == STEPS[key].name for key in ALL[2:])
     assert CHECK_SLUG == "se-over"
     assert KEY_BY_SLUG == {
         "dager": "days",
@@ -111,3 +120,88 @@ def test_mount_builds_every_address():
     assert mount.url("hike") == "/abc/svar/fjelltur/"
     assert mount.url(CHECK) == "/abc/svar/se-over/"
     assert mount.url(None) == "/abc/svar/se-over/"
+
+
+# Story 2.2: the days decide overnight stay, meals and the hike (FR-15, FR-16, FR-17, FR-70)
+
+EXPECTED_WITH_DAYS = {
+    "sigmund": ALL,
+    "arild": ALL,  # Filippa sat+sun, the others all three
+    "synne": ("who", "days", "allergies"),  # Saturday only
+    "tor": ("who",),
+    "eva": ALL,
+    "jonas": ALL,  # no Sunday, but Friday gives meals and the hike
+}
+
+
+@pytest.mark.parametrize(
+    "household",
+    [household for household in SEED["households"] if "answered_by" in household],
+    ids=lambda household: household["key"],
+)
+def test_form_steps_with_the_seeded_days(household):
+    """FR-14, FR-17, FR-70, UX-DR19: each answered seed household with its seeded
+    days gives its steps."""
+    attendance = [guest["coming"] for guest in household["guests"]]
+    days = [guest.get("days") for guest in household["guests"]]
+    assert form_steps(attendance, days) == EXPECTED_WITH_DAYS[household["key"]]
+
+
+@pytest.mark.parametrize(
+    ("days", "expected"),
+    [
+        ([["sat"]], ("who", "days", "allergies")),
+        ([["fri"]], ("who", "days", "meals", "allergies", "hike")),
+        ([["sun"]], ("who", "days", "meals", "allergies")),
+        ([["sat", "sun"]], ("who", "days", "overnight", "meals", "allergies")),
+        ([["fri", "sun"]], ALL),  # refused: counts as the whole weekend
+        ([[]], ALL),  # nothing chosen: the whole weekend
+        ([None], ALL),
+        (None, ALL),
+    ],
+)
+def test_one_person_s_days(days, expected):
+    """FR-14, FR-70, UX-DR19: an unchosen or refused set counts as the whole weekend."""
+    assert form_steps([True], days) == expected
+
+
+def test_only_coming_members_count():
+    """FR-17: a member who is not coming does not bring the hike, whatever their days."""
+    assert form_steps([True, False], [["sat"], ["fri", "sat"]]) == ("who", "days", "allergies")
+    assert form_steps([False, False], [["fri"], ["fri"]]) == ("who",)
+
+
+@pytest.mark.parametrize(
+    ("done", "before", "expected"),
+    [
+        ((), "days", "who"),
+        (("who",), "days", None),
+        (("who",), "overnight", "days"),
+        (("who",), None, "days"),
+        (("who", "days"), "hike", "overnight"),
+        (("who", "days", "overnight", "meals", "allergies"), "hike", None),
+        (("who", "days", "overnight", "meals", "allergies"), None, "hike"),
+        (ALL, None, None),
+    ],
+)
+def test_first_unfinished(done, before, expected):
+    """AD-7: the first applicable step before `before` (None: the check page) not done."""
+    assert first_unfinished(ALL, done, before) == expected
+
+
+def test_first_unfinished_skips_steps_that_do_not_apply():
+    """AD-7: only applicable steps count; Saturday only has no overnight or meals."""
+    steps = ("who", "days", "allergies")
+    assert first_unfinished(steps, ("who", "days"), None) == "allergies"
+    assert first_unfinished(steps, ("who", "days", "allergies"), None) is None
+
+
+def test_registry_has_each_day_with_its_date():
+    """FR-14, FR-70: one entry per day key, with weekday, date and label."""
+    assert tuple(DAYS) == DAY_KEYS
+    assert [day.label for day in DAYS.values()] == [
+        "Fredag 26. mai",
+        "Lørdag 27. mai",
+        "Søndag 28. mai",
+    ]
+    assert all(day.summary for day in DAYS.values())
