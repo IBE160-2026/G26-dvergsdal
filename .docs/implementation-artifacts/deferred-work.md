@@ -119,3 +119,31 @@ Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the findin
 - source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
   summary: Convert the three px breakpoints left in `static/css/site.css` (`max-width: 339.98px`, `299.98px` and `259.98px`, the Narrow widths section) to em, re-measured at the default text size and at 20px default text, in the Impeccable pass (Epic 1 retrospective action 8) or the next story that touches them. `tests/test_form_components.py` allows exactly these three; remove each from `PX_ALLOWED` as it is converted.
   evidence: medium. DESIGN.md › Narrow widths (rule of 2026-11-21) says every layout breakpoint is in em; Stories 1.5 to 1.7 each found a px breakpoint that broke at 20px default text.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
+  summary: Story 4.3 (locked states after the deadline): add a README step and an MT row that reach the closed page «Svarfristen har gått ut» by hand (for example by setting the deadline to yesterday in the shell), since today only pytest shows it.
+  evidence: low. Blind review.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
+  summary: Stories 2.2–2.5: give the step registry (`wedding/rsvp/steps.py`) a `question` field so each step's heading lives in one place, and keep the yes/no values and summary texts next to the form they belong to.
+  evidence: low. Blind review; step 1's question is hard-coded in `_render_step` today.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
+  summary: Story 4.4 (the couple's mount): test the non-guest branches of `_owner` and `_merged` in `wedding/rsvp/views.py` (first member as respondent, revision 0) when the form is mounted for the couple.
+  evidence: low. Blind review; untested until a second mount exists.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
+  summary: Household editing: two members with the same name read the same in legends, error lines and the error summary. Warn or require distinct names when the couple adds a guest.
+  evidence: low. Blind review; no seed household has duplicates.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
+  summary: The Impeccable pass (Epic 1 retrospective action 8): map the RSVP form's raw px values in `static/css/site.css` to the spacing tokens where DESIGN.md allows.
+  evidence: low. Blind review.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
+  summary: The settings-editing story: validate `rsvp_deadline`; `date.max` makes `is_past_deadline` overflow on `deadline + 1 day` and every /svar/ address would give 500.
+  evidence: low. Edge-case review; not reachable until the couple can edit the deadline.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-1-start-the-answer-who-is-coming.md`
+  summary: The CSRF 403 re-render of a step is still a POST response, so the browser's Back to it asks for a resubmission (the invalid-«Fortsett» case was fixed with PRG in 2.1). Revisit if the usability test meets it.
+  evidence: low. Found by the orchestrator in Edge; only after an expired token or blocked cookies.
