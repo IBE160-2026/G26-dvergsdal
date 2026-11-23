@@ -1,13 +1,11 @@
-"""The RSVP form's step registry, days, meals, allergies and addresses (Stories 2.1 to 2.4).
+"""The RSVP form's step registry, days, meals, allergies, hike and addresses (Stories 2.1 to 2.5).
 
 AD-7, UX-DR19.
 
 Each step key from `wedding.rules.form_steps.STEP_KEYS` has its address slug,
 its Norwegian name for the progress line «Steg n av m: <name>», its
 question, the step's `h1`, and the template with its fields, which step.html
-includes. Step 6 is a frame until Story 2.5, so its question is still its
-name and it has no fields. Step 1
-lives at the form's base address, the others at `<base>/<slug>/`, and the
+includes. Step 1 lives at the form's base address, the others at `<base>/<slug>/`, and the
 check page at `<base>/se-over/`. A `FormMount` says where the one form is
 mounted: for guests at `/<code>/svar/` (built in guests/views.py); the couple's
 override mount comes in Story 4.4. The running total on the paid steps is
@@ -23,6 +21,9 @@ FR-15, FR-73 (Story 2.3): `MEALS` names each paid meal key from
 
 FR-25 (Story 2.4): `ALLERGIES` names each category key from
 `wedding.rules.allergies.ALLERGY_KEYS`, as the checkboxes on step 5 show it.
+
+FR-17 (Story 2.5): `HIKE` names each answer key from
+`wedding.rules.days.HIKE_ANSWERS`, as the radios on step 6 show it.
 """
 
 from dataclasses import dataclass
@@ -32,8 +33,7 @@ from dataclasses import dataclass
 class Step:
     """One step: its key, address slug, name in the progress line, question and fields.
 
-    `fields_template` is the include with the step's fields, or "" for a
-    frame with none.
+    `fields_template` is the include with the step's fields.
     """
 
     key: str
@@ -77,7 +77,13 @@ STEPS = {
             "Allergier og matbehov",
             "rsvp/includes/allergy_fields.html",
         ),
-        Step("hike", "fjelltur", "Fjelltur fredag", "Fjelltur fredag", ""),
+        Step(
+            "hike",
+            "fjelltur",
+            "Fjelltur fredag",
+            "Hvem blir med på fjellturen fredag?",
+            "rsvp/includes/hike_fields.html",
+        ),
     )
 }
 
@@ -135,6 +141,9 @@ ALLERGIES = {
     "vegan": "Veganer",
     "other": "Annet",
 }
+
+# FR-17: the hike answers' labels on step 6, in `HIKE_ANSWERS` order.
+HIKE = {"yes": "Ja", "no": "Nei", "maybe": "Kanskje"}
 
 # AD-7: the check page's slug and its key in the views; it is not a step.
 CHECK = "check"

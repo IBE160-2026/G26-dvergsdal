@@ -213,6 +213,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 2.5: the check page shows the FR-28 warning with `not_saved` from `wedding/rules/allergies.py`.
   evidence: decided in the spec.
+  status: done in Story 2.5 (wedding/rsvp/summary.py)
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 2.6b reads `CONSENT_TEXT_VERSION` and the draft's `cons`/`conf` when storing allergies; AD-18's «no consent Ja across a revision change» is enforced by the revision check of 2.6c/2.9.
   evidence: decided in the spec.
@@ -224,3 +225,9 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 2.6b/2.6c: record which consent-text version the guest saw, so a version change between step 5 and sending is caught together with the revision check.
   evidence: low. Blind review; the draft holds no consent-text version today.
+
+## From Story 2.5 (2026-11-23)
+
+- source_spec: `.docs/implementation-artifacts/spec-2-5-the-friday-hike-and-the-check-page.md`
+  summary: Story 2.6a gives «Send svaret» its POST handler (the check page's POST only redirects back today), the «Sender …» busy state, and a friendly CSRF result on the check page (it shows the generic 403 page today). The check page must also store the total it showed in the draft (AD-8 snapshot), so a price change before sending is caught.
+  evidence: decided in the spec.

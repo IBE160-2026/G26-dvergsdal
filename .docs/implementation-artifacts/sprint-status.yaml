@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-16-2026 13:02
-last_updated: 11-23-2026 22:00
+last_updated: 2026-11-24
 project: AI'll handle it
 project_key: NOKEY
 tracking_system: file-system
@@ -53,7 +53,7 @@ development_status:
   2-2-which-days-each-person-comes: done
   2-3-overnight-stay-meals-and-the-running-total: done
   2-4-allergies-and-consent: done
-  2-5-the-friday-hike-and-the-check-page: backlog
+  2-5-the-friday-hike-and-the-check-page: done
   2-6a-send-the-answer: backlog
   2-6b-allergies-are-stored-only-with-consent: backlog
   2-6c-a-send-that-fails-or-repeats-is-safe: backlog

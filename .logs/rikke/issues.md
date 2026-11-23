@@ -92,3 +92,4 @@
 - [x] 2026-11-23 [story-2-2-hvilke-dager](962-2026-11-23-10-27-16-story-2-2-hvilke-dager.md) — **Claude, story 2.3:** fjerne senere valg og «ferdig» når dagene endres, og velge malbit fra viewet i `step.html` (deferred-work.md) (løst 2026-11-23, story 2.3)
 - [ ] 2026-11-23 [story-2-2-hvilke-dager](962-2026-11-23-10-27-16-story-2-2-hvilke-dager.md) — **Claude, story 7.4:** samkjøre dagsbeskrivelsene i `DAYS` med den endelige programteksten (deferred-work.md)
 - [ ] 2026-11-23 [story-2-3-overnatting-og-maltider](960-2026-11-23-15-22-21-story-2-3-overnatting-og-maltider.md) — **Claude, story 4.5:** teksten «hver gjest betaler selv» på steg 3–4 når en pris er 0 (deferred-work.md)
+- [ ] 2026-11-24 [story-2-5-fjelltur-og-sjekkside](958-2026-11-24-01-07-00-story-2-5-fjelltur-og-sjekkside.md) — **Claude, story 2.6a:** sende svaret, «Sender …», lagre totalen som ble vist (AD-8) og vennlig CSRF-side på sjekksiden (deferred-work.md)

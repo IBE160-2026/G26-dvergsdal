@@ -1,10 +1,11 @@
-"""The answer rules and the household total (Stories 2.2, 2.3).
+"""The answer rules and the household total (Stories 2.2, 2.3, 2.5).
 
 FR-14, FR-15, FR-16, FR-33, FR-70, FR-73, FR-75, AD-2, AD-12, NFR-2: every
 allowed day combination with what it opens up, `present_days`,
 `normalise_answer` for days, overnight stays and meals, `household_total`
 for each paid option, the seed households against expected.toml, removed
-choices and a price of 0, and the shared `kroner` display.
+choices and a price of 0, the shared `kroner` display, and the Friday
+hike answer kept only for someone present on Friday (FR-17, Story 2.5).
 """
 
 import tomllib
@@ -16,10 +17,12 @@ import pytest
 from wedding.rules.answer import Answer, normalise_answer, present_days
 from wedding.rules.days import (
     DAY_KEYS,
+    HIKE_ANSWERS,
     MEAL_KEYS,
     WHOLE_WEEKEND,
     can_stay_overnight,
     day_error,
+    joins_hike,
     offered_meals,
 )
 from wedding.rules.money import CABIN, household_total
@@ -236,3 +239,44 @@ def test_a_price_of_zero():
 def test_kroner(amount, shown):
     """FR-32, Story 2.3 (spec-1-7 deferred): whole kroner with no-break spaces."""
     assert kroner(amount) == shown.replace(" ", "\N{NO-BREAK SPACE}")
+
+
+# Story 2.5: the Friday hike (FR-17, FR-75)
+
+
+def test_a_hike_answer_is_kept_for_someone_present_on_friday():
+    """FR-17: every answer in `HIKE_ANSWERS` is kept for a member present on Friday,
+    and the whole weekend counts as present."""
+    for choice in HIKE_ANSWERS:
+        answer = Answer({ARILD: True, MARIE: True}, True, hike={ARILD: choice, MARIE: "no"})
+        assert normalise_answer(answer).hike == {ARILD: choice, MARIE: "no"}
+
+
+def test_a_hike_answer_is_dropped_without_friday():
+    """FR-17, FR-75: a member whose days lose Friday, or who stops coming, loses the
+    answer; the others keep theirs."""
+    answer = Answer(
+        {ARILD: True, MARIE: True, FILIPPA: False},
+        False,
+        {ARILD: ["fri", "sat"], MARIE: ["sat", "sun"]},
+        hike={ARILD: "yes", MARIE: "maybe", FILIPPA: "yes"},
+    )
+    assert normalise_answer(answer).hike == {ARILD: "yes"}
+
+
+def test_a_forged_hike_answer_is_dropped():
+    """FR-17: a value outside `HIKE_ANSWERS` is never kept."""
+    answer = Answer({ARILD: True}, True, hike={ARILD: "perhaps"})
+    assert normalise_answer(answer).hike == {}
+
+
+def test_the_hike_never_counts_in_the_total():
+    """FR-33, AD-12: the hike is free; `household_total` ignores it."""
+    assert household_total(Answer({ARILD: True}, True, hike={ARILD: "yes"}), PRICES) == 0
+
+
+def test_joins_hike():
+    """FR-17: only days with Friday are asked about the hike."""
+    assert joins_hike(["fri"])
+    assert joins_hike(ALL)
+    assert not joins_hike(["sat", "sun"])

@@ -1153,6 +1153,59 @@ a:active {
   color: var(--color-ink);
 }
 
+/* Story 2.5 (FR-21, FR-28, UX-DR23; DESIGN.md › Check-answers list): the
+ * check page. One block per part, without bullets, a `divider` between the
+ * blocks; the part's `h2` and its «Endre» link share a line and wrap under
+ * each other when there is no room (flex-wrap, no breakpoint). «Endre» is at
+ * least 44px tall. «Ikke oppgitt» is in `ink-muted`. No breakpoint of its
+ * own. */
+
+.check-list {
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.check-list__item {
+  padding: var(--space-4) 0;
+}
+
+.check-list__item + .check-list__item {
+  border-top: 1px solid var(--color-divider);
+}
+
+.check-list__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--space-3);
+}
+
+.check-list__head h2 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.check-list__change {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-target-min);
+}
+
+.check-list__item > p {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.check-list__item .notice {
+  margin-top: var(--space-3);
+}
+
+.check-list__missing {
+  color: var(--color-ink-muted);
+}
+
 /* ---------- Footer band (FR-6, UX-DR12; DESIGN.md › Footer band) ----------
  * Full-bleed green-dark, cream text, each phone number on its own row of at
  * least 44px. */

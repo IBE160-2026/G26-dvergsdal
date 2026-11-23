@@ -391,9 +391,11 @@ def test_every_fixed_route_stays_readable_in_the_log():
 # `{% static %}` links are our own and are not matched, and neither are `tel:`
 # links (the footer's phone numbers, Story 1.5), which reach no site, in-page
 # `#` links (the RSVP error summary's, Story 2.1), and the RSVP form's
-# `{{ back_url }}`, which wedding/rsvp/views.py builds from our own routes.
+# `{{ back_url }}`, which wedding/rsvp/views.py builds from our own routes, and
+# the check page's «Endre» `{{ part.url }}` (Story 2.5), built from the mount.
 _EXTERNAL_LINK = re.compile(
-    r"""<a\b[^>]*\bhref=["']?(?!tel:|#|\{\{ back_url \}\})(?:https?:|[^"'>]*\{\{)[^>]*>""",
+    r"""<a\b[^>]*\bhref=["']?(?!tel:|#|\{\{ (?:back_url|part\.url) \}\})"""
+    r"""(?:https?:|[^"'>]*\{\{)[^>]*>""",
     re.IGNORECASE,
 )
 

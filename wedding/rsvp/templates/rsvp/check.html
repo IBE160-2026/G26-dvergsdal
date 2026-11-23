@@ -1,0 +1,47 @@
+{% extends "wedding/base.html" %}
+{% comment %}
+The check page (Story 2.5; FR-21, FR-28, FR-33, AD-7, AD-12, UX-DR23;
+DESIGN.md › Check-answers list, mockups/key-check-page.html). Same paper
+sheet as a form step, with no nav bar and the footer band kept. In order: the
+warning notice «Obs: Svaret er ikke sendt ennå.» (present at load, so not
+focused and not live), the `h1`, a list with one block per applicable step
+(the step's name as `h2` and «Endre» with hidden context on one line, then
+one line per person; «Ikke oppgitt» is muted, and the allergy block carries
+the FR-28 warning), the household total from `household_total` (no per-line
+prices, AD-12), and «Send svaret» above «Tilbake». Each «Endre» link carries
+`?fra=se-over`, so «Fortsett» on that step returns here. «Send svaret» writes
+nothing until Story 2.6a. No hidden fields and no script.
+{% endcomment %}
+{% block title %}Se over svaret før du sender – Invitasjon{% endblock title %}
+{% block content %}
+    <main class="column form-page">
+        <form class="paper-sheet form-sheet" method="post" novalidate>
+            {% csrf_token %}
+            {% include "wedding/components/notice.html" with variant="warning" text="Svaret er ikke sendt ennå." only %}
+            <h1>Se over svaret før du sender</h1>
+            <ul class="check-list">
+                {% for part in parts %}
+                    <li class="check-list__item">
+                        <div class="check-list__head">
+                            <h2>{{ part.name }}</h2>
+                            <a class="check-list__change"
+                               href="{{ part.url }}">Endre<span class="visually-hidden"> {{ part.hidden }}</span></a>
+                        </div>
+                        {% for line in part.lines %}
+                            <p {% if line.missing %}class="check-list__missing"{% endif %}>{{ line.text|linebreaksbr }}</p>
+                        {% endfor %}
+                        {% if part.warning %}
+                            {% include "wedding/components/notice.html" with variant="warning" text=part.warning only %}
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% include "rsvp/includes/total.html" %}
+            <div class="form-actions">
+                <button class="button" type="submit" name="action" value="send">Send svaret</button>
+                <a class="button button--secondary" href="{{ back_url }}">Tilbake</a>
+            </div>
+        </form>
+    </main>
+    {% include "wedding/components/footer-band.html" %}
+{% endblock content %}

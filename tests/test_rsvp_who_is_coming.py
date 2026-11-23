@@ -422,7 +422,7 @@ def _through_step_2(client) -> None:
 
 def _through_step_5(client) -> None:
     """Stories 2.2 to 2.4: both coming the whole weekend, neither staying, no meal
-    and no allergies, so the hike frame opens."""
+    and no allergies, so the hike step opens."""
     sigmund, bestemor = _ids(SIGMUND)
     _through_step_2(client)
     client.post(OVERNIGHT, {f"overnight_{sigmund}": "no", f"overnight_{bestemor}": "no"})
@@ -430,19 +430,18 @@ def _through_step_5(client) -> None:
     assert client.post(ALLERGIES, {"action": "continue"})["Location"] == HIKE
 
 
-def test_a_frame_shows_where_the_guest_is(client, seeded):
-    """AD-7, UX-DR19: the hike frame has the step's name as `h1`, «Steg 6 av 6:
-    Fjelltur fredag», the respondent line with «Bytt» and «Tilbake» to step 5;
-    no groups, no «Fortsett» and no script."""
+def test_the_hike_step_shows_where_the_guest_is(client, seeded):
+    """AD-7, UX-DR19, FR-17 (Story 2.5): step 6 has its question as `h1`, «Steg 6
+    av 6: Fjelltur fredag», the respondent line with «Bytt», a group per person,
+    «Fortsett» and «Tilbake» to step 5, and no script."""
     _through_step_5(client)
     html = client.get(HIKE).content.decode()
-    assert '<h1 id="sporsmal">Fjelltur fredag</h1>' in html
+    assert '<h1 id="sporsmal">Hvem blir med på fjellturen fredag?</h1>' in html
     assert '<p class="form-progress">Steg 6 av 6: Fjelltur fredag</p>' in html
     assert _title(html) == "Steg 6 av 6: Fjelltur fredag \N{EN DASH} Invitasjon"
     assert "Jeg er Sigmund · Bytt hvem som svarer" in page_text(html)
     assert f'href="{ALLERGIES}">Tilbake</a>' in html
-    assert _fieldsets(html) == []
-    assert "Fortsett" not in html
+    assert len(re.findall(r'name="hike_\d+"', html)) == 6
     assert "<script" not in html
 
 
@@ -463,15 +462,10 @@ def test_a_frame_that_does_not_apply_goes_on(client, seeded):
     assert response["Location"] == f"/{SIGMUND}/svar/se-over/"
 
 
-def test_a_post_to_a_frame_only_handles_bytt(client, seeded):
-    """AD-7: a POST to a frame without `switch` goes back to the frame and changes
-    nothing; with `switch` it sets the respondent."""
+def test_bytt_on_the_hike_step_sets_the_respondent(client, seeded):
+    """FR-12, UX-DR18: «Velg» on step 6 sets the respondent without marking it done."""
     _, bestemor = _ids(SIGMUND)
     _through_step_5(client)
-    response = client.post(HIKE, {"action": "continue"})
-    assert response.status_code == 302
-    assert response["Location"] == HIKE
-    assert COOKIE_NAME not in response.cookies
     response = client.post(HIKE, {"action": "switch", "respondent": str(bestemor)})
     assert response["Location"] == HIKE
     assert _draft(response)["resp"] == bestemor
@@ -555,15 +549,15 @@ def test_csrf_failure_keeps_the_saved_draft_under_the_posted_choices(seeded):
     }
 
 
-def test_csrf_failure_on_a_frame_shows_the_frame(seeded):
-    """UX-DR52: a frame posted without a token comes back with its notice."""
+def test_csrf_failure_on_the_hike_step_shows_the_step(seeded):
+    """UX-DR52: step 6 posted without a token comes back with its notice."""
     client = Client()
     _through_step_5(client)
     client.handler.enforce_csrf_checks = True
     response = client.post(HIKE, {"action": "switch"})
     assert response.status_code == 403
     html = response.content.decode()
-    assert '<h1 id="sporsmal">Fjelltur fredag</h1>' in html
+    assert '<h1 id="sporsmal">Hvem blir med på fjellturen fredag?</h1>' in html
     assert CSRF_NOTICE in page_text(html)
 
 
