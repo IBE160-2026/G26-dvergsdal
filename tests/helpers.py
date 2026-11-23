@@ -1,4 +1,4 @@
-"""Helpers and constants shared by several test modules (Story 1.5, 1.6, 1.7, 1.8, 2.1).
+"""Helpers and constants shared by several test modules (Story 1.5, 1.6, 1.7, 1.8, 2.1, 2.2).
 
 Fixtures live in conftest.py; plain values and functions that tests import live
 here.
@@ -82,3 +82,12 @@ def checked_radios(html: str) -> dict[str, str]:
             attributes = tag_attrs(tag)
             found[attributes["name"]] = attributes["value"]
     return found
+
+
+def ticked_boxes(html: str) -> list[str]:
+    """The ids of every checked checkbox in `html`, in page order (Story 2.2)."""
+    return [
+        tag_attrs(tag)["id"]
+        for tag in re.findall(r"<input\b[^>]*>", html)
+        if 'type="checkbox"' in tag and re.search(r"\schecked\b", tag)
+    ]

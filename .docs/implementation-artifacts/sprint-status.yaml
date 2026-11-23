@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-16-2026 13:02
-last_updated: 11-23-2026 12:00
+last_updated: 11-23-2026 13:00
 project: AI'll handle it
 project_key: NOKEY
 tracking_system: file-system
@@ -50,7 +50,7 @@ development_status:
 
   epic-2: in-progress
   2-1-start-the-answer-who-is-coming: done
-  2-2-which-days-each-person-comes: backlog
+  2-2-which-days-each-person-comes: done
   2-3-overnight-stay-meals-and-the-running-total: backlog
   2-4-allergies-and-consent: backlog
   2-5-the-friday-hike-and-the-check-page: backlog

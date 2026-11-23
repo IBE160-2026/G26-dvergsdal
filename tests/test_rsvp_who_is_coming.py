@@ -32,6 +32,7 @@ from tests.helpers import checked_radios, page_text, row_counts
 from wedding.actors import SYSTEM
 from wedding.models import Guest, Household, Settings
 from wedding.rsvp.draft import COOKIE_NAME, SALT
+from wedding.rsvp.steps import DAYS as DAYS_REGISTRY
 from wedding.services.settings import SettingsValues, update_settings
 
 SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
@@ -47,6 +48,21 @@ SYNNE = "test-synne000000000000"
 UNKNOWN = "AAAAAAAAAAAAAAAAAAAAAA"
 STEP_1 = f"/{SIGMUND}/svar/"
 DAYS = f"/{SIGMUND}/svar/dager/"
+OVERNIGHT = f"/{SIGMUND}/svar/overnatting/"
+MONTHS = (
+    "januar",
+    "februar",
+    "mars",
+    "april",
+    "mai",
+    "juni",
+    "juli",
+    "august",
+    "september",
+    "oktober",
+    "november",
+    "desember",
+)
 SUMMARY_HEADING = "For å gå videre må du rette opp følgende feil."
 CSRF_NOTICE = (
     "Feil: Skjemaet ble ikke sendt. Det skjer når siden har stått åpen lenge, eller når "
@@ -395,22 +411,27 @@ def test_a_frame_before_step_1_goes_to_step_1(client, seeded):
         assert response["Location"] == STEP_1
 
 
-def test_a_frame_shows_where_the_guest_is(client, seeded):
-    """AD-7, UX-DR19: the days frame has the step's name as `h1`, «Steg 2 av 6:
-    Dager», the respondent line with «Bytt» and «Tilbake» to step 1; no groups and
-    no «Fortsett»."""
+def _through_step_2(client) -> None:
+    """Story 2.2: both coming, the whole weekend, so the frames after step 2 open."""
     client.post(STEP_1, _answers(SIGMUND, True, True))
-    html = client.get(DAYS).content.decode()
-    assert "<h1>Dager</h1>" in html
-    assert '<p class="form-progress">Steg 2 av 6: Dager</p>' in html
-    assert _title(html) == "Steg 2 av 6: Dager \N{EN DASH} Invitasjon"
+    client.post(DAYS, {"whole": "yes"})
+
+
+def test_a_frame_shows_where_the_guest_is(client, seeded):
+    """AD-7, UX-DR19: the overnight frame has the step's name as `h1`, «Steg 3 av 6:
+    Overnatting», the respondent line with «Bytt» and «Tilbake» to step 2; no
+    groups and no «Fortsett»."""
+    _through_step_2(client)
+    html = client.get(OVERNIGHT).content.decode()
+    assert "<h1>Overnatting</h1>" in html
+    assert '<p class="form-progress">Steg 3 av 6: Overnatting</p>' in html
+    assert _title(html) == "Steg 3 av 6: Overnatting \N{EN DASH} Invitasjon"
     assert "Jeg er Sigmund · Bytt hvem som svarer" in page_text(html)
-    assert f'href="{STEP_1}">Tilbake</a>' in html
+    assert f'href="{DAYS}">Tilbake</a>' in html
     assert _fieldsets(html) == []
     assert "Fortsett" not in html
-    hike = client.get(f"/{SIGMUND}/svar/fjelltur/").content.decode()
-    assert '<p class="form-progress">Steg 6 av 6: Fjelltur fredag</p>' in hike
-    assert f'href="/{SIGMUND}/svar/allergier/">Tilbake</a>' in hike
+    # Story 2.2: a later frame opens only when every step before it is done.
+    assert client.get(f"/{SIGMUND}/svar/fjelltur/")["Location"] == OVERNIGHT
 
 
 def test_a_frame_that_does_not_apply_goes_on(client, seeded):
@@ -425,15 +446,15 @@ def test_a_post_to_a_frame_only_handles_bytt(client, seeded):
     """AD-7: a POST to a frame without `switch` goes back to the frame and changes
     nothing; with `switch` it sets the respondent."""
     _, bestemor = _ids(SIGMUND)
-    client.post(STEP_1, _answers(SIGMUND, True, True))
-    response = client.post(DAYS, {"action": "continue"})
+    _through_step_2(client)
+    response = client.post(OVERNIGHT, {"action": "continue"})
     assert response.status_code == 302
-    assert response["Location"] == DAYS
+    assert response["Location"] == OVERNIGHT
     assert COOKIE_NAME not in response.cookies
-    response = client.post(DAYS, {"action": "switch", "respondent": str(bestemor)})
-    assert response["Location"] == DAYS
+    response = client.post(OVERNIGHT, {"action": "switch", "respondent": str(bestemor)})
+    assert response["Location"] == OVERNIGHT
     assert _draft(response)["resp"] == bestemor
-    assert _draft(response)["done"] == ["who"]
+    assert _draft(response)["done"] == ["who", "days"]
 
 
 def _closed(response) -> None:
@@ -516,13 +537,26 @@ def test_csrf_failure_keeps_the_saved_draft_under_the_posted_choices(seeded):
 def test_csrf_failure_on_a_frame_shows_the_frame(seeded):
     """UX-DR52: a frame posted without a token comes back with its notice."""
     client = Client()
-    client.post(STEP_1, _answers(SIGMUND, True, True))
+    _through_step_2(client)
     client.handler.enforce_csrf_checks = True
-    response = client.post(DAYS, {"action": "switch"})
+    response = client.post(OVERNIGHT, {"action": "switch"})
     assert response.status_code == 403
     html = response.content.decode()
-    assert "<h1>Dager</h1>" in html
+    assert "<h1>Overnatting</h1>" in html
     assert CSRF_NOTICE in page_text(html)
+
+
+def test_csrf_failure_on_a_frame_before_step_2_is_the_generic_page(seeded):
+    """UX-DR52, AD-7: with step 2 not done, the overnight frame cannot have been
+    posted from, so a CSRF failure there gets the generic page, not the frame."""
+    client = Client()
+    client.post(STEP_1, _answers(SIGMUND, True, True))
+    client.handler.enforce_csrf_checks = True
+    response = client.post(OVERNIGHT, {"action": "switch"})
+    assert response.status_code == 403
+    html = response.content.decode()
+    assert '<h1 class="private-invitation__heading">Skjemaet ble ikke sendt</h1>' in html
+    assert "<h1>Overnatting</h1>" not in html
 
 
 @pytest.mark.parametrize(
@@ -659,8 +693,9 @@ def test_rsvp_views_hide_posted_values_from_error_reports(seeded, view, kwargs):
 
 
 def test_no_name_or_date_is_written_in_the_templates():
-    """AD-17, Story 2.1: names come from the household and the deadline from the
-    settings; no guest name, price or date is template text in the form."""
+    """AD-17, Stories 2.1, 2.2: names come from the household, the deadline from the
+    settings and the days' dates from the step registry; no guest name, price,
+    year or day-and-month date is template text in the form."""
     folder = Path(__file__).resolve().parent.parent / "wedding" / "rsvp" / "templates"
     sources = " ".join(path.read_text(encoding="utf-8") for path in folder.rglob("*.html"))
     sources += (
@@ -673,4 +708,23 @@ def test_no_name_or_date_is_written_in_the_templates():
     for name in (name for names in NAMES.values() for name in names):
         assert not re.search(rf"\b{re.escape(name)}\b", sources), name
     assert not re.search(r"\b20\d\d\b", sources)
+    assert not re.search(rf"\d{{1,2}}\. ({'|'.join(MONTHS)})\b", sources)
     assert " kr" not in sources
+
+
+def test_every_day_name_and_date_is_the_programme_s():
+    """FR-14, FR-70, AD-17: the dates live once in the form's `DAYS`; each day's name
+    and date are also the programme page's, so the two cannot drift apart."""
+    programme = (
+        Path(__file__).resolve().parent.parent
+        / "guests"
+        / "templates"
+        / "guests"
+        / "programme.html"
+    ).read_text(encoding="utf-8")
+    for day in DAYS_REGISTRY.values():
+        assert re.search(
+            rf'<h2 id="[a-z]+-overskrift">{day.name}</h2>\s*'
+            rf'<p class="programme-day__date">\s*{re.escape(day.date)}',
+            programme,
+        ), day.label
