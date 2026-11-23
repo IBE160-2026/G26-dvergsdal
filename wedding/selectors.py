@@ -9,6 +9,7 @@ from collections.abc import Iterable
 
 from wedding.models import Guest, Household, Settings, User
 from wedding.rules.contacts import tel_number
+from wedding.rules.money import CABIN
 
 
 def seed_conflicts(codes: Iterable[str], usernames: Iterable[str]) -> list[str]:
@@ -70,10 +71,10 @@ def programme_prices(settings: Settings | None = None) -> dict[str, int]:
     """FR-9, FR-32, AD-12: the three meal prices the programme's «Godt å vite» shows.
 
     Friday's dinner and the Saturday and Sunday breakfasts, in whole kroner, from
-    the one settings row, the same source the RSVP form will total from, so the
-    programme and the form cannot show different prices. The template writes
-    «<n> kr.»; no price is ever template text. Reads the settings row unless the
-    caller already has it.
+    the one settings row, the same source the RSVP form totals from
+    (`form_prices`), so the programme and the form cannot show different
+    prices. The template writes them with the `kroner` filter; no price is ever
+    template text. Reads the settings row unless the caller already has it.
     """
     if settings is None:
         settings = site_settings()
@@ -82,6 +83,18 @@ def programme_prices(settings: Settings | None = None) -> dict[str, int]:
         "saturday_breakfast": settings.price_saturday_breakfast,
         "sunday_breakfast": settings.price_sunday_breakfast,
     }
+
+
+def form_prices(settings: Settings | None = None) -> dict[str, int]:
+    """FR-16, FR-32, FR-33, AD-12 (Story 2.3): every price the RSVP form shows and totals.
+
+    The programme's three meal prices plus the cabin for the whole weekend
+    under `CABIN`, in whole kroner, for `household_total`. Reads the settings
+    row unless the caller already has it.
+    """
+    if settings is None:
+        settings = site_settings()
+    return programme_prices(settings) | {CABIN: settings.price_cabin_weekend}
 
 
 def household_guest_names(household: Household) -> list[str]:

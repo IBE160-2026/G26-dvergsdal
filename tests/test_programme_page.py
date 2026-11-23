@@ -288,10 +288,10 @@ def test_template_holds_no_price_and_no_sign_up():
     tabindex and the `h2`/`h3` tag names, no digit stands in the template, so
     a price written as «340 kroner» or «340,-» fails too."""
     source = TEMPLATE.read_text(encoding="utf-8")
-    assert source.count(" kr.") == 3
-    assert re.findall(r"(\S+) kr\b", source) == ["}}", "}}", "}}"]
+    # Story 2.3: every price goes through the shared `kroner` filter.
+    assert not re.search(r"\bkr\b", re.sub(r"{%.*?%}|{{.*?}}", "", source, flags=re.DOTALL))
     for price in ("prices.friday_dinner", "prices.saturday_breakfast", "prices.sunday_breakfast"):
-        assert source.count(f"{{{{ {price} }}}} kr.") == 1, price
+        assert source.count(f"{{{{ {price}|kroner }}}}.") == 1, price
     text = re.sub(r"{% comment %}.*?{% endcomment %}", "", source, flags=re.DOTALL)
     text = re.sub(r"{%.*?%}|{{.*?}}", "", text, flags=re.DOTALL)
     text = re.sub(r'datetime="\d\d:\d\d"|>\d\d:\d\d</time>', "", text)
@@ -317,3 +317,13 @@ def test_programme_prices_read_the_row_without_a_query_when_given_it(
     assert all(type(price) is int for price in prices.values())
     with django_assert_num_queries(1):
         assert programme_prices() == prices
+
+
+def test_a_price_of_a_thousand_or_more_has_no_break_spaces(
+    client, programme, django_assert_num_queries
+):
+    """FR-9, FR-32, Story 2.3: the programme writes prices with `kroner`, as the
+    RSVP form does: 1450 is «1 450 kr.», with no-break spaces."""
+    _set_prices(dinner=1450, saturday=255, sunday=265)
+    html = _days(_get(client, django_assert_num_queries))["fredag"]
+    assert "betales selv:</strong> 1\N{NO-BREAK SPACE}450\N{NO-BREAK SPACE}kr." in html
