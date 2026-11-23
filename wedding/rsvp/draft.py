@@ -1,4 +1,4 @@
-"""The draft cookie that holds an answer between steps (Stories 2.1 to 2.4; AD-8).
+"""The draft cookie that holds an answer between steps (Stories 2.1 to 2.5; AD-8).
 
 AD-8, FR-78: until the answer is sent, nothing is stored on the server. The
 answers live in one signed, compressed cookie, `rsvp_draft`, scoped to the
@@ -21,7 +21,9 @@ exactly `c`, `n` and `t`, a category that is not one of `ALLERGY_KEYS` or
 repeated, `n` not true or false, `t` not text or longer than `NOTE_MAX`),
 `cons` (a key that is not a member, a value not true or false) and `conf`
 and `long` (not a list, an id that is not a member, or the same id twice).
-A cookie of format 1, 2 or 3 is broken too; nothing was live then.
+Story 2.5 adds `hike` (a key that is not a member, or a value that is not
+one of `HIKE_ANSWERS`). A cookie of format 1, 2, 3 or 4 is broken too;
+nothing was live then.
 A broken draft is deleted and the form starts empty, never with a server
 error. (Story 2.9 will drop changed members instead of deleting.)
 """
@@ -37,12 +39,12 @@ from django.utils import timezone
 
 from wedding.rsvp.steps import FormMount
 from wedding.rules.allergies import ALLERGY_KEYS, NOTE_MAX, AllergyEntry
-from wedding.rules.days import DAY_KEYS, MEAL_KEYS
+from wedding.rules.days import DAY_KEYS, HIKE_ANSWERS, MEAL_KEYS
 from wedding.rules.form_steps import STEP_KEYS
 
 COOKIE_NAME = "rsvp_draft"
 SALT = "wedding.rsvp.draft"
-VERSION = 4
+VERSION = 5
 MAX_AGE = timedelta(days=90)
 # A draft that says it started later than this after now is not ours.
 FUTURE_SKEW = timedelta(seconds=60)
@@ -62,7 +64,8 @@ class Draft:
     FR-16). Story 2.4 (FR-25 to FR-27): `alg` each member's allergy entry,
     `cons` each member's «Ja»/«Nei» to consent (none: unanswered), `conf` the
     members the respondent confirmed know and agree, and `long` the members
-    whose last posted note was too long and was not kept.
+    whose last posted note was too long and was not kept. Story 2.5 (FR-17):
+    `hike` each member's answer to the Friday hike, one of `HIKE_ANSWERS`.
     """
 
     started: str
@@ -78,6 +81,7 @@ class Draft:
     cons: dict[int, bool] = field(default_factory=dict)
     conf: list[int] = field(default_factory=list)
     long: list[int] = field(default_factory=list)
+    hike: dict[int, str] = field(default_factory=dict)
 
     @classmethod
     def new(cls, *, revision: int, respondent: int, now: datetime) -> Draft:
@@ -85,7 +89,7 @@ class Draft:
         return cls(started=now.astimezone(UTC).isoformat(), rev=revision, resp=respondent)
 
     def payload(self) -> dict[str, object]:
-        """AD-8: the cookie's JSON payload, format version 4."""
+        """AD-8: the cookie's JSON payload, format version 5."""
         return {
             "v": VERSION,
             "started": self.started,
@@ -104,6 +108,7 @@ class Draft:
             "cons": {str(guest_id): given for guest_id, given in self.cons.items()},
             "conf": list(self.conf),
             "long": list(self.long),
+            "hike": {str(guest_id): choice for guest_id, choice in self.hike.items()},
         }
 
 
@@ -122,6 +127,7 @@ PAYLOAD_KEYS = (
     "cons",
     "conf",
     "long",
+    "hike",
 )
 
 
@@ -199,6 +205,19 @@ def _bools(night: object, member_ids: set[int]) -> dict[int, bool] | None:
     return stays
 
 
+def _hike(value: object, member_ids: set[int]) -> dict[int, str] | None:
+    """AD-8, FR-17: `hike` with guest ids as ints, or None when any is off."""
+    if not isinstance(value, dict):
+        return None
+    answers = {}
+    for key, choice in value.items():
+        guest_id = _member_key(key, member_ids)
+        if guest_id is None or not (isinstance(choice, str) and choice in HIKE_ANSWERS):
+            return None
+        answers[guest_id] = choice
+    return answers
+
+
 def _allergy_entries(value: object, member_ids: set[int]) -> dict[int, AllergyEntry] | None:
     """AD-8, FR-25: `alg` with guest ids as ints, or None when any entry is off."""
     if not isinstance(value, dict):
@@ -235,9 +254,23 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
     """AD-8: the draft in `payload`, or None when anything is off."""
     if not isinstance(payload, dict) or set(payload) != set(PAYLOAD_KEYS):
         return None
-    version, started, rev, resp, att, done, whole, days, night, meals, alg, cons, conf, long = (
-        payload[key] for key in PAYLOAD_KEYS
-    )
+    (
+        version,
+        started,
+        rev,
+        resp,
+        att,
+        done,
+        whole,
+        days,
+        night,
+        meals,
+        alg,
+        cons,
+        conf,
+        long,
+        hike,
+    ) = (payload[key] for key in PAYLOAD_KEYS)
     attendance = _attendance(att, member_ids)
     chosen_days = _key_lists(days, member_ids, DAY_KEYS)
     stays = _bools(night, member_ids)
@@ -246,6 +279,7 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
     consent = _bools(cons, member_ids)
     confirmed = _id_list(conf, member_ids)
     too_long = _id_list(long, member_ids)
+    hike_answers = _hike(hike, member_ids)
     if (
         not (_is_int(version) and version == VERSION)
         or not _is_start_time(started)
@@ -262,6 +296,7 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
         or consent is None
         or confirmed is None
         or too_long is None
+        or hike_answers is None
     ):
         return None
     return Draft(
@@ -278,6 +313,7 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
         cons=consent,
         conf=confirmed,
         long=too_long,
+        hike=hike_answers,
     )
 
 

@@ -1,11 +1,12 @@
-"""The RSVP draft cookie (Stories 2.1 to 2.4; AD-8).
+"""The RSVP draft cookie (Stories 2.1 to 2.5; AD-8).
 
 FR-78, AD-8: a round trip through `rsvp_draft`, its attributes (path `/<code>/`,
 HttpOnly, SameSite=Lax, Secure only in production, the 90-day backstop), and
 every kind of broken draft: each is deleted with the same path and the form
 starts empty, never with a server error. Format 2 (Story 2.2) added `whole`
 and `days`, format 3 (Story 2.3) `night` and `meals`, format 4 (Story 2.4)
-`alg`, `cons`, `conf` and `long`; a format 1, 2 or 3 cookie is broken. The step flow itself is in
+`alg`, `cons`, `conf` and `long`, format 5 (Story 2.5) `hike`; a format 1,
+2, 3 or 4 cookie is broken. The step flow itself is in
 test_rsvp_who_is_coming.py.
 """
 
@@ -37,7 +38,7 @@ def _ids(code: str) -> list[int]:
 def _payload(**changes) -> dict:
     sigmund, bestemor = _ids(SIGMUND)
     payload = {
-        "v": 4,
+        "v": 5,
         "started": "2026-11-21T10:00:00+00:00",
         "rev": 0,
         "resp": sigmund,
@@ -51,6 +52,7 @@ def _payload(**changes) -> dict:
         "cons": {},
         "conf": [],
         "long": [],
+        "hike": {},
     }
     return payload | changes
 
@@ -72,7 +74,7 @@ def _post_valid(client):
 
 def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     """AD-8: path `/<code>/`, HttpOnly, SameSite=Lax, not Secure locally, 90 days;
-    the payload has format 4, the household revision, the respondent, everyone's
+    the payload has format 5, the household revision, the respondent, everyone's
     attendance and step 1 done."""
     sigmund, bestemor = _ids(SIGMUND)
     response = _post_valid(client)
@@ -84,7 +86,7 @@ def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     assert not cookie["secure"]
     assert cookie["max-age"] == NINETY_DAYS
     payload = signing.loads(cookie.value, salt=SALT)
-    assert payload["v"] == 4
+    assert payload["v"] == 5
     assert payload["rev"] == 0
     assert payload["resp"] == sigmund
     assert payload["att"] == {str(sigmund): True, str(bestemor): False}
@@ -156,10 +158,10 @@ def test_a_full_draft_for_eight_fits_in_a_cookie():
     """AD-8: a household is at most 8, and its draft, with every day, a stay,
     every meal, every allergy category, a 200-character note with æøå
     (different per person), consent «Ja» and a confirmation for everyone,
-    stays below 4 KB (Story 2.4)."""
+    and «Kanskje» to the hike for everyone stays below 4 KB (Stories 2.4, 2.5)."""
     ids = range(10_000_000, 10_000_008)
     payload = {
-        "v": 4,
+        "v": 5,
         "started": "2026-11-21T10:00:00.123456+00:00",
         "rev": 123,
         "resp": ids[0],
@@ -183,6 +185,7 @@ def test_a_full_draft_for_eight_fits_in_a_cookie():
         "cons": {str(guest_id): True for guest_id in ids},
         "conf": list(ids),
         "long": [],
+        "hike": {str(guest_id): "maybe" for guest_id in ids},
     }
     assert all(len(entry["t"]) == 200 for entry in payload["alg"].values())
     assert len(_signed(payload)) < 4096
@@ -222,6 +225,7 @@ BROKEN = {
     "v 3 (Story 2.3)": lambda: _signed(
         {k: v for k, v in _payload(v=3).items() if k not in ("alg", "cons", "conf", "long")}
     ),
+    "v 4 (Story 2.4)": lambda: _signed({k: v for k, v in _payload(v=4).items() if k != "hike"}),
     "v true": lambda: _signed(_payload(v=True)),
     "missing key": lambda: _signed({k: v for k, v in _payload().items() if k != "rev"}),
     "naive started": lambda: _signed(_payload(started="2026-11-21T10:00:00")),
@@ -292,6 +296,11 @@ BROKEN = {
     "conf a non-member": lambda: _signed(_payload(conf=[_ids(ARILD)[0]])),
     "conf an id twice": lambda: _signed(_payload(conf=[_ids(SIGMUND)[0]] * 2)),
     "long a string id": lambda: _signed(_payload(long=[str(_ids(SIGMUND)[0])])),
+    "missing hike": lambda: _signed({k: v for k, v in _payload().items() if k != "hike"}),
+    "hike a list": lambda: _signed(_payload(hike=["yes"])),
+    "hike an unknown answer": lambda: _signed(_payload(hike={str(_ids(SIGMUND)[0]): "perhaps"})),
+    "hike not a string": lambda: _signed(_payload(hike={str(_ids(SIGMUND)[0]): True})),
+    "hike for a non-member": lambda: _signed(_payload(hike={str(_ids(ARILD)[0]): "yes"})),
 }
 
 
