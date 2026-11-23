@@ -292,6 +292,7 @@ def _with(answer: Answer, allergies=None, consent=None, confirmed=()) -> Answer:
     return Answer(
         answer.attendance,
         answer.whole,
+        days=answer.days,
         night=answer.night,
         meals=answer.meals,
         hike=answer.hike,
