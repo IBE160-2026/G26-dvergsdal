@@ -28,6 +28,8 @@ FR-17 (Story 2.5): `HIKE` names each answer key from
 
 from dataclasses import dataclass
 
+from wedding.rules.days import HIKE_LABELS
+
 
 @dataclass(frozen=True)
 class Step:
@@ -142,8 +144,8 @@ ALLERGIES = {
     "other": "Annet",
 }
 
-# FR-17: the hike answers' labels on step 6, in `HIKE_ANSWERS` order.
-HIKE = {"yes": "Ja", "no": "Nei", "maybe": "Kanskje"}
+# FR-17: the hike answers' labels on step 6 live with the keys in the rules.
+HIKE = HIKE_LABELS
 
 # AD-7: the check page's slug and its key in the views; it is not a step.
 CHECK = "check"

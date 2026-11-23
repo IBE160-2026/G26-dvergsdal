@@ -14,8 +14,7 @@ never derived values such as totals or a household's display name (AD-4).
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from wedding.rsvp.steps import HIKE
-from wedding.rules.days import HIKE_ANSWERS
+from wedding.rules.days import HIKE_ANSWERS, HIKE_LABELS
 
 PHONE_MAX_LENGTH = 30
 
@@ -172,7 +171,7 @@ class PersonAnswer(models.Model):
         "fjelltur fredag",
         max_length=5,
         blank=True,
-        choices=[(key, HIKE[key]) for key in HIKE_ANSWERS],
+        choices=[(key, HIKE_LABELS[key]) for key in HIKE_ANSWERS],
     )
 
     class Meta:

@@ -25,6 +25,8 @@ MEAL_KEYS = ("friday_dinner", "saturday_breakfast", "sunday_breakfast")
 
 # FR-17: the answers to the Friday hike, in the order the form shows them.
 HIKE_ANSWERS = ("yes", "no", "maybe")
+# FR-17: their Norwegian labels, as step 6 and the stored answer's choices show them.
+HIKE_LABELS = {"yes": "Ja", "no": "Nei", "maybe": "Kanskje"}
 
 # FR-14, FR-70: what `day_error` returns for a set that is not allowed.
 NO_DAY = "none"
