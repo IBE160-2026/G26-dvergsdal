@@ -2,7 +2,8 @@
 title: 'Story 2.5: The Friday hike and the check page'
 type: 'feature'
 created: '2026-11-23'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '6e58b06b2f12c621e712361f939bd7dc213c9801'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -10,7 +11,9 @@ context:
   - '{project-root}/.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md'
 warnings:
   - oversized
-deferred: []
+deferred:
+- summary: "Story 2.6a: the check page stores the total it showed in the draft (AD-8 snapshot) so a price change before sending is caught; sending, the «Sender …» state and a friendly CSRF result on the check page."
+  evidence: "Blind review; recorded in deferred-work.md «From Story 2.5»."
 ---
 
 <intent-contract>
@@ -34,7 +37,7 @@ deferred: []
   - Dager: each coming member «<name>: hele helgen» (whole, or no «Nei») or the chosen days «<name>: lørdag 27. mai og søndag 28. mai» (`DAYS` labels, weekday lowercased).
   - Overnatting: each member who could stay (`can_stay_overnight`) «<name>: hytte hele helgen» / «<name>: overnatter ikke».
   - Måltider: each member offered a meal «<name>: middag fredag og frokost søndag» (`MEALS` names lowercased, `offered_meals` order) / «<name>: ingen måltider».
-  - Allergier og matbehov: each coming member «<name>: ingen allergier eller matbehov», or the categories lowercased («<name>: laktose og nøtter»), or «<name>: Ikke oppgitt» (muted) without info; for a member with categories, «Merknad om <name>: <note>» (`linebreaksbr`) or «Merknad om <name>: Ikke oppgitt» (muted); for a member with info, «Samtykke for <name>: ja» / «… nei» / «… Ikke oppgitt» (muted), plus «Du har bekreftet at <name> vet om det og er enig.» when confirmed and not the respondent. When `not_saved` (from `wedding/rules/allergies.py`) names anyone, a warning notice inside the block with `AllergiesForm.warning_text(names)` (FR-28).
+  - Allergier og matbehov: each coming member «<name>: ingen allergier eller matbehov», or the categories lowercased («<name>: laktose og nøtter»), or «<name>: Ikke oppgitt» (muted) without info; for a member with categories, «Merknad om <name>: <note>» (`linebreaksbr`) or no note line when the note is empty (changed 2026-11-24, see Spec Change Log); for a member with info, «Samtykke for <name>: ja» / «… nei» / «… Ikke oppgitt» (muted), plus «Du har bekreftet at <name> vet om det og er enig.» when confirmed and not the respondent. When `not_saved` (from `wedding/rules/allergies.py`) names anyone, a warning notice inside the block with `AllergiesForm.warning_text(names)` (FR-28).
   - Fjelltur fredag: each Friday-present member «<name>: ja» / «nei» / «kanskje».
 - **Check page POST (Story 2.6a builds sending):** «Velg» is not on the page; any POST redirects (303) to the check page and writes nothing. A CSRF failure on the check page keeps the generic 403 page (`render_after_csrf_failure` returns None for `CHECK`).
 - Privacy and quality: no allergy content in logs; `Cache-Control: private, no-store` like the steps; no DB row, session or message; no hidden fields; every new rule/view/test names its FR/AD/UX-DR; CSS breakpoints only in em.
@@ -91,25 +94,25 @@ deferred: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/rules/days.py`, `wedding/rules/answer.py`: `HIKE_ANSWERS`, `Answer.hike`, `normalise_answer` filter (FR-17, FR-75, AD-2).
-- [ ] `wedding/rsvp/steps.py`: hike question, fields template, `HIKE` labels, docstring.
-- [ ] `wedding/rsvp/draft.py`: format 5 with `hike` and its validator.
-- [ ] `wedding/rsvp/forms.py`: `hike_field`, `HikeForm` with the texts above; `warning_text` uses `join_words`.
-- [ ] `wedding/rsvp/summary.py`: `join_words`, `check_parts` with every line rule above (FR-21, FR-28, UX-DR23).
-- [ ] `wedding/rsvp/views.py`: hike step, `_settled`/`_answer`/`_with_posted`/CSRF branches, `fra` handling and `_continue_url`, `_render_check`, docstrings.
-- [ ] `wedding/rsvp/templates/rsvp/includes/hike_fields.html`, `rsvp/check.html`, `rsvp/step.html` comment; delete `rsvp/check_frame.html`.
-- [ ] `static/css/site.css`: Story 2.5 block.
-- [ ] `tests/test_hike_rules.py` (or extend `tests/test_answer_rules.py` if it exists): normalise keeps/drops hike per Friday presence and value.
-- [ ] `tests/test_rsvp_hike_check.py`: every matrix row through the test client; the epics ACs: hike only for Friday-present people; skipped and not counted when nobody Friday; check page order (notice text, `h1`, the six `h2` in order for Sigmund, total equal to `household_total`); «Ikke oppgitt» for a skipped note; FR-28 warning; each «Endre» href and hidden text («Endre måltider»); «Fortsett» from each step with `fra` returns to the check page; adding a day via «Endre dager» ends at `/svar/overnatting/` with `follow=True`; «Send svaret» is the first button and comes before «Tilbake»; POST writes nothing; no DB rows, session or messages through steps 1–6 and the check page; Cache-Control private, no-store.
+- [x] `wedding/rules/days.py`, `wedding/rules/answer.py`: `HIKE_ANSWERS`, `Answer.hike`, `normalise_answer` filter (FR-17, FR-75, AD-2).
+- [x] `wedding/rsvp/steps.py`: hike question, fields template, `HIKE` labels, docstring.
+- [x] `wedding/rsvp/draft.py`: format 5 with `hike` and its validator.
+- [x] `wedding/rsvp/forms.py`: `hike_field`, `HikeForm` with the texts above; `warning_text` uses `join_words`.
+- [x] `wedding/rsvp/summary.py`: `join_words`, `check_parts` with every line rule above (FR-21, FR-28, UX-DR23).
+- [x] `wedding/rsvp/views.py`: hike step, `_settled`/`_answer`/`_with_posted`/CSRF branches, `fra` handling and `_continue_url`, `_render_check`, docstrings.
+- [x] `wedding/rsvp/templates/rsvp/includes/hike_fields.html`, `rsvp/check.html`, `rsvp/step.html` comment; delete `rsvp/check_frame.html`.
+- [x] `static/css/site.css`: Story 2.5 block.
+- [x] `tests/test_hike_rules.py` (or extend `tests/test_answer_rules.py` if it exists): normalise keeps/drops hike per Friday presence and value.
+- [x] `tests/test_rsvp_hike_check.py`: every matrix row through the test client; the epics ACs: hike only for Friday-present people; skipped and not counted when nobody Friday; check page order (notice text, `h1`, the six `h2` in order for Sigmund, total equal to `household_total`); «Ikke oppgitt» for a skipped note; FR-28 warning; each «Endre» href and hidden text («Endre måltider»); «Fortsett» from each step with `fra` returns to the check page; adding a day via «Endre dager» ends at `/svar/overnatting/` with `follow=True`; «Send svaret» is the first button and comes before «Tilbake»; POST writes nothing; no DB rows, session or messages through steps 1–6 and the check page; Cache-Control private, no-store.
 - [ ] Update `tests/test_rsvp_who_is_coming.py`, `tests/test_rsvp_days.py`, `tests/test_rsvp_allergies.py`, `tests/test_rsvp_overnight_meals.py`, `tests/test_rsvp_draft.py` for the hike step, the check page and format 5.
-- [ ] `docs/manual-test-plan.md`: Norwegian rows, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`); before each `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`.
+- [x] `docs/manual-test-plan.md`: Norwegian rows, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge» (`channel: 'msedge'`); before each `uv run manage.py seed_testdata`, then `uv run manage.py runserver`; measure after `document.fonts.ready`.
   - **MT-1 (2.5):** README «Svarskjemaet» to the check page.
   - **MT-36 (real submission):** `http://127.0.0.1:8000/test-sigmund0000000000/svar/`: both «Kommer», «Fortsett», «Ja», «Fortsett», «Ja» for both, «Fortsett», «Fortsett», Laktose for bestemor (no consent), «Fortsett». Expect `/svar/fjelltur/`, title «Steg 6 av 6: Fjelltur fredag – Invitasjon», no radio checked. a) Only Sigmund «Kanskje», «Fortsett» → `?feil=1`, title starts «Feil: », focused summary link «Svar om fjellturen for bestemor», Sigmund's choice kept. b) bestemor «Nei», «Fortsett» → `/svar/se-over/`: «Obs: Svaret er ikke sendt ennå.» above `h1` «Se over svaret før du sender», `h2`s Hvem kommer, Dager, Overnatting, Måltider, Allergier og matbehov, Fjelltur fredag; «Merknad om bestemor: Ikke oppgitt»; the FR-28 warning naming bestemor; «Totalt for husstanden: 3 000 kr»; «Send svaret» above «Tilbake». c) «Endre måltider» → `/svar/maltider/?fra=se-over` with no box ticked; tick «Frokost søndag» for bestemor, «Fortsett» → `/svar/se-over/` with the new line and a higher total. d) «Endre hvem som kommer», «Tilbake» → `/svar/se-over/`. e) `page.goBack()` twice → no `dialog` event. f) On Arild's link: Arild, Marie, Filippa «Kommer», Leone not; «Nei»; Arild and Marie all days, Filippa Saturday only; through to the hike step → groups for Arild and Marie only; on the check page «Endre dager», Filippa all days, «Fortsett» → `/svar/overnatting/`, then «Fortsett» through to `/svar/se-over/` with a Fjelltur line for Filippa only after answering her on the hike step.
   - **MT-37 (keyboard only):** Sigmund's link with `page.keyboard` through steps 1–6 to the check page. On step 6 the Tab order is «Bytt», Sigmund's radio group, bestemor's, «Fortsett», «Tilbake», `tel:` links; arrows choose; Enter goes to `/svar/se-over/`. On the check page the order is the six «Endre» links, «Send svaret», «Tilbake», `tel:` links; every focused element has `outline-style` `solid`; Enter on «Endre fjelltur fredag» opens `/svar/fjelltur/?fra=se-over`, Enter in a radio returns to `/svar/se-over/`.
   - **MT-38 (layout):** Arild's step 6 in the error state and his check page (with an FR-28 warning). Run at 360 × 640 and 180 × 320, then with 20px default text (CDP `Page.setFontSizes` `{ fontSizes: { standard: 20 } }`) at 360 × 640 and 180 × 320: `scrollWidth` ≤ `innerWidth`; every `.choice` ≥ 44px tall and inside the sheet; each «Endre» link inside the sheet and ≥ 44px tall (or 24px with spacing per WCAG 2.5.8); block headings and lines wrap without overflow; «Send svaret» above «Tilbake», 12px apart, same width.
-- [ ] `README.md`: status line (story 2.5: hike step, check page; sending is story 2.6a), «Svarskjemaet» (step 6, check page, «Endre» returns there, «Send svaret» does not send yet), tree (`wedding/rsvp/summary.py`).
+- [x] `README.md`: status line (story 2.5: hike step, check page; sending is story 2.6a), «Svarskjemaet» (step 6, check page, «Endre» returns there, «Send svaret» does not send yet), tree (`wedding/rsvp/summary.py`).
 - [ ] ARCHITECTURE-SPINE, EXPERIENCE.md, DESIGN.md: dated notes (2026-11-23, Story 2.5): AD-8 format 5 (`hike`) and the measured size; AD-7 the `?fra=se-over` return rule; EXPERIENCE microcopy rows for step 6 (question, lead, choices, error) and the check page lines «avgjort av Claude 2026-11-23» with reasons (FR-17, FR-21, mockup proposals kept; per-person day lines instead of the mockup's «Begge» so mixed days read the same way); «Ikke oppgitt / Endre», «Obs: Svaret er ikke sendt ennå.» and the heading marked decided; Check-answers list: no per-line prices (AD-12: only `household_total`), blocks only for applicable steps, «Tilbake» from an «Endre» step returns to the check page.
-- [ ] `.docs/implementation-artifacts/deferred-work.md`: mark the 2.4 entry «Story 2.5: the check page shows the FR-28 warning …» `status: done in Story 2.5 (wedding/rsvp/summary.py)`; add «From Story 2.5»: Story 2.6a gives «Send svaret» its POST handler (the check page's POST only redirects today), the «Sender …» busy state and a friendly CSRF result on the check page.
+- [x] `.docs/implementation-artifacts/deferred-work.md`: mark the 2.4 entry «Story 2.5: the check page shows the FR-28 warning …» `status: done in Story 2.5 (wedding/rsvp/summary.py)`; add «From Story 2.5»: Story 2.6a gives «Send svaret» its POST handler (the check page's POST only redirects today), the «Sender …» busy state and a friendly CSRF result on the check page.
 
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` run, then all pass.
@@ -122,7 +125,38 @@ deferred: []
 
 ## Spec Change Log
 
+- 2026-11-24 — Review: an empty optional note gets no «Merknad om <name>: Ikke oppgitt» line on the check page (it was noise for every person with categories); MT-36 a) expects the focused error summary (the pattern since MT-33), and MT-36 b) answers «Nei» on consent so the expected line is «Samtykke for bestemor: nei». Avgjort av Claude after the blind review and the Playwright run.
+
 ## Review Triage Log
+
+### 2026-11-24 — Review pass
+- verdicts: 25 findings — high 0, medium 3, low 13, false 9, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` Circular import between `forms.py` and `summary.py`: importing `summary` first raises ImportError (blind, edge-case) — `join_words` moved to a leaf module; a fresh-interpreter import test added.
+  - `[medium]` `[patch]` The note-only allergy branch on the check page is untested (verification-gap) — test added.
+  - `[medium]` `[defer]` The check page does not store the shown total in the draft (AD-8 snapshot) (blind) — sending and the price-change check are Story 2.6a; added to its deferred-work entry.
+  - `[low]` `[patch]` An empty optional note prints a muted «Merknad om X: Ikke oppgitt» line for every person (blind) — the line is left out when the note is empty; EXPERIENCE.md note dated 2026-11-24.
+  - `[low]` `[patch]` `_later_step`'s gate redirects drop `?fra=se-over` (edge-case) — wrapped in `_keep_from` when the target is not the check page; test added.
+  - `[low]` `[patch]` The hike error-summary target uses the attendance form's `YES` (blind) — uses the hike answer constant.
+  - `[low]` `[patch]` The Friday rule is the bare string `"fri"` in three modules (blind) — `joins_hike` in `wedding/rules/days.py`, used in all three, unit-tested.
+  - `[low]` `[patch]` Untested `fra` branches: a foreign `fra` value, `_keep_from` with query and fragment (blind) — tests added; «Tilbake» with `fra` and CSRF were already covered.
+  - `[low]` `[patch]` Unbalanced parenthesis and stale [forslag] tags in EXPERIENCE.md/DESIGN.md (blind) — fixed.
+  - `[low]` `[patch]` docs/manual-test-plan.md ends without a newline (blind) — fixed.
+  - `[low]` `[patch]` MT-36 a) expected focus on the error link; the step pattern focuses the error summary (orchestrator, Playwright) — the row now says so, as MT-33 does.
+  - `[low]` `[reject]` `HikeForm` subclasses `forms.Form` without fields (blind) — the same pattern as `WhoIsComingForm`, `DaysForm` and `OvernightForm` since Story 2.1; changing one alone would make it inconsistent.
+  - `[low]` `[reject]` The hike lead is not linked to the groups with `aria-describedby` (blind) — same structure as the leads on steps 3–5; a cross-step change, not worth a guard here.
+  - `[low]` `[reject]` The check page has no respondent line (blind) — the respondent is shown on every step and in the confirmation line; the spec and mockup's check page have none.
+  - `[low]` `[reject]` After «Endre dager», `#velg-dager` from the days redirect stays in the address on later pages (orchestrator, Playwright) — browser behaviour for a redirect without a fragment since Story 2.2; no anchor matches, nothing moves.
+  - `[low]` `[reject]` CSRF failure on «Send svaret» shows the generic 403 (edge-case) — already deferred to Story 2.6a with the real send.
+  - `[false]` `[reject]` `_continue_url` has no guard if `first_unfinished` returns None (blind) — `mount.url(None)` is the check page by design; MT-36 f) walked overnatting → måltider → allergier → fjelltur → se-over in Edge.
+  - `[false]` `[reject]` «Send svaret» does not send (intent-alignment) — the epic splits sending into 2.6a; deferred and recorded.
+  - `[false]` `[reject]` The check page shows only applicable blocks, narrowing «one block per part» (intent-alignment) — a skipped step has no answers; decided and recorded in DESIGN.md/EXPERIENCE.md.
+  - `[false]` `[reject]` «Above» and «primary» are checked only in markup (intent-alignment) — MT-38 measured «Send svaret» above «Tilbake», 12px apart and equal width at 360/180px, 16/20px.
+  - `[false]` `[reject]` MT rows have empty result cells (intent-alignment) — MT-1 (2.5), MT-36, MT-37, MT-38 run in Edge and recorded.
+  - `[false]` `[reject]` The CSS has no automated test (intent-alignment) — MT-38 measured no overflow, «Endre» 44px high and inside the sheet at all four sizes.
+  - `[false]` `[reject]` Skipping the hike step is not shown as left out of «Steg n av m» (intent-alignment) — MT-36 f) and the step tests: Arild's household without Friday counts; Sigmund's title reads «Steg 6 av 6».
+  - `[false]` `[reject]` The FR-28 warning appears for «Ingen allergier» with consent «Nei» (orchestrator, Playwright) — `has_allergy_info` counts «Ingen» as information by Story 2.4's rule (AD-18); the check page uses the same rule.
+  - `[false]` `[reject]` Keyboard order on the check page unverified (intent-alignment) — MT-37: six «Endre», «Send svaret», «Tilbake», `tel:` links, outline solid.
 
 ## Design Notes
 
@@ -137,3 +171,24 @@ deferred: []
 - `uv run pytest` -- expected: all green.
 - `uv run ruff check` and `uv run ruff format --check` -- expected: no findings.
 - `uv run djlint --check .` -- expected: no findings.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** Step 6 «Fjelltur fredag» asks «Ja», «Nei» or «Kanskje» of each coming person present on Friday (FR-17) and is skipped when nobody is; the draft cookie is format 5 with `hike`. The check page «Se over svaret før du sender» shows the «Obs» notice, one block per applicable step with an «Endre» link (hidden context), the FR-28 warning from `not_saved`, the household total and «Send svaret» above «Tilbake» (FR-21, FR-28, UX-DR23). «Endre» adds `?fra=se-over`, so «Fortsett» returns to the check page through any reopened steps. Nothing is written; sending is Story 2.6a.
+
+**Files changed:**
+- `wedding/rules/days.py` (`joins_hike`), `wedding/rules/answer.py` — the hike rule.
+- `wedding/rsvp/draft.py`, `steps.py`, `forms.py`, `views.py`, `summary.py`, `text.py` — draft format 5, step 6, the check page, the `fra` return rule.
+- `wedding/rsvp/templates/rsvp/check.html`, `includes/hike_fields.html`, `step.html`; `static/css/site.css`.
+- `tests/test_rsvp_hike_check.py` (new), `test_answer_rules.py`, `test_rsvp_draft.py`, `test_form_steps.py`, `test_rsvp_who_is_coming.py`, `test_guest_privacy.py`.
+- README, ARCHITECTURE-SPINE, DESIGN.md, EXPERIENCE.md, deferred-work.md, docs/manual-test-plan.md.
+
+**Review:** 25 findings: 10 patched (circular import, `joins_hike`, `fra` kept through gate redirects, no empty-note line, new tests, doc fixes), 1 deferred to 2.6a (AD-8 total snapshot), 14 rejected with reasons.
+
+**Follow-up review recommendation:** false. No high finding; the medium patches are covered by new tests (fresh-interpreter import, note-only line) and the browser checks were re-run after the patches.
+
+**Verification:** `uv run pytest` 1158 passed; ruff, ruff format and djlint clean; MT-1 (2.5), MT-36, MT-37 and MT-38 run by Claude with Playwright 1.56.1 in Edge after the patches.
+
+**Residual risks:** «Send svaret» does nothing until Story 2.6a; the per-line prices of the mockup are left out (only the household total, AD-12), recorded in DESIGN.md.
