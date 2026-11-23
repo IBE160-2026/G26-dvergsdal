@@ -375,8 +375,13 @@ def test_the_check_page_in_order(client, seeded):
     assert re.findall(r"<script[^>]*>", html) == [
         '<script src="/static/js/rsvp-send.js" defer></script>'[:-9]
     ]
-    # AD-8: no hidden field but the CSRF token.
-    assert re.findall(r'type="hidden" name="(\w+)"', html) == ["csrfmiddlewaretoken"]
+    # AD-8: no hidden field holds an answer; Story 2.6c adds the one-time
+    # submission id and the total shown (AD-7, AD-20).
+    assert re.findall(r'type="hidden" name="(\w+)"', html) == [
+        "csrfmiddlewaretoken",
+        "innsending",
+        "sum",
+    ]
 
 
 def test_skipped_answers_read_ikke_oppgitt_and_fr_28_warns(client, seeded):
