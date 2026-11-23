@@ -1,11 +1,11 @@
-"""The RSVP draft cookie (Stories 2.1 to 2.3; AD-8).
+"""The RSVP draft cookie (Stories 2.1 to 2.4; AD-8).
 
 FR-78, AD-8: a round trip through `rsvp_draft`, its attributes (path `/<code>/`,
 HttpOnly, SameSite=Lax, Secure only in production, the 90-day backstop), and
 every kind of broken draft: each is deleted with the same path and the form
 starts empty, never with a server error. Format 2 (Story 2.2) added `whole`
-and `days`, format 3 (Story 2.3) `night` and `meals`; a format 1 or 2 cookie
-is broken. The step flow itself is in
+and `days`, format 3 (Story 2.3) `night` and `meals`, format 4 (Story 2.4)
+`alg`, `cons`, `conf` and `long`; a format 1, 2 or 3 cookie is broken. The step flow itself is in
 test_rsvp_who_is_coming.py.
 """
 
@@ -37,7 +37,7 @@ def _ids(code: str) -> list[int]:
 def _payload(**changes) -> dict:
     sigmund, bestemor = _ids(SIGMUND)
     payload = {
-        "v": 3,
+        "v": 4,
         "started": "2026-11-21T10:00:00+00:00",
         "rev": 0,
         "resp": sigmund,
@@ -47,6 +47,10 @@ def _payload(**changes) -> dict:
         "days": {},
         "night": {},
         "meals": {},
+        "alg": {},
+        "cons": {},
+        "conf": [],
+        "long": [],
     }
     return payload | changes
 
@@ -68,7 +72,7 @@ def _post_valid(client):
 
 def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     """AD-8: path `/<code>/`, HttpOnly, SameSite=Lax, not Secure locally, 90 days;
-    the payload has format 3, the household revision, the respondent, everyone's
+    the payload has format 4, the household revision, the respondent, everyone's
     attendance and step 1 done."""
     sigmund, bestemor = _ids(SIGMUND)
     response = _post_valid(client)
@@ -80,7 +84,7 @@ def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     assert not cookie["secure"]
     assert cookie["max-age"] == NINETY_DAYS
     payload = signing.loads(cookie.value, salt=SALT)
-    assert payload["v"] == 3
+    assert payload["v"] == 4
     assert payload["rev"] == 0
     assert payload["resp"] == sigmund
     assert payload["att"] == {str(sigmund): True, str(bestemor): False}
@@ -89,6 +93,10 @@ def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     assert payload["days"] == {}
     assert payload["night"] == {}
     assert payload["meals"] == {}
+    assert payload["alg"] == {}
+    assert payload["cons"] == {}
+    assert payload["conf"] == []
+    assert payload["long"] == []
     assert payload["started"].endswith("+00:00")
 
 
@@ -108,12 +116,50 @@ def test_round_trip_keeps_started_and_revision(client, seeded):
     assert payload["done"] == ["who"]
 
 
+def _note(seed: int) -> str:
+    """A deterministic 200-character note of varied text with æøå, different per seed."""
+    words = (
+        "laktose",
+        "blåbær",
+        "nøtter",
+        "rømme",
+        "ærter",
+        "sjokolade",
+        "kanel",
+        "fløte",
+        "selleri",
+        "sennep",
+        "sesam",
+        "egg",
+        "soya",
+        "løk",
+        "hvitløk",
+        "rå",
+        "gulrot",
+        "østers",
+        "krabbe",
+        "mandel",
+        "hasselnøtt",
+        "peanøtt",
+        "æble",
+        "kiwi",
+        "mais",
+    )
+    out, step = [], seed * 7 + 3
+    while len(" ".join(out)) < 200:
+        step = (step * 31 + 17) % 997
+        out.append(f"{words[step % len(words)]}{step}")
+    return " ".join(out)[:200]
+
+
 def test_a_full_draft_for_eight_fits_in_a_cookie():
-    """AD-8: a household is at most 8, and its draft, with every day, a stay and
-    every meal for everyone, stays below 4 KB."""
+    """AD-8: a household is at most 8, and its draft, with every day, a stay,
+    every meal, every allergy category, a 200-character note with æøå
+    (different per person), consent «Ja» and a confirmation for everyone,
+    stays below 4 KB (Story 2.4)."""
     ids = range(10_000_000, 10_000_008)
     payload = {
-        "v": 3,
+        "v": 4,
         "started": "2026-11-21T10:00:00.123456+00:00",
         "rev": 123,
         "resp": ids[0],
@@ -126,7 +172,19 @@ def test_a_full_draft_for_eight_fits_in_a_cookie():
             str(guest_id): ["friday_dinner", "saturday_breakfast", "sunday_breakfast"]
             for guest_id in ids
         },
+        "alg": {
+            str(guest_id): {
+                "c": ["gluten", "lactose", "nuts", "shellfish", "vegetarian", "vegan", "other"],
+                "n": False,
+                "t": _note(index),
+            }
+            for index, guest_id in enumerate(ids)
+        },
+        "cons": {str(guest_id): True for guest_id in ids},
+        "conf": list(ids),
+        "long": [],
     }
+    assert all(len(entry["t"]) == 200 for entry in payload["alg"].values())
     assert len(_signed(payload)) < 4096
 
 
@@ -160,6 +218,9 @@ BROKEN = {
     "v 1 (Story 2.1)": lambda: _signed(_payload(v=1)),
     "v 2 (Story 2.2)": lambda: _signed(
         {k: v for k, v in _payload(v=2).items() if k not in ("night", "meals")}
+    ),
+    "v 3 (Story 2.3)": lambda: _signed(
+        {k: v for k, v in _payload(v=3).items() if k not in ("alg", "cons", "conf", "long")}
     ),
     "v true": lambda: _signed(_payload(v=True)),
     "missing key": lambda: _signed({k: v for k, v in _payload().items() if k != "rev"}),
@@ -206,6 +267,31 @@ BROKEN = {
     "meals for a non-member": lambda: _signed(
         _payload(meals={str(_ids(ARILD)[0]): ["friday_dinner"]})
     ),
+    "missing alg": lambda: _signed({k: v for k, v in _payload().items() if k != "alg"}),
+    "alg for a non-member": lambda: _signed(
+        _payload(alg={str(_ids(ARILD)[0]): {"c": [], "n": True, "t": ""}})
+    ),
+    "alg an unknown category": lambda: _signed(
+        _payload(alg={str(_ids(SIGMUND)[0]): {"c": ["fish"], "n": False, "t": ""}})
+    ),
+    "alg a category twice": lambda: _signed(
+        _payload(alg={str(_ids(SIGMUND)[0]): {"c": ["nuts", "nuts"], "n": False, "t": ""}})
+    ),
+    "alg a note of 201": lambda: _signed(
+        _payload(alg={str(_ids(SIGMUND)[0]): {"c": [], "n": False, "t": "x" * 201}})
+    ),
+    "alg none not a bool": lambda: _signed(
+        _payload(alg={str(_ids(SIGMUND)[0]): {"c": [], "n": "yes", "t": ""}})
+    ),
+    "alg a missing part": lambda: _signed(
+        _payload(alg={str(_ids(SIGMUND)[0]): {"c": [], "n": False}})
+    ),
+    "cons not a bool": lambda: _signed(_payload(cons={str(_ids(SIGMUND)[0]): "maybe"})),
+    "cons for a non-member": lambda: _signed(_payload(cons={str(_ids(ARILD)[0]): True})),
+    "conf not a list": lambda: _signed(_payload(conf={str(_ids(SIGMUND)[0]): True})),
+    "conf a non-member": lambda: _signed(_payload(conf=[_ids(ARILD)[0]])),
+    "conf an id twice": lambda: _signed(_payload(conf=[_ids(SIGMUND)[0]] * 2)),
+    "long a string id": lambda: _signed(_payload(long=[str(_ids(SIGMUND)[0])])),
 }
 
 
