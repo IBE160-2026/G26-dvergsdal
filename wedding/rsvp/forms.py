@@ -103,18 +103,6 @@ class DaysForm(forms.Form):
     def __init__(self, coming: list[tuple[int, str]], *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.coming = coming
-        self.fields[WHOLE_FIELD] = forms.ChoiceField(
-            choices=WHOLE_CHOICES,
-            widget=forms.RadioSelect,
-            error_messages={"required": self.WHOLE_ERROR, "invalid_choice": self.WHOLE_ERROR},
-        )
-        for guest_id, name in coming:
-            self.fields[days_field(guest_id)] = forms.MultipleChoiceField(
-                label=name,
-                choices=[(day, day) for day in DAY_KEYS],
-                widget=forms.CheckboxSelectMultiple,
-                required=False,
-            )
 
     @staticmethod
     def day_error_text(name: str, problem: str) -> str:

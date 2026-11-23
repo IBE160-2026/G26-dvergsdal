@@ -419,6 +419,9 @@ def _later_step(
     """
     if draft is None or "who" not in draft.done:
         return HttpResponseRedirect(mount.url("who")), None
+    # FR-75, AD-7: the stored `done` is not trusted on its own; a member added
+    # after step 2 has no days, so step 2 is not done for the gate.
+    draft = _settled(draft, members)
     steps = _steps(draft, members)
     if step != CHECK and step not in steps:
         return HttpResponseRedirect(mount.url(next_step(steps, step))), None

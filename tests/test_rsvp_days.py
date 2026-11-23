@@ -22,6 +22,7 @@ from django.test import Client
 from django.test.utils import CaptureQueriesContext
 
 from tests.helpers import checked_radios, page_text, row_counts, ticked_boxes
+from wedding.links import new_code
 from wedding.models import Guest
 from wedding.rsvp.draft import COOKIE_NAME, SALT
 
@@ -470,3 +471,66 @@ def test_one_person_has_one_group(client, seeded):
     client.post(_url(SIGMUND, "dager"), {"whole": "no"})
     html = client.get(_url(SIGMUND, "dager")).content.decode()
     assert [_legend(group) for group in _day_groups(html)] == ["Sigmund"]
+
+
+def test_no_day_for_anyone_after_the_reveal(client, seeded):
+    """FR-14, FR-22: «Nei» again with no box ticked is an error for every coming
+    person, and step 2 stays not done."""
+    _arild_revealed(client)
+    response = client.post(_url(ARILD, "dager"), {"whole": "no"})
+    assert response.status_code == 303
+    assert response["Location"] == f"{_url(ARILD, 'dager')}?feil=1"
+    assert "days" not in _draft(response)["done"]
+    html = client.get(response["Location"]).content.decode()
+    text = page_text(html)
+    links = re.findall(r'<li>\s*<a href="(#[^"]+)">([^<]+)</a>\s*</li>', html)
+    ids = _ids(ARILD)
+    assert links == [
+        (f"#days_{guest_id}_fri", f"Velg dager for {name}")
+        for guest_id, name in zip(ids, ["Arild", "Marie", "Filippa"], strict=False)
+    ]
+    for name in ("Arild", "Marie", "Filippa"):
+        assert f"Feil: Velg minst én dag for {name}." in text
+
+
+def test_changing_ja_to_nei_reopens_the_day_groups(client, seeded):
+    """FR-14, FR-75: «Nei» after «Ja» was done reveals the groups and step 2 is
+    no longer done."""
+    _arild_to_step_2(client)
+    client.post(_url(ARILD, "dager"), {"whole": "yes"})
+    response = client.post(_url(ARILD, "dager"), {"whole": "no"})
+    assert response["Location"] == f"{_url(ARILD, 'dager')}#velg-dager"
+    draft = _draft(response)
+    assert draft["whole"] is False
+    assert "days" not in draft["done"]
+    assert len(_day_groups(client.get(_url(ARILD, "dager")).content.decode())) == 3
+
+
+def test_changing_nei_to_ja_drops_the_days(client, seeded):
+    """FR-75, UX-DR19: «Ja» after «Nei» with days empties the days, and the steps
+    are the whole weekend's again."""
+    synne = _ids(SYNNE)[0]
+    client.post(_url(SYNNE), _answers(SYNNE, True))
+    client.post(_url(SYNNE, "dager"), {"whole": "no"})
+    client.post(_url(SYNNE, "dager"), {"whole": "no", f"days_{synne}": "sat"})
+    response = client.post(_url(SYNNE, "dager"), {"whole": "yes"})
+    assert response["Location"] == _url(SYNNE, "overnatting")
+    draft = _draft(response)
+    assert draft["whole"] is True
+    assert draft["days"] == {}
+    assert draft["done"] == ["who", "days"]
+    html = client.get(response["Location"]).content.decode()
+    assert _progress(html) == "Steg 3 av 6: Overnatting"
+
+
+@pytest.mark.parametrize("slug", ["overnatting", "se-over"])
+def test_a_member_added_after_step_2_reopens_it(client, seeded, slug):
+    """FR-75, AD-7: a guest added to the household after «Nei» with days has no
+    days, so the gate sends a later step back to step 2."""
+    _arild_revealed(client)
+    client.post(_url(ARILD, "dager"), _days(ARILD, a=ALL, b=ALL, c=["sat", "sun"]))
+    household = Guest.objects.get(code=ARILD).household
+    Guest.objects.create(household=household, name="Ny", code=new_code())
+    response = client.get(_url(ARILD, slug))
+    assert response.status_code == 302
+    assert response["Location"] == _url(ARILD, "dager")

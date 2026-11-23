@@ -546,6 +546,19 @@ def test_csrf_failure_on_a_frame_shows_the_frame(seeded):
     assert CSRF_NOTICE in page_text(html)
 
 
+def test_csrf_failure_on_a_frame_before_step_2_is_the_generic_page(seeded):
+    """UX-DR52, AD-7: with step 2 not done, the overnight frame cannot have been
+    posted from, so a CSRF failure there gets the generic page, not the frame."""
+    client = Client()
+    client.post(STEP_1, _answers(SIGMUND, True, True))
+    client.handler.enforce_csrf_checks = True
+    response = client.post(OVERNIGHT, {"action": "switch"})
+    assert response.status_code == 403
+    html = response.content.decode()
+    assert '<h1 class="private-invitation__heading">Skjemaet ble ikke sendt</h1>' in html
+    assert "<h1>Overnatting</h1>" not in html
+
+
 @pytest.mark.parametrize(
     "path",
     [

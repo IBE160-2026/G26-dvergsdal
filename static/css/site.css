@@ -1046,7 +1046,7 @@ a:active {
 }
 
 .day-list li + li {
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
 
 .day-groups__heading {
