@@ -4,7 +4,9 @@ Story 1.1 added the custom `User`, so that it is `AUTH_USER_MODEL` from the very
 first migration (AD-10). Story 1.2 adds households, guests and the single-row
 settings. Story 1.3 marks the households and users the seed command creates as
 test data (FR-72, AD-16). Story 2.6a adds a household's sent answer,
-`HouseholdAnswer` and one `PersonAnswer` per guest (FR-74, AD-4). Each later
+`HouseholdAnswer` and one `PersonAnswer` per guest (FR-74, AD-4). Story 2.6b
+adds each guest's `Allergy` and the append-only `Consent` events (FR-26, FR-29,
+AD-18). Each later
 table comes with the story that needs it.
 
 Only `wedding/services/` writes these models (AD-3), and only facts are stored,
@@ -14,6 +16,7 @@ never derived values such as totals or a household's display name (AD-4).
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from wedding.rules.allergies import NOTE_MAX
 from wedding.rules.days import HIKE_ANSWERS, HIKE_LABELS
 
 PHONE_MAX_LENGTH = 30
@@ -181,3 +184,78 @@ class PersonAnswer(models.Model):
 
     def __str__(self):
         return f"Svar fra gjest {self.guest_id}"
+
+
+class Allergy(models.Model):
+    """A guest's current allergy data, kept only with their «Ja» to consent.
+
+    Story 2.6b, FR-25, FR-26, FR-29, AD-4, AD-18. One boolean per
+    `ALLERGY_KEYS` category, «Ingen allergier eller matbehov» (`none`) and the
+    note. Written only by `wedding.services.answers.send_answer`; deleted on
+    «Nei» or when the guest stops coming. Nothing derived is stored.
+    """
+
+    guest = models.OneToOneField(
+        Guest, on_delete=models.CASCADE, related_name="allergy", verbose_name="gjest"
+    )
+    gluten = models.BooleanField("gluten", default=False)
+    lactose = models.BooleanField("laktose", default=False)
+    nuts = models.BooleanField("nøtter", default=False)
+    shellfish = models.BooleanField("skalldyr", default=False)
+    vegetarian = models.BooleanField("vegetar", default=False)
+    vegan = models.BooleanField("vegan", default=False)
+    other = models.BooleanField("annet", default=False)
+    none = models.BooleanField("ingen allergier eller matbehov", default=False)
+    note = models.CharField("merknad", max_length=NOTE_MAX, blank=True)
+
+    class Meta:
+        ordering = ("guest_id",)
+        verbose_name = "allergi"
+        verbose_name_plural = "allergier"
+
+    def __str__(self):
+        return f"Allergi for gjest {self.guest_id}"
+
+
+class Consent(models.Model):
+    """One consent event for a guest's allergy data (Story 2.6b, FR-26, FR-29, AD-18).
+
+    Append-only: given, refused or withdrawn (Story 7.2), when, by whom (the
+    respondent guest, or a user for the couple's override in Story 4.4, and
+    the name as text, kept if they are removed) and `CONSENT_TEXT_VERSION`.
+    """
+
+    GIVEN = "given"
+    REFUSED = "refused"
+    WITHDRAWN = "withdrawn"
+    EVENTS = ((GIVEN, "gitt"), (REFUSED, "nektet"), (WITHDRAWN, "trukket tilbake"))
+
+    guest = models.ForeignKey(
+        Guest, on_delete=models.CASCADE, related_name="consents", verbose_name="gjest"
+    )
+    event = models.CharField("hendelse", max_length=10, choices=EVENTS)
+    at = models.DateTimeField("tidspunkt")
+    given_by = models.ForeignKey(
+        Guest,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="+",
+        verbose_name="svart av gjest",
+    )
+    given_by_user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="+",
+        verbose_name="svart av bruker",
+    )
+    given_by_name = models.CharField("svart av (navn)", max_length=100)
+    text_version = models.CharField("versjon av samtykketeksten", max_length=20)
+
+    class Meta:
+        ordering = ("at", "pk")
+        verbose_name = "samtykke"
+        verbose_name_plural = "samtykker"
+
+    def __str__(self):
+        return f"Samtykke {self.pk}"
