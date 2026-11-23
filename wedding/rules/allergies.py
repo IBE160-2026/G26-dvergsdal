@@ -79,3 +79,35 @@ def not_saved(
         for guest_id in coming
         if has_allergy_info(allergies.get(guest_id, EMPTY)) and consent.get(guest_id) is not True
     )
+
+
+# AD-18, Story 2.6b: what sending does with each guest's stored allergy data.
+STORE = "store"
+DELETE = "delete"
+KEEP = "keep"
+
+
+def consent_outcomes(
+    guest_ids: Iterable[int],
+    coming: Iterable[int],
+    allergies: Mapping[int, AllergyEntry],
+    consent: Mapping[int, bool],
+) -> dict[int, str]:
+    """FR-26, FR-75, NFR-3, AD-18 (Story 2.6b): each guest's outcome on a send.
+
+    Not coming: `DELETE` (no health data for someone who does not come).
+    Coming with consent «Ja»: `STORE` (the entry in `allergies`, or removal
+    when it is empty); «Nei»: `DELETE`; unanswered: `KEEP` (a re-send without
+    a consent answer leaves the stored data unchanged).
+    """
+    coming = set(coming)
+    outcomes = {}
+    for guest_id in guest_ids:
+        given = consent.get(guest_id)
+        if guest_id not in coming or given is False:
+            outcomes[guest_id] = DELETE
+        elif given is True:
+            outcomes[guest_id] = STORE
+        else:
+            outcomes[guest_id] = KEEP
+    return outcomes

@@ -7,6 +7,8 @@ draft cookie deleted, 303 to `sendt/`), a switched respondent, the sent page
 cached) and its 302 before any answer, the deadline passing at send, a member
 missing from the draft, a POST without `action=send`, an unfinished step, a
 CSRF failure on the check page, and the busy-state hooks on the check page.
+Story 2.6b (FR-26, FR-28, AD-18): allergies stored only with «Ja», and a
+re-send with consent unanswered warned about and keeping the stored data.
 The service is tested in test_send_answer.py; the browser runs are MT-39 to
 MT-41 in docs/manual-test-plan.md.
 """
@@ -23,7 +25,7 @@ from django.test import Client
 from tests.helpers import page_text, row_counts
 from tests.test_rsvp_hike_check import _arild_to_hike, _ids, _sigmund_to_check, _url
 from wedding.actors import SYSTEM
-from wedding.models import Guest, HouseholdAnswer, PersonAnswer
+from wedding.models import Allergy, Consent, Guest, HouseholdAnswer, PersonAnswer
 from wedding.rsvp.draft import COOKIE_NAME
 from wedding.rules.answer import Answer
 from wedding.services.answers import send_answer
@@ -216,3 +218,53 @@ def test_the_check_page_carries_the_busy_state(client, seeded):
     assert 'setAttribute("aria-disabled", "true")' in script
     assert ".disabled" not in script
     assert "persisted" in script
+
+
+def _sigmund_with_allergies(client, allergies: dict) -> None:
+    """Story 2.6b: Sigmund's household through every step to the check page,
+    with `allergies` posted on step 5."""
+    sigmund, bestemor = _ids(SIGMUND)
+    client.post(_url(SIGMUND), {f"attendance_{sigmund}": "yes", f"attendance_{bestemor}": "yes"})
+    client.post(_url(SIGMUND, "dager"), {"whole": "yes"})
+    client.post(
+        _url(SIGMUND, "overnatting"),
+        {f"overnight_{sigmund}": "yes", f"overnight_{bestemor}": "yes"},
+    )
+    client.post(_url(SIGMUND, "maltider"), {"action": "continue"})
+    response = client.post(_url(SIGMUND, "allergier"), allergies | {"action": "continue"})
+    assert response["Location"] == _url(SIGMUND, "fjelltur")
+    response = client.post(
+        _url(SIGMUND, "fjelltur"), {f"hike_{sigmund}": "maybe", f"hike_{bestemor}": "no"}
+    )
+    assert response["Location"] == _url(SIGMUND, "se-over")
+
+
+def test_allergies_are_stored_only_with_consent(client, seeded):
+    """FR-26, FR-28, FR-29, AD-18 (Story 2.6b, epics AC): Sigmund gluten «Ja»
+    and bestemor nuts «Nei» store only Sigmund's data and two consent events;
+    a re-send from a fresh draft that changes Sigmund's data with consent
+    unanswered warns on the check page and keeps his stored data."""
+    sigmund, bestemor = _ids(SIGMUND)
+    _sigmund_with_allergies(
+        client,
+        {
+            f"allergies_{sigmund}": "gluten",
+            f"consent_{sigmund}": "yes",
+            f"allergies_{bestemor}": "nuts",
+            f"consent_{bestemor}": "no",
+        },
+    )
+    assert _send(client).status_code == 303
+    assert list(Allergy.objects.values_list("guest_id", "gluten", "nuts")) == [
+        (sigmund, True, False)
+    ]
+    events = Consent.objects.order_by("guest_id").values_list("guest_id", "event")
+    assert list(events) == [(sigmund, Consent.GIVEN), (bestemor, Consent.REFUSED)]
+
+    _sigmund_with_allergies(client, {f"allergies_{sigmund}": ["gluten", "lactose"]})
+    text = page_text(client.get(_url(SIGMUND, "se-over")).content.decode())
+    assert "Allergiopplysningene om Sigmund blir ikke lagret" in text
+    assert _send(client).status_code == 303
+    allergy = Allergy.objects.get()
+    assert (allergy.guest_id, allergy.gluten, allergy.lactose) == (sigmund, True, False)
+    assert Consent.objects.count() == 2

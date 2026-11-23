@@ -28,7 +28,9 @@ FR-28, UX-DR23, Story 2.5) shows the answer from `check_parts`
 «Send svaret» (FR-74, AD-3, AD-9, Story 2.6a) posts `action=send` to the
 check page, which calls `wedding.services.answers.send_answer`, deletes the
 draft and redirects (303) to the sent page `<base>/sendt/`; that is the only
-database write the form makes.
+database write the form makes. Story 2.6b: the same send stores each
+person's allergies only with their «Ja» and records each consent answer
+(FR-26, FR-29, AD-18).
 A later step opens only when every applicable step before it is done (`first_unfinished`).
 Every draft write runs `normalise_answer` (FR-75), so a person who stops
 coming loses their days, stay, meals and allergy answers, steps 2, 3 and 5

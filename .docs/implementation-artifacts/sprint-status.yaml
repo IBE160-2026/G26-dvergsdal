@@ -55,7 +55,7 @@ development_status:
   2-4-allergies-and-consent: done
   2-5-the-friday-hike-and-the-check-page: done
   2-6a-send-the-answer: done
-  2-6b-allergies-are-stored-only-with-consent: backlog
+  2-6b-allergies-are-stored-only-with-consent: done
   2-6c-a-send-that-fails-or-repeats-is-safe: backlog
   2-6d-test-data-with-answers-and-a-real-browser-send: backlog
   2-7-the-receipt-and-how-to-pay: backlog
