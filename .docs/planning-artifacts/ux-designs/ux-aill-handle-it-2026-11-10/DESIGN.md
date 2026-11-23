@@ -69,7 +69,7 @@ typography:
     fontSize: 20px
     fontWeight: '400'
     lineHeight: '1.3'
-    letterSpacing: '0.14em'
+    letterSpacing: '0.08em'
   lead-in:
     fontFamily: 'EB Garamond'
     fontSize: 24px
@@ -149,9 +149,9 @@ spacing:
   gutter-narrow: 8px
   gutter-small-phone: 12px
   hero-padding-inline-small-phone: 10px
-  page-padding-top: 42px
-  hero-padding-top: 22px
-  hero-padding-bottom: 16px
+  page-padding-top: 46px
+  hero-padding-top: 26px
+  hero-padding-bottom: 22px
   hero-padding-inline: 20px
   admin-panel-padding: 12px
   admin-gap: 8px
@@ -261,6 +261,7 @@ components:
     image: 'mockups/ikoner/ikon-01-fjelltur.png … ikon-12-avreise.png (Rikke, image tool; cut out and recoloured to {colors.ink})'
     size: 56px
     position: 'above the time, on the line side, aligned with the text, 4px below'
+    forced-colors: 'on a white circle (forced-color-adjust: none, 4px padding) so the dark PNG stays visible on a dark contrast theme (Rikke, 2026-11-21)'
   good-to-know:
     rule: '1px rgba(59,55,47,.25) above, 14px above the rule, 10px below'
     heading: '{typography.body}, italic («Godt å vite»)'
@@ -543,7 +544,9 @@ The whole hero sheet fits above the fold with 8px to spare, so these values are 
 
 *(**[forslag]** Changed 2026-11-20 in Story 1.5: in the build, with the self-hosted EB Garamond, the place line «Hardingasete · Hardanger» in small capitals at 0.14em is about 307px wide and wraps to two lines in the 288px (360) and 276px (320) content box, which the mockup's no-break spaces hid. With the spacing above, the hero ended at 578px at both 360 × 560 and 320 × 568, below the fold, so the hero's vertical spacing was tightened by 30px to end at about 548px: `page-padding-top` 46 → 42px (the seal's top stays 6px below the nav bar), `hero-padding-top` 26 → 22px, `hero-padding-bottom` 22 → 16px, the illustration's gap below 4 → 0px, the invites line and the divider 2 → 0px, the household line 6 → 2px and the deadline line 4 → 0px. The names, the type sizes and the place line's letter spacing are unchanged. The table above is the 2026-11-14 measurement; MT-11 re-measures the build. Not yet seen by Rikke: it goes to her for approval, as every deviation from the approved design does.)*
 
-Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal centred with its top 36px above the sheet's top edge; illustration pulled up 12px (its top is empty sky) with no gap below; the invites line directly below the names; the divider directly below; 2px above the household line, none above the deadline line (tightened 2026-11-20, see the note above). Topic rows: 20px above, 6px below, 14px between frame and text; the «Les mer» target supplies the bottom space. Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero and RSVP sheet is centred, the details heading too; topic text is left-aligned beside its picture; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
+*(Changed 2026-11-21, Rikke decided: she compared screenshots of the build at 360 × 560 (A: the 30px tightening above, place on two lines; B: the place line at 0.08em letter spacing on one line, with the approved spacing back) and chose B. The place line's `letterSpacing` is now 0.08em, and the 2026-11-14 spacing returns: `page-padding-top` 46px, `hero-padding-top` 26px, `hero-padding-bottom` 22px, 4px below the illustration, 2px below the invites line and the divider, 6px above the household line and 4px above the deadline line. Measured with these values in the 1.7 build: the place line is one line (26px) and the hero ends at 550px, above the 560px fold. The date line keeps 0.14em. Not built yet: see `deferred-work.md`.)*
+
+Hero spacing: padding `{spacing.hero-padding-top}` / `{spacing.hero-padding-inline}` / `{spacing.hero-padding-bottom}`; seal centred with its top 36px above the sheet's top edge; illustration pulled up 12px (its top is empty sky) with 4px below; the invites line directly below the names; 2px below it and below the divider; 6px above the household line, 4px above the deadline line (restored 2026-11-21, see the notes above). Topic rows: 20px above, 6px below, 14px between frame and text; the «Les mer» target supplies the bottom space. Scale is 4-based: `{spacing.1}`–`{spacing.7}`. Text in the hero and RSVP sheet is centred, the details heading too; topic text is left-aligned beside its picture; form steps, check page, receipt and admin are left-aligned (as rendered in the key-screen mockups below).
 
 Sections are separated by green showing between the sheets and by the lily garlands around «Alt om helgen». This answers inspiration 08's "not one long page on one identical background".
 
@@ -664,7 +667,7 @@ Frontmatter key in brackets where one exists.
 | **Jump links** [`jump-links`] | A `nav` labelled «Hopp til» under the info page title: short words in small capitals, 19px, centred in balanced lines (two or three words each), a decorative middle dot between words on the same line, no underline (they read like the nav words), each ≥ 44px tall (`{spacing.target-min}`; raised from 40px after review A2-05). Each balanced line is its own list. Rendered in [mockups/info-praktisk.html](mockups/info-praktisk.html). A large list with underlined words (round 2) was «rotete og stort»; closed sheets that open (round 3) were «ikke så fint og koselig». |
 | **Info sheet** [`info-sheet`] | One paper sheet per part of an info page: `heading-card` *italic* with a 1px ink hairline under it, then `body` text; facts lead with a 600-weight label («**Adresse:** …»); lists keep their bullets; links are underlined; one outlined dark-green button where a part needs an action («Åpne veibeskrivelse i kart»). An optional lace-framed photo, 220px, centred at the top of the body. Sheets are 20px apart. |
 | **Programme timeline** [`programme-timeline`] | One ordered list per day: a thin centre line, a 6px ink dot per event, events alternating left (right-aligned) and right (left-aligned), each overlapping the one before by 36px so the timeline stays compact. Each event: icon, time (`small`, lining figures), short name (`body` *italic*). Rendered in [mockups/info-program.html](mockups/info-program.html). |
-| **Programme icon** [`programme-icon`] | Rikke's line drawings ([egne-bilder/14-Icons.jpg](../../ux/egne-bilder/14-Icons.jpg)), cut out to one PNG each and recoloured to `ink`, 56px, above the time. Decorative (`alt=""`): time and name carry the meaning. The same icon may repeat (breakfast on Saturday and Sunday). |
+| **Programme icon** [`programme-icon`] | Rikke's line drawings ([egne-bilder/14-Icons.jpg](../../ux/egne-bilder/14-Icons.jpg)), cut out to one PNG each and recoloured to `ink`, 56px, above the time. Decorative (`alt=""`): time and name carry the meaning. The same icon may repeat (breakfast on Saturday and Sunday). Under forced colours each icon sits on a white circle, because the dark PNG almost disappears on a dark contrast theme's black sheet *(Rikke chose this on 2026-11-21 from screenshots with and without the circle; not built yet, see `deferred-work.md`)*. |
 | **«Godt å vite»** [`good-to-know`] | At the foot of each day sheet, after a faint hairline: italic «Godt å vite», then a bulleted list of what costs money («**Frokosten betales selv:** [x] kr.»), what to bring and who covers what. |
 | **Story sheet** [`story-sheet`] | *Vår historie*: one paper sheet without its own heading (the page title says it), a lace-framed photo (220px), chapters each opened by an italic time · place line, an italic centred closing sentence, and the names as a signature in Imperial Script 40px. Rendered in [mockups/info-om-oss.html](mockups/info-om-oss.html). |
 | **Voluntary line** [`voluntary-line`] | One italic cream line under the jump links on Programmet: «Alt i programmet er frivillig. Bli med på det dere har lyst til.» |
