@@ -2,13 +2,15 @@
 
 Only rows marked `is_test_data` are removed: households, with everything in
 them (also a guest added to one later), and admin users. Households and users
-the seed did not make are never removed.
+the seed did not make are never removed. Story 2.6d: the test households'
+answer `Submission` rows go first, since `Submission.object_id` is a plain id
+that does not cascade (AD-4, AD-20).
 """
 
 from django.db import transaction
 
 from wedding.actors import Actor, SystemActor
-from wedding.models import Household, User
+from wedding.models import Household, HouseholdAnswer, Submission, User
 from wedding.services.exceptions import NotAllowed
 
 
@@ -17,10 +19,20 @@ def reset_test_data(actor: Actor) -> None:
 
     Only the system actor may reset. Story 5.2 adds seeded payments; AD-4 forbids
     deleting a household with payments, so that story makes this service void the
-    test households' payments first.
+    test households' payments first. Story 2.6d (AD-20): the `Submission` rows
+    that point at a test household's answer are deleted first, and so are answer
+    `Submission`s whose answer no longer exists (left by seeds run before 2.6d);
+    real ones stay.
     """
     with transaction.atomic():
         if not isinstance(actor, SystemActor):
             raise NotAllowed()
+        test_answers = HouseholdAnswer.objects.filter(household__is_test_data=True)
+        Submission.objects.filter(
+            kind=Submission.ANSWER, object_id__in=test_answers.values("pk")
+        ).delete()
+        Submission.objects.filter(kind=Submission.ANSWER).exclude(
+            object_id__in=HouseholdAnswer.objects.values("pk")
+        ).delete()
         Household.objects.filter(is_test_data=True).delete()
         User.objects.filter(is_test_data=True).delete()

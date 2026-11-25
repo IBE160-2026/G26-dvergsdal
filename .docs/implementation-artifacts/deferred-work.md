@@ -97,6 +97,7 @@ Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the findin
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (R6, B9)
   summary: Story 2.6d (extends the seed): `seed_testdata` overwrites the single real `Settings` row every run (`seed_testdata.py:80`), although its docstring promises to replace only its own test data. Write settings only while the row still holds the migration placeholders, or say plainly in the help and output that settings are replaced. Also test the «Fant ikke eller kunne ikke lese» path (missing and invalid `seed.toml`) and assert the role labels «(brudeparet)» / «(hjelper)» in the printout.
   evidence: medium. Found by the edge-case and verification-gap lenses; the overwrite was confirmed in the code.
+  status: done in Story 2.6d. Settings stay replaced every run, on purpose: writing them only over the placeholders would freeze the deadline at the first run's date + 30 (epics 1.3). It is now stated plainly in the help, the printed line «Innstillingene er erstattet med testverdiene fra seed.toml.», the module docstring and README (`wedding/management/commands/seed_testdata.py`, `README.md`). `tests/test_seed_testdata.py` tests a missing and an invalid `seed.toml` and the «(brudeparet)» / «(hjelper)» labels.
 
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B5)
   summary: Story 4.5 (settings page): `update_settings` accepts a phone with no digit («ring meg»), and `tel_number` then returns "", so the contact silently vanishes from every guest page. Refuse a non-empty phone without a digit. Decide this together with the price-0 entry above.
@@ -267,6 +268,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
   summary: Story 2.6d: `seed_testdata` does not remove `Submission` rows, so they keep pointing at answers the seed deleted.
   evidence: Orchestrator, MT-45 database check; the Submission count grew across seeds.
+  status: done in Story 2.6d (`wedding/services/testdata.py` deletes the test households' answer `Submission`s before the households; `tests/test_seed_testdata.py` checks 6 test submissions after a second run and that a real one survives).
 
 - source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
   summary: Stories 4.x: the conflict notice names the last sender and time; once a revision can be bumped by something other than a send (guest moves, overrides, withdrawals), it must not name a send as the cause.
@@ -279,3 +281,11 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
   summary: Stories 4.x/7.2: `Submission.object_id` is a plain integer; decide what happens to `Submission` rows when a `HouseholdAnswer` is deleted.
   evidence: Blind Hunter; no deletion path exists yet.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6d-test-data-with-answers-and-a-real-browser-send.md`
+  summary: Story 3.5: Synne's nut allergy and her «Ja» to consent are stored by the seed until Story 7.2 loads the withdrawal, so `expected.toml` (`nuts = 0`, `nothing_stored = 4`) holds only after it. 3.5's counts against `expected.toml` must load the withdrawal first or be ordered after 7.2.
+  evidence: decided in the spec; `consent_withdrawn` is ignored by `seed_testdata` until Story 7.2.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6d-test-data-with-answers-and-a-real-browser-send.md`
+  summary: Stories 5.2 and 7.2: `reset_test_data` deletes only `kind=ANSWER` Submissions; widen it to the Submission kinds those stories add for test households, or they will be orphaned like the answer rows were before 2.6d.
+  evidence: Blind Hunter and Edge Case Hunter, 2.6d review; `wedding/services/testdata.py`.
