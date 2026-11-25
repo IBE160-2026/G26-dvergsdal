@@ -2,7 +2,8 @@
 title: 'Story 2.6c: A send that fails or repeats is safe'
 type: 'feature'
 created: '2026-11-24'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '379b53287e31fe6f4c8e74dea330b5a523a6a404'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -11,7 +12,15 @@ context:
   - '{project-root}/.docs/implementation-artifacts/spec-2-6a-send-the-answer.md'
 warnings:
   - oversized
-deferred: []
+deferred:
+- summary: "Story 2.6d: `seed_testdata` does not remove `Submission` rows, so they keep pointing at answers the seed deleted."
+  evidence: "Orchestrator, MT-45 database check: the Submission count grew across seeds."
+- summary: "Stories 4.x: the conflict notice names the last sender and time; once a revision can be bumped by something other than a send (guest moves, overrides, withdrawals), the notice must not name a send as the cause."
+  evidence: "Edge Case Hunter; today only sends bump the revision."
+- summary: "Story 4.4: the couple's mount gets the generic conflict notice (`_changed_text` for non-guest actors); give it a fitting text and a test."
+  evidence: "Blind Hunter; the couple's mount does not exist yet."
+- summary: "Stories 4.x/7.2: `Submission.object_id` is a plain integer; decide what happens to `Submission` rows when a `HouseholdAnswer` is deleted."
+  evidence: "Blind Hunter; no deletion path exists yet."
 ---
 
 <intent-contract>
@@ -82,25 +91,25 @@ deferred: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/models.py`, `wedding/migrations/0007_submission.py` — `Submission` (AD-20).
-- [ ] `wedding/services/exceptions.py` — `RevisionConflict`, `TotalChanged`, `ConsentTextChanged`.
-- [ ] `wedding/services/answers.py`, `wedding/services/consent.py` docstring — the checks and `Submission` write (AD-7, AD-9, AD-18, AD-20, NFR-1).
-- [ ] `wedding/rsvp/draft.py` — format 6 with `cv`.
-- [ ] `wedding/rsvp/views.py` — `cv` on step 5; hidden fields and notices on the check page; send branch mapping refusals and `DatabaseError`.
-- [ ] `wedding/rsvp/templates/rsvp/check.html`, `static/js/rsvp-send.js` — hidden fields, notices, fetch send with reset.
-- [ ] `tests/test_send_answer.py` — every matrix service row with `now` fixed; repeat returns the same object and adds no `Consent`/`PersonAnswer` change and no revision bump; a repeat after a re-send returns the re-send's answer; refused sends (conflict, total, consent text, deadline, other household's key) leave `Submission` count 0 and all rows unchanged; two keys at the same revision → second `RevisionConflict` with `revision` = 1; migration/model fields; `str()` has no name.
-- [ ] `tests/test_rsvp_send.py` — check page has `innsending` (a UUID, different on two GETs) and `sum` equal to the shown total; posting the same form twice → one `HouseholdAnswer`, one `Submission`, both 303 to `sendt/`; the same POST again without the draft cookie → 303 `sendt/`; second draft at old revision → 303 `?sending=endret`, Set-Cookie draft with new `rev` and no `cons`, GET shows the notice with «Sigmund» and the time, re-send succeeds; price changed in `Settings` between GET and POST → `?sending=sum`; `send_answer` monkeypatched to raise `OperationalError` → `?sending=feilet`, no draft deletion cookie, GET notice contains «Prøv igjen» and both seeded phones, `caplog` has no guest name; consent version monkeypatched in `wedding.services.answers` → `?sending=samtykke` and `cons` cleared; bad `innsending`/missing `sum` → 303 check, nothing written; unknown `?sending=x` shows no notice; step 5 POST writes `cv`; the CSRF-failure check page also carries the hidden fields.
-- [ ] `tests/test_rsvp_draft.py` — format 6 round trip with `cv`; format 5 broken; `cv` of wrong type or too long broken; 4 KB test with `cv`.
-- [ ] `docs/manual-test-plan.md` — Norwegian rows MT-45 to MT-49, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge (`channel: 'msedge'`)», before each `uv run manage.py seed_testdata` then `uv run manage.py runserver`, measured after `document.fonts.ready`. Base answer = MT-36 b) on `http://127.0.0.1:8000/test-sigmund0000000000/svar/` to `/svar/se-over/`, with bestemor «Nøtter» and «Ja» + confirmation on step 5.
+- [x] `wedding/models.py`, `wedding/migrations/0007_submission.py` — `Submission` (AD-20).
+- [x] `wedding/services/exceptions.py` — `RevisionConflict`, `TotalChanged`, `ConsentTextChanged`.
+- [x] `wedding/services/answers.py`, `wedding/services/consent.py` docstring — the checks and `Submission` write (AD-7, AD-9, AD-18, AD-20, NFR-1).
+- [x] `wedding/rsvp/draft.py` — format 6 with `cv`.
+- [x] `wedding/rsvp/views.py` — `cv` on step 5; hidden fields and notices on the check page; send branch mapping refusals and `DatabaseError`.
+- [x] `wedding/rsvp/templates/rsvp/check.html`, `static/js/rsvp-send.js` — hidden fields, notices, fetch send with reset.
+- [x] `tests/test_send_answer.py` — every matrix service row with `now` fixed; repeat returns the same object and adds no `Consent`/`PersonAnswer` change and no revision bump; a repeat after a re-send returns the re-send's answer; refused sends (conflict, total, consent text, deadline, other household's key) leave `Submission` count 0 and all rows unchanged; two keys at the same revision → second `RevisionConflict` with `revision` = 1; migration/model fields; `str()` has no name.
+- [x] `tests/test_rsvp_send.py` — check page has `innsending` (a UUID, different on two GETs) and `sum` equal to the shown total; posting the same form twice → one `HouseholdAnswer`, one `Submission`, both 303 to `sendt/`; the same POST again without the draft cookie → 303 `sendt/`; second draft at old revision → 303 `?sending=endret`, Set-Cookie draft with new `rev` and no `cons`, GET shows the notice with «Sigmund» and the time, re-send succeeds; price changed in `Settings` between GET and POST → `?sending=sum`; `send_answer` monkeypatched to raise `OperationalError` → `?sending=feilet`, no draft deletion cookie, GET notice contains «Prøv igjen» and both seeded phones, `caplog` has no guest name; consent version monkeypatched in `wedding.services.answers` → `?sending=samtykke` and `cons` cleared; bad `innsending`/missing `sum` → 303 check, nothing written; unknown `?sending=x` shows no notice; step 5 POST writes `cv`; the CSRF-failure check page also carries the hidden fields.
+- [x] `tests/test_rsvp_draft.py` — format 6 round trip with `cv`; format 5 broken; `cv` of wrong type or too long broken; 4 KB test with `cv`.
+- [x] `docs/manual-test-plan.md` — Norwegian rows MT-45 to MT-49, date and result cells empty, each «Kjøres av Claude med Playwright mot Edge (`channel: 'msedge'`)», before each `uv run manage.py seed_testdata` then `uv run manage.py runserver`, measured after `document.fonts.ready`. Base answer = MT-36 b) on `http://127.0.0.1:8000/test-sigmund0000000000/svar/` to `/svar/se-over/`, with bestemor «Nøtter» and «Ja» + confirmation on step 5.
   - **MT-45 (dobbel sending):** on `/svar/se-over/` read `innsending` and `sum`; send two identical POSTs at once with `page.request.post` (`Promise.all`, form data incl. `csrfmiddlewaretoken`, `action=send`). Then click «Send svaret» in the page (same `innsending`, draft cookie already deleted by the requests). Expected: both requests end on `/svar/sendt/`; the page click is a repeat and also lands on `/svar/sendt/`; `shell -c` shows one `HouseholdAnswer`, `revision` 1, one `Submission` (kind `answer`), one `Consent` for bestemor.
-  - **MT-46 (endret i en annen fane og på en annen enhet):** a) Tab A on `/svar/se-over/`; tab B (same context) opens `/svar/maltider/?fra=se-over`, ticks «Frokost søndag» for bestemor, «Fortsett»; A clicks «Send svaret» → `/svar/se-over/?sending=sum`, focused notice «Feil: Svaret ble ikke sendt, fordi summen har endret seg …», the higher total shown; `shell` shows no `HouseholdAnswer`; «Send svaret» again → `/svar/sendt/`. b) After `seed_testdata`: two browser contexts X and Y both to `/svar/se-over/`; X sends; Y sends → `?sending=endret`, notice names «Sigmund» and today's date with «kl.»; the allergy block shows the FR-28 warning for bestemor (consent cleared); `shell`: `revision` 1, one `Submission`; Y sends again → `/svar/sendt/`, `revision` 2, bestemor has no `Allergy` row. c) `page.goBack()` from `/svar/sendt/` → no resubmit prompt, no new rows.
+  - **MT-46 (endret i en annen fane og på en annen enhet):** a) Tab A on `/svar/se-over/`; tab B (same context) opens `/svar/maltider/?fra=se-over`, ticks «Frokost søndag» for bestemor, «Fortsett»; A clicks «Send svaret» → `/svar/se-over/?sending=sum`, focused notice «Feil: Svaret ble ikke sendt, fordi summen har endret seg …», the higher total shown; `shell` shows no `HouseholdAnswer`; «Send svaret» again → `/svar/sendt/`. b) After `seed_testdata`: two browser contexts X and Y both to `/svar/se-over/`; X sends; Y sends → `?sending=endret`, notice names «Sigmund» and today's date with «kl.»; the allergy block shows the FR-28 warning for bestemor (consent cleared); `shell`: `revision` 1, one `Submission`; Y sends again → `/svar/sendt/`, `revision` 2, bestemor's `Allergy` from X is kept (consent unanswered, Story 2.6b rule; see Spec Change Log 2026-11-25). c) `page.goBack()` from `/svar/sendt/` → no resubmit prompt, no new rows.
   - **MT-47 (feil ved sending):** on `/svar/se-over/`, `page.route` aborts the POST to `/svar/se-over/` (`route.abort()`); click «Send svaret». Expected: button text «Send svaret» without `aria-disabled`, the notice «Feil: Svaret ble ikke sendt, fordi forbindelsen ble brutt. Ingenting er tapt …Prøv igjen …» visible and `document.activeElement` inside it, the phone sentence with «Rikke» and «Valdemar»; `shell`: no `HouseholdAnswer`. `page.unroute`, click again → `/svar/sendt/`. Also open `/svar/se-over/?sending=feilet` on a fresh draft: the server notice with the same phones, focused.
   - **MT-48 (bare tastatur):** MT-46 a) with `page.keyboard` only: after the refusal focus is on the notice; Tab reaches «Send svaret»; Enter → `/svar/sendt/`; focused elements have `outline-style` `solid`.
   - **MT-49 (oppsett):** `/svar/se-over/?sending=feilet` and `?sending=endret` (after MT-46 b), and the client notice after an aborted send, at 360 × 640 and 180 × 320, then with 20px default text (CDP `Page.setFontSizes` `{ fontSizes: { standard: 20 } }`) at both: `scrollWidth` ≤ `innerWidth`; the notice wraps inside the sheet; «Send svaret» ≥ 44px tall.
-- [ ] `README.md` — status sentence (story 2.6c: a double tap or a second tab never sends twice, an answer changed meanwhile or a changed total is refused with a notice, a failed save keeps everything and says «Prøv igjen» with the phones); «Svarskjemaet» paragraph; services line (`exceptions.py` refusals).
-- [ ] ARCHITECTURE-SPINE.md — dated notes (2026-11-24, Story 2.6c): AD-7 the snapshot is the check page form's hidden `sum`, not a draft field (reason in Design Notes); AD-8 format 6 `cv`, and the hidden `innsending`/`sum` are not answers; AD-9 the conflict notice says who and when, «what differs» moves to Story 4.1; AD-18 consent cleared on a revision conflict or consent-text change, version seen checked at send; AD-20 `Submission` fields, the hidden field name, order of checks, `DatabaseError` → `?sending=feilet`.
-- [ ] `.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md:237` — dated note with the five notice texts (wording decided by Claude in the goal run).
-- [ ] `.docs/implementation-artifacts/deferred-work.md` — status lines «done in Story 2.6c» on: 2.4 «no consent Ja across a revision change» (`:220`), 2.4 seen version (`:229`), 2.5 total snapshot (`:236` remainder), 2.6a snapshot (`:241`) and busy reset (`:245`), 2.6b concurrent send (`:251`), each naming the file; add «From Story 2.6c» with the AD-9 «what differs» entry for Story 4.1.
+- [x] `README.md` — status sentence (story 2.6c: a double tap or a second tab never sends twice, an answer changed meanwhile or a changed total is refused with a notice, a failed save keeps everything and says «Prøv igjen» with the phones); «Svarskjemaet» paragraph; services line (`exceptions.py` refusals).
+- [x] ARCHITECTURE-SPINE.md — dated notes (2026-11-24, Story 2.6c): AD-7 the snapshot is the check page form's hidden `sum`, not a draft field (reason in Design Notes); AD-8 format 6 `cv`, and the hidden `innsending`/`sum` are not answers; AD-9 the conflict notice says who and when, «what differs» moves to Story 4.1; AD-18 consent cleared on a revision conflict or consent-text change, version seen checked at send; AD-20 `Submission` fields, the hidden field name, order of checks, `DatabaseError` → `?sending=feilet`.
+- [x] `.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md:237` — dated note with the five notice texts (wording decided by Claude in the goal run).
+- [x] `.docs/implementation-artifacts/deferred-work.md` — status lines «done in Story 2.6c» on: 2.4 «no consent Ja across a revision change» (`:220`), 2.4 seen version (`:229`), 2.5 total snapshot (`:236` remainder), 2.6a snapshot (`:241`) and busy reset (`:245`), 2.6b concurrent send (`:251`), each naming the file; add «From Story 2.6c» with the AD-9 «what differs» entry for Story 4.1.
 
 **Acceptance Criteria:**
 - Given the repo, when `uv run pytest`, `uv run ruff check`, `uv run ruff format --check` and `uv run djlint --check .` run, then all pass and `uv run manage.py makemigrations --check --dry-run` reports no changes.
@@ -112,7 +121,37 @@ deferred: []
 
 ## Spec Change Log
 
+- 2026-11-25 — MT-46 b): the expected result «ingen `Allergy` for bestemor» after Y's second send is changed to «bestemor's `Allergy` from X is kept». Reason: Y sends with consent unanswered (cleared by the conflict), and Story 2.6b keeps stored data when consent is unanswered; the Edge run showed the code follows that rule (avgjort av Claude).
+
 ## Review Triage Log
+
+### 2026-11-25 — Review pass
+- verdicts: 24 findings — high 1, medium 3, low 12, false 8, maybe-false 0
+- findings:
+  - `[high]` `[patch]` `rsvp-send.js` fetches `form.action`, which is the `<button name="action">` element, not the URL; every send went first to `…/se-over/[object HTMLButtonElement]` (404) and then natively, so the broken-connection path never ran (orchestrator, Playwright MT-47/MT-49) — the script now uses `form.getAttribute("action") || location.href`.
+  - `[medium]` `[patch]` Two identical sends racing: the loser's `IntegrityError` on `Submission.key` goes to `?sending=feilet` although the answer was saved (blind, edge-case, verification-gap) — `_send` now re-checks `submitted()` on `IntegrityError` and goes to `sendt/`; a view test pins it.
+  - `[medium]` `[patch]` A repeat `innsending` from another household raises `NotAllowed`, which nothing catches, so the guest gets a 500 (blind, edge-case) — `_send` treats it like a bad hidden field: back to the check page, nothing written; view test added.
+  - `[medium]` `[patch]` After the CSRF failure page with `?sending=<reason>` in the URL, or after the client notice shows on a `?sending=` page, two error notices stand at once and the client one is both live and focused (blind, edge-case) — the server notice is left out when `csrf_failed`, the script hides it when the client notice shows, and the client notice is announced by focus only.
+  - `[low]` `[patch]` No test combines a stale revision with a closed deadline, so the documented order «revision before deadline» is unpinned (verification-gap) — a `({"revision": 3}, CLOSED, RevisionConflict)` row was added.
+  - `[low]` `[patch]` The failure log has no household id, so a failed send cannot be matched to a guest's call (blind) — the log line adds the household pk (no name, AD-21).
+  - `[low]` `[defer]` `seed_testdata` does not remove `Submission` rows, so they point at answers it deleted (orchestrator, seen in the MT-45 DB check) — test data is Story 2.6d's scope.
+  - `[low]` `[defer]` The conflict notice names the last sender even when a later revision bump comes from something other than a send (edge-case) — no non-send bump exists yet; guest moves, overrides and withdrawals come in Stories 4.x, which own the notice then.
+  - `[low]` `[defer]` The couple's mount gets the generic conflict notice and that branch is untested (blind) — the couple's mount is Story 4.4.
+  - `[low]` `[defer]` `Submission.object_id` is a plain integer with no deletion rule (blind) — matters first when answers can be deleted (Stories 4.x/7.2).
+  - `[low]` `[reject]` Any non-redirect response is posted again natively (blind, verification-gap) — by design (spec decision 4): the server's own page shows, and the one-time id makes the repeat safe; with the URL fixed it only happens on 403/closed pages.
+  - `[low]` `[reject]` When the connection drops after the server wrote, the notice says «ikke sendt» (edge-case) — the guest cannot tell either; «Prøv igjen» then lands on `sendt/` through the same id, so nothing is lost or doubled.
+  - `[low]` `[reject]` The repeat rule is written twice, in `submitted()` and in `send_answer` (blind) — the service needs the earlier answer and the household refusal, the selector only a yes/no before the draft gates; merging adds a parameter for no caller.
+  - `[low]` `[reject]` Step 5 sets `new.cv` directly and also on a switch (blind) — `new` is already a fresh copy there, and `cv` records the text shown on that page, which is the same on a switch.
+  - `[low]` `[reject]` The JS has no automated test (blind, intent-alignment) — MT-45 to MT-49 were run in Edge with Playwright and recorded; that run found the high finding above.
+  - `[low]` `[reject]` Missing view tests for the race, the foreign key and the couple branch (blind) — the first two came with the patches; the couple branch is deferred with Story 4.4.
+  - `[false]` `[reject]` A consent-text change leaves «allergier» done, so the next send silently stores no allergies (edge-case) — not silent: the check page shows the FR-28 warning and the notice says consent must be given again (MT-46 b confirmed both).
+  - `[false]` `[reject]` The failed-write test only monkeypatches the view (intent-alignment) — the AC is about what the guest sees and the draft kept; the service tests cover that nothing is written on refusals.
+  - `[false]` `[reject]` Reading C (pattern for later write services) is incomplete because `kind` has one value (intent-alignment) — later services add their own `kind`; nothing in 2.6c needs another.
+  - `[false]` `[reject]` AD-9 «what differs» narrowed (intent-alignment) — the story's AC asks only for a notice that the answer changed; «what differs» is in Story 4.1 (epics.md).
+  - `[false]` `[reject]` `IntegrityError` path claimed without a test (verification-gap) — superseded by the race patch and its test.
+  - `[false]` `[reject]` Double-tap only tested through the test client (intent-alignment) — MT-45 sent two concurrent POSTs and a click in Edge: one answer, revision 1.
+  - `[false]` `[reject]` No session log in the diff (blind) — written at the end of the story.
+  - `[false]` `[reject]` Broken-connection path covered only by the manual plan (intent-alignment) — run in Edge (MT-47) after the patch.
 
 ## Design Notes
 
@@ -128,3 +167,22 @@ deferred: []
 - `uv run ruff check` and `uv run ruff format --check` -- expected: no findings.
 - `uv run djlint --check .` -- expected: no findings.
 - `uv run manage.py makemigrations --check --dry-run` -- expected: no changes.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** A send that fails or repeats is now safe. Migration 0007 adds `Submission` (one-time `innsending` id, unique). The check page carries a fresh `innsending` and the `sum` it showed; `send_answer` checks actor → repeat → ids → revision → deadline → allergy problems → consent-text version → total, and a refusal writes nothing. A repeat returns the earlier answer (also after the draft is gone, through `submitted()`); a revision conflict, changed total or changed consent text sends the guest back to «Se over svaret» with a focused notice (`?sending=endret|sum|samtykke`), clearing consent on conflict (AD-18); a database failure keeps the draft and says «Prøv igjen» with the couple's phones. Draft format 6 records the consent-text version seen (`cv`). `rsvp-send.js` sends with fetch and resets the button with a notice when the connection breaks.
+
+**Files changed:**
+- `wedding/models.py`, `wedding/migrations/0007_submission.py`, `wedding/services/answers.py`, `wedding/services/exceptions.py`, `wedding/services/consent.py`, `wedding/selectors.py`, `wedding/rsvp/draft.py`, `wedding/rsvp/views.py`, `wedding/rsvp/templates/rsvp/check.html`, `static/js/rsvp-send.js`.
+- `tests/test_send_answer.py`, `tests/test_rsvp_send.py`, `tests/test_rsvp_draft.py`, `tests/test_rsvp_hike_check.py`, `tests/helpers.py`.
+- `README.md`, `docs/manual-test-plan.md`, `ARCHITECTURE-SPINE.md`, `EXPERIENCE.md`, `deferred-work.md`.
+
+**Review:** 24 findings — 6 patched (script fetched `[object HTMLButtonElement]` found in Edge; same-id race shows «feilet»; foreign id gave 500; two error notices at once; revision-before-deadline test; household pk in the failure log), 4 deferred, 14 rejected with reasons in the triage log.
+
+**Follow-up review recommendation:** false. The patches are small and each has a test or an Edge run; the high finding was found and confirmed fixed by the browser run.
+
+**Verification:** `uv run pytest` 1255 passed; ruff, ruff format and djlint clean. MT-45 to MT-49 run by Claude with Playwright in Edge 158 after the patches, database rows read through `manage.py shell`.
+
+**Residual risks:** if the connection drops after the server wrote, the guest is told it was not sent; «Prøv igjen» then lands on the sent page through the same id. The client notice's focus target (a wrapper) shows no outline.
