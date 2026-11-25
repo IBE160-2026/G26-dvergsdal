@@ -1,0 +1,9 @@
+{% comment %}
+The sent line (Stories 2.6a, 2.8; FR-24, FR-74): «Sendt av <name> <weekday j.
+month Y> kl. <H:i>.» in Oslo time (TIME_ZONE), from the stored `answer`
+(`household_answer`). The receipt (rsvp/sent.html) and the front page's status
+block share it, so the two always read the same.
+{% endcomment %}
+<p class="sent-line">
+    Sendt av {{ answer.sent_by_name }} {{ answer.sent_at|date:"l j. F Y" }} kl. {{ answer.sent_at|date:"H:i" }}.
+</p>
