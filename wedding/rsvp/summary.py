@@ -12,6 +12,10 @@ only `household_total` adds prices (AD-12, wedding/rules/money.py).
 UX-DR23, AD-7: each «Endre» link carries `?fra=se-over`, so «Fortsett» on that
 step returns to the check page (wedding/rsvp/views.py, `_continue_url`).
 
+FR-23, UX-DR24 (Story 2.7): the receipt shows the same lines for the stored
+answer (`receipt_parts`), from the same `_LINES`, without «Endre» links
+(changing comes in Epic 4) and without the FR-28 warning.
+
 Names and days are joined «a, b og c» by `join_words` (wedding/rsvp/text.py).
 """
 
@@ -182,3 +186,24 @@ def check_parts(
             }
         )
     return parts
+
+
+def receipt_parts(
+    answer: Answer,
+    *,
+    members: Sequence[tuple[int, str]],
+    respondent: int,
+    steps: Sequence[str],
+) -> list[dict[str, object]]:
+    """FR-23, UX-DR24 (Story 2.7): the receipt's summary, one `{name, lines}` per step in `steps`.
+
+    The lines are the check page's (`_LINES`), for the stored answer
+    (`sent_answer`); `respondent` is the sender's id, which only matters for
+    the confirmation line, and a stored answer has no confirmations.
+    """
+    answer = normalise_answer(answer)
+    present = present_days(answer)
+    return [
+        {"name": STEPS[key].name, "lines": _LINES[key](answer, members, present, respondent)}
+        for key in steps
+    ]

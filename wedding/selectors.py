@@ -10,8 +10,21 @@ from uuid import UUID
 
 from django.db.models import Exists, OuterRef
 
-from wedding.models import Guest, Household, HouseholdAnswer, Settings, Submission, User
+from wedding.models import (
+    Allergy,
+    Consent,
+    Guest,
+    Household,
+    HouseholdAnswer,
+    PersonAnswer,
+    Settings,
+    Submission,
+    User,
+)
+from wedding.rules.allergies import ALLERGY_KEYS, AllergyEntry
+from wedding.rules.answer import Answer
 from wedding.rules.contacts import tel_number
+from wedding.rules.days import DAY_KEYS, MEAL_KEYS, WHOLE_WEEKEND
 from wedding.rules.money import CABIN
 
 
@@ -125,6 +138,59 @@ def household_answer(household: Household) -> HouseholdAnswer | None:
     One SELECT; nothing from another household.
     """
     return HouseholdAnswer.objects.filter(household=household).first()
+
+
+# The `PersonAnswer` field for each day key, as `send_answer` writes them.
+_DAY_FIELDS = {"fri": "friday", "sat": "saturday", "sun": "sunday"}
+
+
+def sent_answer(household: Household) -> Answer:
+    """FR-23, FR-33, AD-4, AD-12 (Story 2.7): `household`'s stored answer as an `Answer`.
+
+    The receipt shows what was sent, never a draft. Three SELECTs: the
+    `PersonAnswer` rows, the `Allergy` rows and the `Consent` events of the
+    household's guests. `whole` is True when every coming guest has all three
+    days, else False with `days` per coming guest (None when nobody comes).
+    `night` holds each coming guest's cabin, `meals` the chosen paid meals,
+    `allergies` an `AllergyEntry` from the stored booleans, `consent` the
+    latest event (given True, refused False, withdrawn or none: no entry) and
+    `hike` the stored answer (blank: no entry). `confirmed` is empty: it is
+    not stored. Guests with no `PersonAnswer` are left out.
+    """
+    rows = list(PersonAnswer.objects.filter(guest__household=household).order_by("guest_id"))
+    attendance = {row.guest_id: row.coming for row in rows}
+    coming = [row for row in rows if row.coming]
+    days = {
+        row.guest_id: [key for key in DAY_KEYS if getattr(row, _DAY_FIELDS[key])] for row in coming
+    }
+    whole = None
+    if coming:
+        whole = all(frozenset(chosen) == WHOLE_WEEKEND for chosen in days.values())
+    allergies = {
+        allergy.guest_id: AllergyEntry(
+            cats=tuple(key for key in ALLERGY_KEYS if getattr(allergy, key)),
+            none=allergy.none,
+            note=allergy.note,
+        )
+        for allergy in Allergy.objects.filter(guest__household=household)
+    }
+    consent: dict[int, bool] = {}
+    for event in Consent.objects.filter(guest__household=household).order_by("at", "pk"):
+        if event.event == Consent.WITHDRAWN:
+            consent.pop(event.guest_id, None)
+        else:
+            consent[event.guest_id] = event.event == Consent.GIVEN
+    return Answer(
+        attendance=attendance,
+        whole=whole,
+        days=days if whole is False else {},
+        night={row.guest_id: row.cabin for row in coming},
+        meals={row.guest_id: [meal for meal in MEAL_KEYS if getattr(row, meal)] for row in coming},
+        allergies=allergies,
+        consent=consent,
+        confirmed=frozenset(),
+        hike={row.guest_id: row.hike for row in coming if row.hike},
+    )
 
 
 def submitted(household: Household, key: UUID) -> bool:

@@ -1,0 +1,19 @@
+{% comment %}
+One row of «Slik betaler du» (Story 2.7; FR-34, FR-71, UX-DR25): the label,
+the value as selectable text, the hidden «Kopier» button with its accessible
+name and `data-copy`, and the empty polite status span the script fills.
+{% endcomment %}
+<div class="pay-list__row">
+    <dt>{{ label }}</dt>
+    <dd>
+        <span class="pay-list__value" data-copy-value>{{ value }}</span>
+        <span class="pay-list__copy">
+            <button class="button button--secondary"
+                    type="button"
+                    hidden
+                    aria-label="{{ name }}"
+                    data-copy="{{ copy }}">Kopier</button>
+            <span class="copy-status" role="status"></span>
+        </span>
+    </dd>
+</div>

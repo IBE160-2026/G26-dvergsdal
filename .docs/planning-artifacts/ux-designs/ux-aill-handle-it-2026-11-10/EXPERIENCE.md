@@ -145,12 +145,13 @@ Microcopy. "Decided" = memlog or the couple kept it in a render; all others are 
 | Not sent yet (check page) | Obs: Svaret er ikke sendt ennå. | decided (avgjort av Claude 2026-11-23, Story 2.5, FR-21) |
 | Check page heading | Se over svaret før du sender | decided (avgjort av Claude 2026-11-23, Story 2.5, FR-21) |
 | Receipt heading and sent line | Svaret er sendt · «Sendt av Sigmund tirsdag 12. oktober 2027 kl. 14:31.» | decided (avgjort av Claude 2026-11-24, Story 2.6a, FR-74: the sent page `/<code>/svar/sendt/` shows the heading and the sent line in a success notice, then «Til invitasjonen»; Story 2.7 adds the rest of the receipt) |
-| Receipt summary / payment details | Dette har dere svart · Slik betaler du | proposal (render) |
+| Receipt summary / payment details | Dette har dere svart (du-form «Dette har du svart») · Slik betaler du · rows Beløp, Vipps-nummer, Kontonummer, Betalingsmelding («Bryllup <names>») | decided (avgjort av Claude 2026-11-26, Story 2.7, FR-23, FR-71) |
+| Pay later notice | «Den samme lenken viser alltid hva dere har igjen å betale, og hvordan dere betaler.» (du-form «… hva du har igjen å betale, og hvordan du betaler.»), an info notice with focus below the buttons | decided (avgjort av Claude 2026-11-26, Story 2.7, FR-34) |
 | Status block | Svaret er sendt · Sendt av … · Totalt for husstanden: … · «Meldt betalt: 3 900 kr, 12. oktober.» · «Dere kan endre svaret fram til tirsdag 4. januar 2028 kl. 23:59.» · Se eller endre svar | button decided; rest proposal (render) |
 | Leave warning | Svaret er ikke sendt ennå. Det du har fylt ut, er tatt vare på på denne telefonen. · Bli og fullfør svaret · Gå uten å sende | proposal |
-| Pay now / Pay later | Betal nå / Betal senere | proposal |
+| Pay now / Pay later | Betal nå / Betal senere | decided (avgjort av Claude 2026-11-26, Story 2.7; «Betal nå» gets no autofocus, so screen readers start at the success heading) |
 | I have paid | Jeg har betalt | proposal |
-| Copy | Kopier (accessible names "Kopier kontonummer" etc.) · Kopiert · Trykk og hold for å kopiere | proposal |
+| Copy | Kopier (accessible names «Kopier beløpet», «Kopier Vipps-nummeret», «Kopier kontonummeret», «Kopier betalingsmeldingen») · Kopiert · Trykk og hold for å kopiere | decided (avgjort av Claude 2026-11-26, Story 2.7; amount and account number copy as digits only) |
 | Read more | Les mer (accessible name "Les mer om programmet" etc.) | render |
 | Footer | Spørsmål? Send oss en melding: · Personvern | render |
 | Lead-in | Vi gleder oss til å feire med deg/dere (du/dere rule; no exclamation mark in the approved render) | render |

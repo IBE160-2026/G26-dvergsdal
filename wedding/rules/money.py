@@ -10,6 +10,10 @@ FR-16, FR-32: a cabin is booked and paid for the whole weekend, per person
 who stays (expected.toml), and each chosen paid meal costs its price.
 `prices` holds the price of the cabin under `CABIN` and each meal under its
 key in `MEAL_KEYS` (wedding/selectors.py, `form_prices`).
+
+FR-34, FR-36, AD-12 (Story 2.7): what a household still owes is the total
+less the amount it has reported paid (`guest_balance`); until Story 5.1 adds
+«Jeg har betalt» there is no report, so it is the total.
 """
 
 from collections.abc import Mapping
@@ -31,3 +35,22 @@ def household_total(answer: Answer, prices: Mapping[str, int]) -> int:
     cabins = sum(prices[CABIN] for stays in answer.night.values() if stays)
     meals = sum(prices[meal] for chosen in answer.meals.values() for meal in chosen)
     return int(cabins + meals)
+
+
+def digits_only(text: str) -> str:
+    """FR-34, FR-64: `text` with everything but its digits removed.
+
+    «1234.56.78900» copies as «12345678900», since bank and Vipps fields
+    reject dots and spaces.
+    """
+    return "".join(char for char in text if char.isdigit())
+
+
+def guest_balance(total: int, report: int | None) -> int:
+    """FR-34, FR-36, AD-12: what the guest is shown as left to pay, never below 0.
+
+    `total` is `household_total`; `report` is the amount the household has
+    reported paid, None while it has reported nothing (always None until
+    Story 5.1). The receipt offers «Betal nå» only when this is above 0.
+    """
+    return max(total - (report or 0), 0)

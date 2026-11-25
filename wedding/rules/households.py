@@ -9,6 +9,9 @@ bestemor» is derived from the guests' names, and the invitation says «deg» to
 one invited person and «dere» to more; the words themselves live in the
 templates.
 
+FR-71, AD-4 (Story 2.7): the payment message «Bryllup Sigmund og bestemor» is
+derived from the same names and never stored.
+
 FR-74 (Story 2.6a): a person's and a household's answer state, from the
 stored facts. The states are derived, never stored (AD-4).
 """
@@ -37,6 +40,15 @@ def household_names(names: Sequence[str]) -> str:
     if len(names) < 2:
         return "".join(names)
     return f"{', '.join(names[:-1])} og {names[-1]}"
+
+
+def payment_message(names: Sequence[str]) -> str:
+    """FR-71, AD-2, AD-4: the message the household writes with its payment.
+
+    «Bryllup » and the household as `household_names` names it, for example
+    «Bryllup Sigmund og bestemor». Derived each time, never stored.
+    """
+    return f"Bryllup {household_names(names)}"
 
 
 def speaks_to_one(household_size: int) -> bool:

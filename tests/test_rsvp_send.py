@@ -117,7 +117,8 @@ def test_the_switched_respondent_is_the_sender(client, seeded):
 def test_the_sent_page(client, seeded):
     """FR-74, UX-DR24, AD-15: title, the success notice holding the `h1` and the
     sent line in Oslo time, «Til invitasjonen» to `/<code>/`, no nav bar, the
-    footer band, never cached."""
+    footer band, never cached. Story 2.7 adds the rest of the receipt below the
+    notice (test_rsvp_receipt.py), so the notice ends before Rikke's message."""
     _sigmund_to_check(client)
     _send(client)
     sent = HouseholdAnswer.objects.get()
@@ -127,7 +128,7 @@ def test_the_sent_page(client, seeded):
     assert "no-store" in response["Cache-Control"]
     html = response.content.decode()
     assert re.search(r"<title>\s*Svaret er sendt \N{EN DASH} Invitasjon\s*</title>", html)
-    notice = html[html.index("notice--success") : html.index("form-actions")]
+    notice = html[html.index("notice--success") : html.index("receipt-message")]
     assert "<h1>Svaret er sendt</h1>" in notice
     local = sent.sent_at.astimezone(OSLO)
     assert f"kl. {local:%H:%M}." in page_text(notice)
