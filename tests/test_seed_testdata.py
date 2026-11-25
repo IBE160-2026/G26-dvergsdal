@@ -2,12 +2,14 @@
 
 Covers every row of the Story 1.3 I/O matrix: first run, second run, a taken code,
 a taken username and a wrong `APP_ENV` (FR-68, FR-72, AD-14, AD-16). The
-"Settings, helper" row is in `test_settings_service.py`. Only the loading is
-tested here; the expected results are asserted by the stories that compute them.
+"Settings, helper" row is in `test_settings_service.py`. Story 2.6d adds the
+answers, allergies and consents the seed sends, the totals against expected.toml,
+a bad `consent_by`, a missing or unreadable seed.toml and the printed labels.
 """
 
 import datetime
 import tomllib
+import uuid
 from io import StringIO
 from pathlib import Path
 
@@ -18,7 +20,24 @@ from django.utils import timezone
 
 from wedding import selectors
 from wedding.actors import SYSTEM, AdminActor
-from wedding.models import Guest, Household, Settings, User
+from wedding.management.commands.seed_testdata import seed_answer
+from wedding.models import (
+    Allergy,
+    Consent,
+    Guest,
+    Household,
+    HouseholdAnswer,
+    PersonAnswer,
+    Settings,
+    Submission,
+    User,
+)
+from wedding.rules.allergies import AllergyEntry
+from wedding.rules.answer import Answer
+from wedding.rules.money import household_total
+from wedding.selectors import form_prices
+from wedding.services.answers import send_answer
+from wedding.services.consent import CONSENT_TEXT_VERSION
 from wedding.services.exceptions import NotAllowed
 from wedding.services.households import NewGuest, create_household
 from wedding.services.testdata import reset_test_data
@@ -27,6 +46,10 @@ SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "s
 SEED = tomllib.loads(SEED_FILE.read_text(encoding="utf-8"))
 SEED_GUESTS = [guest for household in SEED["households"] for guest in household["guests"]]
 SIGMUNDS_CODE = SEED_GUESTS[0]["code"]
+EXPECTED = tomllib.loads((SEED_FILE.parent / "expected.toml").read_text(encoding="utf-8"))
+ANSWERED = [household for household in SEED["households"] if "answered_by" in household]
+DAY_FIELDS = {"fri": "friday", "sat": "saturday", "sun": "sunday"}
+MEAL_FIELDS = ("friday_dinner", "saturday_breakfast", "sunday_breakfast")
 
 
 def seed():
@@ -47,6 +70,9 @@ def snapshot():
         list(Guest.objects.values_list("id", "name", "code")),
         list(User.objects.values_list("id", "username", "is_test_data")),
         list(Settings.objects.values()),
+        HouseholdAnswer.objects.count(),
+        Submission.objects.count(),
+        Consent.objects.count(),
     )
 
 
@@ -313,3 +339,263 @@ def test_conflicts_name_only_codes_and_usernames_used_by_real_data():
     )
 
     assert conflicts == ["lenkekoden «test-bestemor000000000»", "brukernavnet «rikke»"]
+
+
+# Story 2.6d: answers, allergies and consents
+
+
+def household_of(seed_household):
+    return Household.objects.get(guests__code=seed_household["guests"][0]["code"])
+
+
+@pytest.mark.django_db
+def test_first_run_sends_an_answer_for_every_household_but_mona():
+    """FR-68, AD-3, AD-16, AD-20: matrix row "First run"; Mona's household stays at 0."""
+    seed()
+
+    assert HouseholdAnswer.objects.count() == 6
+    assert Submission.objects.filter(kind=Submission.ANSWER).count() == 6
+    mona = Guest.objects.get(name="Mona").household
+    for household in Household.objects.all():
+        assert household.revision == (0 if household == mona else 1)
+    assert not PersonAnswer.objects.filter(guest__household=mona).exists()
+    assert PersonAnswer.objects.count() == 12
+
+
+@pytest.mark.django_db
+def test_each_guests_stored_answer_matches_seed_toml():
+    """FR-13 to FR-17, FR-68, FR-74: coming, days, cabin, meals, hike and the sender."""
+    seed()
+
+    for planned_household in ANSWERED:
+        sender = next(
+            g for g in planned_household["guests"] if g["key"] == planned_household["answered_by"]
+        )
+        assert household_of(planned_household).answer.sent_by_name == sender["name"]
+        for planned in planned_household["guests"]:
+            row = PersonAnswer.objects.get(guest__code=planned["code"])
+            key = planned["key"]
+            assert row.coming == planned["coming"], key
+            for day, name in DAY_FIELDS.items():
+                assert getattr(row, name) == (day in planned.get("days", [])), key
+            assert row.cabin == planned.get("overnight", False), key
+            for meal in MEAL_FIELDS:
+                assert getattr(row, meal) == (meal in planned.get("meals", [])), key
+            assert row.hike == planned.get("hike", ""), key
+
+
+@pytest.mark.django_db
+def test_allergies_are_stored_only_for_guests_who_said_yes():
+    """FR-25, FR-26, FR-68, AD-18: matrix row "Allergies"."""
+    seed()
+
+    stored = {a.guest.name: a for a in Allergy.objects.select_related("guest")}
+    assert set(stored) == {"Sigmund", "bestemor", "Arild", "Eva", "Jonas", "Synne"}
+    for name in ("Sigmund", "Arild", "Jonas"):
+        assert stored[name].none, name
+    assert stored["bestemor"].gluten
+    assert stored["Eva"].shellfish
+    assert stored["Eva"].other
+    assert stored["Eva"].note == "Tåler ikke koriander."
+    assert stored["Synne"].nuts
+
+
+@pytest.mark.django_db
+def test_consents_are_given_or_refused_by_the_respondent():
+    """FR-26, FR-27, FR-29, FR-68, AD-18: matrix row "Consents"."""
+    seed()
+
+    events = {c.guest.name: c for c in Consent.objects.select_related("guest", "given_by")}
+    given = {"Sigmund", "bestemor", "Arild", "Eva", "Jonas", "Synne"}
+    assert set(events) == given | {"Filippa", "Ida"}
+    for name in given:
+        assert events[name].event == Consent.GIVEN, name
+    assert events["Filippa"].event == events["Ida"].event == Consent.REFUSED
+    assert events["bestemor"].given_by.name == "Sigmund"
+    assert events["Filippa"].given_by.name == "Arild"
+    assert events["Ida"].given_by.name == "Jonas"
+    assert {c.text_version for c in events.values()} == {CONSENT_TEXT_VERSION}
+
+
+@pytest.mark.django_db
+def test_each_answered_households_total_equals_expected_toml():
+    """FR-33, FR-69, AD-12: matrix row "Totals", worked out from the stored answers."""
+    seed()
+    prices = form_prices()
+
+    for planned_household in ANSWERED:
+        rows = PersonAnswer.objects.filter(guest__household=household_of(planned_household))
+        stored = Answer(
+            attendance={row.guest_id: row.coming for row in rows},
+            whole=False,
+            days={
+                row.guest_id: tuple(day for day, name in DAY_FIELDS.items() if getattr(row, name))
+                for row in rows
+            },
+            night={row.guest_id: row.cabin for row in rows if row.coming},
+            meals={
+                row.guest_id: tuple(meal for meal in MEAL_FIELDS if getattr(row, meal))
+                for row in rows
+            },
+        )
+        key = planned_household["key"]
+        assert household_total(stored, prices) == EXPECTED["households"][key]["total"], key
+
+
+@pytest.mark.django_db
+def test_a_second_run_keeps_a_real_answer_and_its_submission():
+    """FR-72, AD-4, AD-20: matrix row "Second run"; only the test submissions are replaced."""
+    first = seed()
+    kept = create_household(make_couple(), [NewGuest("Kari"), NewGuest("Ola")])
+    kari, ola = kept.guests.all()
+    real = send_answer(
+        SYSTEM,
+        household=kept,
+        respondent=kari.pk,
+        answer=Answer(attendance={kari.pk: False, ola.pk: False}, whole=None),
+        now=timezone.now(),
+        submission=uuid.uuid4(),
+        revision=0,
+        shown_total=0,
+        consent_version=None,
+    )
+    real_submission = Submission.objects.get(object_id=real.pk)
+
+    second = seed()
+
+    assert second == first
+    assert HouseholdAnswer.objects.get(household=kept) == real
+    assert Submission.objects.get(pk=real_submission.pk).object_id == real.pk
+    test_submissions = Submission.objects.exclude(pk=real_submission.pk)
+    assert test_submissions.count() == 6
+    for submission in test_submissions:
+        assert HouseholdAnswer.objects.filter(
+            pk=submission.object_id, household__is_test_data=True
+        ).exists()
+
+
+@pytest.mark.django_db
+def test_print_labels_the_roles_and_says_the_settings_were_replaced():
+    """FR-47, FR-68, AD-16: the role labels and the settings line in the printout."""
+    lines = seed().splitlines()
+
+    assert "Innstillingene er erstattet med testverdiene fra seed.toml." in lines
+    assert any("testpar /" in line and "(brudeparet)" in line for line in lines)
+    assert any("testhjelper /" in line and "(hjelper)" in line for line in lines)
+
+
+@pytest.mark.django_db
+def test_a_consent_by_other_than_the_respondent_stops_the_command(monkeypatch, tmp_path):
+    """FR-29, AD-16: matrix row "Bad consent_by": the guest key is named, nothing written."""
+    broken = tmp_path / "seed.toml"
+    broken.write_text(
+        SEED_FILE.read_text(encoding="utf-8").replace(
+            'allergy_categories = ["gluten"]\nconsent = "yes"\nconsent_by = "sigmund"',
+            'allergy_categories = ["gluten"]\nconsent = "yes"\nconsent_by = "arild"',
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("wedding.management.commands.seed_testdata.SEED_PATH", broken)
+    before = snapshot()
+
+    with pytest.raises(CommandError) as refused:
+        seed()
+
+    assert "«bestemor»" in str(refused.value)
+    assert snapshot() == before
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("content", [None, "not = toml ="])
+def test_a_missing_or_unreadable_seed_toml_stops_the_command(monkeypatch, tmp_path, content):
+    """AD-16: matrix row "Missing / invalid seed.toml": nothing is written."""
+    path = tmp_path / "seed.toml"
+    if content is not None:
+        path.write_text(content, encoding="utf-8")
+    monkeypatch.setattr("wedding.management.commands.seed_testdata.SEED_PATH", path)
+    before = snapshot()
+
+    with pytest.raises(CommandError) as refused:
+        seed()
+
+    assert str(refused.value).startswith("Fant ikke eller kunne ikke lese")
+    assert snapshot() == before
+
+
+# The mapping from a seed household to an Answer
+
+
+def test_seed_answer_is_the_whole_weekend_when_everyone_coming_comes_all_days():
+    """FR-14, FR-68, AD-2: `whole` True and no days; a guest not coming is left out."""
+    planned = {
+        "answered_by": "a",
+        "guests": [
+            {
+                "key": "a",
+                "coming": True,
+                "days": ["fri", "sat", "sun"],
+                "overnight": True,
+                "meals": [],
+                "hike": "yes",
+                "no_allergies": True,
+                "consent": "yes",
+                "consent_by": "a",
+            },
+            {"key": "b", "coming": False},
+        ],
+    }
+
+    respondent, answer = seed_answer(planned, {"a": 1, "b": 2})
+
+    assert respondent == 1
+    assert answer.whole is True
+    assert answer.days == {}
+    assert answer.attendance == {1: True, 2: False}
+    assert answer.hike == {1: "yes"}
+    assert answer.allergies == {1: AllergyEntry(none=True)}
+    assert answer.consent == {1: True}
+    assert answer.confirmed == frozenset()
+
+
+def test_seed_answer_sets_days_and_confirms_a_consent_given_for_someone_else():
+    """FR-14, FR-27, FR-68, AD-2: `whole` False with days for all; no consent is no entry."""
+    planned = {
+        "answered_by": "a",
+        "guests": [
+            {
+                "key": "a",
+                "coming": True,
+                "days": ["fri", "sat", "sun"],
+                "overnight": False,
+                "meals": ["friday_dinner"],
+            },
+            {
+                "key": "b",
+                "coming": True,
+                "days": ["sat"],
+                "overnight": False,
+                "meals": [],
+                "allergy_categories": ["nuts"],
+                "allergy_note": "x",
+                "consent": "yes",
+                "consent_by": "a",
+            },
+            {
+                "key": "c",
+                "coming": True,
+                "days": ["sat", "sun"],
+                "overnight": True,
+                "meals": [],
+                "consent": "no",
+            },
+        ],
+    }
+
+    _, answer = seed_answer(planned, {"a": 1, "b": 2, "c": 3})
+
+    assert answer.whole is False
+    assert answer.days == {1: ("fri", "sat", "sun"), 2: ("sat",), 3: ("sat", "sun")}
+    assert answer.consent == {2: True, 3: False}
+    assert answer.confirmed == frozenset({2})
+    assert answer.allergies[2] == AllergyEntry(cats=("nuts",), note="x")
+    assert answer.hike == {}

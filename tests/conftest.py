@@ -7,7 +7,8 @@ docs recommend; it is never used outside the tests.
 `production_urls` rebuilds the URLconf as production sees it (Story 1.4a and 1.4b).
 `assert_loads_only_own_host` checks that a page names no other site (Story 1.4c).
 `local_env` and `seeded` give the examiner's machine and the seeded test data
-(Story 1.5); plain helpers that tests import are in tests/helpers.py.
+(Story 1.5); `seeded_with_answers` keeps the answers the seed sends (Story 2.6d).
+Plain helpers that tests import are in tests/helpers.py.
 """
 
 import importlib
@@ -22,6 +23,7 @@ from django.urls import clear_url_caches
 
 import config.urls
 import guests.urls
+from wedding.models import Allergy, Consent, Household, HouseholdAnswer, PersonAnswer, Submission
 
 
 @pytest.fixture(autouse=True)
@@ -36,9 +38,25 @@ def local_env(monkeypatch):
 
 
 @pytest.fixture
-def seeded(local_env, db):
-    """The fictional test data from seed.toml, loaded through the seed command."""
+def seeded_with_answers(local_env, db):
+    """FR-68, AD-16: the fictional test data from seed.toml, loaded through the seed
+    command, with the answers, allergies and consents it sends (Story 2.6d)."""
     call_command("seed_testdata", stdout=StringIO())
+
+
+@pytest.fixture
+def seeded(seeded_with_answers):
+    """FR-68, AD-16: the seeded data before any answer: every household at revision 0.
+
+    The form and send tests start from an unanswered household, as the seed gave
+    before Story 2.6d, so the answers the seed sends are removed again here.
+    """
+    Submission.objects.all().delete()
+    HouseholdAnswer.objects.all().delete()
+    PersonAnswer.objects.all().delete()
+    Allergy.objects.all().delete()
+    Consent.objects.all().delete()
+    Household.objects.update(revision=0)
 
 
 def _reload_urlconf():
