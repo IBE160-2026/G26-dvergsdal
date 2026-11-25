@@ -2,14 +2,19 @@
 title: 'Story 2.7: The receipt and how to pay'
 type: 'feature'
 created: '2026-11-26'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '68e95231c528f293dd9dbefda51fb19baf98d168'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md'
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/mockups/key-receipt.html'
 warnings: ['oversized']
-deferred: []
+deferred:
+- summary: >-
+    The receipt and payment page call guest_balance(total, None); Story 5.1 must pass the household's reported amount.
+  reason: >-
+    Payment reports do not exist until Story 5.1; recorded in deferred-work.md.
 ---
 
 <intent-contract>
@@ -76,15 +81,15 @@ deferred: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/rules/money.py`, `wedding/rules/households.py` -- add `guest_balance` and `payment_message` with docstrings -- AD-2, AD-12, FR-71.
-- [ ] `wedding/selectors.py` -- add `sent_answer(household)` -- the receipt must show what was stored, not a draft (AD-4).
-- [ ] `wedding/rsvp/summary.py` -- add `receipt_parts` sharing `_LINES`; update module docstring -- FR-23, UX-DR24.
-- [ ] `guests/views.py`, `guests/urls.py` -- extend `rsvp_sent`, add `rsvp_pay` -- FR-23, FR-34, FR-71, AD-12, UX-DR24, UX-DR25.
-- [ ] `wedding/rsvp/templates/rsvp/sent.html`, new `pay.html`, `static/js/rsvp-copy.js`, `static/css/site.css` -- receipt and payment page per Boundaries; update template comments -- UX-DR24, UX-DR25, UX-DR51.
-- [ ] `tests/test_payment_rules.py` (new) -- matrix «Rules» row, plus `payment_message` for 4 names -- AD-12, FR-71.
-- [ ] `tests/test_rsvp_receipt.py` (new) -- every other matrix row with `seeded_with_answers` and hand-built answers; `sent_answer` round-trip (send via `send_answer`, read back, `household_total` equals the check page's total for the same draft); DOM order of «Betal nå» < «Betal senere» < closing line; buttons `hidden`; `role="status"` spans empty; template never names payment rows; `tests/test_rsvp_send.py` -- adjust 2.6a sent-page assertions.
-- [ ] `docs/manual-test-plan.md` -- add MT-51 to MT-54 (Norwegian, result cells empty), see Verification.
-- [ ] `README.md`, EXPERIENCE.md, ARCHITECTURE-SPINE.md, `deferred-work.md`, `.logs/rikke/issues.md`, `sprint-status.yaml` -- sync as in Code Map, dated 2026-11-26.
+- [x] `wedding/rules/money.py`, `wedding/rules/households.py` -- add `guest_balance` and `payment_message` with docstrings -- AD-2, AD-12, FR-71.
+- [x] `wedding/selectors.py` -- add `sent_answer(household)` -- the receipt must show what was stored, not a draft (AD-4).
+- [x] `wedding/rsvp/summary.py` -- add `receipt_parts` sharing `_LINES`; update module docstring -- FR-23, UX-DR24.
+- [x] `guests/views.py`, `guests/urls.py` -- extend `rsvp_sent`, add `rsvp_pay` -- FR-23, FR-34, FR-71, AD-12, UX-DR24, UX-DR25.
+- [x] `wedding/rsvp/templates/rsvp/sent.html`, new `pay.html`, `static/js/rsvp-copy.js`, `static/css/site.css` -- receipt and payment page per Boundaries; update template comments -- UX-DR24, UX-DR25, UX-DR51.
+- [x] `tests/test_payment_rules.py` (new) -- matrix «Rules» row, plus `payment_message` for 4 names -- AD-12, FR-71.
+- [x] `tests/test_rsvp_receipt.py` (new) -- every other matrix row with `seeded_with_answers` and hand-built answers; `sent_answer` round-trip (send via `send_answer`, read back, `household_total` equals the check page's total for the same draft); DOM order of «Betal nå» < «Betal senere» < closing line; buttons `hidden`; `role="status"` spans empty; template never names payment rows; `tests/test_rsvp_send.py` -- adjust 2.6a sent-page assertions.
+- [x] `docs/manual-test-plan.md` -- add MT-51 to MT-54 (Norwegian, result cells empty), see Verification.
+- [x] `README.md`, EXPERIENCE.md, ARCHITECTURE-SPINE.md, `deferred-work.md`, `.logs/rikke/issues.md`, `sprint-status.yaml` -- sync as in Code Map, dated 2026-11-26.
 
 **Acceptance Criteria:**
 - Given a successful send by Mona for Mona and Geir (both coming, cabin), when the browser lands on `/svar/sendt/`, then it shows «Svaret er sendt», «Sendt av Mona …», «… med dere!», «Dette har dere svart», «Totalt for husstanden: 3 000 kr», «Betal nå» above «Betal senere» and «Du kan nå trygt lukke invitasjonen.» directly below them.
@@ -113,3 +118,61 @@ deferred: []
 - MT-52 Kopier: grant `clipboard-read`/`clipboard-write`; the third AC; live-region proxy: before click every `.copy-status` is empty and has `role="status"`; after, only the clicked one has text. Then `page.route`-free failure: override `navigator.clipboard.writeText` to reject → fourth AC. With `javaScriptEnabled: false` → fifth AC.
 - MT-53 Bare tastatur: from `sendt/`, Tab reaches «Betal nå», Enter opens `betal/`; Tab reaches each «Kopier», Enter gives «Kopiert»; `sendt/?betal=senere` opens with focus on the notice; focused elements have `outline-style` `solid`.
 - MT-54 Oppsett: `sendt/`, `sendt/?betal=senere` and `betal/` for Sigmund at 360 × 640 and 180 × 320, with and without 20px default text size (CDP `Page.setFontSizes` `{ fontSizes: { standard: 20 } }`): `scrollWidth` ≤ `innerWidth`, the payment message and account number wrap inside the sheet, buttons ≥ 44px high.
+
+## Spec Change Log
+
+No changes to the approved spec after implementation began.
+
+## Review Triage Log
+
+### 2026-11-26 — Review pass
+- verdicts: 28 findings — high 0, medium 1, low 14, false 12, maybe-false 1
+- findings:
+  - `[false]` `[reject]` MT-51 to MT-54 not run (blind) — run by Claude with Playwright in Edge after the review and recorded in docs/manual-test-plan.md.
+  - `[false]` `[reject]` The spec's tasks and decisions are not recorded (blind) — ticked and logged in the finalize step; the decisions are in the spec's Design Notes and EXPERIENCE.md.
+  - `[false]` `[reject]` No session log (blind) — written in the session-log step after the PR.
+  - `[false]` `[reject]` Rikke's two receipt messages and «Trykk og hold» are not decided in EXPERIENCE.md (blind) — EXPERIENCE.md lines 95–96 hold both messages, and the Copy row (line 154) is marked decided including the fallback.
+  - `[low]` `[patch]` `sent_answer` builds `Answer` with nine positional arguments (blind) — now keyword arguments.
+  - `[low]` `[patch]` `sent_answer` tests miss meals, withdrawn consent and nobody coming (blind) — round-trip tests added for these branches.
+  - `[low]` `[patch]` View edge cases untested: blank account number, du-form «Betal senere» (blind) — tests added; HEAD is covered by `require_safe` and earlier stories' tests.
+  - `[maybe-false]` `[defer]` With both Vipps and account number blank the payment page shows no way to pay (blind) — would be medium; depends on whether Rikke can leave both blank in admin; settled with the Settings admin story / go-live check.
+  - `[low]` `[reject]` `rsvp_sent` and `rsvp_pay` share an opening and the pay page builds the full summary (blind) — two short views, one extra summary build on a read-only page; no named harm.
+  - `[low]` `[patch]` Digits-only account number is derived in the view, not in `wedding/rules/` (blind) — moved to a rule with its own test (AD-12).
+  - `[false]` `[reject]` `respondent=sent.sent_by_id or 0` fallback (blind) — the respondent only marks the «Du har bekreftet» line, and `confirmed` is always empty in `sent_answer`, so 0 changes nothing.
+  - `[low]` `[reject]` Payment page has no link back to the receipt (blind) — the spec puts «Til invitasjonen» there; the browser back button works and 2.8 links the status block.
+  - `[low]` `[reject]` Desktop users get «Trykk og hold» on a failed copy (blind) — the fallback is rare (clipboard refused in a secure context), the value is selected either way, wording decided in EXPERIENCE.md.
+  - `[false]` `[reject]` `rsvp-copy.js` assumes `dd`, status and value exist (edge) — the only markup is `pay-row.html`, which always renders all three; no reachable input lacks them.
+  - `[low]` `[reject]` `getSelection()` may return null on rejection (edge) — only in detached frames; not reachable on this page.
+  - `[low]` `[reject]` Double-click settlements may show out of order (edge) — both settle to the same text in practice; a sequence guard adds state for a cosmetic case.
+  - `[low]` `[reject]` Blank-digit account number copies an empty string (edge) — Rikke enters a real account number; a guard adds a branch for an unlikely admin input.
+  - `[false]` `[reject]` `sent_by_id` None uses sentinel 0 (edge) — same as the blind row: `confirmed` is empty, so the sentinel never matches anything.
+  - `[false]` `[reject]` A coming row with no day booleans gives empty days (edge) — `send_answer` never stores a coming guest without days (2.6a validation), so the state is not reachable.
+  - `[false]` `[reject]` Stale allergy rows for non-coming guests are exposed (edge) — `_receipt` normalises the answer before showing it, and `send_answer` deletes allergies for guests who do not come.
+  - `[low]` `[reject]` A guest added after sending shows as not coming (edge) — admin edits of sent households belong to epic 5; the receipt honestly shows what was sent.
+  - `[low]` `[patch]` README tree lists `rsvp-copy.js` but not `pay.html` and `pay-row.html` (edge) — added.
+  - `[medium]` `[patch]` `sent_answer`'s partial-days path (`whole=False`, `days`, meals) is untested (verification-gap) — round-trip test with partial days and a meal plus an assertion on Synne's day line on the receipt.
+  - `[false]` `[reject]` Payment details are on a page, not expanded in place (intent) — the AC does not dictate the surface; decided and recorded in EXPERIENCE.md (G7) and the spec.
+  - `[false]` `[reject]` Copy behaviour is tested only as markup (intent) — MT-52 and MT-53 ran the script in Edge: clipboard got 12345678900, «Kopiert» in the right status, failure selected the value.
+  - `[low]` `[reject]` AD-12 is checked only in templates (intent) — no payment model exists yet (5.1); the views call `guest_balance` by inspection; 5.1 adds the report.
+  - `[false]` `[reject]` «Betal senere» focus is asserted only as markup (intent) — MT-53 observed focus on the notice in Edge with outline solid.
+  - `[low]` `[reject]` The closing line is repeated on the payment page and the notice sits between buttons and closing line (intent) — additions that keep the AC's order (buttons above the closing line).
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** `/<code>/svar/sendt/` is now the receipt (G6): «Svaret er sendt», who sent it and when, Rikke's message, «Dette har du/dere svart» built from the stored answer (`sent_answer` + `receipt_parts`), the total from `household_total`, and «Betal nå» / «Betal senere» when something is owed (`guest_balance`). New page `/<code>/svar/betal/` «Slik betaler du» (G7) shows amount, Vipps number, account number and «Bryllup <names>» (`payment_message`) as selectable text with «Kopier» buttons that a progressive script shows; the status spans are empty live regions from load (closes our side of the deferred live-region item).
+
+**Files changed:**
+- `wedding/rules/money.py`, `wedding/rules/households.py`, `wedding/selectors.py`, `wedding/rsvp/summary.py` — rules, selector, receipt summary.
+- `guests/views.py`, `guests/urls.py`, `wedding/rsvp/templates/rsvp/sent.html`, `pay.html`, `includes/pay-row.html`, `static/js/rsvp-copy.js`, `static/css/site.css`.
+- `tests/test_payment_rules.py`, `tests/test_rsvp_receipt.py`, `tests/test_rsvp_send.py`.
+- README, manual test plan (MT-51 to MT-54), EXPERIENCE.md, ARCHITECTURE-SPINE (AD-2 note), deferred-work.md, issues.md.
+
+**Review:** 29 findings: 6 patched (re-announcing «Kopiert», tests for partial days / consent / du-form notice, README order), 1 deferred (5.1 report amount), 22 rejected with reasons.
+
+**Follow-up review recommendation:** false. No high findings; the medium fixes are small and were re-verified in Edge.
+
+**Verification:** 1291 tests pass; ruff, ruff format and djlint clean; MT-51 to MT-54 run with Playwright in Edge before and after the patches, all passed.
+
+**Residual risks:** Screen-reader announcement of «Kopiert» needs NVDA/VoiceOver on Rikke's devices. Synne's seeded withdrawn consent is not applied by the seed until Story 7.2, so the receipt shows «ja» for her.

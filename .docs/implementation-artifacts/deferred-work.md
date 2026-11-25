@@ -5,6 +5,7 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-4a-the-invitation-s-colours-type-buttons-and-notices.md`
   summary: A notice inserted after page load with `live=True` arrives with its text already inside the new `role="status"`/`role="alert"` element, which some screen readers do not announce; the story that first inserts notices with JavaScript should keep an empty live region in the page at load and put only the text into it.
   evidence: maybe-false, would be medium. Nothing inserts notices with JavaScript yet (all of 1.4a is server-rendered and JS-free), so it cannot be observed now. It is settled by testing the first in-page insertion (for example «Kopiert» in Story 2.7 or the conflict notice in Story 4.2) with NVDA and VoiceOver.
+  status (2026-11-26, Story 2.7): code side done: «Slik betaler du» has one empty `role="status"` span per row in the server HTML, and rsvp-copy.js only sets its text («Kopiert»); MT-52 checks the proxy (empty at load, only the clicked one filled) with Playwright. Still open for Rikke: hear it announced with NVDA or VoiceOver.
 
 - source_spec: `.docs/implementation-artifacts/spec-1-4b-paper-rikke-s-images-and-the-private-invitation-page.md`
   summary: A wrong link with more than one path segment (for example `/hei/x/`) shows Django's own 404 page (with the URL list when DEBUG is on) instead of G1; Story 1.8 should set `handler404` to a G1-style page.
@@ -289,3 +290,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-6d-test-data-with-answers-and-a-real-browser-send.md`
   summary: Stories 5.2 and 7.2: `reset_test_data` deletes only `kind=ANSWER` Submissions; widen it to the Submission kinds those stories add for test households, or they will be orphaned like the answer rows were before 2.6d.
   evidence: Blind Hunter and Edge Case Hunter, 2.6d review; `wedding/services/testdata.py`.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-7-the-receipt-and-how-to-pay.md`
+  summary: `_receipt` in `guests/views.py` calls `guest_balance(total, None)`, so the receipt and «Slik betaler du» always show the full total as owed; Story 5.1 («Jeg har betalt») must pass the household's reported amount there instead of None.
+  evidence: certain, would be medium once 5.1 lands. No payment report exists before Story 5.1, so None is correct today; recorded only in the `_receipt` and `guest_balance` docstrings until now.
