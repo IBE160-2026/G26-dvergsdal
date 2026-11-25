@@ -20,7 +20,9 @@ def reset_test_data(actor: Actor) -> None:
     Only the system actor may reset. Story 5.2 adds seeded payments; AD-4 forbids
     deleting a household with payments, so that story makes this service void the
     test households' payments first. Story 2.6d (AD-20): the `Submission` rows
-    that point at a test household's answer are deleted first; real ones stay.
+    that point at a test household's answer are deleted first, and so are answer
+    `Submission`s whose answer no longer exists (left by seeds run before 2.6d);
+    real ones stay.
     """
     with transaction.atomic():
         if not isinstance(actor, SystemActor):
@@ -28,6 +30,9 @@ def reset_test_data(actor: Actor) -> None:
         test_answers = HouseholdAnswer.objects.filter(household__is_test_data=True)
         Submission.objects.filter(
             kind=Submission.ANSWER, object_id__in=test_answers.values("pk")
+        ).delete()
+        Submission.objects.filter(kind=Submission.ANSWER).exclude(
+            object_id__in=HouseholdAnswer.objects.values("pk")
         ).delete()
         Household.objects.filter(is_test_data=True).delete()
         User.objects.filter(is_test_data=True).delete()

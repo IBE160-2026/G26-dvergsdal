@@ -73,6 +73,8 @@ def snapshot():
         HouseholdAnswer.objects.count(),
         Submission.objects.count(),
         Consent.objects.count(),
+        PersonAnswer.objects.count(),
+        Allergy.objects.count(),
     )
 
 
@@ -599,3 +601,32 @@ def test_seed_answer_sets_days_and_confirms_a_consent_given_for_someone_else():
     assert answer.confirmed == frozenset({2})
     assert answer.allergies[2] == AllergyEntry(cats=("nuts",), note="x")
     assert answer.hike == {}
+
+
+@pytest.mark.django_db
+def test_a_seed_removes_orphan_answer_submissions_but_keeps_real_ones():
+    """AD-4, AD-20: an answer `Submission` whose answer is gone (from a seed before 2.6d)
+    is removed; one pointing at a real household's answer stays."""
+    seed()
+    kept = create_household(make_couple(), [NewGuest("Kari")])
+    (kari,) = kept.guests.all()
+    real = send_answer(
+        SYSTEM,
+        household=kept,
+        respondent=kari.pk,
+        answer=Answer(attendance={kari.pk: False}, whole=None),
+        now=timezone.now(),
+        submission=uuid.uuid4(),
+        revision=0,
+        shown_total=0,
+        consent_version=None,
+    )
+    orphan = Submission.objects.create(
+        key=uuid.uuid4(), kind=Submission.ANSWER, object_id=999_999, created_at=timezone.now()
+    )
+
+    seed()
+
+    assert not Submission.objects.filter(pk=orphan.pk).exists()
+    assert Submission.objects.filter(object_id=real.pk).exists()
+    assert Submission.objects.count() == 7

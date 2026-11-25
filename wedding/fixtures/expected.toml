@@ -8,9 +8,9 @@
 #   counts, totals and allergy states -> Story 3.5
 #   payment statuses and report matches -> Story 5.3
 #   Synne's withdrawn consent           -> Story 7.2
+#   the lock cases                      -> Story 4.3
 # Synne's nuts = 0 and nothing_stored = 4 hold only after Story 7.2 loads the
 # withdrawal; until then the seed (Story 2.6d) stores her nut allergy.
-#   the lock cases                      -> Story 4.3
 # Changing this file is a deliberate commit with the reason in the message.
 #
 # Prices from seed.toml: cabin 1500, Friday dinner 340, Saturday breakfast 260,
