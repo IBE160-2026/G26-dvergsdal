@@ -57,7 +57,7 @@ development_status:
   2-6a-send-the-answer: done
   2-6b-allergies-are-stored-only-with-consent: done
   2-6c-a-send-that-fails-or-repeats-is-safe: done
-  2-6d-test-data-with-answers-and-a-real-browser-send: backlog
+  2-6d-test-data-with-answers-and-a-real-browser-send: done
   2-7-the-receipt-and-how-to-pay: backlog
   2-8-the-household-s-status-on-the-invitation: backlog
   2-9-an-interrupted-answer-is-kept-on-the-phone: backlog
@@ -146,7 +146,7 @@ action_items:
     epic: 1
     action: "Later-story fixes routed in deferred-work.md: require_safe and Cache-Control
       on guest pages (2.1), seed must not overwrite real Settings plus error-path
-      tests (2.6d), phone without digit (4.5), pin runserver_nostatic"
+      tests (2.6d), phone without digit (4.5), pin runserver_nostatic; 2.6d part done 2026-11-25"
     owner: "Claude, named stories"
     status: open
     ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
