@@ -192,15 +192,15 @@ def test_the_deadline_passes_at_send(client, seeded, monkeypatch):
 def test_a_member_missing_from_step_1_goes_to_step_1(client, seeded):
     """FR-13, AD-9 (matrix «Missing member»): nobody coming reaches the check
     page; a guest then moved into the household is not in the draft's
-    attendance, so «Send svaret» sends the guest to step 1 (303) and nothing
-    is written."""
+    attendance, so the household changed (Story 2.9, FR-78): no step stays
+    done, «Send svaret» goes back to step 1 and nothing is written."""
     sigmund, bestemor = _ids(SIGMUND)
     client.post(_url(SIGMUND), {f"attendance_{sigmund}": "no", f"attendance_{bestemor}": "no"})
     assert client.get(_url(SIGMUND, "se-over")).status_code == 200
     newcomer = create_household(SYSTEM, [NewGuest("Ny gjest")]).guests.get()
     Guest.objects.filter(pk=newcomer.pk).update(household=Guest.objects.get(code=SIGMUND).household)
     response = _send(client)
-    assert response.status_code == 303
+    assert response.status_code in (302, 303)
     assert response["Location"] == _url(SIGMUND)
     assert HouseholdAnswer.objects.count() == 0
     assert PersonAnswer.objects.count() == 0

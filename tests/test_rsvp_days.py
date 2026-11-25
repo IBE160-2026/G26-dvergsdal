@@ -530,12 +530,13 @@ def test_changing_nei_to_ja_drops_the_days(client, seeded):
 
 @pytest.mark.parametrize("slug", ["overnatting", "se-over"])
 def test_a_member_added_after_step_2_reopens_it(client, seeded, slug):
-    """FR-75, AD-7: a guest added to the household after «Nei» with days has no
-    days, so the gate sends a later step back to step 2."""
+    """FR-75, AD-7, FR-78 (Story 2.9): a guest added to the household after
+    step 1 is not in the draft's attendance, so the household changed: no step
+    stays done and the gate sends a later step back to step 1."""
     _arild_revealed(client)
     client.post(_url(ARILD, "dager"), _days(ARILD, a=ALL, b=ALL, c=["sat", "sun"]))
     household = Guest.objects.get(code=ARILD).household
     Guest.objects.create(household=household, name="Ny", code=new_code())
     response = client.get(_url(ARILD, slug))
     assert response.status_code == 302
-    assert response["Location"] == _url(ARILD, "dager")
+    assert response["Location"] == _url(ARILD)
