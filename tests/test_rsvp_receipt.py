@@ -237,6 +237,7 @@ def test_sent_answer_partial_days_and_withdrawn_consent(seeded):
         {mona: True, geir: True},
         False,
         days={mona: ["sat"], geir: ["fri", "sat"]},
+        meals={geir: ["friday_dinner"]},
         allergies={mona: AllergyEntry(none=True)},
         consent={mona: True},
     )
@@ -255,6 +256,7 @@ def test_sent_answer_partial_days_and_withdrawn_consent(seeded):
     stored = sent_answer(household)
     assert stored.whole is False
     assert stored.days == {mona: ["sat"], geir: ["fri", "sat"]}
+    assert stored.meals == {mona: [], geir: ["friday_dinner"]}
     assert stored.consent == {mona: True}
     given = Consent.objects.get(guest_id=mona)
     Consent.objects.create(
@@ -265,3 +267,19 @@ def test_sent_answer_partial_days_and_withdrawn_consent(seeded):
         text_version=given.text_version,
     )
     assert sent_answer(household).consent == {}
+
+
+def test_sent_answer_when_nobody_comes(seeded_with_answers):
+    """AD-4, FR-13: Tor's household, nobody coming, reads back with `whole` None."""
+    stored = sent_answer(Guest.objects.get(code=TOR).household)
+    assert stored.whole is None
+    assert set(stored.attendance.values()) == {False}
+    assert stored.days == {}
+
+
+def test_a_blank_account_number_is_left_out(client, seeded_with_answers):
+    """FR-64: no «Kontonummer» row when the account number is blank."""
+    Settings.objects.update(account_number="")
+    html = _pay(client, SIGMUND).content.decode()
+    assert "Kontonummer" not in html
+    assert html.count('role="status"') == 3

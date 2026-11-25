@@ -181,15 +181,15 @@ def sent_answer(household: Household) -> Answer:
         else:
             consent[event.guest_id] = event.event == Consent.GIVEN
     return Answer(
-        attendance,
-        whole,
-        days if whole is False else {},
-        {row.guest_id: row.cabin for row in coming},
-        {row.guest_id: [meal for meal in MEAL_KEYS if getattr(row, meal)] for row in coming},
-        allergies,
-        consent,
-        frozenset(),
-        {row.guest_id: row.hike for row in coming if row.hike},
+        attendance=attendance,
+        whole=whole,
+        days=days if whole is False else {},
+        night={row.guest_id: row.cabin for row in coming},
+        meals={row.guest_id: [meal for meal in MEAL_KEYS if getattr(row, meal)] for row in coming},
+        allergies=allergies,
+        consent=consent,
+        confirmed=frozenset(),
+        hike={row.guest_id: row.hike for row in coming if row.hike},
     )
 
 

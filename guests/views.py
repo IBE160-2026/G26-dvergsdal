@@ -51,7 +51,7 @@ from wedding.rules.answer import normalise_answer, present_days
 from wedding.rules.deadline import is_past_deadline
 from wedding.rules.form_steps import form_steps
 from wedding.rules.households import household_names, payment_message, speaks_to_one
-from wedding.rules.money import guest_balance, household_total
+from wedding.rules.money import digits_only, guest_balance, household_total
 from wedding.selectors import (
     footer_contacts,
     form_prices,
@@ -346,7 +346,7 @@ def rsvp_pay(request: HttpRequest, code: str) -> HttpResponse:
         "balance": receipt["balance"],
         "vipps_number": settings.vipps_number,
         "account_number": settings.account_number,
-        "account_digits": "".join(char for char in settings.account_number if char.isdigit()),
+        "account_digits": digits_only(settings.account_number),
         "payment_message": receipt["payment_message"],
     }
     return render(request, "rsvp/pay.html", context)

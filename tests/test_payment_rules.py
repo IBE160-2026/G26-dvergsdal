@@ -8,7 +8,7 @@ household's names.
 import pytest
 
 from wedding.rules.households import payment_message
-from wedding.rules.money import guest_balance
+from wedding.rules.money import digits_only, guest_balance
 
 
 @pytest.mark.parametrize(
@@ -31,3 +31,11 @@ def test_guest_balance(total, report, owed):
 def test_payment_message(names, message):
     """FR-71, AD-4: derived from the names in order, as the hero names the household."""
     assert payment_message(names) == message
+
+
+@pytest.mark.parametrize(
+    ("text", "digits"), [("1234.56.78900", "12345678900"), ("000 00", "00000"), ("", "")]
+)
+def test_digits_only(text, digits):
+    """FR-34, FR-64: the account and Vipps numbers copy as digits only."""
+    assert digits_only(text) == digits

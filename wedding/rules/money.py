@@ -37,6 +37,15 @@ def household_total(answer: Answer, prices: Mapping[str, int]) -> int:
     return int(cabins + meals)
 
 
+def digits_only(text: str) -> str:
+    """FR-34, FR-64: `text` with everything but its digits removed.
+
+    «1234.56.78900» copies as «12345678900», since bank and Vipps fields
+    reject dots and spaces.
+    """
+    return "".join(char for char in text if char.isdigit())
+
+
 def guest_balance(total: int, report: int | None) -> int:
     """FR-34, FR-36, AD-12: what the guest is shown as left to pay, never below 0.
 
