@@ -1,0 +1,41 @@
+{% extends "wedding/base.html" %}
+{% load static money %}
+{% comment %}
+«Slik betaler du», the payment page G7 (Story 2.7; FR-34, FR-64, FR-71,
+AD-12, UX-DR25; DESIGN.md › Payment details, mockups/key-receipt.html). Same
+paper sheet as the receipt, with no nav bar and the footer band kept. A list
+of the amount owed (`guest_balance`), the Vipps number and account number
+from the settings (a blank one is left out) and the payment message
+(`payment_message`), each as plain selectable text. Each row has a «Kopier»
+button, `hidden` until rsvp-copy.js finds a clipboard in a secure context,
+with `data-copy` (digits only for the amount and the account number), and
+an empty `role="status"` span present at load that the script fills with
+«Kopiert» or «Trykk og hold for å kopiere». Without the script the values
+are still readable. No «Jeg har betalt» until Story 5.1.
+{% endcomment %}
+{% block title %}Slik betaler du – Invitasjon{% endblock title %}
+{% block head %}
+    <script src="{% static 'js/rsvp-copy.js' %}" defer></script>
+{% endblock head %}
+{% block content %}
+    <main class="column form-page">
+        <div class="paper-sheet form-sheet">
+            <h1>Slik betaler du</h1>
+            <dl class="pay-list">
+                {% include "rsvp/includes/pay-row.html" with label="Beløp" value=balance|kroner copy=balance|stringformat:"d" name="Kopier beløpet" only %}
+                {% if vipps_number %}
+                    {% include "rsvp/includes/pay-row.html" with label="Vipps-nummer" value=vipps_number copy=vipps_number name="Kopier Vipps-nummeret" only %}
+                {% endif %}
+                {% if account_number %}
+                    {% include "rsvp/includes/pay-row.html" with label="Kontonummer" value=account_number copy=account_digits name="Kopier kontonummeret" only %}
+                {% endif %}
+                {% include "rsvp/includes/pay-row.html" with label="Betalingsmelding" value=payment_message copy=payment_message name="Kopier betalingsmeldingen" only %}
+            </dl>
+            <p class="receipt-close">Du kan nå trygt lukke invitasjonen.</p>
+            <p class="receipt-back">
+                <a href="{% url 'guests:front_page' code %}">Til invitasjonen</a>
+            </p>
+        </div>
+    </main>
+    {% include "wedding/components/footer-band.html" %}
+{% endblock content %}

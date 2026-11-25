@@ -38,5 +38,6 @@ urlpatterns += [
     path("<str:code>/svar/", views.rsvp, name="rsvp"),
     path("<str:code>/svar/sum/", views.rsvp_total, name="rsvp_total"),
     path("<str:code>/svar/sendt/", views.rsvp_sent, name="rsvp_sent"),
+    path("<str:code>/svar/betal/", views.rsvp_pay, name="rsvp_pay"),
     path("<str:code>/svar/<str:slug>/", views.rsvp_step, name="rsvp_step"),
 ]

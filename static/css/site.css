@@ -1218,7 +1218,7 @@ a:active {
 
 /* Story 2.6a (FR-74, UX-DR24): «Svaret er sendt». The success notice holds
  * the `h1` and the sent line, which wraps inside the sheet. No breakpoint of
- * its own; Story 2.7 completes the receipt. */
+ * its own; Story 2.7 completes the receipt below. */
 
 .sent-notice h1 {
   margin: 0;
@@ -1228,6 +1228,113 @@ a:active {
 .sent-notice p {
   margin: var(--space-1) 0 0;
   overflow-wrap: anywhere;
+}
+
+/* Story 2.7 (FR-23, FR-34, FR-71, UX-DR24, UX-DR25; DESIGN.md › Receipt
+ * panel, Payment details): the receipt and «Slik betaler du». Rikke's message
+ * in body text; the summary as the check page's blocks without «Endre»; the
+ * payment buttons with the closing line right below them; the «Betal senere»
+ * notice between them. On the payment page each row is a label, the value as
+ * selectable text that wraps inside the sheet, then «Kopier» and its status.
+ * No breakpoint of its own. */
+
+.receipt-message {
+  margin-top: var(--space-4);
+}
+
+.form-sheet .receipt-heading {
+  margin-top: var(--space-6);
+}
+
+.receipt-summary {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.receipt-summary__item {
+  padding: var(--space-3) 0;
+}
+
+.receipt-summary__item + .receipt-summary__item {
+  border-top: 1px solid var(--color-divider);
+}
+
+.receipt-summary__item h3 {
+  margin: 0;
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-label);
+  font-weight: var(--font-weight-label);
+  overflow-wrap: anywhere;
+}
+
+.receipt-summary__item > p {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.receipt-later {
+  margin-top: var(--space-4);
+}
+
+.receipt-close {
+  margin-top: var(--space-4);
+}
+
+.receipt-back {
+  margin-top: var(--space-3);
+}
+
+.receipt-back a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-target-min);
+}
+
+.pay-list {
+  margin: var(--space-4) 0 0;
+}
+
+.pay-list__row {
+  padding: var(--space-3) 0;
+}
+
+.pay-list__row + .pay-list__row {
+  border-top: 1px solid var(--color-divider);
+}
+
+.pay-list dt {
+  font-size: var(--font-size-label);
+  line-height: var(--line-height-label);
+  font-weight: var(--font-weight-label);
+}
+
+.pay-list dd {
+  margin: var(--space-1) 0 0;
+}
+
+.pay-list__value {
+  display: block;
+  overflow-wrap: anywhere;
+  user-select: text;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.pay-list__copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.pay-list__copy .button {
+  width: auto;
+}
+
+/* `.button` sets display, so the attribute alone would not hide it. */
+.pay-list__copy .button[hidden] {
+  display: none;
 }
 
 /* ---------- Footer band (FR-6, UX-DR12; DESIGN.md › Footer band) ----------

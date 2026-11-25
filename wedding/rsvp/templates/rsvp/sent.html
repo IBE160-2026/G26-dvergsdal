@@ -1,12 +1,18 @@
 {% extends "wedding/base.html" %}
 {% comment %}
-«Svaret er sendt», where «Send svaret» lands (Story 2.6a; FR-74, AD-7,
-UX-DR24; EXPERIENCE.md › Receipt heading and sent line). Same paper sheet as
-the check page, with no nav bar and the footer band kept: a success notice
-holding the `h1` and the sent line «Sendt av <name> <weekday j. month Y> kl.
-<H:i>.» in Oslo time (TIME_ZONE), then «Til invitasjonen». Wording «avgjort
-av Claude» in Story 2.6a. Story 2.7 adds Rikke's message, the summary, the total
-and how to pay. No form and no script.
+The receipt G6, where «Send svaret» lands (Stories 2.6a, 2.7; FR-23, FR-34,
+FR-74, AD-7, AD-12, UX-DR24, UX-DR51; EXPERIENCE.md › Receipt panel,
+mockups/key-receipt.html). Same paper sheet as the check page, with no nav
+bar and the footer band kept. In order: the success notice holding the `h1`
+and the sent line «Sendt av <name> <weekday j. month Y> kl. <H:i>.» in Oslo
+time (TIME_ZONE); Rikke's message (coming when anyone in the household comes,
+else not coming; du/dere by `speaks_to_one`); «Dette har dere svart» with the
+stored answer's lines (`receipt_parts`, no «Endre», no prices); the total
+from `household_total`; when something is owed (`balance`), «Betal nå» to
+the payment page above «Betal senere», and after `?betal=senere` the focused
+info notice; then the closing line and «Til invitasjonen». Nothing owed: no
+payment buttons. «Betal nå» gets no autofocus, so screen readers start at
+the heading (avgjort av Claude in Story 2.7). No form and no script.
 {% endcomment %}
 {% block title %}Svaret er sendt – Invitasjon{% endblock title %}
 {% block content %}
@@ -21,10 +27,47 @@ and how to pay. No form and no script.
                     </p>
                 </div>
             </div>
-            <div class="form-actions">
-                <a class="button button--secondary"
-                   href="{% url 'guests:front_page' code %}">Til invitasjonen</a>
-            </div>
+            {% if anyone_coming %}
+                <p class="receipt-message">
+                    Tusen takk for at du tok deg tiden til å svare, vi gleder oss til å feire den store dagen med {% if speaks_to_one %}deg{% else %}dere{% endif %}!
+                </p>
+            {% else %}
+                <p class="receipt-message">
+                    Så leit at {% if speaks_to_one %}du{% else %}dere{% endif %} ikke har mulighet til å delta, men dette har vi full forståelse for.
+                </p>
+            {% endif %}
+            <h2 class="receipt-heading">Dette har {% if speaks_to_one %}du{% else %}dere{% endif %} svart</h2>
+            <ul class="receipt-summary">
+                {% for part in parts %}
+                    <li class="receipt-summary__item">
+                        <h3>{{ part.name }}</h3>
+                        {% for line in part.lines %}
+                            <p {% if line.missing %}class="check-list__missing"{% endif %}>{{ line.text|linebreaksbr }}</p>
+                        {% endfor %}
+                    </li>
+                {% endfor %}
+            </ul>
+            {% include "rsvp/includes/total.html" %}
+            {% if balance > 0 %}
+                <div class="form-actions">
+                    <a class="button" href="{% url 'guests:rsvp_pay' code %}">Betal nå</a>
+                    <a class="button button--secondary"
+                       href="{% url 'guests:rsvp_sent' code %}?betal=senere">Betal senere</a>
+                </div>
+                {% if pay_later %}
+                    <div class="receipt-later">
+                        {% if speaks_to_one %}
+                            {% include "wedding/components/notice.html" with variant="info" text="Den samme lenken viser alltid hva du har igjen å betale, og hvordan du betaler." focus=True only %}
+                        {% else %}
+                            {% include "wedding/components/notice.html" with variant="info" text="Den samme lenken viser alltid hva dere har igjen å betale, og hvordan dere betaler." focus=True only %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endif %}
+            <p class="receipt-close">Du kan nå trygt lukke invitasjonen.</p>
+            <p class="receipt-back">
+                <a href="{% url 'guests:front_page' code %}">Til invitasjonen</a>
+            </p>
         </div>
     </main>
     {% include "wedding/components/footer-band.html" %}

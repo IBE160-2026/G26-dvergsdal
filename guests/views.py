@@ -9,7 +9,8 @@ and the site-wide error pages for 404, 500, 400 and a failed CSRF check
 (Story 1.8, FR-5, FR-6, AD-15), and the RSVP form under `/<code>/svar/`
 (Story 2.1, FR-12 to FR-14, FR-22, FR-41, AD-7, AD-8, AD-11) with its running
 total under `/<code>/svar/sum/` (Story 2.3, FR-33) and its sent page under
-`/<code>/svar/sendt/` (Story 2.6a, FR-74).
+`/<code>/svar/sendt/` (Story 2.6a, FR-74), which Story 2.7 makes the receipt
+(FR-23, FR-34), with the payment page under `/<code>/svar/betal/` (FR-71).
 
 Every guest view only reads (FR-3): one resolver lookup, then selectors. None
 of them touches the session, the messages framework or `request.user`, and
@@ -42,11 +43,15 @@ from django.views.decorators.http import require_http_methods, require_POST, req
 
 from wedding.actors import GuestActor
 from wedding.links import resolve_code
-from wedding.models import Settings
+from wedding.models import HouseholdAnswer, Settings
 from wedding.rsvp.steps import KEY_BY_SLUG, FormMount
+from wedding.rsvp.summary import receipt_parts
 from wedding.rsvp.views import handle_step, render_after_csrf_failure, render_total
+from wedding.rules.answer import normalise_answer, present_days
 from wedding.rules.deadline import is_past_deadline
-from wedding.rules.households import household_names, speaks_to_one
+from wedding.rules.form_steps import form_steps
+from wedding.rules.households import household_names, payment_message, speaks_to_one
+from wedding.rules.money import guest_balance, household_total
 from wedding.selectors import (
     footer_contacts,
     form_prices,
@@ -54,6 +59,7 @@ from wedding.selectors import (
     household_guest_names,
     household_members,
     programme_prices,
+    sent_answer,
     site_settings,
 )
 from wedding.services.exceptions import DeadlinePassed
@@ -252,25 +258,98 @@ def rsvp_step(request: HttpRequest, code: str, slug: str) -> HttpResponse:
     return _rsvp(request, code, KEY_BY_SLUG.get(slug))
 
 
+def _receipt(actor: GuestActor, sent: HouseholdAnswer, settings: Settings) -> dict[str, object]:
+    """FR-23, FR-34, FR-71, AD-12, UX-DR51 (Story 2.7): what the receipt and the payment page show.
+
+    From the stored answer (`sent_answer`): the steps that apply, the summary
+    parts, the total from `household_total` (so it equals the check page's),
+    what is owed from `guest_balance` (no report until Story 5.1), whether
+    anyone comes, du/dere and the payment message. Never reads payment rows.
+    """
+    members = household_members(actor.household)
+    answer = sent_answer(actor.household)
+    present = present_days(normalise_answer(answer))
+    steps = form_steps(
+        [answer.attendance.get(guest_id, False) for guest_id, _ in members],
+        [present.get(guest_id) for guest_id, _ in members],
+    )
+    total = household_total(answer, form_prices(settings))
+    names = [name for _, name in members]
+    return {
+        "parts": receipt_parts(
+            answer, members=members, respondent=sent.sent_by_id or 0, steps=steps
+        ),
+        "total": total,
+        "balance": guest_balance(total, None),
+        "anyone_coming": bool(present),
+        "speaks_to_one": speaks_to_one(len(members)),
+        "payment_message": payment_message(names),
+    }
+
+
 @never_cache
 @require_safe
 def rsvp_sent(request: HttpRequest, code: str) -> HttpResponse:
-    """FR-74, AD-7, UX-DR24 (Story 2.6a): «Svaret er sendt», where «Send svaret» lands.
+    """FR-23, FR-34, FR-74, AD-7, AD-12, UX-DR24, UX-DR51 (Stories 2.6a, 2.7): the receipt (G6).
 
-    An unknown code gives G1 with 404; a household that has sent nothing is
-    sent (302) to step 1. Otherwise the sent page with who sent the answer
-    and when, in Oslo time. It only reads, so the deadline does not close
-    it. Story 2.7 turns it into the full receipt. Only GET and HEAD, never
-    cached (AD-15).
+    Where «Send svaret» lands. An unknown code gives G1 with 404; a household
+    that has sent nothing is sent (302) to step 1. Otherwise «Svaret er
+    sendt» with who sent it and when (Oslo time), Rikke's message, the
+    summary of the stored answer, the total and, when something is owed,
+    «Betal nå» and «Betal senere». `?betal=senere` adds the focused notice
+    that the link always shows what is left to pay (only when owed; any
+    other value is ignored). It only reads, so the deadline does not close
+    it. Only GET and HEAD, never cached (AD-15).
     """
     actor = resolve_code(code)
     if actor is None:
         return _unknown_link(request)
-    answer = household_answer(actor.household)
-    if answer is None:
+    sent = household_answer(actor.household)
+    if sent is None:
         return HttpResponseRedirect(reverse("guests:rsvp", args=[code]))
-    context = _guest_context(actor, site_settings()) | {"answer": answer}
+    settings = site_settings()
+    receipt = _receipt(actor, sent, settings)
+    context = (
+        _guest_context(actor, settings)
+        | receipt
+        | {
+            "answer": sent,
+            "pay_later": receipt["balance"] > 0 and request.GET.get("betal") == "senere",
+        }
+    )
     return render(request, "rsvp/sent.html", context)
+
+
+@never_cache
+@require_safe
+def rsvp_pay(request: HttpRequest, code: str) -> HttpResponse:
+    """FR-34, FR-64, FR-71, AD-12, UX-DR25 (Story 2.7): «Slik betaler du» (G7).
+
+    The amount owed, the Vipps number, the account number and the payment
+    message, as selectable text with «Kopier» buttons the script shows. A
+    setting left blank is left out. An unknown code gives G1 with 404; no
+    sent answer gives 302 to step 1; nothing owed gives 302 to the receipt.
+    It only reads, so the deadline does not close it. Only GET and HEAD,
+    never cached (AD-15).
+    """
+    actor = resolve_code(code)
+    if actor is None:
+        return _unknown_link(request)
+    sent = household_answer(actor.household)
+    if sent is None:
+        return HttpResponseRedirect(reverse("guests:rsvp", args=[code]))
+    settings = site_settings()
+    receipt = _receipt(actor, sent, settings)
+    if receipt["balance"] <= 0:
+        return HttpResponseRedirect(reverse("guests:rsvp_sent", args=[code]))
+    context = _guest_context(actor, settings) | {
+        "balance": receipt["balance"],
+        "vipps_number": settings.vipps_number,
+        "account_number": settings.account_number,
+        "account_digits": "".join(char for char in settings.account_number if char.isdigit()),
+        "payment_message": receipt["payment_message"],
+    }
+    return render(request, "rsvp/pay.html", context)
 
 
 @never_cache
