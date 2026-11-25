@@ -28,7 +28,7 @@ import pytest
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.core import signing
-from django.db import OperationalError
+from django.db import IntegrityError, OperationalError
 from django.test import Client
 
 from tests.helpers import page_text, row_counts, tag_attrs
@@ -409,7 +409,8 @@ def test_a_failed_database_write(client, seeded, monkeypatch, caplog):
         response = _send(client)
     assert response["Location"] == _url(SIGMUND, "se-over") + "?sending=feilet"
     assert COOKIE_NAME not in response.cookies
-    assert "Sending the answer failed (OperationalError)" in caplog.text
+    household = Guest.objects.get(code=SIGMUND).household_id
+    assert f"Sending the answer failed (OperationalError) for household {household}" in caplog.text
     assert "Sigmund" not in caplog.text
     html = client.get(response["Location"]).content.decode()
     text = page_text(html)
@@ -472,3 +473,45 @@ def test_the_csrf_failure_page_carries_the_hidden_fields(seeded):
     html = _send(client, data={"action": "send"}).content.decode()
     assert re.search(r'name="innsending" value="[0-9a-f-]{36}"', html)
     assert re.search(r'name="sum" value="\d+"', html)
+
+
+def test_a_same_id_race_lands_on_the_sent_page(client, seeded, monkeypatch):
+    """AD-20, NFR-1 (Story 2.6c): the loser of a same-id race gets an
+    `IntegrityError` after the winner wrote the id; it lands on `sendt/` and
+    the draft is deleted."""
+    _sigmund_to_check(client)
+    real = send_answer
+
+    def races(actor, **kwargs):
+        real(actor, **kwargs)
+        raise IntegrityError("UNIQUE constraint failed")
+
+    monkeypatch.setattr("wedding.rsvp.views.send_answer", races)
+    response = _send(client)
+    assert response["Location"] == _url(SIGMUND, "sendt")
+    assert response.cookies[COOKIE_NAME]["max-age"] == 0
+    assert Submission.objects.count() == 1
+
+
+def test_another_households_id_goes_back_to_the_check_page(client, seeded):
+    """AD-3, AD-20 (Story 2.6c): an `innsending` written for Arild's household
+    is refused with 303 to the check page, nothing written, no server error."""
+    arild, marie, filippa, leone = _ids(ARILD)
+    key = uuid.uuid4()
+    send_answer(
+        SYSTEM,
+        household=Guest.objects.get(code=ARILD).household,
+        respondent=arild,
+        answer=Answer({arild: False, marie: False, filippa: False, leone: False}, True),
+        now=datetime.datetime(2027, 1, 1, tzinfo=datetime.UTC),
+        submission=key,
+        revision=0,
+        shown_total=0,
+        consent_version=None,
+    )
+    _sigmund_to_check(client)
+    data = _hidden(client) | {"action": "send", "innsending": str(key)}
+    response = _send(client, data=data)
+    assert response["Location"] == _url(SIGMUND, "se-over")
+    assert HouseholdAnswer.objects.count() == 1
+    assert Submission.objects.count() == 1

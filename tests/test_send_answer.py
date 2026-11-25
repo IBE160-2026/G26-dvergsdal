@@ -616,8 +616,9 @@ def test_two_sends_from_the_same_revision(deadline):
         ({"consent_version": "2020-01-01"}, LAST_SECOND, ConsentTextChanged),
         ({"consent_version": None}, LAST_SECOND, ConsentTextChanged),
         ({}, CLOSED, DeadlinePassed),
+        ({"revision": 3}, CLOSED, RevisionConflict),
     ],
-    ids=["revision", "total", "consent text", "no consent text", "deadline"],
+    ids=["revision", "total", "consent text", "no consent text", "deadline", "revision first"],
 )
 def test_a_refused_send_records_no_submission(deadline, checks, now, error):
     """AD-7, AD-9, AD-18, AD-20 (Story 2.6c, matrix «Price changed», «Consent

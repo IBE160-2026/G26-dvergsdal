@@ -51,7 +51,7 @@ import logging
 import uuid
 from dataclasses import replace
 
-from django.db import DatabaseError
+from django.db import DatabaseError, IntegrityError
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.utils import dateformat, timezone
@@ -112,7 +112,12 @@ from wedding.rules.money import CABIN, household_total
 from wedding.selectors import household_answer, submitted
 from wedding.services.answers import send_answer
 from wedding.services.consent import CONSENT_TEXT_VERSION
-from wedding.services.exceptions import ConsentTextChanged, RevisionConflict, TotalChanged
+from wedding.services.exceptions import (
+    ConsentTextChanged,
+    NotAllowed,
+    RevisionConflict,
+    TotalChanged,
+)
 
 STEP_TEMPLATE = "rsvp/step.html"
 CHECK_TEMPLATE = "rsvp/check.html"
@@ -687,6 +692,12 @@ def _shown_total(request: HttpRequest) -> int | None:
     return int(value) if value.isascii() and value.isdigit() else None
 
 
+def _log_failed(actor: Actor, error: Exception) -> None:
+    """NFR-3, UX-DR52 (Story 2.6c): a failed send, with the household id and the class only."""
+    household = actor.household.pk if isinstance(actor, GuestActor) else None
+    logger.error("Sending the answer failed (%s) for household %s", type(error).__name__, household)
+
+
 def _send(
     request: HttpRequest, *, actor: Actor, mount: FormMount, members: Members, draft: Draft
 ) -> tuple[HttpResponse, Draft | None]:
@@ -700,7 +711,9 @@ def _send(
     revision change), back with `?sending=endret`. `ConsentTextChanged`: the
     consent answers, confirmations and seen version are cleared, back with
     `?sending=samtykke`. A database failure is logged with its class name
-    only, back with `?sending=feilet`, the draft untouched. `DeadlinePassed`
+    only, back with `?sending=feilet`, the draft untouched; an
+    `IntegrityError` after the same id was written by a racing request is a
+    repeat. `NotAllowed` (another household's id) goes back to the check page. `DeadlinePassed`
     is left to the mount's view (FR-41).
     """
     check_url = mount.url(CHECK)
@@ -720,6 +733,9 @@ def _send(
             shown_total=shown_total,
             consent_version=draft.cv,
         )
+    except NotAllowed:
+        # AD-3, AD-20: a submission id written for another household.
+        return _see_other(check_url), None
     except TotalChanged:
         return _see_other(f"{check_url}?{SENDING_QUERY}={SEND_TOTAL}"), None
     except RevisionConflict as conflict:
@@ -728,8 +744,16 @@ def _send(
     except ConsentTextChanged:
         new = replace(draft, cons={}, conf=[], cv=None)
         return _see_other(f"{check_url}?{SENDING_QUERY}={SEND_CONSENT}"), new
+    except IntegrityError as error:
+        # AD-20, NFR-1: the same id raced and the other request wrote it.
+        if isinstance(actor, GuestActor) and submitted(actor.household, submission):
+            response = _see_other(mount.sent_url())
+            delete_draft(response, mount)
+            return response, None
+        _log_failed(actor, error)
+        return _see_other(f"{check_url}?{SENDING_QUERY}={SEND_FAILED}"), None
     except DatabaseError as error:
-        logger.error("Sending the answer failed (%s)", type(error).__name__)
+        _log_failed(actor, error)
         return _see_other(f"{check_url}?{SENDING_QUERY}={SEND_FAILED}"), None
     response = _see_other(mount.sent_url())
     delete_draft(response, mount)
