@@ -152,11 +152,12 @@ def test_without_a_digit_in_either_phone_there_is_no_footer(client, seeded):
     assert "tel:" not in html
 
 
-@pytest.mark.parametrize(("path", "queries"), [("", 3), *((path, 2) for path in INFO_PATHS)])
+@pytest.mark.parametrize(("path", "queries"), [("", 4), *((path, 3) for path in INFO_PATHS)])
 def test_opening_a_guest_page_never_writes(client, seeded, path, queries):
-    """FR-2, FR-3 over HTTP: a GET of the front page runs three SELECTs (the
-    resolver, the household's guest names, the settings row) and of an info page
-    two, and nothing else: it creates and changes no row (household revisions
+    """FR-2, FR-3 over HTTP: a GET of the front page runs four SELECTs (the
+    resolver, the household's guest names, the settings row, the answer check of
+    Story 2.8) and of an info page three (the resolver, the settings row, the
+    answer check), and nothing else: it creates and changes no row (household revisions
     included), sets no cookie and makes no session."""
     before = row_counts()
     revisions = list(Household.objects.values_list("id", "revision"))

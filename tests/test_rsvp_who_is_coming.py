@@ -113,9 +113,9 @@ def _set_deadline(deadline: datetime.date) -> None:
 
 def test_open_step_1(client, seeded, django_assert_num_queries):
     """FR-12, FR-14, UX-DR18, UX-DR19: «Hvem kommer?», «Steg 1 av 6», «Jeg er
-    Sigmund» with «Bytt», one group per member with nothing chosen, in three
+    Sigmund» with «Bytt», one group per member with nothing chosen, in four
     SELECTs, and no draft before «Fortsett»."""
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(4):
         response = client.get(STEP_1)
     assert response.status_code == 200
     html = response.content.decode()
@@ -651,7 +651,8 @@ def test_csrf_failure_falls_back_to_the_generic_page_on_any_error(seeded, monkey
 def test_the_whole_flow_writes_nothing_and_uses_no_session(client, seeded, monkeypatch):
     """AD-1, AD-8, FR-3: GET, an invalid POST, a valid POST, the next frame and a
     switch: no row created or changed, no session, no session or messages cookie,
-    messages never called, no script, three SELECTs per request, and every
+    messages never called, no script, four SELECTs per request (Story 2.8 adds
+    the answer check), and every
     response is private and never stored."""
 
     def no_messages(*args, **kwargs):
@@ -677,7 +678,7 @@ def test_the_whole_flow_writes_nothing_and_uses_no_session(client, seeded, monke
             response = getattr(client, method)(path, data)
         assert response.status_code == status, (method, path)
         sql = [query["sql"] for query in captured.captured_queries]
-        assert len(sql) == 3, (method, path, sql)
+        assert len(sql) == 4, (method, path, sql)
         assert all(statement.lstrip().upper().startswith("SELECT") for statement in sql)
         assert "private" in response["Cache-Control"]
         assert "no-store" in response["Cache-Control"]

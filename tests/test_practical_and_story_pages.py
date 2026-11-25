@@ -1,7 +1,7 @@
 """The content of Praktisk informasjon and Vår historie (Story 1.6, G3).
 
 FR-10, FR-11, AD-17, UX-DR12, UX-DR14. Every row of the story's I/O matrix
-for `/praktisk/` and `/historie/`: two SELECTs; on Praktisk the «Hopp til»
+for `/praktisk/` and `/historie/`: three SELECTs; on Praktisk the «Hopp til»
 jump links in three lists with hidden dots, then seven info sheets, each a
 focusable jump target labelled by its `h2`; on Vår historie one story sheet
 labelled by the page title, nine chapter `h2`s with one hidden dot each and the
@@ -93,7 +93,7 @@ def _mockup_parts() -> dict[str, str]:
 
 
 def _get(client, django_assert_num_queries, path: str) -> str:
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         response = client.get(f"/{CODE}/{path}")
     assert response.status_code == 200
     return response.content.decode()
@@ -225,7 +225,7 @@ def test_practical_leaves_out_what_later_stories_bring(
     main = main_html(practical)
     assert "veibeskrivelse" not in main
     assert "Godt å vite" not in main
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         one = client.get(f"/{SYNNE}/praktisk/").content.decode()
     assert page_text(main_html(one)) == page_text(main)
 

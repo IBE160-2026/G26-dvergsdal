@@ -11,6 +11,9 @@ and the site-wide error pages for 404, 500, 400 and a failed CSRF check
 total under `/<code>/svar/sum/` (Story 2.3, FR-33) and its sent page under
 `/<code>/svar/sendt/` (Story 2.6a, FR-74), which Story 2.7 makes the receipt
 (FR-23, FR-34), with the payment page under `/<code>/svar/betal/` (FR-71).
+Once a household has answered, the front page shows its status block instead
+of the RSVP sheet and every form address leads there (Story 2.8, FR-24,
+FR-34, UX-DR10).
 
 Every guest view only reads (FR-3): one resolver lookup, then selectors. None
 of them touches the session, the messages framework or `request.user`, and
@@ -44,10 +47,15 @@ from django.views.decorators.http import require_http_methods, require_POST, req
 from wedding.actors import GuestActor
 from wedding.links import resolve_code
 from wedding.models import HouseholdAnswer, Settings
-from wedding.rsvp.steps import KEY_BY_SLUG, FormMount
+from wedding.rsvp.steps import CHECK, KEY_BY_SLUG, FormMount
 from wedding.rsvp.summary import receipt_parts
-from wedding.rsvp.views import handle_step, render_after_csrf_failure, render_total
-from wedding.rules.answer import normalise_answer, present_days
+from wedding.rsvp.views import (
+    SENDING_QUERY,
+    handle_step,
+    render_after_csrf_failure,
+    render_total,
+)
+from wedding.rules.answer import Answer, normalise_answer, present_days
 from wedding.rules.deadline import is_past_deadline
 from wedding.rules.form_steps import form_steps
 from wedding.rules.households import household_names, payment_message, speaks_to_one
@@ -122,16 +130,25 @@ def _unknown_link(request: HttpRequest) -> HttpResponse:
     return render(request, PRIVATE_INVITATION, status=404)
 
 
-def _guest_context(actor: GuestActor, settings: Settings, current: str = "") -> dict[str, object]:
+def _guest_context(
+    actor: GuestActor,
+    settings: Settings,
+    current: str = "",
+    answered: bool | None = None,
+) -> dict[str, object]:
     """FR-6, FR-8, FR-41: what every guest page under a valid link needs.
 
     The code for the nav links, the open info page (`current`, empty on the
-    front page) and, from the settings row the view has read once, the footer
-    contacts and the deadline.
+    front page), whether the household has answered (`answered`, Story 2.8,
+    FR-24, AD-4: `household_answer`, one SELECT; the nav «Svar» then goes to
+    `#status`; a caller that has read it already passes `answered`) and, from
+    the settings row the view has read once, the footer contacts and the
+    deadline.
     """
     return {
         "code": actor.guest.code,
         "current": current,
+        "answered": household_answer(actor.household) is not None if answered is None else answered,
         "contacts": footer_contacts(settings),
         "deadline": settings.rsvp_deadline,
     }
@@ -143,19 +160,27 @@ def front_page(request: HttpRequest, code: str) -> HttpResponse:
     """FR-2, FR-3, FR-5, FR-6, FR-7, FR-8, FR-41, UX-DR51: the invitation's front page (G2).
 
     The code goes through the one resolver (AD-6); nobody gets G1 with 404.
-    Three SELECTs in all: the resolver, the household's guest names and the
-    settings row. The household line and «deg»/«dere» come from the rules; the
-    wedding's date and place are template text (AD-17). The RSVP sheet links to
-    the form (Story 2.1). Only GET and HEAD, never cached (AD-15).
+    Unanswered, four SELECTs: the resolver, the household's guest names, the
+    settings row and the answer check. The household line and «deg»/«dere»
+    come from the rules; the wedding's date and place are template text
+    (AD-17). The RSVP sheet links to the form (Story 2.1). Once the household
+    has answered (Story 2.8, FR-24, FR-34, UX-DR10), the hero says when and
+    the status block takes the sheet's place, with who sent it, the total and,
+    when something is owed, «Slik betaler du» (`_sent_money`, AD-12). Only
+    GET and HEAD, never cached (AD-15).
     """
     actor = resolve_code(code)
     if actor is None:
         return _unknown_link(request)
     names = household_guest_names(actor.household)
-    context = _guest_context(actor, site_settings()) | {
+    settings = site_settings()
+    answer = household_answer(actor.household)
+    context = _guest_context(actor, settings, answered=answer is not None) | {
         "household_names": household_names(names),
         "speaks_to_one": speaks_to_one(len(names)),
     }
+    if answer is not None:
+        context |= {"answer": answer, **_sent_money(sent_answer(actor.household), settings)}
     return render(request, "guests/front_page.html", context)
 
 
@@ -175,10 +200,11 @@ INFO_PAGES = {
 def info_page(request: HttpRequest, code: str, page: str) -> HttpResponse:
     """FR-3, FR-5, FR-6, FR-8, FR-9, FR-11: one of the three info pages (G3) under `/<code>/`.
 
-    `page` is a key of `INFO_PAGES`, set by the route. Two SELECTs: the
-    resolver and the settings row; nobody gets G1 with 404. The page's content
-    is template text (AD-17): Praktisk informasjon (FR-10) and Vår historie
-    (UX-DR14) since Story 1.6, Programmet (UX-DR13) since Story 1.7. The
+    `page` is a key of `INFO_PAGES`, set by the route. Three SELECTs: the
+    resolver, the settings row and the answer check for the nav (Story 2.8);
+    nobody gets G1 with 404. The page's content is template text (AD-17):
+    Praktisk informasjon (FR-10) and Vår historie (UX-DR14) since Story 1.6,
+    Programmet (UX-DR13) since Story 1.7. The
     programme also gets the three meal prices from the same settings row
     (FR-32, AD-12), so «Godt å vite» never holds a price of its own. Only GET
     and HEAD, never cached (AD-15).
@@ -218,6 +244,12 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
     step slug (`step` None) gives «Vi finner ikke denne siden». After the
     deadline, GET and POST alike show the closed page and write nothing; so
     does a send `send_answer` refuses with `DeadlinePassed` (FR-41, Story 2.6a).
+    A GET or HEAD by a household that has answered goes (302) to the front
+    page's status block, before the deadline check, so it holds after the
+    deadline too (Story 2.8, FR-24, UX-DR10). POSTs are untouched, and so,
+    before the deadline only, is the check page a refused send comes back to
+    (`se-over/?sending=…`), so the double-tap and conflict handling of Story
+    2.6c keep working; every other step with `?sending=` still redirects.
     """
     actor = resolve_code(code)
     if actor is None:
@@ -226,6 +258,16 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
         raise Http404
     settings = site_settings()
     context = _guest_context(actor, settings)
+    if (
+        request.method in ("GET", "HEAD")
+        and context["answered"]
+        and not (
+            step == CHECK
+            and SENDING_QUERY in request.GET
+            and not is_past_deadline(settings.rsvp_deadline, timezone.now())
+        )
+    ):
+        return HttpResponseRedirect(reverse("guests:front_page", args=[code]) + "#status")
     if is_past_deadline(settings.rsvp_deadline, timezone.now()):
         return render(request, RSVP_CLOSED, context)
     try:
@@ -258,6 +300,18 @@ def rsvp_step(request: HttpRequest, code: str, slug: str) -> HttpResponse:
     return _rsvp(request, code, KEY_BY_SLUG.get(slug))
 
 
+def _sent_money(answer: Answer, settings: Settings) -> dict[str, int]:
+    """FR-33, FR-34, AD-12 (Stories 2.7, 2.8): the sent answer's total and what is owed.
+
+    `total` from `household_total` over the stored answer (from `sent_answer`), so
+    it equals the check page's; `balance` from `guest_balance` (no report
+    until Story 5.1). Shared by the receipt and the front page's status block;
+    never reads payment rows.
+    """
+    total = household_total(answer, form_prices(settings))
+    return {"total": total, "balance": guest_balance(total, None)}
+
+
 def _receipt(actor: GuestActor, sent: HouseholdAnswer, settings: Settings) -> dict[str, object]:
     """FR-23, FR-34, FR-71, AD-12, UX-DR51 (Story 2.7): what the receipt and the payment page show.
 
@@ -273,14 +327,12 @@ def _receipt(actor: GuestActor, sent: HouseholdAnswer, settings: Settings) -> di
         [answer.attendance.get(guest_id, False) for guest_id, _ in members],
         [present.get(guest_id) for guest_id, _ in members],
     )
-    total = household_total(answer, form_prices(settings))
     names = [name for _, name in members]
     return {
         "parts": receipt_parts(
             answer, members=members, respondent=sent.sent_by_id or 0, steps=steps
         ),
-        "total": total,
-        "balance": guest_balance(total, None),
+        **_sent_money(answer, settings),
         "anyone_coming": bool(present),
         "speaks_to_one": speaks_to_one(len(members)),
         "payment_message": payment_message(names),

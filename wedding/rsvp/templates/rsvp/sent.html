@@ -5,7 +5,8 @@ FR-74, AD-7, AD-12, UX-DR24, UX-DR51; EXPERIENCE.md › Receipt panel,
 mockups/key-receipt.html). Same paper sheet as the check page, with no nav
 bar and the footer band kept. In order: the success notice holding the `h1`
 and the sent line «Sendt av <name> <weekday j. month Y> kl. <H:i>.» in Oslo
-time (TIME_ZONE); Rikke's message (coming when anyone in the household comes,
+time (TIME_ZONE, rsvp/includes/sent-line.html, shared with the front
+page's status block since Story 2.8); Rikke's message (coming when anyone in the household comes,
 else not coming; du/dere by `speaks_to_one`); «Dette har dere svart» with the
 stored answer's lines (`receipt_parts`, no «Endre», no prices); the total
 from `household_total`; when something is owed (`balance`), «Betal nå» to
@@ -22,9 +23,7 @@ the heading (avgjort av Claude in Story 2.7). No form and no script.
                 {% include "wedding/components/state-icon.html" with variant="success" class="notice__icon" only %}
                 <div class="notice__text">
                     <h1>Svaret er sendt</h1>
-                    <p>
-                        Sendt av {{ answer.sent_by_name }} {{ answer.sent_at|date:"l j. F Y" }} kl. {{ answer.sent_at|date:"H:i" }}.
-                    </p>
+                    {% include "rsvp/includes/sent-line.html" with answer=answer only %}
                 </div>
             </div>
             {% if anyone_coming %}

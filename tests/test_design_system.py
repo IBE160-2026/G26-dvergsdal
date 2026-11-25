@@ -531,9 +531,15 @@ def test_sticky_nav_and_scroll_padding_only_on_tall_and_wide_enough_screens():
     `html` gets the scroll padding (bar height + scroll gap) only inside the
     400px-tall, 20em-wide query (em, so a larger default text size that wraps
     the rem-sized nav words also unsticks the bar); nowhere else, and no
-    scroll-margin on #svar, which would add up with the padding. The stylesheet
-    is read without its comments, so a comment may mention these words."""
+    scroll-margin on #svar, which would add up with the padding. The one
+    scroll margin is on the status block's heading `#status` (Story 2.8): it
+    equals the sheet's top padding, so the sheet's edge shows below the bar. The
+    stylesheet is read without its comments, so a comment may mention these words."""
     css = _css()
+    status_margin = "#status {\n  scroll-margin-top: 26px;\n}"
+    assert css.count(status_margin) == 1
+    assert "padding: 26px 22px 24px;" in _bodies(css, ".rsvp")
+    css = css.replace(status_margin, "")
     assert "/*" not in css
     sticky = _block(css, STICKY_QUERY)
     assert "position: sticky;" in _bodies(sticky, ".nav-bar")

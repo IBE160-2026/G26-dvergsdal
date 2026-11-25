@@ -900,6 +900,31 @@ a:active {
   outline-color: transparent;
 }
 
+/* ---------- Status block (Story 2.8; FR-24, FR-34, UX-DR10; DESIGN.md › Status block) ----------
+ * In the RSVP sheet's place once the household has answered
+ * (mockups/answered-1.html): the heading, the small gypsophila, «Barnefritt
+ * bryllup», the sent line, the total and, when something is owed, «Slik
+ * betaler du». The heading is the jump target `#status`, so it takes focus
+ * from a link without a drawn ring, like #svar. Its scroll margin equals the
+ * sheet's top padding, so after a jump the sheet's edge shows below the bar
+ * (it adds to the scroll padding on `html`, which clears the bar). */
+
+#status {
+  scroll-margin-top: 26px;
+}
+
+#status:focus {
+  outline-color: transparent;
+}
+
+.status-block .sent-line {
+  margin: 0 0 8px;
+}
+
+.status-block .form-total {
+  margin: 0;
+}
+
 /* ---------- RSVP form (Story 2.1; FR-13, FR-14, FR-22, UX-DR16, UX-DR18, UX-DR19; DESIGN.md › Form step) ----------
  * One paper sheet per step on the green page (mockups/key-form-steps.html):
  * the question, the progress line «Steg n av m: …» in body text, the
