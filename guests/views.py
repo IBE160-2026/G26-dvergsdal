@@ -47,6 +47,7 @@ from django.views.decorators.http import require_http_methods, require_POST, req
 from wedding.actors import GuestActor
 from wedding.links import resolve_code
 from wedding.models import HouseholdAnswer, Settings
+from wedding.rsvp.draft import COOKIE_NAME, delete_draft, read_draft
 from wedding.rsvp.steps import CHECK, KEY_BY_SLUG, FormMount
 from wedding.rsvp.summary import receipt_parts
 from wedding.rsvp.views import (
@@ -168,6 +169,13 @@ def front_page(request: HttpRequest, code: str) -> HttpResponse:
     the status block takes the sheet's place, with who sent it, the total and,
     when something is owed, «Slik betaler du» (`_sent_money`, AD-12). Only
     GET and HEAD, never cached (AD-15).
+
+    Story 2.9 (FR-78, AD-8, AD-11, UX-DR26): an unanswered household with a
+    draft cookie before the deadline gets the warning notice «Du har et svar
+    som ikke er sendt ennå.» on the RSVP sheet, for a usable draft; that
+    costs one more SELECT (`household_members`), only when the cookie is
+    there. A broken draft, or any draft after the deadline, is deleted
+    instead. An answered household's cookie is left alone (Story 4.1).
     """
     actor = resolve_code(code)
     if actor is None:
@@ -181,7 +189,21 @@ def front_page(request: HttpRequest, code: str) -> HttpResponse:
     }
     if answer is not None:
         context |= {"answer": answer, **_sent_money(sent_answer(actor.household), settings)}
-    return render(request, "guests/front_page.html", context)
+        return render(request, "guests/front_page.html", context)
+    if COOKIE_NAME not in request.COOKIES:
+        return render(request, "guests/front_page.html", context)
+    mount = _guest_mount(actor.guest.code)
+    if is_past_deadline(settings.rsvp_deadline, timezone.now()):
+        response = render(request, "guests/front_page.html", context)
+        delete_draft(response, mount)
+        return response
+    members = household_members(actor.household)
+    found = read_draft(request, {guest_id for guest_id, _ in members}, actor.guest.id)
+    context["draft_waiting"] = found.draft is not None
+    response = render(request, "guests/front_page.html", context)
+    if found.broken:
+        delete_draft(response, mount)
+    return response
 
 
 # FR-8, FR-11: each info page's key (its URL name and current nav word) and
@@ -237,6 +259,14 @@ def _guest_mount(code: str) -> FormMount:
     )
 
 
+def _closed(request: HttpRequest, context: dict, mount: FormMount) -> HttpResponse:
+    """FR-41, AD-11, FR-78 (Story 2.9): the closed page, which also deletes the draft."""
+    response = render(request, RSVP_CLOSED, context)
+    if COOKIE_NAME in request.COOKIES:
+        delete_draft(response, mount)
+    return response
+
+
 def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
     """FR-5, FR-41, AD-6, AD-11: the checks every RSVP address shares, then the step.
 
@@ -250,6 +280,7 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
     before the deadline only, is the check page a refused send comes back to
     (`se-over/?sending=…`), so the double-tap and conflict handling of Story
     2.6c keep working; every other step with `?sending=` still redirects.
+    The closed page deletes the draft cookie (AD-11, Story 2.9).
     """
     actor = resolve_code(code)
     if actor is None:
@@ -268,20 +299,21 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
         )
     ):
         return HttpResponseRedirect(reverse("guests:front_page", args=[code]) + "#status")
+    mount = _guest_mount(actor.guest.code)
     if is_past_deadline(settings.rsvp_deadline, timezone.now()):
-        return render(request, RSVP_CLOSED, context)
+        return _closed(request, context, mount)
     try:
         return handle_step(
             request,
             actor=actor,
-            mount=_guest_mount(actor.guest.code),
+            mount=mount,
             members=household_members(actor.household),
             step=step,
             prices=form_prices(settings),
             page_context=context,
         )
     except DeadlinePassed:
-        return render(request, RSVP_CLOSED, context)
+        return _closed(request, context, mount)
 
 
 @never_cache
