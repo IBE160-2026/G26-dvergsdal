@@ -8,7 +8,8 @@
  * other `.copy-status` and puts «Kopiert» in this row's. When the write is
  * refused, the row's value is selected and the status reads «Trykk og hold
  * for å kopiere». The status spans are in the page from load; the script
- * only sets their text and never adds a live region. Vanilla, no build step.
+ * only sets their text (emptied, then filled after 100 ms, so a repeat is
+ * announced again) and never adds a live region. Vanilla, no build step.
  */
 (function () {
   "use strict";
@@ -24,7 +25,12 @@
         other.textContent = "";
       }
     });
-    status.textContent = text;
+    // Emptied first and filled a moment later, so the same text twice is
+    // still a change the screen reader announces.
+    status.textContent = "";
+    window.setTimeout(function () {
+      status.textContent = text;
+    }, 100);
   }
 
   function selectValue(value) {

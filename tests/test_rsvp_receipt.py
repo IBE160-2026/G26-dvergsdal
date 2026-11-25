@@ -18,7 +18,7 @@ from django.utils import timezone
 
 from tests.helpers import page_text
 from wedding.actors import SYSTEM
-from wedding.models import Guest, Settings
+from wedding.models import Consent, Guest, Settings
 from wedding.rules.allergies import AllergyEntry
 from wedding.rules.answer import Answer
 from wedding.rules.money import household_total
@@ -30,6 +30,7 @@ SIGMUND = "test-sigmund0000000000"
 SYNNE = "test-synne000000000000"
 TOR = "test-tor00000000000000"
 MONA = "test-mona0000000000000"
+EVA = "test-eva00000000000000"
 TEMPLATES = Path(__file__).resolve().parent.parent / "wedding" / "rsvp" / "templates" / "rsvp"
 
 pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
@@ -211,3 +212,56 @@ def test_the_guest_pages_never_name_payment_rows():
         source = (TEMPLATES / name).read_text(encoding="utf-8").lower()
         assert "payment_report" not in source
         assert "paymentreport" not in source
+
+
+def test_pay_later_in_du_form(client, seeded_with_answers):
+    """FR-34, UX-DR51: one person who owes (Eva) gets the du-form notice."""
+    html = _sent(client, EVA, "?betal=senere")
+    assert "Den samme lenken viser alltid hva du har igjen å betale, og hvordan du betaler." in html
+
+
+def test_the_receipt_shows_partial_days_and_consent(client, seeded_with_answers):
+    """FR-14, FR-23, FR-26: Synne's Saturday only and her consent, as stored. The
+    seed does not withdraw consent yet (Story 7.2), so the line reads «ja»."""
+    text = page_text(_sent(client, SYNNE))
+    assert "Synne: lørdag 27. mai" in text
+    assert "Synne: nøtter" in text
+    assert "Samtykke for Synne: ja" in text
+
+
+def test_sent_answer_partial_days_and_withdrawn_consent(seeded):
+    """AD-4, FR-14, FR-29: days per guest after «Nei» read back with `whole` False;
+    a withdrawn consent leaves no consent entry."""
+    mona, geir = _ids(MONA)
+    draft = Answer(
+        {mona: True, geir: True},
+        False,
+        days={mona: ["sat"], geir: ["fri", "sat"]},
+        allergies={mona: AllergyEntry(none=True)},
+        consent={mona: True},
+    )
+    household = Guest.objects.get(code=MONA).household
+    send_answer(
+        SYSTEM,
+        household=household,
+        respondent=mona,
+        answer=draft,
+        now=timezone.now(),
+        submission=uuid.uuid4(),
+        revision=household.revision,
+        shown_total=household_total(draft, form_prices()),
+        consent_version=CONSENT_TEXT_VERSION,
+    )
+    stored = sent_answer(household)
+    assert stored.whole is False
+    assert stored.days == {mona: ["sat"], geir: ["fri", "sat"]}
+    assert stored.consent == {mona: True}
+    given = Consent.objects.get(guest_id=mona)
+    Consent.objects.create(
+        guest_id=mona,
+        event=Consent.WITHDRAWN,
+        at=timezone.now(),
+        given_by_name="Mona",
+        text_version=given.text_version,
+    )
+    assert sent_answer(household).consent == {}
