@@ -35,11 +35,13 @@ when the connection breaks, resets the button and shows the hidden
             {% csrf_token %}
             <input type="hidden" name="innsending" value="{{ submission }}">
             <input type="hidden" name="sum" value="{{ total|stringformat:"d" }}">
-            {% if sending_notice %}
-                {% include "wedding/components/notice.html" with variant="error" text=sending_notice focus=True only %}
+            {% if sending_notice and not csrf_failed %}
+                <div data-send-notice>
+                    {% include "wedding/components/notice.html" with variant="error" text=sending_notice focus=True only %}
+                </div>
             {% endif %}
             <div data-send-failed hidden tabindex="-1">
-                {% include "wedding/components/notice.html" with variant="error" text=send_failed_text live=True only %}
+                {% include "wedding/components/notice.html" with variant="error" text=send_failed_text only %}
             </div>
             {% if csrf_failed %}
                 {% include "wedding/components/notice.html" with variant="error" text="Skjemaet ble ikke sendt. Det skjer når siden har stått åpen lenge, eller når nettleseren ikke tar imot informasjonskapsler. Det du fylte ut, står her fortsatt. Prøv igjen." focus=True only %}

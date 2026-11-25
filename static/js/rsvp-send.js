@@ -10,7 +10,8 @@
  * notice) is followed; any other response is sent again natively so the
  * server's own page shows (the one-time submission id makes that repeat
  * safe). When the connection breaks, the button is reset and the hidden
- * `[data-send-failed]` notice is shown and focused, so the guest can try
+ * `[data-send-failed]` notice is shown and focused (any server notice,
+ * `[data-send-notice]`, is hidden), so the guest can try
  * again. When the page comes back from the back-forward cache, the button
  * is restored. Vanilla, no build step.
  */
@@ -53,7 +54,7 @@
     }
     var data = new FormData(form);
     data.set("action", "send");
-    fetch(form.action || location.href, {
+    fetch(form.getAttribute("action") || location.href, {
       method: "POST",
       body: data,
       credentials: "same-origin",
@@ -68,6 +69,10 @@
       function () {
         reset();
         if (failed) {
+          var notice = form.querySelector("[data-send-notice]");
+          if (notice) {
+            notice.hidden = true;
+          }
           failed.hidden = false;
           failed.focus();
         }
