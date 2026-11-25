@@ -294,3 +294,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-7-the-receipt-and-how-to-pay.md`
   summary: `_receipt` in `guests/views.py` calls `guest_balance(total, None)`, so the receipt and «Slik betaler du» always show the full total as owed; Story 5.1 («Jeg har betalt») must pass the household's reported amount there instead of None.
   evidence: certain, would be medium once 5.1 lands. No payment report exists before Story 5.1, so None is correct today; recorded only in the `_receipt` and `guest_balance` docstrings until now.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-8-the-household-s-status-on-the-invitation.md`
+  summary: An answered household can still POST a send from an old draft (another tab or phone). GETs of every `/svar/` address redirect to `#status` (Story 2.8), but POSTs rely only on the Story 2.6c revision-conflict handling; Story 4.1 (change the answer) must decide how a re-send from a stale draft is guarded.
+  evidence: medium, Blind Hunter, 2.8 review; `guests/views.py` `_rsvp` redirects GET/HEAD only.
