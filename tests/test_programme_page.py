@@ -1,7 +1,7 @@
 """The content of Programmet (Story 1.7, G3).
 
 FR-9, FR-11, FR-32, AD-12, AD-17, UX-DR13. Every row of the story's I/O
-matrix for `/program/`: two SELECTs; the «Hopp til» jump links in one list
+matrix for `/program/`: three SELECTs; the «Hopp til» jump links in one list
 with hidden dots, the voluntary line, then three day sheets, each a focusable
 jump target labelled by its `h2`, with its date line, the timeline (Rikke's
 decorative icons, `<time>` and the short name) and «Godt å vite». The text is
@@ -78,7 +78,7 @@ pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
 
 
 def _get(client, django_assert_num_queries, code: str = CODE) -> str:
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         response = client.get(f"/{code}/program/")
     assert response.status_code == 200
     return response.content.decode()

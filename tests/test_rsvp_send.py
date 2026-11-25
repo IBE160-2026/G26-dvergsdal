@@ -58,7 +58,11 @@ pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
 
 def _hidden(client, code: str = SIGMUND) -> dict[str, str]:
     """Story 2.6c: the check page form's hidden `innsending` and `sum`, as a GET shows them."""
-    html = client.get(_url(code, "se-over")).content.decode()
+    return _hidden_in(client.get(_url(code, "se-over")).content.decode())
+
+
+def _hidden_in(html: str) -> dict[str, str]:
+    """Story 2.6c: the hidden `innsending` and `sum` of a check page's HTML."""
     fields = {}
     for tag in re.findall(r'<input type="hidden"[^>]*>', html):
         attributes = tag_attrs(tag)
@@ -284,7 +288,9 @@ def test_allergies_are_stored_only_with_consent(client, seeded):
     """FR-26, FR-28, FR-29, AD-18 (Story 2.6b, epics AC): Sigmund gluten «Ja»
     and bestemor nuts «Nei» store only Sigmund's data and two consent events;
     a re-send from a fresh draft that changes Sigmund's data with consent
-    unanswered warns on the check page and keeps his stored data."""
+    unanswered keeps his stored data. Since Story 2.8 the answered household's
+    GET of the check page goes to the status block, so the warning is not
+    shown there; the POST still sends."""
     sigmund, bestemor = _ids(SIGMUND)
     _sigmund_with_allergies(
         client,
@@ -303,8 +309,7 @@ def test_allergies_are_stored_only_with_consent(client, seeded):
     assert list(events) == [(sigmund, Consent.GIVEN), (bestemor, Consent.REFUSED)]
 
     _sigmund_with_allergies(client, {f"allergies_{sigmund}": ["gluten", "lactose"]})
-    text = page_text(client.get(_url(SIGMUND, "se-over")).content.decode())
-    assert "Allergiopplysningene om Sigmund blir ikke lagret" in text
+    assert client.get(_url(SIGMUND, "se-over"))["Location"] == f"/{SIGMUND}/#status"
     assert _send(client).status_code == 303
     allergy = Allergy.objects.get()
     assert (allergy.guest_id, allergy.gluten, allergy.lactose) == (sigmund, True, False)
@@ -349,16 +354,20 @@ def test_a_send_from_an_older_revision(client, seeded):
     """AD-9, AD-18 (Story 2.6c, matrix «Two tabs / devices», epics AC): a draft
     at revision 0 after another send is refused: 303 `?sending=endret`, the
     draft moved to revision 1 without consent answers, the notice names
-    Sigmund and the time; the next send is a new send."""
+    Sigmund and the time; the next send is a new send. The check page is open
+    before the other send (since Story 2.8 a later GET goes to the status
+    block), and the next send uses the hidden fields of the refused send's
+    check page."""
     sigmund, _ = _ids(SIGMUND)
     _sigmund_with_allergies(
         client,
         {f"allergies_{sigmund}": "gluten", f"consent_{sigmund}": "yes"},
     )
+    opened = _hidden(client) | {"action": "send"}
     other = Client()
     _sigmund_to_check(other)
     assert _send(other).status_code == 303
-    response = _send(client)
+    response = _send(client, data=opened)
     assert response.status_code == 303
     assert response["Location"] == _url(SIGMUND, "se-over") + "?sending=endret"
     draft = _draft(response)
@@ -372,7 +381,7 @@ def test_a_send_from_an_older_revision(client, seeded):
     assert f"kl. {sent:%H:%M} etter at du begynte." in text
     assert "Samtykke til å lagre allergier må gis på nytt." in text
     assert "Allergiopplysningene om Sigmund blir ikke lagret" in page_text(html)
-    again = _send(client)
+    again = _send(client, data=_hidden_in(html) | {"action": "send"})
     assert again["Location"] == _url(SIGMUND, "sendt")
     assert Guest.objects.get(code=SIGMUND).household.revision == 2
     assert Allergy.objects.count() == 0

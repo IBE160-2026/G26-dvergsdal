@@ -127,7 +127,7 @@ def test_open_overnight(client, seeded, django_assert_num_queries):
     """FR-16, FR-32, FR-33: «Steg 3 av 6», a group per person, the price per person,
     why guests pay, a total of 0 kr, one script and an empty status region."""
     _sigmund_to_overnight(client)
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(4):
         response = client.get(_url(SIGMUND, "overnatting"))
     html = response.content.decode()
     text = page_text(html)
@@ -458,7 +458,8 @@ def test_enter_submits_as_fortsett(client, seeded, step):
 
 def test_the_flow_writes_nothing_and_is_never_cached(client, seeded):
     """AD-1, AD-8, FR-3, FR-33: steps 1 to 4 and the total: no row, no session,
-    three SELECTs per request, private and never stored; scripts only on steps 3
+    four SELECTs per form request (Story 2.8 adds the answer check), three for
+    the total, private and never stored; scripts only on steps 3
     and 4 and the allergies script on step 5; the shown total is always
     `household_total` of the draft."""
     sigmund, bestemor = _ids(SIGMUND)
@@ -490,7 +491,7 @@ def test_the_flow_writes_nothing_and_is_never_cached(client, seeded):
             response = getattr(client, method)(path, data)
         assert response.status_code == status, (method, path)
         sql = [query["sql"] for query in captured.captured_queries]
-        assert len(sql) == 3, (method, path, sql)
+        assert len(sql) == (3 if "/sum/" in path else 4), (method, path, sql)
         assert all(statement.lstrip().upper().startswith("SELECT") for statement in sql)
         assert "private" in response["Cache-Control"]
         assert "no-store" in response["Cache-Control"]

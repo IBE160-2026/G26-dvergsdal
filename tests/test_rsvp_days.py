@@ -102,9 +102,9 @@ def _arild_revealed(client) -> None:
 def test_open(client, seeded, django_assert_num_queries):
     """FR-14, FR-70, UX-DR19: «Steg 2 av 6: Dager», the question as `h1`, the three
     days with dates and what happens, «Ja»/«Nei» with nothing chosen, no day
-    checkbox yet, in three SELECTs."""
+    checkbox yet, in four SELECTs (Story 2.8 adds the answer check)."""
     _arild_to_step_2(client)
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(4):
         response = client.get(_url(ARILD, "dager"))
     assert response.status_code == 200
     html = response.content.decode()
@@ -428,7 +428,8 @@ def test_enter_submits_as_fortsett(client, seeded):
 
 def test_the_flow_writes_nothing_and_is_never_cached(client, seeded, monkeypatch):
     """AD-1, AD-8, FR-3: steps 1 to 2 with an error, the reveal and «Velg»: no row,
-    no session, no messages, no script, three SELECTs per request, and every
+    no session, no messages, no script, four SELECTs per request (Story 2.8 adds the answer
+    check), and every
     response private and never stored."""
 
     def no_messages(*args, **kwargs):
@@ -456,7 +457,7 @@ def test_the_flow_writes_nothing_and_is_never_cached(client, seeded, monkeypatch
             response = getattr(client, method)(path, data)
         assert response.status_code == status, (method, path)
         sql = [query["sql"] for query in captured.captured_queries]
-        assert len(sql) == 3, (method, path, sql)
+        assert len(sql) == 4, (method, path, sql)
         assert all(statement.lstrip().upper().startswith("SELECT") for statement in sql)
         assert "private" in response["Cache-Control"]
         assert "no-store" in response["Cache-Control"]

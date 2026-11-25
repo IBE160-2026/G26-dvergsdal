@@ -4,7 +4,7 @@ FR-5, FR-6, FR-8, FR-11, UX-DR11, UX-DR12. The info-page row of the story's
 I/O matrix for `/program/`, `/praktisk/` and `/historie/`: the page's title and
 `h1`, its nav word marked current and the others not, the back link and the
 back button to the front page, the nav «Svar» to the front page's `#svar`, the
-footer and two SELECTs. Unknown and malformed codes on each page show G1 with
+footer and three SELECTs. Unknown and malformed codes on each page show G1 with
 404 after one and no query. The content of Praktisk informasjon and Vår
 historie (Story 1.6) is tested in test_practical_and_story_pages.py, the
 programme's (Story 1.7) in test_programme_page.py. That opening them never
@@ -37,12 +37,12 @@ pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
 def test_info_page_frame(
     client, seeded, django_assert_num_queries, assert_loads_only_own_host, path
 ):
-    """FR-8, FR-11, UX-DR11: 200 after two SELECTs; the page's own title and one
+    """FR-8, FR-11, UX-DR11: 200 after three SELECTs; the page's own title and one
     italic `h1`; its nav word current; back link at the top and back button at
     the bottom to the front page; nav «Svar» to the front page's `#svar`; the
     footer with the phones."""
     title, heading, current = PAGES[path]
-    with django_assert_num_queries(2):
+    with django_assert_num_queries(3):
         response = client.get(f"/{CODE}/{path}")
     assert response.status_code == 200
     html = response.content.decode()
