@@ -173,9 +173,38 @@ def test_after_the_deadline_an_unanswered_household_gets_the_closed_page(
 
 def test_a_post_by_an_answered_household_is_not_redirected(client, seeded_with_answers):
     """FR-38 (matrix «POST by answered household»): a POST keeps the handling of
-    Story 2.6c, so it is never sent to `#status`."""
+    Story 2.6c, so it is never sent to `#status`: with no draft the check page
+    sends it (302) to step 1, as before Story 2.8."""
     response = client.post(f"/{MARIE}/svar/se-over/", {})
-    assert response.get("Location", "") != f"/{MARIE}/#status"
+    assert (response.status_code, response["Location"]) == (302, f"/{MARIE}/svar/")
+
+
+def test_the_check_page_after_a_refused_send_is_shown(client, seeded_with_answers):
+    """AD-9, UX-DR52 (Story 2.6c): the check page a refused send comes back to,
+    `se-over/?sending=endret`, is shown to an answered household before the
+    deadline, so the conflict notice is not lost. Step 1 is posted with nobody
+    coming, so the draft goes straight to the check page."""
+    household = Guest.objects.get(code=MARIE).household
+    step_1 = {f"attendance_{guest.id}": "no" for guest in household.guests.all()}
+    assert client.post(f"/{MARIE}/svar/", step_1)["Location"] == f"/{MARIE}/svar/se-over/"
+    assert client.get(f"/{MARIE}/svar/se-over/?sending=endret").status_code == 200
+
+
+def test_another_step_with_sending_goes_to_the_status(client, seeded_with_answers):
+    """FR-24, UX-DR10: `?sending=` opens only the check page; any other step
+    still goes to `#status`."""
+    response = client.get(f"/{MARIE}/svar/dager/?sending=endret")
+    assert (response.status_code, response["Location"]) == (302, f"/{MARIE}/#status")
+
+
+def test_the_check_page_with_sending_after_the_deadline_goes_to_the_status(
+    client, seeded_with_answers
+):
+    """FR-24, FR-41: after the deadline an answered household always gets its
+    status, also on `se-over/?sending=…`."""
+    _past_deadline()
+    response = client.get(f"/{MARIE}/svar/se-over/?sending=endret")
+    assert (response.status_code, response["Location"]) == (302, f"/{MARIE}/#status")
 
 
 def test_an_unknown_code_still_gets_g1(client, seeded_with_answers):

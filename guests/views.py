@@ -47,7 +47,7 @@ from django.views.decorators.http import require_http_methods, require_POST, req
 from wedding.actors import GuestActor
 from wedding.links import resolve_code
 from wedding.models import HouseholdAnswer, Settings
-from wedding.rsvp.steps import KEY_BY_SLUG, FormMount
+from wedding.rsvp.steps import CHECK, KEY_BY_SLUG, FormMount
 from wedding.rsvp.summary import receipt_parts
 from wedding.rsvp.views import (
     SENDING_QUERY,
@@ -246,9 +246,10 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
     does a send `send_answer` refuses with `DeadlinePassed` (FR-41, Story 2.6a).
     A GET or HEAD by a household that has answered goes (302) to the front
     page's status block, before the deadline check, so it holds after the
-    deadline too (Story 2.8, FR-24, UX-DR10). POSTs are untouched, and so is
-    the check page a refused send comes back to (`?sending=…`), so the
-    double-tap and conflict handling of Story 2.6c keep working.
+    deadline too (Story 2.8, FR-24, UX-DR10). POSTs are untouched, and so,
+    before the deadline only, is the check page a refused send comes back to
+    (`se-over/?sending=…`), so the double-tap and conflict handling of Story
+    2.6c keep working; every other step with `?sending=` still redirects.
     """
     actor = resolve_code(code)
     if actor is None:
@@ -259,8 +260,12 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
     context = _guest_context(actor, settings)
     if (
         request.method in ("GET", "HEAD")
-        and SENDING_QUERY not in request.GET
         and context["answered"]
+        and not (
+            step == CHECK
+            and SENDING_QUERY in request.GET
+            and not is_past_deadline(settings.rsvp_deadline, timezone.now())
+        )
     ):
         return HttpResponseRedirect(reverse("guests:front_page", args=[code]) + "#status")
     if is_past_deadline(settings.rsvp_deadline, timezone.now()):

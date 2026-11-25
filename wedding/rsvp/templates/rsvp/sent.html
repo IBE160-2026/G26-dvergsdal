@@ -23,7 +23,7 @@ the heading (avgjort av Claude in Story 2.7). No form and no script.
                 {% include "wedding/components/state-icon.html" with variant="success" class="notice__icon" only %}
                 <div class="notice__text">
                     <h1>Svaret er sendt</h1>
-                    {% include "rsvp/includes/sent-line.html" %}
+                    {% include "rsvp/includes/sent-line.html" with answer=answer only %}
                 </div>
             </div>
             {% if anyone_coming %}

@@ -113,7 +113,7 @@ def _set_deadline(deadline: datetime.date) -> None:
 
 def test_open_step_1(client, seeded, django_assert_num_queries):
     """FR-12, FR-14, UX-DR18, UX-DR19: «Hvem kommer?», «Steg 1 av 6», «Jeg er
-    Sigmund» with «Bytt», one group per member with nothing chosen, in three
+    Sigmund» with «Bytt», one group per member with nothing chosen, in four
     SELECTs, and no draft before «Fortsett»."""
     with django_assert_num_queries(4):
         response = client.get(STEP_1)
