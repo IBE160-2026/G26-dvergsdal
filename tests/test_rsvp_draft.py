@@ -5,8 +5,8 @@ HttpOnly, SameSite=Lax, Secure only in production, the 90-day backstop), and
 every kind of broken draft: each is deleted with the same path and the form
 starts empty, never with a server error. Format 2 (Story 2.2) added `whole`
 and `days`, format 3 (Story 2.3) `night` and `meals`, format 4 (Story 2.4)
-`alg`, `cons`, `conf` and `long`, format 5 (Story 2.5) `hike`; a format 1,
-2, 3 or 4 cookie is broken. The step flow itself is in
+`alg`, `cons`, `conf` and `long`, format 5 (Story 2.5) `hike`, format 6
+(Story 2.6c, AD-18) `cv`; a format 1 to 5 cookie is broken. The step flow itself is in
 test_rsvp_who_is_coming.py.
 """
 
@@ -38,7 +38,7 @@ def _ids(code: str) -> list[int]:
 def _payload(**changes) -> dict:
     sigmund, bestemor = _ids(SIGMUND)
     payload = {
-        "v": 5,
+        "v": 6,
         "started": "2026-11-21T10:00:00+00:00",
         "rev": 0,
         "resp": sigmund,
@@ -53,6 +53,7 @@ def _payload(**changes) -> dict:
         "conf": [],
         "long": [],
         "hike": {},
+        "cv": None,
     }
     return payload | changes
 
@@ -74,7 +75,7 @@ def _post_valid(client):
 
 def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     """AD-8: path `/<code>/`, HttpOnly, SameSite=Lax, not Secure locally, 90 days;
-    the payload has format 5, the household revision, the respondent, everyone's
+    the payload has format 6, the household revision, the respondent, everyone's
     attendance and step 1 done."""
     sigmund, bestemor = _ids(SIGMUND)
     response = _post_valid(client)
@@ -86,7 +87,7 @@ def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     assert not cookie["secure"]
     assert cookie["max-age"] == NINETY_DAYS
     payload = signing.loads(cookie.value, salt=SALT)
-    assert payload["v"] == 5
+    assert payload["v"] == 6
     assert payload["rev"] == 0
     assert payload["resp"] == sigmund
     assert payload["att"] == {str(sigmund): True, str(bestemor): False}
@@ -99,6 +100,7 @@ def test_a_valid_post_writes_the_draft_with_its_attributes(client, seeded):
     assert payload["cons"] == {}
     assert payload["conf"] == []
     assert payload["long"] == []
+    assert payload["cv"] is None
     assert payload["started"].endswith("+00:00")
 
 
@@ -158,10 +160,11 @@ def test_a_full_draft_for_eight_fits_in_a_cookie():
     """AD-8: a household is at most 8, and its draft, with every day, a stay,
     every meal, every allergy category, a 200-character note with æøå
     (different per person), consent «Ja» and a confirmation for everyone,
-    and «Kanskje» to the hike for everyone stays below 4 KB (Stories 2.4, 2.5)."""
+    and «Kanskje» to the hike for everyone, and the consent-text version, stays
+    below 4 KB (Stories 2.4, 2.5, 2.6c)."""
     ids = range(10_000_000, 10_000_008)
     payload = {
-        "v": 5,
+        "v": 6,
         "started": "2026-11-21T10:00:00.123456+00:00",
         "rev": 123,
         "resp": ids[0],
@@ -186,6 +189,7 @@ def test_a_full_draft_for_eight_fits_in_a_cookie():
         "conf": list(ids),
         "long": [],
         "hike": {str(guest_id): "maybe" for guest_id in ids},
+        "cv": "x" * 20,
     }
     assert all(len(entry["t"]) == 200 for entry in payload["alg"].values())
     assert len(_signed(payload)) < 4096
@@ -225,7 +229,13 @@ BROKEN = {
     "v 3 (Story 2.3)": lambda: _signed(
         {k: v for k, v in _payload(v=3).items() if k not in ("alg", "cons", "conf", "long")}
     ),
-    "v 4 (Story 2.4)": lambda: _signed({k: v for k, v in _payload(v=4).items() if k != "hike"}),
+    "v 4 (Story 2.4)": lambda: _signed(
+        {k: v for k, v in _payload(v=4).items() if k not in ("hike", "cv")}
+    ),
+    "v 5 (Story 2.5)": lambda: _signed({k: v for k, v in _payload(v=5).items() if k != "cv"}),
+    "missing cv": lambda: _signed({k: v for k, v in _payload().items() if k != "cv"}),
+    "cv a number": lambda: _signed(_payload(cv=20261123)),
+    "cv of 21": lambda: _signed(_payload(cv="x" * 21)),
     "v true": lambda: _signed(_payload(v=True)),
     "missing key": lambda: _signed({k: v for k, v in _payload().items() if k != "rev"}),
     "naive started": lambda: _signed(_payload(started="2026-11-21T10:00:00")),
@@ -373,3 +383,11 @@ def test_a_start_time_within_a_minute_ahead_is_accepted(client, seeded):
     client.cookies[COOKIE_NAME] = _signed(_payload(started=started))
     response = client.get(STEP_1)
     assert COOKIE_NAME not in response.cookies
+
+
+def test_the_consent_version_round_trips(client, seeded):
+    """AD-8, AD-18 (Story 2.6c): format 6 keeps `cv` through a «Fortsett» on step 1."""
+    client.cookies[COOKIE_NAME] = _signed(_payload(cv="2026-11-23", done=[]))
+    response = _post_valid(client)
+    payload = signing.loads(response.cookies[COOKIE_NAME].value, salt=SALT)
+    assert (payload["v"], payload["cv"]) == (6, "2026-11-23")

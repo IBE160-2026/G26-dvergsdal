@@ -217,7 +217,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 2.6b reads `CONSENT_TEXT_VERSION` and the draft's `cons`/`conf` when storing allergies; AD-18's «no consent Ja across a revision change» is enforced by the revision check of 2.6c/2.9.
   evidence: decided in the spec.
-  status: storage done in Story 2.6b (wedding/services/answers.py); the «no consent Ja across a revision change» part stays with Story 2.6c/2.9.
+  status: storage done in Story 2.6b (wedding/services/answers.py); the «no consent Ja across a revision change» part done in Story 2.6c (wedding/rsvp/views.py clears `cons` and `conf` on a revision conflict).
 
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 7.1: the privacy page says that the answer in progress, including allergies a guest typed but did not consent to, lives only in the guest's own browser cookie until it is sent or expires (90 days).
@@ -226,31 +226,56 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 2.6b/2.6c: record which consent-text version the guest saw, so a version change between step 5 and sending is caught together with the revision check.
   evidence: low. Blind review; the draft holds no consent-text version today.
-  status: moved to Story 2.6c (2026-11-24): it bumps the draft format once for both the total snapshot and the seen version; 2.6b records the version current at send.
+  status: moved to Story 2.6c (2026-11-24): it bumps the draft format once for both the total snapshot and the seen version; 2.6b records the version current at send. Done in Story 2.6c (wedding/rsvp/draft.py `cv`, wedding/services/answers.py `ConsentTextChanged`).
 
 ## From Story 2.5 (2026-11-23)
 
 - source_spec: `.docs/implementation-artifacts/spec-2-5-the-friday-hike-and-the-check-page.md`
   summary: Story 2.6a gives «Send svaret» its POST handler (the check page's POST only redirects back today), the «Sender …» busy state, and a friendly CSRF result on the check page (it shows the generic 403 page today). The check page must also store the total it showed in the draft (AD-8 snapshot), so a price change before sending is caught.
   evidence: decided in the spec.
-  status: done in Story 2.6a for the POST handler, the busy state and the CSRF result; the total snapshot moved to Story 2.6c (see «From Story 2.6a»).
+  status: done in Story 2.6a for the POST handler, the busy state and the CSRF result; the total snapshot moved to Story 2.6c (see «From Story 2.6a»). The total snapshot done in Story 2.6c (wedding/rsvp/templates/rsvp/check.html hidden `sum`, not a draft field).
 
 ## From Story 2.6a (2026-11-24)
 
 - source_spec: `.docs/implementation-artifacts/spec-2-6a-send-the-answer.md`
   summary: Story 2.6c stores the total the check page showed in the draft and compares it with the recalculated total at send (AD-7 «Price change before sending»), refusing with the check page and a notice when they differ. Moved from 2.6a: 2.6c owns that refusal, and writing the snapshot on the check page's GET would break AD-8's «written only on Fortsett or Velg».
   evidence: decided in the spec (Design Notes).
+  status: done in Story 2.6c (wedding/services/answers.py `TotalChanged`), as a hidden form field instead of a draft field.
 
 - source_spec: `.docs/implementation-artifacts/spec-2-6a-send-the-answer.md`
   summary: Story 2.6c: the «Sender …» button stays busy if the navigation is aborted (Esc or a network failure) or the send fails; reset it so the guest can try again.
   evidence: low. Edge Case Hunter and Blind review; a reload restores it today.
+  status: done in Story 2.6c (static/js/rsvp-send.js sends with fetch and resets the button on a network failure).
 
 ## From Story 2.6b (2026-11-24)
 
 - source_spec: `.docs/implementation-artifacts/spec-2-6b-allergies-are-stored-only-with-consent.md`
   summary: Story 2.6c: two concurrent first sends for one household can both create a guest's `Allergy` (or `PersonAnswer`) and the second fails with an IntegrityError; the submission id and revision check (or a row lock) should make the second send safe.
   evidence: Edge Case Hunter; `send_answer` takes no row lock.
+  status: done in Story 2.6c (wedding/services/answers.py: the revision check refuses the second send; a same-id race is caught on the unique `Submission.key` and lands on the sent page, wedding/rsvp/views.py `_send`).
 
 - source_spec: `.docs/implementation-artifacts/spec-2-6b-allergies-are-stored-only-with-consent.md`
   summary: The story that adds guest deletion (4.x/7.2): test that deleting the respondent sets other guests' `Consent.given_by` to null and keeps `given_by_name`, and that deleting a guest removes their `Allergy` and `Consent` rows (AD-4).
   evidence: Verification-gap review; no guest-deletion path exists yet.
+
+## From Story 2.6c (2026-11-24)
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
+  summary: Story 4.1: on a revision conflict, show the guest «what differs» between their draft and the answer sent meanwhile (AD-9); 2.6c shows only who sent it and when.
+  evidence: decided in the spec; it belongs with changing a sent answer.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
+  summary: Story 2.6d: `seed_testdata` does not remove `Submission` rows, so they keep pointing at answers the seed deleted.
+  evidence: Orchestrator, MT-45 database check; the Submission count grew across seeds.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
+  summary: Stories 4.x: the conflict notice names the last sender and time; once a revision can be bumped by something other than a send (guest moves, overrides, withdrawals), it must not name a send as the cause.
+  evidence: Edge Case Hunter; today only sends bump the revision.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
+  summary: Story 4.4: the couple's mount gets the generic conflict notice (`_changed_text` for non-guest actors); give it a fitting text and a test.
+  evidence: Blind Hunter; the couple's mount does not exist yet.
+
+- source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
+  summary: Stories 4.x/7.2: `Submission.object_id` is a plain integer; decide what happens to `Submission` rows when a `HouseholdAnswer` is deleted.
+  evidence: Blind Hunter; no deletion path exists yet.

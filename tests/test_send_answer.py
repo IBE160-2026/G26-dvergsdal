@@ -9,15 +9,20 @@ FR-74 states and the two models' fields (no total, no status). Story 2.6b
 (FR-26, FR-27, FR-29, FR-75, AD-18, NFR-3): every consent row of its matrix,
 for the respondent and another member, on a first send and a re-send, the
 `Consent` fields, refused sends writing no allergy data, the `Allergy` and
-`Consent` fields, their `str()` and the log. The views are in
-test_rsvp_send.py.
+`Consent` fields, their `str()` and the log. Story 2.6c (AD-7, AD-9, AD-18,
+AD-20, NFR-1): a repeated submission id, another household's id, two sends
+from the same revision, a changed total and a changed consent text, each
+refusal writing nothing and recording no `Submission`, and the `Submission`
+model. The views are in test_rsvp_send.py.
 """
 
 import datetime
 import logging
+import uuid
 from zoneinfo import ZoneInfo
 
 import pytest
+from django.db.models import F
 
 from wedding.actors import SYSTEM, AdminActor, GuestActor
 from wedding.models import (
@@ -28,6 +33,7 @@ from wedding.models import (
     HouseholdAnswer,
     PersonAnswer,
     Settings,
+    Submission,
     User,
 )
 from wedding.rules.allergies import ALLERGY_KEYS, AllergyEntry
@@ -39,9 +45,18 @@ from wedding.rules.households import (
     household_state,
     person_state,
 )
+from wedding.rules.money import household_total
+from wedding.selectors import form_prices, submitted
 from wedding.services.answers import send_answer
 from wedding.services.consent import CONSENT_TEXT_VERSION
-from wedding.services.exceptions import DeadlinePassed, InvalidAnswer, NotAllowed
+from wedding.services.exceptions import (
+    ConsentTextChanged,
+    DeadlinePassed,
+    InvalidAnswer,
+    NotAllowed,
+    RevisionConflict,
+    TotalChanged,
+)
 
 SIGMUND = "test-sigmund0000000000"
 ARILD = "test-arild000000000000"
@@ -107,9 +122,20 @@ def _counts() -> tuple[int, int, int]:
     )
 
 
-def _send(actor, code, respondent, answer, now=LAST_SECOND, household=None):
+def _send(actor, code, respondent, answer, now=LAST_SECOND, household=None, **story_2_6c):
+    """`send_answer` with Story 2.6c's checks passing unless `story_2_6c`
+    overrides them: a fresh submission id, the household's current revision,
+    the total at today's prices and the current consent-text version."""
     household = household or Guest.objects.get(code=code).household
-    return send_answer(actor, household=household, respondent=respondent, answer=answer, now=now)
+    checks = {
+        "submission": uuid.uuid4(),
+        "revision": Household.objects.get(pk=household.pk).revision,
+        "shown_total": household_total(answer, form_prices()),
+        "consent_version": CONSENT_TEXT_VERSION,
+    } | story_2_6c
+    return send_answer(
+        actor, household=household, respondent=respondent, answer=answer, now=now, **checks
+    )
 
 
 def test_sigmund_sends(deadline):
@@ -488,3 +514,150 @@ def test_no_names_or_notes_in_str_or_logs(deadline, caplog):
     for text in (str(Allergy.objects.get()), str(Consent.objects.get()), caplog.text):
         for word in ("Sigmund", "gluten", "Gluten", "Tåler"):
             assert word not in text
+
+
+def _all_rows() -> tuple:
+    """Every row a send writes, so a test can check that a refusal wrote nothing."""
+    return (
+        _counts(),
+        list(PersonAnswer.objects.values_list()),
+        list(Allergy.objects.values_list()),
+        Consent.objects.count(),
+        Submission.objects.count(),
+    )
+
+
+def test_a_first_send_records_its_submission(deadline):
+    """AD-20, NFR-1 (Story 2.6c, matrix «First send»): one `Submission` of kind
+    `answer` naming the `HouseholdAnswer`, at `now`; revision 0 to 1."""
+    sigmund, _ = _ids(SIGMUND)
+    key = uuid.uuid4()
+    sent = _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), submission=key)
+    submission = Submission.objects.get()
+    assert (submission.key, submission.kind, submission.object_id) == (key, "answer", sent.pk)
+    assert submission.created_at == LAST_SECOND
+    assert Guest.objects.get(code=SIGMUND).household.revision == 1
+    assert submitted(Guest.objects.get(code=SIGMUND).household, key)
+    assert not submitted(Guest.objects.get(code=ARILD).household, key)
+
+
+def test_a_repeat_returns_the_earlier_answer(deadline):
+    """AD-20, NFR-1 (Story 2.6c, matrix «Double tap»): the same id again returns
+    the same `HouseholdAnswer` and writes nothing: no new `Consent`, no
+    `PersonAnswer` change, no revision bump, even at an old revision."""
+    sigmund, _ = _ids(SIGMUND)
+    key = uuid.uuid4()
+    answer = _with(_sigmund_answer(), {sigmund: GLUTEN}, {sigmund: True})
+    first = _send(_actor(SIGMUND), SIGMUND, sigmund, answer, submission=key)
+    before = _all_rows()
+    again = _send(
+        _actor(SIGMUND),
+        SIGMUND,
+        sigmund,
+        Answer({sigmund: False, sigmund + 1: False}, True),
+        submission=key,
+        revision=0,
+        shown_total=999,
+    )
+    assert again.pk == first.pk
+    assert _all_rows() == before
+    assert Guest.objects.get(code=SIGMUND).household.revision == 1
+
+
+def test_a_repeat_after_a_re_send_returns_the_re_send(deadline):
+    """AD-20 (Story 2.6c, matrix «Double tap»): the answer is one row per
+    household, so a repeat of the re-send's id returns it as updated."""
+    sigmund, bestemor = _ids(SIGMUND)
+    earlier = LAST_SECOND - datetime.timedelta(hours=1)
+    _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), now=earlier)
+    key = uuid.uuid4()
+    _send(_actor(SIGMUND), SIGMUND, bestemor, _sigmund_answer(), submission=key)
+    again = _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), submission=key)
+    assert (again.sent_by_name, again.sent_at) == ("bestemor", LAST_SECOND)
+    assert Submission.objects.count() == 2
+    assert Guest.objects.get(code=SIGMUND).household.revision == 2
+
+
+def test_another_households_key_is_refused(deadline):
+    """AD-3, AD-20 (Story 2.6c, matrix «Key of another household»): an id written
+    for Arild's household is `NotAllowed` for Sigmund's, writing nothing."""
+    arild, marie, filippa, leone = _ids(ARILD)
+    key = uuid.uuid4()
+    nobody = Answer({arild: False, marie: False, filippa: False, leone: False}, True)
+    _send(_actor(ARILD), ARILD, arild, nobody, submission=key)
+    sigmund, _ = _ids(SIGMUND)
+    before = _all_rows()
+    with pytest.raises(NotAllowed):
+        _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), submission=key)
+    assert _all_rows() == before
+
+
+def test_two_sends_from_the_same_revision(deadline):
+    """AD-9, NFR-1 (Story 2.6c, matrix «Two tabs / devices»): the first writes;
+    the second, also from revision 0, is `RevisionConflict` with revision 1
+    and writes nothing; a retry at revision 1 is a new send."""
+    sigmund, bestemor = _ids(SIGMUND)
+    _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), revision=0)
+    before = _all_rows()
+    with pytest.raises(RevisionConflict) as refused:
+        _send(_actor(SIGMUND), SIGMUND, bestemor, _sigmund_answer(), revision=0)
+    assert refused.value.revision == 1
+    assert _all_rows() == before
+    _send(_actor(SIGMUND), SIGMUND, bestemor, _sigmund_answer(), revision=1)
+    assert HouseholdAnswer.objects.get().sent_by_name == "bestemor"
+    assert Submission.objects.count() == 2
+
+
+@pytest.mark.parametrize(
+    ("checks", "now", "error"),
+    [
+        ({"revision": 3}, LAST_SECOND, RevisionConflict),
+        ({"shown_total": 1}, LAST_SECOND, TotalChanged),
+        ({"consent_version": "2020-01-01"}, LAST_SECOND, ConsentTextChanged),
+        ({"consent_version": None}, LAST_SECOND, ConsentTextChanged),
+        ({}, CLOSED, DeadlinePassed),
+        ({"revision": 3}, CLOSED, RevisionConflict),
+    ],
+    ids=["revision", "total", "consent text", "no consent text", "deadline", "revision first"],
+)
+def test_a_refused_send_records_no_submission(deadline, checks, now, error):
+    """AD-7, AD-9, AD-18, AD-20 (Story 2.6c, matrix «Price changed», «Consent
+    text changed»): each refusal leaves every row and the revision unchanged
+    and records no `Submission`."""
+    sigmund, _ = _ids(SIGMUND)
+    answer = _with(_sigmund_answer(), {sigmund: GLUTEN}, {sigmund: True})
+    before = _all_rows()
+    with pytest.raises(error):
+        _send(_actor(SIGMUND), SIGMUND, sigmund, answer, now=now, **checks)
+    assert _all_rows() == before
+    assert Submission.objects.count() == 0
+
+
+def test_a_price_change_is_refused(deadline):
+    """AD-7, NFR-2 (Story 2.6c, matrix «Price changed»): the total shown before
+    the cabin price rose no longer matches."""
+    sigmund, _ = _ids(SIGMUND)
+    shown = household_total(_sigmund_answer(), form_prices())
+    Settings.objects.filter(pk=1).update(price_cabin_weekend=F("price_cabin_weekend") + 100)
+    with pytest.raises(TotalChanged):
+        _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), shown_total=shown)
+    assert HouseholdAnswer.objects.count() == 0
+
+
+def test_without_a_consent_answer_the_text_version_is_not_checked(deadline):
+    """AD-18 (Story 2.6c, matrix «Text changed, no consent answered»): `cv` None
+    and no consent answer sends."""
+    sigmund, _ = _ids(SIGMUND)
+    _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), consent_version=None)
+    assert HouseholdAnswer.objects.count() == 1
+
+
+def test_the_submission_model():
+    """AD-20, AD-4 (Story 2.6c): the id, the kind, what was written and when;
+    `str()` without a name."""
+    fields = {field.name for field in Submission._meta.get_fields()}
+    assert fields == {"id", "key", "kind", "object_id", "created_at"}
+    assert Submission._meta.get_field("key").unique
+    assert [key for key, _ in Submission.KINDS] == [Submission.ANSWER] == ["answer"]
+    submission = Submission(pk=7, key=uuid.uuid4(), kind=Submission.ANSWER, object_id=1)
+    assert str(submission) == "Innsending 7"

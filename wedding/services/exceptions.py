@@ -49,3 +49,29 @@ class InvalidAnswer(ServiceError):
     """FR-74, AD-9 (Story 2.6a): the answer does not cover the household as it is now."""
 
     default_message = "Svaret ble ikke sendt."
+
+
+class RevisionConflict(ServiceError):
+    """AD-9, FR-74 (Story 2.6c): the household's answer was sent after the draft started.
+
+    `revision` is the household's current revision, so the view can move the
+    draft onto it; the next send is then a new send.
+    """
+
+    default_message = "Svaret ble ikke sendt, fordi svaret for husstanden er endret."
+
+    def __init__(self, message: str | None = None, *, revision: int):
+        self.revision = revision
+        super().__init__(message)
+
+
+class TotalChanged(ServiceError):
+    """AD-7, NFR-2 (Story 2.6c): the total differs from the one the check page showed."""
+
+    default_message = "Svaret ble ikke sendt, fordi summen har endret seg."
+
+
+class ConsentTextChanged(ServiceError):
+    """AD-18, FR-29 (Story 2.6c): the consent text changed after the guest answered it."""
+
+    default_message = "Svaret ble ikke sendt, fordi teksten om samtykke er endret."

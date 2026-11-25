@@ -1,4 +1,4 @@
-"""The draft cookie that holds an answer between steps (Stories 2.1 to 2.5; AD-8).
+"""The draft cookie that holds an answer between steps (Stories 2.1 to 2.6c; AD-8).
 
 AD-8, FR-78: until the answer is sent, nothing is stored on the server. The
 answers live in one signed, compressed cookie, `rsvp_draft`, scoped to the
@@ -22,8 +22,11 @@ repeated, `n` not true or false, `t` not text or longer than `NOTE_MAX`),
 `cons` (a key that is not a member, a value not true or false) and `conf`
 and `long` (not a list, an id that is not a member, or the same id twice).
 Story 2.5 adds `hike` (a key that is not a member, or a value that is not
-one of `HIKE_ANSWERS`). A cookie of format 1, 2, 3 or 4 is broken too;
-nothing was live then.
+one of `HIKE_ANSWERS`). Story 2.6c (format 6, AD-18) adds `cv` (not null
+and not a string of at most 20 characters). A cookie of format 1 to 5 is
+broken too; nothing was live then. The check page's one-time submission id
+and the total it showed are hidden fields of its form, not draft fields: they
+belong to the rendered page, and neither is an answer.
 A broken draft is deleted and the form starts empty, never with a server
 error. (Story 2.9 will drop changed members instead of deleting.)
 """
@@ -44,7 +47,9 @@ from wedding.rules.form_steps import STEP_KEYS
 
 COOKIE_NAME = "rsvp_draft"
 SALT = "wedding.rsvp.draft"
-VERSION = 5
+VERSION = 6
+# AD-18: the longest consent-text version a draft may name.
+CONSENT_VERSION_MAX = 20
 MAX_AGE = timedelta(days=90)
 # A draft that says it started later than this after now is not ours.
 FUTURE_SKEW = timedelta(seconds=60)
@@ -66,6 +71,8 @@ class Draft:
     members the respondent confirmed know and agree, and `long` the members
     whose last posted note was too long and was not kept. Story 2.5 (FR-17):
     `hike` each member's answer to the Friday hike, one of `HIKE_ANSWERS`.
+    Story 2.6c (AD-18): `cv` the consent-text version step 5 showed when the
+    guest last posted it (None before that, or after the text changed).
     """
 
     started: str
@@ -82,6 +89,7 @@ class Draft:
     conf: list[int] = field(default_factory=list)
     long: list[int] = field(default_factory=list)
     hike: dict[int, str] = field(default_factory=dict)
+    cv: str | None = None
 
     @classmethod
     def new(cls, *, revision: int, respondent: int, now: datetime) -> Draft:
@@ -89,7 +97,7 @@ class Draft:
         return cls(started=now.astimezone(UTC).isoformat(), rev=revision, resp=respondent)
 
     def payload(self) -> dict[str, object]:
-        """AD-8: the cookie's JSON payload, format version 5."""
+        """AD-8: the cookie's JSON payload, format version 6."""
         return {
             "v": VERSION,
             "started": self.started,
@@ -109,6 +117,7 @@ class Draft:
             "conf": list(self.conf),
             "long": list(self.long),
             "hike": {str(guest_id): choice for guest_id, choice in self.hike.items()},
+            "cv": self.cv,
         }
 
 
@@ -128,6 +137,7 @@ PAYLOAD_KEYS = (
     "conf",
     "long",
     "hike",
+    "cv",
 )
 
 
@@ -270,6 +280,7 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
         conf,
         long,
         hike,
+        consent_version,
     ) = (payload[key] for key in PAYLOAD_KEYS)
     attendance = _attendance(att, member_ids)
     chosen_days = _key_lists(days, member_ids, DAY_KEYS)
@@ -297,6 +308,10 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
         or confirmed is None
         or too_long is None
         or hike_answers is None
+        or not (
+            consent_version is None
+            or (isinstance(consent_version, str) and len(consent_version) <= CONSENT_VERSION_MAX)
+        )
     ):
         return None
     return Draft(
@@ -314,6 +329,7 @@ def _parse(payload: object, member_ids: set[int]) -> Draft | None:
         conf=confirmed,
         long=too_long,
         hike=hike_answers,
+        cv=consent_version,
     )
 
 

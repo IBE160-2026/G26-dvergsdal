@@ -6,8 +6,11 @@ view built on them never writes either (FR-3).
 """
 
 from collections.abc import Iterable
+from uuid import UUID
 
-from wedding.models import Guest, Household, HouseholdAnswer, Settings, User
+from django.db.models import Exists, OuterRef
+
+from wedding.models import Guest, Household, HouseholdAnswer, Settings, Submission, User
 from wedding.rules.contacts import tel_number
 from wedding.rules.money import CABIN
 
@@ -122,3 +125,14 @@ def household_answer(household: Household) -> HouseholdAnswer | None:
     One SELECT; nothing from another household.
     """
     return HouseholdAnswer.objects.filter(household=household).first()
+
+
+def submitted(household: Household, key: UUID) -> bool:
+    """AD-20, NFR-1 (Story 2.6c): whether `key` was written as `household`'s answer.
+
+    One SELECT; a key written for another household is False.
+    """
+    answers = HouseholdAnswer.objects.filter(pk=OuterRef("object_id"), household=household)
+    return (
+        Submission.objects.filter(key=key, kind=Submission.ANSWER).filter(Exists(answers)).exists()
+    )

@@ -1,15 +1,20 @@
-"""Sending a household's answer (Stories 2.6a, 2.6b; FR-26, FR-29, FR-41, FR-74, FR-75, AD-3,
-AD-4, AD-9, AD-18, NFR-2, NFR-3).
+"""Sending a household's answer (Stories 2.6a, 2.6b, 2.6c; FR-26, FR-29, FR-41, FR-74,
+FR-75, AD-3, AD-4, AD-7, AD-9, AD-18, AD-20, NFR-1, NFR-2, NFR-3).
 
 `send_answer` is the RSVP form's one write: the normalised answer as one
 `PersonAnswer` per guest and the household's `HouseholdAnswer`, in one
 transaction, and `Household.revision` raised. Story 2.6b: in the same
 transaction each guest's `Allergy` is stored, deleted or kept by
 `consent_outcomes`, and one `Consent` event is recorded per coming guest who
-answered «Ja» or «Nei». The submission id and revision check are Story 2.6c.
+answered «Ja» or «Nei». Story 2.6c makes a send that repeats or comes too
+late safe: a submission id already written returns the earlier answer, and a
+draft from an older revision, a consent answer to an older consent text or a
+total that differs from the one the check page showed is refused, writing
+nothing and recording no `Submission`.
 """
 
 from datetime import datetime
+from uuid import UUID
 
 from django.db import transaction
 from django.db.models import F
@@ -23,6 +28,7 @@ from wedding.models import (
     HouseholdAnswer,
     PersonAnswer,
     Settings,
+    Submission,
 )
 from wedding.rules.allergies import (
     ALLERGY_KEYS,
@@ -36,8 +42,17 @@ from wedding.rules.allergies import (
 from wedding.rules.answer import Answer, normalise_answer, present_days
 from wedding.rules.days import MEAL_KEYS
 from wedding.rules.deadline import is_past_deadline
+from wedding.rules.money import household_total
+from wedding.selectors import form_prices
 from wedding.services.consent import CONSENT_TEXT_VERSION
-from wedding.services.exceptions import DeadlinePassed, InvalidAnswer, NotAllowed
+from wedding.services.exceptions import (
+    ConsentTextChanged,
+    DeadlinePassed,
+    InvalidAnswer,
+    NotAllowed,
+    RevisionConflict,
+    TotalChanged,
+)
 
 # The `PersonAnswer` field for each day key in `wedding.rules.days`; the meal
 # keys (`MEAL_KEYS`) are the field names themselves.
@@ -91,7 +106,16 @@ def _apply_consent(
 
 
 def send_answer(
-    actor: Actor, *, household: Household, respondent: int, answer: Answer, now: datetime
+    actor: Actor,
+    *,
+    household: Household,
+    respondent: int,
+    answer: Answer,
+    now: datetime,
+    submission: UUID,
+    revision: int,
+    shown_total: int,
+    consent_version: str | None,
 ) -> HouseholdAnswer:
     """FR-41, FR-74, FR-75, AD-3, AD-4, AD-9, NFR-2: write `household`'s answer.
 
@@ -112,20 +136,42 @@ def send_answer(
     deleted on «Nei» or when not coming, unchanged when unanswered. Every
     coming guest who answered gets one `Consent` event (given or refused) by
     the respondent, at `now`, with `CONSENT_TEXT_VERSION`.
+
+    Story 2.6c (AD-7, AD-9, AD-18, AD-20, NFR-1), in this order after the
+    actor and household checks: a `submission` id already recorded is a
+    repeat and returns the earlier `HouseholdAnswer` without writing (an id
+    recorded for another household is `NotAllowed`); a `revision` other than
+    the household's current one is `RevisionConflict`, checked before the
+    deadline; after normalising, a coming guest with a consent answer given to
+    a `consent_version` other than `CONSENT_TEXT_VERSION` is
+    `ConsentTextChanged`; a `shown_total` other than `household_total` at
+    today's prices is `TotalChanged`. A send that writes records `submission`
+    as a `Submission` in the same transaction, so a same-id race fails on
+    the unique key instead of writing twice.
     """
     with transaction.atomic():
         if isinstance(actor, AdminActor):
             raise NotAllowed()
         if isinstance(actor, GuestActor) and actor.household.pk != household.pk:
             raise NotAllowed()
+        repeat = Submission.objects.filter(key=submission).first()
+        if repeat is not None:
+            earlier = HouseholdAnswer.objects.filter(
+                pk=repeat.object_id, household=household
+            ).first()
+            if repeat.kind != Submission.ANSWER or earlier is None:
+                raise NotAllowed()
+            return earlier
         guests = {guest.pk: guest for guest in Guest.objects.filter(household=household)}
         if respondent not in guests or not _answer_ids(answer) <= set(guests):
             raise NotAllowed()
         if set(guests) - set(answer.attendance):
             raise InvalidAnswer()
-        if isinstance(actor, GuestActor) and is_past_deadline(
-            Settings.objects.get().rsvp_deadline, now
-        ):
+        current = Household.objects.values_list("revision", flat=True).get(pk=household.pk)
+        if current != revision:
+            raise RevisionConflict(revision=current)
+        settings = Settings.objects.get()
+        if isinstance(actor, GuestActor) and is_past_deadline(settings.rsvp_deadline, now):
             raise DeadlinePassed()
         answer = normalise_answer(answer)
         present = present_days(answer)
@@ -137,6 +183,12 @@ def send_answer(
                 guest_id == respondent,
             ):
                 raise InvalidAnswer()
+        if consent_version != CONSENT_TEXT_VERSION and any(
+            guest_id in answer.consent for guest_id in present
+        ):
+            raise ConsentTextChanged()
+        if household_total(answer, form_prices(settings)) != shown_total:
+            raise TotalChanged()
         for guest_id, guest in guests.items():
             days = present.get(guest_id, frozenset())
             meals = set(answer.meals.get(guest_id, ())) if guest_id in present else set()
@@ -157,4 +209,7 @@ def send_answer(
             defaults={"sent_by": sender, "sent_by_name": sender.name, "sent_at": now},
         )
         Household.objects.filter(pk=household.pk).update(revision=F("revision") + 1)
+        Submission.objects.create(
+            key=submission, kind=Submission.ANSWER, object_id=sent.pk, created_at=now
+        )
     return sent

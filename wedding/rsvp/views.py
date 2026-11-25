@@ -30,7 +30,16 @@ check page, which calls `wedding.services.answers.send_answer`, deletes the
 draft and redirects (303) to the sent page `<base>/sendt/`; that is the only
 database write the form makes. Story 2.6b: the same send stores each
 person's allergies only with their «Ja» and records each consent answer
-(FR-26, FR-29, AD-18).
+(FR-26, FR-29, AD-18). Story 2.6c (AD-7, AD-9, AD-18, AD-20, NFR-1,
+UX-DR52): the check page's form carries a one-time submission id
+(`innsending`) and the total it showed (`sum`) as hidden fields; neither is an
+answer. A repeated id lands on the sent page and writes nothing, also when
+the draft is already gone. A send refused because the answer changed
+meanwhile, the total changed or the consent text changed, or a send the
+database fails, redirects (303) back to the check page with `?sending=<reason>`
+and a focused notice; the draft is kept (after a changed answer or consent
+text it loses its consent answers). Step 5 records the consent-text version
+it showed (`cv`).
 A later step opens only when every applicable step before it is done (`first_unfinished`).
 Every draft write runs `normalise_answer` (FR-75), so a person who stops
 coming loses their days, stay, meals and allergy answers, steps 2, 3 and 5
@@ -38,11 +47,14 @@ stay done only while their answers are complete, and a change in who is there on
 reopens the steps after step 2.
 """
 
+import logging
+import uuid
 from dataclasses import replace
 
+from django.db import DatabaseError, IntegrityError
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
-from django.utils import timezone
+from django.utils import dateformat, timezone
 
 from wedding.actors import Actor, GuestActor
 from wedding.rsvp.draft import Draft, delete_draft, read_draft, write_draft
@@ -97,7 +109,15 @@ from wedding.rules.form_steps import (
     step_position,
 )
 from wedding.rules.money import CABIN, household_total
+from wedding.selectors import household_answer, submitted
 from wedding.services.answers import send_answer
+from wedding.services.consent import CONSENT_TEXT_VERSION
+from wedding.services.exceptions import (
+    ConsentTextChanged,
+    NotAllowed,
+    RevisionConflict,
+    TotalChanged,
+)
 
 STEP_TEMPLATE = "rsvp/step.html"
 CHECK_TEMPLATE = "rsvp/check.html"
@@ -114,6 +134,21 @@ REOPENED_ON_CHANGE = ("overnight", "meals", "allergies", "hike")
 PAID_STEPS = ("overnight", "meals")
 Members = list[tuple[int, str]]
 Prices = dict[str, int]
+# AD-20, AD-7 (Story 2.6c): the check page form's hidden one-time submission
+# id and the total it showed.
+SUBMISSION_FIELD = "innsending"
+TOTAL_FIELD = "sum"
+# UX-DR52 (Story 2.6c): the query that brings a refused or failed send back
+# to the check page, and its reasons.
+SENDING_QUERY = "sending"
+SEND_FAILED = "feilet"
+SEND_CHANGED = "endret"
+SEND_TOTAL = "sum"
+SEND_CONSENT = "samtykke"
+NOT_SENT = "Svaret ble ikke sendt, fordi "
+TRY_AGAIN = " Ingenting er tapt: alt du fylte ut, står her fortsatt. Prøv igjen med «Send svaret»."
+
+logger = logging.getLogger(__name__)
 
 
 def _member_ids(members: Members) -> set[int]:
@@ -596,9 +631,139 @@ def _render_step(
     return render(request, STEP_TEMPLATE, context, status=status)
 
 
+def _phones(contacts: list[dict[str, str]]) -> str:
+    """UX-DR52, FR-6 (Story 2.6c): « Går det fortsatt ikke, ring …» with the
+    couple's phones, or nothing without contacts."""
+    calls = [f"{contact['name']} på {contact['phone']}" for contact in contacts]
+    if not calls:
+        return ""
+    return f" Går det fortsatt ikke, ring {' eller '.join(calls)}."
+
+
+def _changed_text(actor: Actor) -> str:
+    """AD-9 (Story 2.6c): why a send was refused after the household's answer
+    changed: who sent it and when (Oslo time, as on the sent page)."""
+    sent = household_answer(actor.household) if isinstance(actor, GuestActor) else None
+    if sent is None:
+        reason = "svaret for husstanden er endret etter at du begynte."
+    else:
+        local = timezone.localtime(sent.sent_at)
+        reason = (
+            f"{sent.sent_by_name} sendte et svar for husstanden "
+            f"{dateformat.format(local, 'l j. F Y')} kl. {dateformat.format(local, 'H:i')} "
+            "etter at du begynte."
+        )
+    return (
+        NOT_SENT
+        + reason
+        + " Se over svaret og send det på nytt. Samtykke til å lagre allergier må gis på nytt."
+    )
+
+
+def _sending_notice(request: HttpRequest, actor: Actor, contacts: list) -> str:
+    """UX-DR52, AD-7, AD-9, AD-18 (Story 2.6c): the notice for `?sending=<reason>`,
+    or "" for no or an unknown reason."""
+    reason = request.GET.get(SENDING_QUERY)
+    if reason == SEND_FAILED:
+        return NOT_SENT + "noe gikk galt da det skulle lagres." + TRY_AGAIN + _phones(contacts)
+    if reason == SEND_CHANGED:
+        return _changed_text(actor)
+    if reason == SEND_TOTAL:
+        return NOT_SENT + "summen har endret seg. Se over den nye summen og send svaret på nytt."
+    if reason == SEND_CONSENT:
+        return (
+            NOT_SENT + "teksten om lagring av allergier er endret etter at du svarte. Les den nye "
+            "teksten under «Allergier og matbehov» og svar på nytt før du sender."
+        )
+    return ""
+
+
+def _submission(request: HttpRequest) -> uuid.UUID | None:
+    """AD-20 (Story 2.6c): the posted one-time submission id, or None when it is not a UUID."""
+    try:
+        return uuid.UUID(request.POST.get(SUBMISSION_FIELD, ""))
+    except ValueError:
+        return None
+
+
+def _shown_total(request: HttpRequest) -> int | None:
+    """AD-7 (Story 2.6c): the posted total the check page showed, or None unless whole kroner."""
+    value = request.POST.get(TOTAL_FIELD, "")
+    return int(value) if value.isascii() and value.isdigit() else None
+
+
+def _log_failed(actor: Actor, error: Exception) -> None:
+    """NFR-3, UX-DR52 (Story 2.6c): a failed send, with the household id and the class only."""
+    household = actor.household.pk if isinstance(actor, GuestActor) else None
+    logger.error("Sending the answer failed (%s) for household %s", type(error).__name__, household)
+
+
+def _send(
+    request: HttpRequest, *, actor: Actor, mount: FormMount, members: Members, draft: Draft
+) -> tuple[HttpResponse, Draft | None]:
+    """FR-74, AD-7, AD-9, AD-18, AD-20, NFR-1, UX-DR52 (Stories 2.6a, 2.6c): «Send svaret».
+
+    Without a valid submission id or total, back to the check page (303),
+    nothing written. Sent, or a repeat of a send: 303 to the sent page and
+    the draft deleted. `TotalChanged`: back with `?sending=sum`, the draft
+    unchanged. `RevisionConflict`: the draft moves to the current revision
+    and loses its consent answers and confirmations (AD-18, no «Ja» across a
+    revision change), back with `?sending=endret`. `ConsentTextChanged`: the
+    consent answers, confirmations and seen version are cleared, back with
+    `?sending=samtykke`. A database failure is logged with its class name
+    only, back with `?sending=feilet`, the draft untouched; an
+    `IntegrityError` after the same id was written by a racing request is a
+    repeat. `NotAllowed` (another household's id) goes back to the check page. `DeadlinePassed`
+    is left to the mount's view (FR-41).
+    """
+    check_url = mount.url(CHECK)
+    submission = _submission(request)
+    shown_total = _shown_total(request)
+    if submission is None or shown_total is None:
+        return _see_other(check_url), None
+    try:
+        send_answer(
+            actor,
+            household=actor.household if isinstance(actor, GuestActor) else None,
+            respondent=draft.resp,
+            answer=_answer(draft, members),
+            now=timezone.now(),
+            submission=submission,
+            revision=draft.rev,
+            shown_total=shown_total,
+            consent_version=draft.cv,
+        )
+    except NotAllowed:
+        # AD-3, AD-20: a submission id written for another household.
+        return _see_other(check_url), None
+    except TotalChanged:
+        return _see_other(f"{check_url}?{SENDING_QUERY}={SEND_TOTAL}"), None
+    except RevisionConflict as conflict:
+        new = replace(draft, rev=conflict.revision, cons={}, conf=[])
+        return _see_other(f"{check_url}?{SENDING_QUERY}={SEND_CHANGED}"), new
+    except ConsentTextChanged:
+        new = replace(draft, cons={}, conf=[], cv=None)
+        return _see_other(f"{check_url}?{SENDING_QUERY}={SEND_CONSENT}"), new
+    except IntegrityError as error:
+        # AD-20, NFR-1: the same id raced and the other request wrote it.
+        if isinstance(actor, GuestActor) and submitted(actor.household, submission):
+            response = _see_other(mount.sent_url())
+            delete_draft(response, mount)
+            return response, None
+        _log_failed(actor, error)
+        return _see_other(f"{check_url}?{SENDING_QUERY}={SEND_FAILED}"), None
+    except DatabaseError as error:
+        _log_failed(actor, error)
+        return _see_other(f"{check_url}?{SENDING_QUERY}={SEND_FAILED}"), None
+    response = _see_other(mount.sent_url())
+    delete_draft(response, mount)
+    return response, None
+
+
 def _render_check(
     request: HttpRequest,
     *,
+    actor: Actor,
     steps: tuple[str, ...],
     mount: FormMount,
     members: Members,
@@ -613,8 +778,12 @@ def _render_check(
     One block per applicable step from `check_parts`, the household total
     from `household_total` (AD-12), «Send svaret» and «Tilbake» to the last
     applicable step. `csrf_failed` (UX-DR52, Story 2.6a) adds the focused
-    error notice, with `status` 403.
+    error notice, with `status` 403. Story 2.6c (AD-7, AD-20, UX-DR52): a
+    fresh submission id per render and the rendered total as hidden fields,
+    the focused notice for `?sending=<reason>`, and the hidden notice the
+    script shows when the connection breaks.
     """
+    contacts = page_context.get("contacts") or []
     context = page_context | {
         "parts": check_parts(
             _answer(draft, members),
@@ -626,6 +795,9 @@ def _render_check(
         "total": _total(draft, members, prices),
         "back_url": mount.url(steps[-1]),
         "csrf_failed": csrf_failed,
+        "submission": uuid.uuid4(),
+        "sending_notice": _sending_notice(request, actor, contacts),
+        "send_failed_text": NOT_SENT + "forbindelsen ble brutt." + TRY_AGAIN + _phones(contacts),
     }
     return render(request, CHECK_TEMPLATE, context, status=status)
 
@@ -923,6 +1095,8 @@ def _allergies_step(
         )
         return response, None
     new = _switch_respondent(request, _with_posted(request, draft, members, "allergies"), members)
+    # AD-18 (Story 2.6c): the consent text this step showed, checked at send.
+    new.cv = CONSENT_TEXT_VERSION
     if request.POST.get("action") == SWITCH:
         return HttpResponseRedirect(_keep_from(request, url)), new
     if "allergies" not in new.done:
@@ -1021,11 +1195,20 @@ def _later_step(
     (303) to the sent page; a member missing from the draft's attendance
     sends the guest to step 1 instead (303), before the gate. `DeadlinePassed` is left to the
     mount's view (FR-41). Any other POST to the check page redirects (303)
-    back to it and writes nothing.
+    back to it and writes nothing. Story 2.6c (AD-20, NFR-1): a send whose
+    submission id was already written for this household lands on the sent
+    page before any other gate, so a late second tap after the draft was
+    deleted still shows the receipt; `_send` maps the refusals.
     """
+    sending = step == CHECK and request.method == "POST" and request.POST.get("action") == "send"
+    if sending and isinstance(actor, GuestActor):
+        submission = _submission(request)
+        if submission is not None and submitted(actor.household, submission):
+            response = _see_other(mount.sent_url())
+            delete_draft(response, mount)
+            return response, None
     if draft is None or "who" not in draft.done:
         return HttpResponseRedirect(mount.url("who")), None
-    sending = step == CHECK and request.method == "POST" and request.POST.get("action") == "send"
     if sending and any(guest_id not in draft.att for guest_id, _ in members):
         # FR-13, AD-9: a member added after step 1 has no «Kommer»; ask it first.
         return _see_other(mount.url("who")), None
@@ -1079,18 +1262,10 @@ def _later_step(
     if request.method == "POST":
         if request.POST.get("action") != "send":
             return _see_other(mount.url(CHECK)), None
-        send_answer(
-            actor,
-            household=actor.household if isinstance(actor, GuestActor) else None,
-            respondent=draft.resp,
-            answer=_answer(draft, members),
-            now=timezone.now(),
-        )
-        response = _see_other(mount.sent_url())
-        delete_draft(response, mount)
-        return response, None
+        return _send(request, actor=actor, mount=mount, members=members, draft=draft)
     response = _render_check(
         request,
+        actor=actor,
         steps=steps,
         mount=mount,
         members=members,
@@ -1182,6 +1357,7 @@ def render_after_csrf_failure(
             return None
         return _render_check(
             request,
+            actor=actor,
             steps=steps,
             mount=mount,
             members=members,
