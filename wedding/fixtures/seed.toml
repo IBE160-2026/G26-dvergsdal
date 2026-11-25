@@ -4,9 +4,9 @@
 # every phone number starts with "+47 000", which no Norwegian subscriber number
 # does. The account number fails the MOD11 check, so no money can reach it.
 #
-# Story 1.3 loads the settings, the users, the households and the guests. The
-# rest is written here as data for the stories that add its tables:
-#   answers, allergies and consents  -> Story 2.6d (through the send service)
+# Story 1.3 loads the settings, the users, the households and the guests.
+# Story 2.6d sends the answers, allergies and consents through the send service
+# (consent_by must be the household's answered_by). The rest is loaded later:
 #   payment reports and payments     -> Story 5.2
 #   the withdrawn consent            -> Story 7.2
 # The hand-worked results for exactly this data are in expected.toml (FR-69).
