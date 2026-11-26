@@ -2081,6 +2081,37 @@ a:active {
   height: 1.2em;
 }
 
+/* UX A5, FR-58 (Story 3.4): the allergy list. Name, categories and the note on their own lines;
+ * the note keeps the guest's line breaks and wraps anywhere, so long words never scroll. */
+.allergy-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.allergy-list li {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--space-target-min);
+  padding: var(--space-1) 0;
+  border-top: 1px solid var(--color-divider);
+  overflow-wrap: anywhere;
+}
+
+.allergy-list li:first-child {
+  border-top: 0;
+}
+
+.allergy-list__name {
+  font-weight: 600;
+}
+
+.allergy-list__note {
+  color: var(--color-ink-muted);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
 /* UX-DR49: under the nav, for a helper only; not a panel and no icon. */
 .admin-readonly {
   max-width: var(--space-content-max);

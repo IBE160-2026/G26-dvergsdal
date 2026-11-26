@@ -11,6 +11,9 @@ household page exists (Story 6.3). No allergy text here: it lives only on the al
 {% block admin_content %}
     <h1 class="admin-title">Gjester</h1>
     <p class="guest-summary">{{ guest_list.summary }}</p>
+    <p class="count-back-line">
+        <a class="count-back" href="{% url 'dashboard:allergies' %}">Allergilisten</a>
+    </p>
     <section class="admin-panel" aria-label="Husstander">
         {% if guest_list.rows %}
             <ul class="guest-list">

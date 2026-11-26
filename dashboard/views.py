@@ -22,7 +22,7 @@ from django.views.decorators.http import require_POST, require_safe
 from dashboard.access import admin_required, safe_next
 from dashboard.counts import HOUSEHOLDS, count_for, count_text, payment_statuses
 from dashboard.forms import AdminLoginForm
-from dashboard.guest_list import build_guest_list
+from dashboard.guest_list import build_allergy_list, build_guest_list
 from dashboard.navigation import frame
 from dashboard.overview import build_overview
 from dashboard.selectors import (
@@ -166,6 +166,22 @@ def guests_page(request: HttpRequest) -> HttpResponse:
         request,
         "dashboard/guests.html",
         {**frame(request, "guests"), "guest_list": guest_list},
+    )
+
+
+@admin_required
+@require_safe
+def allergies_page(request: HttpRequest) -> HttpResponse:
+    """FR-58, UX-DR48, AD-18, UX A5 (Story 3.4): the allergy list for Hardingasete.
+
+    Name, categories and note of every coming guest whose allergy data is stored with consent;
+    `allergy_list` is the one rule that decides, the same one behind Oversikt's count.
+    """
+    allergy_list = build_allergy_list(guest_facts(), guest_names())
+    return render(
+        request,
+        "dashboard/allergies.html",
+        {**frame(request, "guests"), "allergy_list": allergy_list},
     )
 
 

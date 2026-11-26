@@ -82,12 +82,13 @@ def test_every_row_has_an_anchor_with_the_household_id(page):
     }
 
 
-def test_no_allergy_text(page):
+def test_no_allergy_text_and_a_link_to_the_allergy_list(page):
     """FR-58, NFR-3: allergy details live only on the allergy list."""
     text = page_text(main_html(page)).lower()
 
     for word in ("gluten", "skalldyr", "nøtter", "laktose", "vegetar", "samtykke"):
         assert word not in text
+    assert re.search(r'<a class="count-back" href="/admin/allergier/">Allergilisten</a>', page)
 
 
 def test_no_households_say_so(db):
