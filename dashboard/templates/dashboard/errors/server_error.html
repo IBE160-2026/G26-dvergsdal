@@ -1,0 +1,7 @@
+{% extends "dashboard/errors/error_page.html" %}
+{% comment %}500 under /admin/ (Story 3.1; UX-DR36, AD-15): rendered without the request, so no nav. Status 500.{% endcomment %}
+{% block title %}Noe gikk galt – Administrasjon{% endblock title %}
+{% block heading %}Noe gikk galt{% endblock heading %}
+{% block message %}
+    <p>Prøv igjen om litt.</p>
+{% endblock message %}

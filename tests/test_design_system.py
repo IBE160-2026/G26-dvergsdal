@@ -1021,7 +1021,7 @@ def test_base_template_holds_the_edge_filter_once_and_hidden():
     """UX-DR3: the edge-b3 filter is an inline SVG at the start of `<body>`, hidden
     from screen readers and zero-size by class, without xmlns (no `://` above)."""
     html = render_to_string("wedding/base.html")
-    body = html[html.index("<body>") :]
+    body = html[html.index("<body") :]
     assert body.count('<filter id="edge-b3"') == 1
     svg = re.search(r"<svg[^>]*>", body).group(0)
     assert 'class="paper-filters"' in svg

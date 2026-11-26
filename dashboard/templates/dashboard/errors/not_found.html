@@ -1,0 +1,7 @@
+{% extends "dashboard/errors/error_page.html" %}
+{% comment %}404 under /admin/ (Story 3.1; UX-DR36): an admin address that is not a page, for a logged-in admin. Status 404.{% endcomment %}
+{% block title %}Vi finner ikke denne siden – Administrasjon{% endblock title %}
+{% block heading %}Vi finner ikke denne siden{% endblock heading %}
+{% block message %}
+    <p>Adressen finnes ikke i administrasjonen.</p>
+{% endblock message %}

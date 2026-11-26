@@ -1788,6 +1788,120 @@ a:active {
   }
 }
 
+/* ---------- Admin frame (Story 3.1; FR-46, UX-DR34; DESIGN.md › Admin screens) ----------
+ * The couple's pages: the flat page-green with no grain (cream text under 19px
+ * may only stand on flat green), 18px admin text, straight-edged cream admin
+ * panels with the sheet paper texture and no edge filter, and the Admin nav
+ * (Oversikt · Gjester · Betalinger · Innstillinger · Logg ut), which is not
+ * sticky and has no «Svar» button. Every target is at least 44px tall.
+ * Markup: dashboard/templates/dashboard/admin_base.html. */
+
+.admin-page {
+  background-image: none;
+  font-size: var(--font-size-admin-body);
+  line-height: var(--line-height-admin-body);
+}
+
+.admin-nav {
+  background-color: var(--color-page-green);
+  box-shadow: 0 1px 0 rgba(var(--rgb-cream-on-green), 0.22);
+}
+
+.admin-nav__inner {
+  max-width: var(--space-content-max);
+  margin-inline: auto;
+  padding: var(--space-2) var(--space-gutter);
+}
+
+.admin-nav__words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-nav-words);
+  line-height: var(--line-height-nav-words);
+  letter-spacing: var(--letter-spacing-nav-words);
+}
+
+.admin-nav__words form {
+  margin: 0;
+}
+
+.admin-nav__words a,
+.admin-nav__word,
+.admin-nav__logout {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-target-min);
+  text-decoration: none;
+}
+
+.admin-nav__words a[aria-current="page"] {
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+/* «Logg ut» is a button, since it changes state, drawn as a nav word. */
+.admin-nav__logout {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+
+.admin-nav__logout:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.admin-main {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-7);
+}
+
+.admin-title {
+  margin-bottom: var(--space-3);
+  font-size: var(--font-size-admin-title);
+  line-height: var(--line-height-admin-title);
+}
+
+.admin-panel {
+  padding: var(--space-admin-panel-padding);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-panel-cream);
+  background-image: var(--grain-sheet), var(--fibre-sheet);
+  background-blend-mode: overlay, overlay;
+  color: var(--color-ink);
+  --focus-color: var(--color-focus-on-panel);
+}
+
+.admin-panel + .admin-panel {
+  margin-top: var(--space-admin-gap);
+}
+
+.admin-panel p {
+  margin: 0;
+}
+
+.admin-panel p + p {
+  margin-top: var(--space-admin-gap);
+}
+
+.admin-panel .notice {
+  margin-bottom: var(--space-admin-gap);
+}
+
+.admin-panel__action {
+  margin-top: var(--space-4);
+}
+
 /* ---------- Forced colours, e.g. Windows high contrast (UX-DR53) ----------
  * The primary button's transparent border becomes a visible outline, cream
  * surfaces keep an edge, and the focus ring uses the system text colour. The
@@ -1807,11 +1921,13 @@ a:active {
   }
 
   .surface-cream,
-  .paper-sheet {
+  .paper-sheet,
+  .admin-panel {
     border: 1px solid CanvasText;
   }
 
   body,
+  .admin-panel,
   .paper-sheet::before {
     background-image: none;
   }
@@ -1826,7 +1942,8 @@ a:active {
     mix-blend-mode: normal;
   }
 
-  .nav-bar {
+  .nav-bar,
+  .admin-nav {
     border-bottom: 1px solid CanvasText;
   }
 

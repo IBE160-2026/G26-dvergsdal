@@ -9,7 +9,7 @@ page's order (notice, `h1`, one block per applicable step, the total from
 warning, each «Endre» link and its return with `?fra=se-over`; a POST to the
 check page without `action=send` writes nothing, and a walk through steps 1
 to 6 and the check page, stopping before the send, writes no row and is never
-cached. Sending itself is tested in test_rsvp_send.py (Story 2.6a). The rule
+cached. Sending itself is tested in test_rsvp_send_views.py (Story 2.6a). The rule
 is in test_answer_rules.py; the browser runs are MT-36 to MT-38 in docs/manual-test-plan.md.
 """
 

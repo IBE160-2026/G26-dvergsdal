@@ -33,6 +33,7 @@ from django.http import (
     HttpRequest,
     HttpResponse,
     HttpResponseBadRequest,
+    HttpResponseForbidden,
     HttpResponseRedirect,
     HttpResponseServerError,
 )
@@ -467,8 +468,10 @@ def rsvp_total(request: HttpRequest, code: str) -> HttpResponse:
 #
 # config/urls.py sets handler404, handler500 and handler400 to these views, and
 # CSRF_FAILURE_VIEW in config/settings.py points to csrf_failure, so a 400,
-# 404, 500 or failed CSRF check never shows one of Django's own pages. There is
-# no handler403: no guest view raises PermissionDenied. Under a valid link (the first path
+# 404, 500 or failed CSRF check never shows one of Django's own pages. No guest
+# view raises PermissionDenied; if one ever does, `forbidden` is the impersonal
+# page (Story 3.1). config/error_handlers.py picks these or the couple's
+# own pages in dashboard/errors.py by path. Under a valid link (the first path
 # segment resolves) an error page shows the back button to the invitation and
 # the footer band with the couple's phones; otherwise it shows nothing personal.
 
@@ -476,6 +479,7 @@ PAGE_NOT_FOUND = "guests/errors/not_found.html"
 SERVER_ERROR = "guests/errors/server_error.html"
 BAD_REQUEST = "guests/errors/bad_request.html"
 CSRF_FAILURE = "guests/errors/csrf_failure.html"
+FORBIDDEN = "guests/errors/forbidden.html"
 
 
 def _reachable(request: HttpRequest) -> dict[str, object]:
@@ -587,6 +591,16 @@ def server_error(request: HttpRequest) -> HttpResponse:
     phones; if the lookup fails as well, the impersonal page.
     """
     return HttpResponseServerError(render_to_string(SERVER_ERROR, _reachable(request)))
+
+
+@never_cache
+def forbidden(request: HttpRequest, exception: Exception) -> HttpResponse:
+    """UX-DR36, FR-5: handler403 outside `/admin/`, for a `PermissionDenied`.
+
+    Always impersonal and rendered without a request, like the 400: nothing
+    here has looked up a code, so nothing personal can show.
+    """
+    return HttpResponseForbidden(render_to_string(FORBIDDEN))
 
 
 @never_cache

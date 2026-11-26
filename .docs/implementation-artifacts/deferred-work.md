@@ -19,7 +19,7 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-4b-paper-rikke-s-images-and-the-private-invitation-page.md`
   summary: `admin/` (Story 3.1) and `robots.txt` (Story 1.4c) must be routed above the catch-all `<str:code>/`, and their tests must prove `/admin/` and `/robots.txt` do not render G1.
   evidence: medium. `<str:code>/` matches any single segment and APPEND_SLASH redirects `/admin` and `/robots.txt` to it; the rule lives only in the `config/urls.py` docstring.
-  status: robots.txt done in Story 1.4c (routed above the guest include; `tests/test_guest_privacy.py` proves it is plain text, not G1). `admin/` stays with Story 3.1.
+  status: robots.txt done in Story 1.4c (routed above the guest include; `tests/test_guest_privacy.py` proves it is plain text, not G1). `admin/` done in Story 3.1 (`path("admin/", include("dashboard.urls"))` above the guest include; `tests/test_admin_routing.py` proves `/admin/`, `/admin` and `/admin/program/` never render G1, and that every reserved first segment is in `NOT_LINK_CODES`).
 
 - source_spec: `.docs/implementation-artifacts/spec-1-4c-guest-pages-stay-private-headers-link-previews-and-logs.md`
   summary: Hosting (no story yet): the web server's or platform's own access log (gunicorn, nginx, the host's request log) writes the full path, link code included; it must mask the first segment the same way as `config/logging_filters.py` or be turned off (AD-15: production access logs must mask the code too).
@@ -68,10 +68,12 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
   summary: Story 3.1: the error handlers are site-wide, so `/admin/` paths get the impersonal guest error pages («ta kontakt med brudeparet direkte»), and a 404 under `/admin/` gives G1. Decide the couple's own 404, 500 and CSRF pages there (for example by checking the path in `guests.views._reachable` or the handlers, or a dashboard frame). Add `admin` to `NOT_LINK_CODES` in `config/logging_filters.py`, as already planned.
   evidence: medium. Nothing is routed under `/admin/` yet, so a guest page is the right answer today; once the dashboard exists, a logged-in couple who meets an error would see a guest page that tells them to contact themselves.
+  status: done in Story 3.1 (`config/error_handlers.py` sends `/admin/…` to the couple's own 403, 404, 500 and CSRF pages in `dashboard/errors.py`; `admin` is in `NOT_LINK_CODES`; `tests/test_admin_errors.py`).
 
 - source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
   summary: Story 3.1: there is no `handler403`, so a `PermissionDenied` (the admin raises it for staff without a permission) still gets Django's own bare 403 page. Decide the couple's own 403 together with their 404, 500 and CSRF pages.
   evidence: low. `config/urls.py` sets only `handler400`, `handler404` and `handler500`; no guest code raises `PermissionDenied`, so only the admin can reach it (1.8 review, blind and edge-case layers).
+  status: done in Story 3.1 (`handler403` is the dispatcher's: the couple's 403 under `/admin/`, a new impersonal `guests/errors/forbidden.html` elsewhere).
 
 - source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
   summary: Epic 2 (the RSVP form): `handler400` treats every 400 as an untrusted host, so a form POST under a valid link that trips `RequestDataTooBig`, `TooManyFieldsSent` or a bad multipart body gets the impersonal 400 page with no back button and no phones. Decide there whether a 400 that is not `DisallowedHost` should use `_reachable`.
@@ -81,6 +83,7 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-8-error-pages-that-still-show-how-to-reach-the-couple.md`
   summary: Before go-live: `MaskLinkCodes` only masks a path that starts with `/`, so a link code in a slash-less path inside a log record (such as Django's `Resolver404` text `{'path': '<code>/finnes-ikke/'}` in a chained traceback) is logged unmasked. Widen `_PATH` in `config/logging_filters.py`, or mask `Resolver404`'s `path`.
   evidence: low. Found while patching 1.8: the new `_reachable` warning chained the `Resolver404` on a 404 and leaked the code; fixed there with `__suppress_context__`. No other known log line carries a slash-less path.
+  status: done in Story 3.1 (a second pass masks a bare 22-character code, so `{'path': '<code>/x/'}` shows `[code]`; `tests/test_log_masking.py`).
 
 ## From the Epic 1 retrospective (2026-11-21)
 
@@ -89,6 +92,7 @@ Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the findin
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B1)
   summary: Story 3.1 (before the login adds `?next=`) and before go-live: widen `_PATH` in `config/logging_filters.py` (or add a pass for bare 22-character link-code tokens) so a code is masked also when percent-encoded (`?next=%2F<code>%2F`), in brackets (`[/<code>/]`), after a colon (`path:/<code>/`) or without a slash (`code=<code>`). Add each shape to `tests/test_log_masking.py`. Extends the 1.8 «before go-live» entry above.
   evidence: medium. Each shape was checked against `mask_link_codes` in the retrospective and passed through unmasked.
+  status: done in Story 3.1 (percent-encoded, bracketed, colon-prefixed and slash-less shapes are masked, each in `tests/test_log_masking.py`, with a test of the real warnings after a login redirect; closes sprint action `epic-1-retro-item-4`).
 
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (B6, B7)
   summary: Story 2.1: decorate the guest read views (`front_page`, `info_page`) with `@require_safe`, so a POST to `/<code>/` gets 405 instead of «Skjemaet ble ikke sendt», and set `Cache-Control: private, no-store` on guest responses (with a test next to the `X-Robots-Tag` test) before the first page shows answer state.
@@ -116,7 +120,7 @@ Routed from [epic-1-retro-2026-11-21.md](epic-1-retro-2026-11-21.md); the findin
 - source_spec: `.docs/implementation-artifacts/epic-1-retro-2026-11-21.md` (D1, D2, S2, S3, A2, A3)
   summary: Code tidy-ups for the next story that touches each place: move the copied test helpers (`_row_counts`, `make_admin`, `_get`, `tel:` parsing) into `tests/helpers.py` or a fixture; split `tests/test_design_system.py` when Epic 2 adds form components; rename `_not_found` / `NOT_FOUND` in `guests/views.py`. In Story 3.1, add a test that every reserved first segment is in `NOT_LINK_CODES`, and a test that `guests` and `dashboard` never import each other.
   evidence: low. Maintainability only.
-  status: partly done in Story 2.1: `_not_found` / `NOT_FOUND` are renamed `_unknown_link` / `PAGE_NOT_FOUND`, `_row_counts` is `row_counts()` in `tests/helpers.py`, and the form components have their own `tests/test_form_components.py`. Still open: `make_admin`, `_get` and the `tel:` parsing helpers, and the two Story 3.1 tests.
+  status: partly done in Story 2.1: `_not_found` / `NOT_FOUND` are renamed `_unknown_link` / `PAGE_NOT_FOUND`, `_row_counts` is `row_counts()` in `tests/helpers.py`, and the form components have their own `tests/test_form_components.py`. Done in Story 3.1: `make_admin` is in `tests/helpers.py` (`test_households.py`, `test_settings_service.py` and `test_users_service.py` import it), and `tests/test_admin_routing.py` (every reserved first segment is in `NOT_LINK_CODES`) and `tests/test_architecture_imports.py` (`guests`, `dashboard` and `wedding.rsvp` never import each other the wrong way) exist. Still open: `_get` (three files) and the `tel:` parsing helpers.
 
 ## From Rikke's answers to the open points (2026-11-21)
 
@@ -329,4 +333,14 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/epic-2-retro-2026-11-26.md`
   summary: Tidy-up for the next story that touches them: rename `tests/test_send_answer.py` to `test_answers_service.py` and `tests/test_rsvp_send.py` to `test_rsvp_send_views.py`, and extend the Story 3.1 import test to cover `wedding.rsvp`.
   evidence: D2 and A1 in the retrospective.
+  status: done in Story 3.1 (renamed `tests/test_answers_service.py` and `tests/test_rsvp_send_views.py`, docstrings rewritten by topic; the import test covers `wedding.rsvp`).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-1-the-couple-logs-in.md`
+  summary: Show the helper's read-only line «Du kan se alt, men ikke endre noe.» (DESIGN.md) under the admin nav for the helper role. Story 3.2 is the first admin page with content a helper cannot change.
+  evidence: Blind Hunter in the 3.1 review; `dashboard/templates/dashboard/admin_base.html` shows nothing role-specific.
+  status: open.
+
+- source_spec: `.docs/implementation-artifacts/spec-3-1-the-couple-logs-in.md`
+  summary: Log failed logins on `/admin/logg-inn/` with the username masked, before go-live. The slowed state is Story 6.6, but until then the login has no brute-force protection or failure log (test data only until the site is live).
+  evidence: Blind Hunter in the 3.1 review; the comment in `login.html` points to Story 6.6.
   status: open.

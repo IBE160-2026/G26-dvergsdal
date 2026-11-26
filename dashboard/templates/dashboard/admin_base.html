@@ -1,0 +1,44 @@
+{% extends "wedding/base.html" %}
+{% comment %}
+The admin frame (Story 3.1; FR-46, UX-DR34; DESIGN.md › Admin screens, Admin
+nav). Flat page-green (the `admin-page` class switches the grain off, since
+cream text under 19px may only stand on flat green), one centred column, and
+the Admin nav above the content when `nav_items` is given: Oversikt · Gjester ·
+Betalinger · Innstillinger · Logg ut. The nav is not sticky and has no «Svar»
+button. The open page carries `aria-current="page"`; a page that is not built
+yet is plain text, not a dead link. «Logg ut» is a POST button, since logging
+out changes state. The login page and the error pages of a visitor who is not
+logged in give no `nav_items`, so they show no nav. Pages fill `admin_content`.
+{% endcomment %}
+{% block title %}Administrasjon{% endblock title %}
+{% block body_class %}admin-page{% endblock body_class %}
+{% block content %}
+    {% if nav_items %}
+        <nav class="admin-nav" aria-label="Administrasjon">
+            <div class="admin-nav__inner">
+                <ul class="admin-nav__words">
+                    {% for item in nav_items %}
+                        <li>
+                            {% if item.url %}
+                                <a href="{{ item.url }}"
+                                   {% if item.current %}aria-current="page"{% endif %}>{{ item.label }}</a>
+                            {% else %}
+                                <span class="admin-nav__word">{{ item.label }}</span>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                    <li>
+                        <form method="post" action="{% url 'dashboard:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="admin-nav__logout">Logg ut</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    {% endif %}
+    <main class="column admin-main">
+        {% block admin_content %}
+        {% endblock admin_content %}
+    </main>
+{% endblock content %}

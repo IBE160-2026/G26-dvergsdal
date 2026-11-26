@@ -8,7 +8,8 @@ AD-9 (revision starts at 0) and AD-10 (helpers cannot write).
 import pytest
 from django.db import IntegrityError
 
-from wedding.actors import SYSTEM, AdminActor, GuestActor
+from tests.helpers import make_admin
+from wedding.actors import SYSTEM, GuestActor
 from wedding.links import is_code_format
 from wedding.models import Guest, Household, User
 from wedding.rules.households import MAX_HOUSEHOLD_SIZE, household_size_problem
@@ -17,10 +18,6 @@ from wedding.services.households import NewGuest, create_household
 from wedding.services.permissions import require_couple
 
 FIXED_CODE = "Fixed_code-for-seed-01"
-
-
-def make_admin(role, username="rikke"):
-    return AdminActor(User.objects.create_user(username=username, role=role))
 
 
 def names(count):
