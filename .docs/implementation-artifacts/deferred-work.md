@@ -338,9 +338,34 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-3-1-the-couple-logs-in.md`
   summary: Show the helper's read-only line «Du kan se alt, men ikke endre noe.» (DESIGN.md) under the admin nav for the helper role. Story 3.2 is the first admin page with content a helper cannot change.
   evidence: Blind Hunter in the 3.1 review; `dashboard/templates/dashboard/admin_base.html` shows nothing role-specific.
-  status: open.
+  status: done in Story 3.2 (`dashboard/navigation.py` `frame()` gives `read_only` for the helper role, `admin_base.html` shows the line under the nav; `tests/test_admin_overview.py`).
 
 - source_spec: `.docs/implementation-artifacts/spec-3-1-the-couple-logs-in.md`
   summary: Log failed logins on `/admin/logg-inn/` with the username masked, before go-live. The slowed state is Story 6.6, but until then the login has no brute-force protection or failure log (test data only until the site is live).
   evidence: Blind Hunter in the 3.1 review; the comment in `login.html` points to Story 6.6.
   status: open.
+
+- source_spec: `.docs/implementation-artifacts/spec-3-2-answer-progress-and-the-summary.md`
+  summary: Story 3.3 makes every count above 0 a link to the people behind it (the id tuples from `wedding/rules/summary.py`); Story 3.4 sets the address of «Se hva alle har svart», which is plain text until then.
+  evidence: Story 3.2 shows every count and «Se hva alle har svart» as plain text, since the lists page does not exist (no dead link).
+  status: open.
+
+- source_spec: `.docs/implementation-artifacts/spec-3-2-answer-progress-and-the-summary.md`
+  summary: `dashboard.access.admin_actor` is no longer used by any view (Oversikt used it only for the username, which Story 3.2 dropped). Remove it or use it in the first admin write (Epic 4 or 5).
+  evidence: `grep admin_actor dashboard` finds only its definition.
+  status: done in Story 3.2 (removed from `dashboard/access.py`; the first admin write builds its `AdminActor` where it needs one).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-2-answer-progress-and-the-summary.md`
+  summary: `payment_status` gives `not_paid` when refunded exceeds received (negative net), and the Betaling panel is tested only with received and refunded 0.
+  evidence: Edge Case Hunter and Blind Hunter in the 3.2 review; `dashboard/overview.py` passes 0 until payments exist.
+  status: open. Story 5.2 owns the rule's real inputs and the tests with amounts.
+
+- source_spec: `.docs/implementation-artifacts/spec-3-2-answer-progress-and-the-summary.md`
+  summary: Unknown allergy or meal keys in stored data would raise `ValueError` and give a 500 on Oversikt.
+  evidence: Blind Hunter in the 3.2 review; `meal_eaters` and `allergy_category_ids` raise on unknown keys.
+  status: open. Values are validated at send; add a fallback only if Story 6.x finds a way for bad data to get in.
+
+- source_spec: `.docs/implementation-artifacts/spec-3-2-answer-progress-and-the-summary.md`
+  summary: `frame()` and the error handler's override of `read_only` is awkward, and the muted italic «Se hva alle har svart» note has unchecked contrast.
+  evidence: Blind Hunter in the 3.2 review.
+  status: open. Tidy when Story 6.1 builds the admin nav; contrast in the Impeccable polish story.

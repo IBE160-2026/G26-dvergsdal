@@ -2,7 +2,8 @@
 title: 'Story 3.2: Answer progress and the summary'
 type: 'feature'
 created: '2026-11-26'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '2da024040851b552e23d0fdc7faff8f83be7d9ad'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -10,7 +11,19 @@ context:
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md'
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md'
 warnings: [oversized]
-deferred: []
+deferred:
+- summary: >-
+    `payment_status` gives `not_paid` when refunded exceeds received (negative net), and the Betaling panel is tested only with received and refunded 0.
+  reason: >-
+    Payments arrive with Story 5.2, which owns the rule's real inputs and the tests with amounts.
+- summary: >-
+    Unknown allergy or meal keys in stored data would raise `ValueError` and give a 500 on Oversikt.
+  reason: >-
+    Values are validated when the answer is sent; a defensive fallback is not worth a branch before Story 6.x.
+- summary: >-
+    `frame()` and the error handler's override of `read_only` is awkward, and the muted italic «Se hva alle har svart» note has unchecked contrast.
+  reason: >-
+    Tidy when Story 6.1 builds the admin nav; contrast is checked in the Impeccable polish story.
 ---
 
 <intent-contract>
@@ -88,6 +101,36 @@ Each group is one commit (about 600 changed lines or fewer; epic-2-retro-item-12
 
 ## Review Triage Log
 
+### 2026-11-26 — Review pass
+- verdicts: 26 findings — high 0, medium 5, low 17, false 4, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` `[orchestrator]` At 180 px and 20 px text the Allergier row «Ingen allergiopplysninger lagret» is 183 px wide, wider than the viewport (browser MT-74) — the long label wraps (`overflow-wrap`/`min-width: 0`), re-measured at all four sizes.
+  - `[medium]` `[patch]` The latest-consent loader (`_latest_consent`: withdrawn, refused, given again, ordering) has no test that reaches it (verification-gap) — a test creates Consent rows with explicit times for a guest with a stored allergy and asserts `guest_facts()` and the allergy state for each sequence.
+  - `[medium]` `[patch]` The hike row «Kommer» reads «Kommer 3 kommer, 2 kanskje» to a screen reader and repeats the Svar label (blind) — the label is changed to «Vil gå turen» with «3 ja, 2 kanskje».
+  - `[medium]` `[patch]` Day sub-rows can sum to less than «Ikke hele helgen» (empty set, fri+sun) and zero rows show although the spec says rows show only above zero (edge-case, blind) — zero rows hidden, an «Andre kombinasjoner» remainder row when above zero, and a test that the sub-rows sum to the parent.
+  - `[medium]` `[patch]` `household_totals` rebuilds an `Answer` with `whole=False`; nothing shows it equals the total `send_answer` computes (blind) — a test compares the two for the seeded households.
+  - `[low]` `[patch]` Banker's rounding gives a 0 % bar for 1 of 200 answered (edge-case, blind) — at least 1 % when anyone has answered.
+  - `[low]` `[patch]` `admin_actor` is dead code after this story (blind) — removed with any test that only covered it, and its deferred-work item closed.
+  - `[low]` `[patch]` MT-65 result still says «Innlogget som testpar.» (blind, edge-case) — result cell rewritten by the orchestrator (step 10).
+  - `[low]` `[reject]` `_attention.html` is an empty include (blind) — the spec keeps the place for Story 6.2 on purpose (UX-DR39); it renders nothing.
+  - `[low]` `[reject]` Synne's withdrawn consent shows her allergy until 7.2 (blind) — spec decision, tests name `SYNNE_UNTIL_7_2`, deferred-work and epics.md carry it.
+  - `[low]` `[reject]` «Se hva alle har svart» looks like a footnote (blind) — plain text until Story 3.4 sets the address; deliberate, noted in EXPERIENCE.md.
+  - `[low]` `[reject]` Inline `style` for the bar width fails under a strict CSP (edge-case) — the project has no CSP; the spec records it.
+  - `[low]` `[reject]` Hike tuple unpacked by position from `HIKE_ANSWERS` (edge-case) — a fixed constant covered by the seeded test.
+  - `[low]` `[reject]` `aria-labelledby` ids depend on `forloop.counter` (verification-gap, blind) — the partial is only included in the loop; the ids are unique in the browser run.
+  - `[false]` `[reject]` Several PersonAnswer or Allergy rows per guest (edge-case) — `guest` is a OneToOneField on PersonAnswer (models.py:173).
+  - `[false]` `[reject]` No session log or process trace (blind) — the log is step 14 of the runner, after review.
+  - `[false]` `[reject]` MT-71 to MT-74 unrun (blind) — run by Claude with Playwright in Edge after review and recorded.
+  - `[false]` `[reject]` Tasks unticked, story in review (blind) — the finalize step.
+  - `[low]` `[defer]` `payment_status` with refunded above received gives `not_paid` (edge-case) — payments arrive with Story 5.2, which owns the rule's inputs.
+  - `[low]` `[defer]` Payment panel is tested only with zero received and refunded (blind) — Story 5.2 adds the amounts and the tests.
+  - `[low]` `[defer]` PersonAnswer without HouseholdAnswer would split the Svar rows (edge-case) — the send is one transaction, so the state cannot occur; a data-integrity check belongs with Story 6.x.
+  - `[low]` `[defer]` Unknown allergy or meal keys raise `ValueError` and give a 500 on Oversikt (blind) — stored values are validated at send; a defensive fallback is not worth a branch now.
+  - `[low]` `[defer]` `frame()`/`_frame` override of `read_only` is awkward (blind) — works and is tested; tidy when Story 6.1 builds the admin nav.
+  - `[low]` `[defer]` README status paragraph is long (blind) — shortened at the next README pass.
+  - `[low]` `[defer]` Muted italic note contrast is unchecked (blind) — checked in the polish story with Impeccable audit.
+  - `[low]` `[reject]` Page-level test does not compare every panel with expected.toml (intent-alignment) — `tests/test_overview.py` does; the browser run compared the page.
+
 ## Design Notes
 
 - **Why `GuestFacts` plain values.** Rules stay pure (`tests/test_rules_purity.py`) and testable without a database; the selector is the only place that reads models.
@@ -107,3 +150,24 @@ Each group is one commit (about 600 changed lines or fewer; epic-2-retro-item-12
 
 **Manual checks (orchestrator, Playwright against Edge, MT-71 onwards):**
 - Couple sees progress and summary with seeded data (numbers read from the selectors or `expected.toml`, never hard-coded), helper line, logged-out denial, keyboard only, 360 and 180px, 20px text: see the MT task above.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** Oversikt (`/admin/`) shows the answer progress («Svart: 6 av 7 husstander», a bar, Kommer / Kommer ikke / Ikke svart ennå with persons and households) and six panels in order: Når kommer de? · Overnatting · Mat · Allergier (med samtykke) · Fjelltur fredag · Betaling. Every count is the length of an id list from a rule in `wedding/rules/summary.py`; `allergy_state` and `payment_status` are new pure rules; the loader `dashboard/selectors.py` only reads facts. The helper sees «Du kan se alt, men ikke endre noe.» under the menu (not on login or error pages). Counts are plain text until Story 3.3.
+
+**Files changed:**
+- `wedding/rules/allergies.py`, `money.py`, `summary.py` — `allergy_state`, `payment_status` and the id-list rules.
+- `dashboard/selectors.py`, `overview.py`, `views.py`, `navigation.py`, `errors.py`, `access.py`, templates under `dashboard/templates/dashboard/` — loader, view model, page and helper line (`admin_actor` removed).
+- `static/css/site.css` — answer bar, rows, helper line.
+- `tests/test_summary_rules.py`, `test_overview.py`, `test_admin_overview.py` and edits to three older test files — against `expected.toml`.
+- `README.md`, `epics.md`, `DESIGN.md`, `EXPERIENCE.md`, `deferred-work.md`, `docs/manual-test-plan.md` — dated notes and MT-71 to MT-74.
+
+**Review:** 8 patched (180 px overflow found in Edge, missing consent-loader test, hike wording, day rows that did not sum, household total check, 1 % bar floor, dead `admin_actor`, stale MT-65), 7 deferred, 11 rejected with reasons.
+
+**Follow-up review recommendation:** false. No high finding; the one measured defect (183 px at 180 px / 20 px text) was re-measured at 180 after the fix.
+
+**Verification:** `uv run pytest` 1509 passed; ruff and djlint clean; MT-71 to MT-74 run by Claude with Playwright in Edge at 1000, 360 and 180 px, text 16 and 20 px, keyboard-only, logged out and as helper.
+
+**Residual risks:** Synne's three allergy numbers differ from `expected.toml` until Story 7.2 loads her withdrawn consent (named offset `SYNNE_UNTIL_7_2` in the tests); the Betaling panel has no real amounts until Story 5.2.
