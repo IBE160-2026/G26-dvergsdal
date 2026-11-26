@@ -96,6 +96,17 @@ def days_only(facts: Iterable[GuestFacts], combo: Iterable[str]) -> tuple[int, .
     return _ids(guest for guest in _coming(facts) if guest.days == wanted)
 
 
+def other_days(facts: Iterable[GuestFacts], combos: Iterable[Iterable[str]]) -> tuple[int, ...]:
+    """FR-54: the coming guests who are not there all three days and whose days are none
+    of `combos` (for example Friday and Sunday, or no day at all)."""
+    listed = {frozenset(combo) for combo in combos}
+    return _ids(
+        guest
+        for guest in _coming(facts)
+        if guest.days != WHOLE_WEEKEND and guest.days not in listed
+    )
+
+
 def not_staying(facts: Iterable[GuestFacts]) -> tuple[int, ...]:
     """FR-54: the coming guests who do not stay overnight."""
     return _ids(guest for guest in _coming(facts) if not guest.cabin)

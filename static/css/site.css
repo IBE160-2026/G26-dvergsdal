@@ -1953,7 +1953,9 @@ a:active {
 
 .overview-row dt,
 .overview-row dd {
+  min-width: 0;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .overview-row dd {

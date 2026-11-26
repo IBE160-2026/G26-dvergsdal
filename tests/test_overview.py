@@ -6,6 +6,7 @@ six summary panels is compared with the hand-worked list, never a number written
 here. Hike, meals and totals need no `now`; no rule here takes one.
 """
 
+import datetime
 import tomllib
 from pathlib import Path
 
@@ -15,10 +16,12 @@ from django.test.utils import CaptureQueriesContext
 
 from dashboard.overview import build_overview
 from dashboard.selectors import guest_facts, household_totals
-from wedding.models import Guest, PersonAnswer
-from wedding.rules.allergies import HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED
+from wedding.models import Consent, Guest, Household, HouseholdAnswer, PersonAnswer
+from wedding.rules.allergies import HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED, allergy_state
 from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING
+from wedding.rules.money import household_total
 from wedding.rules.summary import (
+    GuestFacts,
     allergy_category_ids,
     allergy_state_ids,
     beds,
@@ -31,7 +34,7 @@ from wedding.rules.summary import (
     people_by_state,
     whole_weekend,
 )
-from wedding.selectors import form_prices
+from wedding.selectors import form_prices, sent_answer
 
 EXPECTED = tomllib.loads(
     (Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "expected.toml").read_text(
@@ -147,8 +150,8 @@ def test_overview_panels_equal_expected_toml(facts):
     assert overnight["Senger totalt"] == str(expected["overnight"]["beds"])
     assert meals["Lunsj lørdag"] == f"{expected['meals']['saturday_lunch']} personer"
     assert allergies["Skalldyr"] == f"{expected['allergy_categories']['shellfish']} person"
-    assert hike["Kommer"] == (
-        f"{expected['hike']['yes']} kommer, {expected['hike']['maybe']} kanskje"
+    assert hike["Vil gå turen"] == (
+        f"{expected['hike']['yes']} ja, {expected['hike']['maybe']} kanskje"
     )
     assert hike["Kommer ikke"] == f"{expected['hike']['no']} personer"
     assert list(payment) == [
@@ -202,3 +205,85 @@ def test_the_loader_uses_a_fixed_number_of_queries(seeded_with_answers):
     with CaptureQueriesContext(connection) as queries:
         guest_facts()
     assert len(queries) <= 5
+
+
+@pytest.mark.parametrize(
+    ("events", "state"),
+    [
+        ((Consent.GIVEN, Consent.WITHDRAWN), NOTHING_STORED),
+        ((Consent.WITHDRAWN, Consent.GIVEN), HAS_ALLERGIES),
+        ((Consent.GIVEN, Consent.REFUSED), NOTHING_STORED),
+    ],
+)
+def test_the_latest_consent_event_decides_the_allergy_state(seeded_with_answers, events, state):
+    """AD-18, FR-26: the loader reads the latest event by `at`; withdrawn removes consent,
+    refused is not «Ja», and a later «Ja» after a withdrawal counts again."""
+    target = guest_id("bestemor")
+    Consent.objects.filter(guest_id=target).delete()
+    start = datetime.datetime(2028, 1, 1, tzinfo=datetime.UTC)
+    for number, event in enumerate(events):
+        Consent.objects.create(
+            guest_id=target,
+            event=event,
+            at=start + datetime.timedelta(days=number),
+            given_by_name="Test",
+            text_version="test",
+        )
+    fact = next(guest for guest in guest_facts() if guest.guest_id == target)
+
+    assert fact.allergy is not None
+    assert allergy_state(fact.allergy, fact.consent) == state
+
+
+def test_household_totals_equal_the_total_of_the_sent_answer(seeded_with_answers):
+    """FR-33, AD-12, NFR-2: the dashboard's total (whole=False facts) equals `household_total`
+    of the stored answer that the receipt uses (`sent_answer`), for every seeded household."""
+    prices = form_prices()
+    totals = household_totals(guest_facts(), prices)
+
+    for household in Household.objects.all():
+        if HouseholdAnswer.objects.filter(household=household).exists():
+            assert totals[household.id] == household_total(sent_answer(household), prices)
+        else:
+            assert totals[household.id] == 0
+
+
+def facts_for(*days_by_guest):
+    """Coming guests in one answered household, each with the given day keys."""
+    return [
+        GuestFacts(number, 1, True, True, frozenset(days))
+        for number, days in enumerate(days_by_guest, start=1)
+    ]
+
+
+def test_day_rows_show_only_above_zero_and_sum_to_not_whole_weekend():
+    """FR-54: zero combinations are hidden, and combinations outside the list (Friday and
+    Sunday, or no day) show as «Andre kombinasjoner», so the rows add up."""
+    facts = facts_for(("fri", "sat", "sun"), ("sat",), ("sat",), ("fri", "sun"), (), ("fri", "sat"))
+    when = build_overview(facts, {}).panels[0]
+    rows = {row.label: row.text for row in when.rows}
+    sub_rows = [row for row in when.rows if row.indent]
+
+    assert rows["Ikke hele helgen"] == "5 personer"
+    assert "Bare fredag" not in rows
+    assert "Bare søndag" not in rows
+    assert rows["Andre kombinasjoner"] == "2 personer"
+    assert sum(int(row.text.split()[0]) for row in sub_rows) == 5
+
+
+def test_no_other_combinations_row_when_all_fit():
+    """FR-54: «Andre kombinasjoner» is left out when nothing is left over."""
+    when = build_overview(facts_for(("sat",)), {}).panels[0]
+
+    assert "Andre kombinasjoner" not in {row.label for row in when.rows}
+
+
+@pytest.mark.parametrize(("answered", "percent"), [(0, 0), (1, 1), (100, 50), (200, 100)])
+def test_the_bar_is_at_least_one_percent_when_anyone_has_answered(answered, percent):
+    """UX-DR39: 1 of 200 answered is not shown as an empty bar; none answered is 0."""
+    facts = [
+        GuestFacts(number, number, number <= answered, True if number <= answered else None)
+        for number in range(1, 201)
+    ]
+
+    assert build_overview(facts, {}).progress.percent == percent

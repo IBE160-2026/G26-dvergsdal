@@ -37,6 +37,7 @@ from wedding.rules.summary import (
     meal_eaters,
     not_staying,
     not_whole_weekend,
+    other_days,
     people_by_state,
     whole_weekend,
 )
@@ -102,7 +103,7 @@ class Panel:
 
 @dataclass(frozen=True)
 class Progress:
-    """UX-DR39: the Svar panel. `percent` is 0 to 100 and 0 when there are no households."""
+    """UX-DR39: the Svar panel. `percent` is 0 to 100: 0 when none has answered, else at least 1."""
 
     line: str
     percent: int
@@ -146,7 +147,7 @@ def _progress(facts: Sequence[GuestFacts]) -> Progress:
         )
     return Progress(
         line=f"Svart: {answered} av {total} husstander",
-        percent=round(100 * answered / total) if total else 0,
+        percent=max(1, round(100 * answered / total)) if answered else 0,
         rows=tuple(rows),
     )
 
@@ -157,8 +158,12 @@ def _when(facts: Sequence[GuestFacts]) -> Panel:
         Row("Ikke hele helgen", persons(len(not_whole_weekend(facts)))),
     ]
     rows += [
-        Row(label, persons(len(days_only(facts, combo))), indent=True)
-        for combo, label in DAY_COMBOS
+        Row(label, persons(len(ids)), indent=True)
+        for label, ids in (
+            *((label, days_only(facts, combo)) for combo, label in DAY_COMBOS),
+            ("Andre kombinasjoner", other_days(facts, [combo for combo, _ in DAY_COMBOS])),
+        )
+        if ids
     ]
     return Panel("Når kommer de?", tuple(rows))
 
@@ -205,7 +210,7 @@ def _hike(facts: Sequence[GuestFacts]) -> Panel:
     return Panel(
         "Fjelltur fredag",
         (
-            Row("Kommer", f"{yes} kommer, {maybe} kanskje"),
+            Row("Vil gå turen", f"{yes} ja, {maybe} kanskje"),
             Row("Kommer ikke", persons(no)),
         ),
     )

@@ -3,8 +3,7 @@
 Access is `request.user` authenticated, active and with a valid role. Anything
 else is sent to the login page with `?next=` set to the page asked for, and
 every admin response says `Cache-Control: no-store` (`never_cache`), so a shared
-or back-forward cache never keeps the couple's page. `admin_actor` is the only
-way a view makes an `AdminActor`.
+or back-forward cache never keeps the couple's page.
 """
 
 from collections.abc import Callable
@@ -16,7 +15,6 @@ from django.http import HttpRequest, HttpResponse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 
-from wedding.actors import AdminActor
 from wedding.models import User
 
 ADMIN_PREFIX = "/admin/"
@@ -26,11 +24,6 @@ LOGIN_PATHS = {"/admin/logg-inn", "/admin/logg-ut"}
 def is_admin(user) -> bool:
     """FR-46, AD-10: an authenticated, active user with the role of the couple or a helper."""
     return bool(user.is_authenticated and user.is_active and user.role in User.Role.values)
-
-
-def admin_actor(request: HttpRequest) -> AdminActor:
-    """AD-3, AD-10: the actor for a request that `admin_required` has let through."""
-    return AdminActor(request.user)
 
 
 def admin_required(view: Callable[..., HttpResponse]) -> Callable[..., HttpResponse]:

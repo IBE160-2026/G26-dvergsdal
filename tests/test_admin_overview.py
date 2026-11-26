@@ -81,7 +81,7 @@ def test_the_panels_show_numbers_as_plain_text_without_links(couple_page):
     assert "Senger totalt" in text
     assert "Lunsj lørdag" in text
     hike = EXPECTED["counts"]["hike"]
-    assert f"{hike['yes']} kommer, {hike['maybe']} kanskje" in text
+    assert f"{hike['yes']} ja, {hike['maybe']} kanskje" in text
     assert "Stemmer ikke" not in text
 
 
