@@ -17,9 +17,12 @@ from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST, require_safe
 
-from dashboard.access import admin_actor, admin_required, safe_next
+from dashboard.access import admin_required, safe_next
 from dashboard.forms import AdminLoginForm
-from dashboard.navigation import nav_items
+from dashboard.navigation import frame
+from dashboard.overview import build_overview
+from dashboard.selectors import guest_facts, household_totals
+from wedding.selectors import form_prices
 
 SEEN_COOKIE = "admin_seen"
 SEEN_COOKIE_AGE = 30 * 24 * 60 * 60
@@ -96,12 +99,16 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 @admin_required
 @require_safe
 def home(request: HttpRequest) -> HttpResponse:
-    """FR-46, UX A2 (Story 3.1: the frame only): Oversikt, with the panels to come in 3.2."""
-    actor = admin_actor(request)
+    """FR-46, FR-54, UX A2, UX-DR39, UX-DR40 (Story 3.2): Oversikt, the Svar panel and the summary.
+
+    The attention list at the top is Story 6.2. The couple and a helper see the same numbers.
+    """
+    facts = guest_facts()
+    overview = build_overview(facts, household_totals(facts, form_prices()))
     return render(
         request,
         "dashboard/home.html",
-        {"username": actor.user.get_username(), "nav_items": nav_items("home")},
+        {**frame(request, "home"), "overview": overview},
     )
 
 

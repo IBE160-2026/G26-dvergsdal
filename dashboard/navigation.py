@@ -8,7 +8,10 @@ comes in Story 3.4, Betalinger in Story 5.3 and Innstillinger in Story 4.5.
 
 from dataclasses import dataclass
 
+from django.http import HttpRequest
 from django.urls import reverse
+
+from wedding.models import User
 
 
 @dataclass(frozen=True)
@@ -41,3 +44,9 @@ def nav_items(current: str | None) -> list[dict[str, object]]:
         }
         for item in NAV_ITEMS
     ]
+
+
+def frame(request: HttpRequest, current: str | None = None) -> dict[str, object]:
+    """UX-DR34, UX-DR49: what every page in the admin frame needs: the nav and, for a helper,
+    the read-only line («Du kan se alt, men ikke endre noe.»). Pages and error pages share it."""
+    return {"nav_items": nav_items(current), "read_only": request.user.role == User.Role.HELPER}

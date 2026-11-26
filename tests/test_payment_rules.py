@@ -8,7 +8,7 @@ household's names.
 import pytest
 
 from wedding.rules.households import payment_message
-from wedding.rules.money import digits_only, guest_balance
+from wedding.rules.money import digits_only, guest_balance, payment_status
 
 
 @pytest.mark.parametrize(
@@ -39,3 +39,25 @@ def test_payment_message(names, message):
 def test_digits_only(text, digits):
     """FR-34, FR-64: the account and Vipps numbers copy as digits only."""
     assert digits_only(text) == digits
+
+
+@pytest.mark.parametrize(
+    ("answered", "total", "received", "refunded", "status"),
+    [
+        (True, 4720, 4720, 0, "paid"),
+        (True, 6480, 4000, 0, "part_paid"),
+        (True, 0, 0, 0, "nothing_to_pay"),
+        (True, 4200, 0, 0, "not_paid"),
+        (True, 1840, 2300, 200, "refund_owed"),
+        (True, 1840, 1840, 0, "paid"),
+        (True, 1840, 2040, 200, "paid"),
+        (True, 0, 100, 0, "refund_owed"),
+        (True, 1000, 100, 100, "not_paid"),
+        (False, 0, 0, 0, "not_answered"),
+        (False, 4200, 4200, 0, "not_answered"),
+    ],
+)
+def test_payment_status(answered, total, received, refunded, status):
+    """FR-60, AD-2: all five statuses and «not answered»; net equal to total is paid,
+    total 0 with money received is a refund, and no answer ignores the amounts."""
+    assert payment_status(answered, total, received, refunded) == status

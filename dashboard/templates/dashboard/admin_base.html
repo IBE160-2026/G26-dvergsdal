@@ -8,7 +8,8 @@ Betalinger · Innstillinger · Logg ut. The nav is not sticky and has no «Svar�
 button. The open page carries `aria-current="page"`; a page that is not built
 yet is plain text, not a dead link. «Logg ut» is a POST button, since logging
 out changes state. The login page and the error pages of a visitor who is not
-logged in give no `nav_items`, so they show no nav. Pages fill `admin_content`.
+logged in give no `nav_items`, so they show no nav. A helper also sees the read-only line under the nav (Story 3.2; UX-DR49). Pages fill
+`admin_content`.
 {% endcomment %}
 {% block title %}Administrasjon{% endblock title %}
 {% block body_class %}admin-page{% endblock body_class %}
@@ -36,6 +37,9 @@ logged in give no `nav_items`, so they show no nav. Pages fill `admin_content`.
                 </ul>
             </div>
         </nav>
+        {% if read_only %}
+            <p class="admin-readonly">Du kan se alt, men ikke endre noe.</p>
+        {% endif %}
     {% endif %}
     <main class="column admin-main">
         {% block admin_content %}

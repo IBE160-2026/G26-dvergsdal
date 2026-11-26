@@ -890,6 +890,8 @@ So that I can plan the weekend without counting by hand.
 **When** it is used
 **Then** every target is at least 44px and there is no horizontal scroll (FR-48)
 
+*Implementation notes (2026-11-26, Story 3.2):* counts are plain text until Story 3.3 makes counts above 0 links, and «Se hva alle har svart» is plain text until Story 3.4 sets its address (no dead link). Until Story 7.2 loads Synne's withdrawn consent, the app shows her nut allergy (nuts 1, `has_allergies` 3, `nothing_stored` 3, against 0, 2 and 4 in `expected.toml`); the tests name this as `SYNNE_UNTIL_7_2`. The payment panel uses received 0 and refunded 0 until Story 5.2, so a coming household owes its total (`not_paid`) or nothing (`nothing_to_pay`). The helper's read-only line (UX-DR49) was built here, ahead of Story 6.1, because Oversikt is the first page with content a helper cannot change.
+
 ### Story 3.3: Every count opens the people behind it
 
 As Rikke,

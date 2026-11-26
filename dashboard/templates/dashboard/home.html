@@ -1,15 +1,16 @@
 {% extends "dashboard/admin_base.html" %}
 {% comment %}
-Oversikt, the admin home A2 (Story 3.1; FR-46, UX-DR34). Only the frame so far:
-one admin panel with who is logged in. Story 3.2 adds the answer progress and
-the summary panels here; Epic 6 adds the attention list at the top. The texts
-are [forslag] (EXPERIENCE › A2).
+Oversikt, the admin home A2 (Stories 3.1 and 3.2; FR-46, FR-54, UX-DR34, UX-DR39,
+UX-DR40). Under the title: the place for «Trenger oppfølging» (Story 6.2), the Svar
+panel, then the six summary panels in the order of the epics. Every count is plain
+text until Story 3.3 makes counts above 0 links. The texts are [forslag] (EXPERIENCE › A2).
 {% endcomment %}
 {% block title %}Oversikt – Administrasjon{% endblock title %}
 {% block admin_content %}
     <h1 class="admin-title">Oversikt</h1>
-    <div class="admin-panel">
-        <p>Innlogget som {{ username }}.</p>
-        <p>Her kommer oversikten over svarene.</p>
-    </div>
+    {% include "dashboard/overview/_attention.html" %}
+    {% include "dashboard/overview/_progress.html" with progress=overview.progress %}
+    {% for panel in overview.panels %}
+        {% include "dashboard/overview/_panel.html" with panel=panel %}
+    {% endfor %}
 {% endblock admin_content %}

@@ -1,0 +1,24 @@
+{% comment %}
+The Svar panel (Story 3.2; FR-48, FR-54, UX-DR39): «Svart: X av Y husstander» with a
+decorative bar (`aria-hidden`; the words carry the meaning), the rows Kommer / Kommer
+ikke / Ikke svart ennå, and «Se hva alle har svart» as plain text until Story 3.4 sets
+its address, so there is no dead link.
+{% endcomment %}
+<section class="admin-panel" aria-labelledby="overview-progress">
+    <h2 class="admin-heading" id="overview-progress">Svar</h2>
+    <p class="answer-line">{{ progress.line }}</p>
+    <div class="answer-bar" aria-hidden="true">
+        <div class="answer-bar__fill" style="width: {{ progress.percent }}%"></div>
+    </div>
+    <dl class="overview-rows">
+        {% for row in progress.rows %}
+            <div class="overview-row">
+                <dt>{{ row.label }}</dt>
+                <dd>
+                    {{ row.text }}
+                </dd>
+            </div>
+        {% endfor %}
+    </dl>
+    <p class="overview-note">Se hva alle har svart</p>
+</section>
