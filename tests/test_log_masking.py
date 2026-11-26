@@ -21,7 +21,8 @@ import pytest
 from django.core.management import call_command
 from django.test import Client
 
-from config.logging_filters import MaskLinkCodes, mask_link_codes
+from config.logging_filters import CODE_LENGTH, MaskLinkCodes, mask_link_codes
+from wedding.links import CODE_LENGTH as LINK_CODE_LENGTH
 
 SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
 SEED = tomllib.loads(SEED_FILE.read_text(encoding="utf-8"))
@@ -58,6 +59,52 @@ def test_first_path_segment_is_masked(message, masked):
     """NFR-4, AD-15: the first segment of a request path becomes `[code]`, whatever
     its length; the rest of the path and the query stay readable."""
     assert mask_link_codes(message) == masked
+
+
+@pytest.mark.parametrize(
+    ("message", "masked"),
+    [
+        (f"Not Found: /x/?next=%2F{CODE}%2F", "Not Found: /[code]/?next=%2F[code]%2F"),
+        (f"?next=%2f{CODE}%2f", "?next=%2f[code]%2f"),
+        (f"[/{CODE}/]", "[/[code]/]"),
+        (f"path:/{CODE}/", "path:/[code]/"),
+        (f"code={CODE}", "code=[code]"),
+        (f"{{'path': '{CODE}/x/'}}", "{'path': '[code]/x/'}"),
+        (f"a,/{CODE}/ b;/{CODE}/ <{CODE}>", "a,/[code]/ b;/[code]/ <[code]>"),
+        ("path:/hei/", "path:/[code]/"),  # a mistyped code in the new shapes
+        ("[/hei/]", "[/[code]/]"),
+        ("?next=%2Fhei%2F", "?next=%2F[code]%2F"),
+    ],
+)
+def test_every_shape_of_a_link_code_is_masked(message, masked):
+    """FR-4, NFR-4, AD-15 (Story 3.1): a code written percent-encoded, in brackets, after
+    a colon, a comma or a brace, with no slash (`code=…`, a dict value), or mistyped in
+    those places, still shows `[code]`. Closes sprint action epic-1-retro-item-4."""
+    assert mask_link_codes(message) == masked
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "/admin/",
+        "/admin/logg-inn/?next=/admin/",
+        '"GET /admin/logg-inn/?next=/admin/ HTTP/1.1" 200 1234',
+        "?next=%2Fadmin%2F",
+        "HTTP/1.1",
+        "Starting development server at http://127.0.0.1:8000/",
+        '"GET /static/css/site.css HTTP/1.1" 200 5',
+        "a long-lowercase-word-here-xx is not a code",
+    ],
+)
+def test_admin_paths_and_other_text_stay_readable(message):
+    """NFR-4 (Story 3.1): `/admin/…` is a reserved route, and neither it, `HTTP/1.1`, a
+    full address nor a long lower-case word is mistaken for a link code."""
+    assert mask_link_codes(message) == message
+
+
+def test_the_filter_code_length_equals_the_link_code_length():
+    """NFR-4: the filter keeps its own constant, as `Guest.code` does; they must agree."""
+    assert CODE_LENGTH == LINK_CODE_LENGTH
 
 
 @pytest.mark.parametrize(
