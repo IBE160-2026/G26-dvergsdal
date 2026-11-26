@@ -1,0 +1,32 @@
+{% extends "dashboard/admin_base.html" %}
+{% comment %}
+A3, the people or households behind one count on Oversikt (Story 3.3; FR-55, UX-DR41,
+AD-2). The `h1` carries the count, and the list holds exactly the rows of that count, so
+the number of `li` equals it. Names only: allergy details are the list of Story 3.4
+(FR-58, AD-18). A count of 0 shows the empty text. The texts are [forslag] (EXPERIENCE › A3).
+{% endcomment %}
+{% block title %}{{ heading }} – Administrasjon{% endblock title %}
+{% block admin_content %}
+    <h1 class="admin-title">{{ heading }}</h1>
+    <p class="count-back-line">
+        <a class="count-back" href="{% url 'dashboard:home' %}">Tilbake til Oversikt</a>
+    </p>
+    <section class="admin-panel" aria-label="Liste">
+        {% if rows %}
+            <ul class="count-list">
+                {% for row in rows %}
+                    <li>
+                        {% if by_household %}
+                            {{ row.names }}
+                        {% else %}
+                            <span class="count-list__name">{{ row.name }}</span>
+                            <span class="count-list__household">{{ row.household }}</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>{{ empty_text }}</p>
+        {% endif %}
+    </section>
+{% endblock admin_content %}
