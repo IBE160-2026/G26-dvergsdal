@@ -18,11 +18,15 @@ from wedding.rules.allergies import (
     CONFLICT,
     DELETE,
     EMPTY,
+    HAS_ALLERGIES,
     KEEP,
+    NO_ALLERGIES,
     NOTE_MAX,
+    NOTHING_STORED,
     STORE,
     AllergyEntry,
     allergy_problems,
+    allergy_state,
     clean_note,
     consent_outcomes,
     has_allergy_info,
@@ -189,3 +193,22 @@ def test_consent_outcomes(coming, consent, outcome):
     allergies = {SIGMUND: LACTOSE}
     result = consent_outcomes([SIGMUND, BESTEMOR], [SIGMUND] if coming else [], allergies, given)
     assert result == {SIGMUND: outcome, BESTEMOR: DELETE}
+
+
+@pytest.mark.parametrize(
+    ("entry", "consent", "state"),
+    [
+        (AllergyEntry(cats=("gluten",)), True, HAS_ALLERGIES),
+        (AllergyEntry(note="peanøtter"), True, HAS_ALLERGIES),
+        (AllergyEntry(none=True), True, NO_ALLERGIES),
+        (None, True, NOTHING_STORED),
+        (AllergyEntry(), True, NOTHING_STORED),
+        (AllergyEntry(cats=("nuts",)), None, NOTHING_STORED),
+        (AllergyEntry(cats=("nuts",)), False, NOTHING_STORED),
+        (AllergyEntry(none=True), False, NOTHING_STORED),
+        (None, None, NOTHING_STORED),
+    ],
+)
+def test_allergy_state(entry, consent, state):
+    """FR-54, FR-74, AD-18 (Story 3.2): one state per guest; data counts only with «Ja»."""
+    assert allergy_state(entry, consent) == state

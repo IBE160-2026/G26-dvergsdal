@@ -81,6 +81,27 @@ def not_saved(
     )
 
 
+# FR-74, AD-18 (Story 3.2): the three allergy states of a coming guest.
+HAS_ALLERGIES = "has_allergies"
+NO_ALLERGIES = "no_allergies"
+NOTHING_STORED = "nothing_stored"
+
+
+def allergy_state(entry: AllergyEntry | None, consent: bool | None) -> str:
+    """FR-54, FR-74, AD-18: a coming guest's one allergy state.
+
+    `consent` is the guest's latest consent, True only for «Ja» not withdrawn.
+    Anything but True gives `nothing_stored`, as does «Ja» with no stored entry.
+    With consent, «Ingen …» alone gives `no_allergies`, and any category or
+    note gives `has_allergies`.
+    """
+    if consent is not True or entry is None or not has_allergy_info(entry):
+        return NOTHING_STORED
+    if entry.cats or entry.note:
+        return HAS_ALLERGIES
+    return NO_ALLERGIES
+
+
 # AD-18, Story 2.6b: what sending does with each guest's stored allergy data.
 STORE = "store"
 DELETE = "delete"

@@ -54,3 +54,33 @@ def guest_balance(total: int, report: int | None) -> int:
     Story 5.1). The receipt offers «Betal nå» only when this is above 0.
     """
     return max(total - (report or 0), 0)
+
+
+# FR-60: a household's payment statuses (Story 3.2; `refund_owed` and the
+# amounts behind them come with Stories 5.2 and 5.3).
+PAID = "paid"
+PART_PAID = "part_paid"
+NOT_PAID = "not_paid"
+NOTHING_TO_PAY = "nothing_to_pay"
+REFUND_OWED = "refund_owed"
+PAYMENT_NOT_ANSWERED = "not_answered"
+
+
+def payment_status(answered: bool, total: int, received: int, refunded: int) -> str:
+    """FR-60, FR-74, AD-2, AD-12: a household's payment status.
+
+    Not answered gives `not_answered` whatever the amounts. Otherwise the net
+    is `received` less `refunded`: nothing to pay when `total` and the net are
+    both 0, `refund_owed` when the net is above `total`, `paid` when equal,
+    `part_paid` when above 0 but below `total`, else `not_paid`.
+    """
+    if not answered:
+        return PAYMENT_NOT_ANSWERED
+    net = received - refunded
+    if total == 0 and net == 0:
+        return NOTHING_TO_PAY
+    if net > total:
+        return REFUND_OWED
+    if net == total:
+        return PAID
+    return PART_PAID if net > 0 else NOT_PAID
