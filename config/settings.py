@@ -77,11 +77,12 @@ ROOT_URLCONF = "config.urls"
 # CSRF check needs the Referer on HTTPS forms and would reject every one.
 SECURE_REFERRER_POLICY = "same-origin"
 
-# A form that fails the CSRF check gets a calm guest page instead of Django's
-# own: under a valid link with the couple's phones, otherwise impersonal
-# (Story 1.8, FR-5, FR-6, AD-15). The 400, 404 and 500 handlers are in
-# config/urls.py.
-CSRF_FAILURE_VIEW = "guests.views.csrf_failure"
+# A form that fails the CSRF check gets a calm page instead of Django's own:
+# under `/admin/` the couple's own, otherwise the guest page, under a valid link
+# with the couple's phones, else impersonal (Story 1.8, FR-5, FR-6, AD-15;
+# Story 3.1, UX-DR36). config/error_handlers.py chooses; the 400, 403, 404 and
+# 500 handlers are named in config/urls.py.
+CSRF_FAILURE_VIEW = "config.error_handlers.csrf_failure"
 
 # The RSVP form's templates live with the form in wedding/rsvp/ (AD-7, the
 # Structural Seed), which is a package and not an app, so its folder is listed
@@ -124,6 +125,19 @@ DATABASES = {
 # Users: the couple and helpers log in; guests never do (AD-10).
 
 AUTH_USER_MODEL = "wedding.User"
+
+# Story 3.1 (FR-46, NFR-4, AD-10, AD-13): the login page, and where a login leads
+# when no `next` is given.
+LOGIN_URL = "dashboard:login"
+LOGIN_REDIRECT_URL = "dashboard:home"
+
+# The couple's session lasts 20 hours since the last request (every request
+# renews it), and its cookie is sent only under `/admin/`, so a guest request
+# never carries it. A guest request creates no session row: Django saves a
+# session only when it holds data (AD-13, AD-10).
+SESSION_COOKIE_AGE = 20 * 60 * 60
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_PATH = "/admin/"
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

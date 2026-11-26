@@ -1,0 +1,27 @@
+{% extends "dashboard/admin_base.html" %}
+{% comment %}
+The frame of the couple's error pages (Story 3.1; UX-DR36; DESIGN.md › Error
+page): the admin frame, an `h1`, one admin panel with what happened, and a way
+back, «Til oversikten» for a logged-in admin and «Til innlogging» otherwise.
+dashboard/errors.py renders them; the 500 without the request, so it has no
+nav and no `logged_in`. They never say «ta kontakt med brudeparet direkte»:
+the couple read these pages themselves. The texts are [forslag]. Each page
+fills `heading` and `message`.
+{% endcomment %}
+{% block admin_content %}
+    <h1 class="admin-title">
+        {% block heading %}
+        {% endblock heading %}
+    </h1>
+    <div class="admin-panel">
+        {% block message %}
+        {% endblock message %}
+        {% if logged_in %}
+            <a class="button button--secondary admin-panel__action"
+               href="{% url 'dashboard:home' %}">Til oversikten</a>
+        {% else %}
+            <a class="button button--secondary admin-panel__action"
+               href="{% url 'dashboard:login' %}">Til innlogging</a>
+        {% endif %}
+    </div>
+{% endblock admin_content %}

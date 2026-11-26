@@ -1,0 +1,49 @@
+{% extends "dashboard/admin_base.html" %}
+{% comment %}
+The login page A1 (Story 3.1; FR-46, NFR-4, UX-DR34; EXPERIENCE › A1 error and
+expired). `h1` «Logg inn», labels tied to their fields with `for`/`id`,
+`autocomplete="username"` and `"current-password"` so a password manager can
+fill them, and nothing blocks paste (WCAG 3.3.8). A failed login shows one error
+notice with focus on it, the username kept and the password empty; the text is
+the same whatever went wrong. An expired session shows an info notice once
+(dashboard/views.py). No «glemt passord» and no self-registration: accounts are
+made with `create_admin`. The slowed state comes with Story 6.6.
+{% endcomment %}
+{% block title %}Logg inn – Administrasjon{% endblock title %}
+{% block admin_content %}
+    <h1 class="admin-title">Logg inn</h1>
+    <div class="admin-panel">
+        {% if expired %}
+            {% include "wedding/components/notice.html" with variant="info" text=expired_text only %}
+        {% endif %}
+        {% for problem in problems %}
+            {% include "wedding/components/notice.html" with variant="error" text=problem focus=forloop.first only %}
+        {% endfor %}
+        <form method="post" action="{% url 'dashboard:login' %}">
+            {% csrf_token %}
+            {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+            <div class="text-field">
+                <label class="text-field__label" for="id_username">Brukernavn</label>
+                <input class="text-field__input"
+                       type="text"
+                       name="username"
+                       id="id_username"
+                       value="{{ form.username.value|default_if_none:'' }}"
+                       autocomplete="username"
+                       autocapitalize="none"
+                       spellcheck="false"
+                       required>
+            </div>
+            <div class="text-field">
+                <label class="text-field__label" for="id_password">Passord</label>
+                <input class="text-field__input"
+                       type="password"
+                       name="password"
+                       id="id_password"
+                       autocomplete="current-password"
+                       required>
+            </div>
+            <button type="submit" class="button admin-panel__action">Logg inn</button>
+        </form>
+    </div>
+{% endblock admin_content %}

@@ -1,0 +1,7 @@
+{% extends "dashboard/errors/error_page.html" %}
+{% comment %}403 under /admin/ (Story 3.1; UX-DR36): a PermissionDenied. Rendered by dashboard/errors.py with status 403.{% endcomment %}
+{% block title %}Du har ikke tilgang til denne siden – Administrasjon{% endblock title %}
+{% block heading %}Du har ikke tilgang til denne siden{% endblock heading %}
+{% block message %}
+    <p>Kontoen din har ikke lov til å åpne denne siden.</p>
+{% endblock message %}

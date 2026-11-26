@@ -1,0 +1,14 @@
+{% extends "guests/error_page.html" %}
+{% comment %}
+403 for a `PermissionDenied` outside `/admin/` (Story 3.1; UX-DR36, FR-5, AD-15;
+DESIGN.md › No valid link). guests.views.forbidden renders it without a request
+and never looks up the code, so the page is always impersonal: no back button,
+no footer, no phones. Under `/admin/` the couple's own 403 is shown instead
+(dashboard/errors/forbidden.html). The text lives here (AD-17).
+{% endcomment %}
+{% block title %}Du har ikke tilgang til denne siden – Invitasjon{% endblock title %}
+{% block heading %}Du har ikke tilgang til denne siden{% endblock heading %}
+{% block message %}
+    <p>Prøv å åpne lenken på nytt.</p>
+    <p>Går det fortsatt ikke, ta kontakt med brudeparet direkte.</p>
+{% endblock message %}

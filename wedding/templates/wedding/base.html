@@ -3,6 +3,7 @@
 {# Base template for every page: guests, the couple and the RSVP form (Story 1.4a, UX-DR1, NFR-5). #}
 {# Story 1.4b: the tab icon made from the seal (UX-DR4) and the paper sheet's edge filter (UX-DR3). #}
 {# Story 1.4c: noindex and the link preview sit outside every block, so no page can change them per guest (FR-4, NFR-4, AD-15). #}
+{# Story 3.1: `body_class` lets the admin pages switch off the page grain (UX-DR34); guest pages leave it empty. #}
 <html lang="nb">
     <head>
         <meta charset="utf-8">
@@ -22,7 +23,7 @@
         {% block head %}
         {% endblock head %}
     </head>
-    <body>
+    <body class="{% block body_class %}{% endblock body_class %}">
         {% include "wedding/components/paper-filters.html" %}
         {% block content %}
         {% endblock content %}

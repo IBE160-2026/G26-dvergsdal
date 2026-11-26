@@ -1,0 +1,7 @@
+{% extends "dashboard/errors/error_page.html" %}
+{% comment %}403 for a form that failed the CSRF check under /admin/ (Story 3.1; UX-DR36): CSRF_FAILURE_VIEW. Status 403.{% endcomment %}
+{% block title %}Skjemaet ble ikke sendt – Administrasjon{% endblock title %}
+{% block heading %}Skjemaet ble ikke sendt{% endblock heading %}
+{% block message %}
+    <p>Det skjer når siden har stått åpen lenge. Gå tilbake og prøv igjen.</p>
+{% endblock message %}

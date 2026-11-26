@@ -1,0 +1,15 @@
+{% extends "dashboard/admin_base.html" %}
+{% comment %}
+Oversikt, the admin home A2 (Story 3.1; FR-46, UX-DR34). Only the frame so far:
+one admin panel with who is logged in. Story 3.2 adds the answer progress and
+the summary panels here; Epic 6 adds the attention list at the top. The texts
+are [forslag] (EXPERIENCE › A2).
+{% endcomment %}
+{% block title %}Oversikt – Administrasjon{% endblock title %}
+{% block admin_content %}
+    <h1 class="admin-title">Oversikt</h1>
+    <div class="admin-panel">
+        <p>Innlogget som {{ username }}.</p>
+        <p>Her kommer oversikten over svarene.</p>
+    </div>
+{% endblock admin_content %}
