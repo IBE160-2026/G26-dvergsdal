@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 from django.test import Client
 
-from dashboard.counts import COUNTS, HOUSEHOLDS, count_for, count_text, payment_statuses
+from dashboard.counts import COUNTS, DAY_COMBOS, HOUSEHOLDS, count_for, count_text, payment_statuses
 from dashboard.overview import build_overview
 from dashboard.selectors import guest_facts, household_totals
 from tests.helpers import main_html, page_text
@@ -45,6 +45,10 @@ KNOWN = {
     "allergi-har": EXPECTED["allergy_states"]["has_allergies"] + SYNNE_UNTIL_7_2,
     "allergi-ingen-lagret": EXPECTED["allergy_states"]["nothing_stored"] - SYNNE_UNTIL_7_2,
 }
+
+
+# The day sub-rows are left out on Oversikt at 0; every other count has its row there.
+SUB_ROWS = {*(slug for slug, _, _ in DAY_COMBOS), "andre-kombinasjoner"}
 
 
 @pytest.fixture
@@ -87,7 +91,10 @@ def test_the_rows_equal_the_number_on_oversikt_and_the_rule_tuple(couple, count)
     if not ids:
         assert "Ingen husstander." in html or "Ingen personer." in html
     # The day sub-rows are left out on Oversikt at 0; every other count has its row there.
-    assert on_oversikt in ([len(ids)], [])
+    if count.slug in SUB_ROWS and not ids:
+        assert on_oversikt == []
+    else:
+        assert on_oversikt == [len(ids)]
     if count.slug in KNOWN:
         assert len(ids) == KNOWN[count.slug]
 

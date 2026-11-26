@@ -87,10 +87,12 @@ def test_counts_above_zero_are_links_and_zero_is_plain_text(couple_page):
     links = re.findall(r"<a\b([^>]*)>(.*?)</a>", main, re.DOTALL)
 
     assert links
+    row_labels = {label for _, label in count_cells(main)}
     for attrs, text in links:
         label = re.search(r'aria-label="([^"]*)"', attrs).group(1)
         assert re.search(r'href="/admin/tall/[a-z0-9-]+/"', attrs)
         assert label.endswith(f": {page_text(text)}")
+        assert label.split(": ")[0] in row_labels
         assert not page_text(text).startswith("0")
     for dd, label in count_cells(main):
         numbers = re.sub(r"<a\b.*?</a>", "", dd, flags=re.DOTALL)
@@ -171,3 +173,22 @@ def test_no_data_shows_zero_without_error(db):
 
     assert "Svart: 0 av 0 husstander" in page_text(page)
     assert 'style="width: 0%"' in page
+
+
+def test_every_rendered_link_opens_a_page_with_the_same_number(seeded_with_answers):
+    """FR-55, AD-2: follow each link on Oversikt; the `h1` number and the `li` count equal the
+    number in the link text."""
+    client = log_in_as("testpar")
+    main = main_html(client.get("/admin/").content.decode())
+    links = re.findall(r'<a\s[^>]*href="(/admin/tall/[^"]+)"[^>]*>(.*?)</a>', main, re.DOTALL)
+
+    assert links
+    for href, text in links:
+        response = client.get(href)
+        html = response.content.decode()
+        number = re.match(r"\d+", page_text(text)).group()
+        h1 = page_text(re.search(r"<h1[^>]*>(.*?)</h1>", html, re.DOTALL).group(1))
+
+        assert response.status_code == 200, href
+        assert re.search(rf": {number}\b", h1), href
+        assert len(re.findall(r"<li>", main_html(html))) == int(number), href
