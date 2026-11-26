@@ -2,14 +2,23 @@
 title: 'Story 3.5: Tests prove the numbers match the expected-results list'
 type: 'feature'
 created: '2026-11-27'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '6b4e06f6c65d93cf3d0b86f74c2b73b6cfb62ef0'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
   - '{project-root}/.docs/implementation-artifacts/epic-3-context.md'
   - '{project-root}/wedding/fixtures/expected.toml'
 warnings: [multiple-goals]
-deferred: []
+deferred:
+- summary: >-
+    `guest_id` and the `seed.toml` load are still duplicated between `tests/test_expected_results.py`, `tests/test_overview.py` and `tests/test_admin_allergy_page.py`.
+  reason: >-
+    Low harm; move them into `tests/helpers.py` the next time one of those files is touched.
+- summary: >-
+    Story 7.2 loads Synne's withdrawal in the seed: delete `seeded_with_synne_withdrawal`, the seed-alone pin test and `SYNNE_UNTIL_7_2`, and check that the withdrawal it stores is the same state as the fixture's `Consent.WITHDRAWN` row (also whether the `Allergy` rows are deleted).
+  reason: >-
+    The fixture inserts the Consent event directly because no withdrawal flow exists before 7.2.
 ---
 
 <intent-contract>
@@ -87,6 +96,33 @@ Each group is one commit of about 600 changed lines or fewer (`epic-2-retro-item
 
 ## Review Triage Log
 
+### 2026-11-27 — Review pass
+- verdicts: 23 findings — high 0, medium 1, low 19, false 3, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` The page tests force the three unlisted day combinations to 0 while the registry tests only check their sum (blind, edge-case) — an explicit assertion that `unlisted_expected()` is 0 makes the assumption fail loudly if expected.toml ever names them.
+  - `[low]` `[patch]` `re.findall(r"<li>", …)` misses `<li class=…>` (blind, edge-case) — `<li\b`.
+  - `[low]` `[patch]` `named[NOTHING_STORED]` raises KeyError when a state has no guests (blind) — `.get(state, set())`.
+  - `[low]` `[patch]` The `now` guard loops over every function in `counts` without the `__module__` filter the rule modules have (edge-case) — filter added.
+  - `[low]` `[patch]` README sentence «er appen feil til en tellingen …» is garbled (blind) — reworded.
+  - `[low]` `[patch]` MT-90 typo «én tellesiden» (blind) — corrected.
+  - `[low]` `[reject]` The `now` guard scans only summary, allergies, households and counts (blind, edge-case, verification-gap) — those are every module the counts call for their numbers; money and selectors take no clock today and the docstring says «behind the counts».
+  - `[low]` `[reject]` Unlisted day combinations are checked only as a sum (blind, edge-case, intent) — expected.toml names only the five combinations; the sum catches any shift between the three and the named ones.
+  - `[low]` `[reject]` The fixture inserts `Consent.WITHDRAWN` directly, not through a service (blind) — no withdrawal service exists until Story 7.2; the Consent event is the stored state AD-18 defines, and the deferred item for 7.2 says the fixture is deleted then.
+  - `[low]` `[reject]` `guest_id`, `household_id` and `next()` without default give StopIteration, not a named message (edge-case) — the keys come from expected.toml and the guard test checks them against seed.toml first.
+  - `[low]` `[reject]` Missing row `KeyError` in the Gjester test, `page_text(...).split()[0]`, and `assert len(links) == 1` (edge-case, blind) — test failures are loud and name the slug or household in the traceback; extra guards would only add code.
+  - `[low]` `[reject]` `household_state_of` re-implements the household state rule in the test (blind) — a second, independent derivation from `expected.toml` states is the point of the proof; it reads no rule code.
+  - `[low]` `[reject]` `guest_id` and `SEED` still duplicated in test files (blind) — the helper tidy-up in the spec moved `tel_rows`, `load_expected` and `FIXTURES`; the rest is deferred below.
+  - `[low]` `[reject]` Intent: `now` is not passed explicitly (intent-alignment, blind) — no rule takes a clock; the guard fails the day one does. Recorded in epics.md and the spec as a deviation with the reason.
+  - `[low]` `[reject]` Tests run the seed plus a Synne fixture, not the seed alone (intent-alignment) — recorded deviation; the seed-alone test pins the exact difference.
+  - `[low]` `[reject]` README status paragraph replaced wholesale (blind) — the deferred README item from 3.2 and 3.3; story-to-feature traceability lives in epics.md and the specs.
+  - `[low]` `[reject]` Manual rows run on the seed alone and automated tests apply the withdrawal; MT-87 «Totalt» only for coming households (blind) — MT-85 states the Synne offset; MT-87 now records the result for coming households, non-coming ones show none.
+  - `[low]` `[reject]` No test shows a wrong number fails (blind) — the implementer changed `beds` 8 → 9 and five tests failed, then restored it; recorded in the result.
+  - `[low]` `[reject]` Possible unused imports in `test_overview.py`, status files disagree, commit sizes, no session log (blind, edge-case) — `ruff check` passes; status is set in the finalize step; the log is step 14.
+  - `[low]` `[reject]` Verification-gap «other finding»: the `now` guard is narrower than its docstring (verification-gap) — same as the scan-scope row above.
+  - `[false]` `[reject]` MT-85 to MT-90 written but not run (blind, intent-alignment) — run by Claude with Playwright after review and recorded.
+  - `[false]` `[reject]` Slug `allergi-notter` unverified in MT-86 (edge-case) — opened in Edge, 200 with one `li`.
+  - `[false]` `[reject]` Per-guest allergy state not read back from a per-guest page (intent-alignment) — the allergy list names the guests and the states are checked at rule level; no other page shows a per-guest state.
+
 ## Design Notes
 
 - **Why a fixture, not an offset.** The offset (`+ SYNNE_UNTIL_7_2`) proves the app agrees with a list that is almost the hand list; applying the withdrawal through the real `Consent` model proves it agrees with the hand list itself, which is what FR-69 promises. The one remaining deviation sits in a single named test, so Story 7.2 deletes three things (fixture, pin test, constant) and nothing else.
@@ -109,3 +145,21 @@ Each group is one commit of about 600 changed lines or fewer (`epic-2-retro-item
 - `uv run djlint --check .` -- expected: no findings
 
 **Manual checks (orchestrator, Playwright against Edge):** MT-85 onwards as above; record the results in `docs/manual-test-plan.md` as «kjørt av Claude med Playwright».
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** One module, `tests/test_expected_results.py` (15 tests), is the proof that the numbers match `wedding/fixtures/expected.toml` (FR-69, NFR-2, SM-2): every FR-54 count except Betaling, each household's total and each guest's status and allergy state, checked at the rules, the count registry and the rendered pages (Oversikt, count pages, Gjester, allergy list). Synne's withdrawal is applied by a fixture so the whole list holds with no offset; one test pins what the seed alone gives until Story 7.2. Guard tests keep `expected.toml` consistent with `seed.toml` and with itself, and a guard fails if a count rule gains a `now` parameter. The README has a «Fasit-testene» section. No app code changed.
+
+**Files changed:**
+- `tests/test_expected_results.py` (new), `tests/conftest.py` (fixture), `tests/helpers.py` (`load_expected`, `tel_rows`), `test_overview.py`, `test_admin_allergy_page.py`, `test_admin_guests_page.py`, `test_error_pages.py`, `test_front_page.py`.
+- `wedding/fixtures/expected.toml` (header comment only), `README.md`, `epics.md`, `deferred-work.md`, `sprint-status.yaml`, `docs/manual-test-plan.md` (MT-85 to MT-90).
+
+**Review:** 23 findings from four layers: 6 patched (the unlisted-day assumption made explicit, `<li\b`, empty states in the allergy test, `__module__` filter in the `now` guard, README wording, a test-plan typo), 17 rejected with reasons; 2 follow-ups deferred.
+
+**Follow-up review recommendation:** false. Test-only story, no high finding.
+
+**Verification:** `uv run pytest` 1621 passed; ruff, ruff format and djlint clean; changing `beds` in expected.toml from 8 to 9 failed five tests. MT-85 to MT-90 run by Claude with Playwright in Edge: all Oversikt numbers equal expected.toml except Synne's known offset (Nøtter 1, 3 with allergies, 3 nothing stored); `li` counts on count pages and the allergy list match; logged-out redirects; keyboard-only over 30 links; 360 and 180 px at 18 and 22.5 px with no overflow.
+
+**Residual risks:** The tests prove seed plus the Synne fixture; the seed alone differs by Synne until Story 7.2. The three unlisted day combinations are checked only as a sum (an explicit assertion fails if expected.toml names them).

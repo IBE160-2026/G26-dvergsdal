@@ -405,3 +405,13 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
   summary: A household with no guests is missing from Gjester; Story 6.3 must also repoint the `husstand-<id>` links to A6.
   evidence: Edge Case Hunter and Blind Hunter in the 3.4 review.
   status: open (Story 6.3).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-5-tests-prove-the-numbers-match-the-expected-results-list.md`
+  summary: `guest_id` and the `seed.toml` load are still duplicated between `tests/test_expected_results.py`, `tests/test_overview.py` and `tests/test_admin_allergy_page.py`.
+  evidence: Blind Hunter in the 3.5 review.
+  status: open (move to `tests/helpers.py` the next time one of those files is touched).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-5-tests-prove-the-numbers-match-the-expected-results-list.md`
+  summary: Story 7.2: when the seed loads Synne's withdrawal, check that the state it stores equals the fixture's `Consent.WITHDRAWN` row (and whether `Allergy` rows are deleted), then delete `seeded_with_synne_withdrawal`, the seed-alone pin test and `SYNNE_UNTIL_7_2`.
+  evidence: Blind Hunter in the 3.5 review; the fixture inserts the event directly because no withdrawal flow exists before 7.2.
+  status: open (Story 7.2).
