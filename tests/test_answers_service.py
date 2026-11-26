@@ -1,19 +1,15 @@
-"""`send_answer` and the FR-74 answer states (Story 2.6a).
+"""The `send_answer` service and the FR-74 answer states (Stories 2.6a to 2.6c).
 
-FR-41, FR-74, FR-75, AD-2, AD-3, AD-4, AD-9, NFR-2. Every service row of the
-story's I/O matrix with `now` fixed: Sigmund's send, a switched respondent,
-nobody coming, partial days, a re-send, the deadline (the last second of the
-deadline day accepted, Oslo midnight refused), another household's ids, the
-admin actor and a missing member, each refusal writing nothing. Then the
-FR-74 states and the two models' fields (no total, no status). Story 2.6b
-(FR-26, FR-27, FR-29, FR-75, AD-18, NFR-3): every consent row of its matrix,
-for the respondent and another member, on a first send and a re-send, the
-`Consent` fields, refused sends writing no allergy data, the `Allergy` and
-`Consent` fields, their `str()` and the log. Story 2.6c (AD-7, AD-9, AD-18,
-AD-20, NFR-1): a repeated submission id, another household's id, two sends
-from the same revision, a changed total and a changed consent text, each
-refusal writing nothing and recording no `Submission`, and the `Submission`
-model. The views are in test_rsvp_send.py.
+FR-26, FR-27, FR-29, FR-41, FR-74, FR-75, AD-2, AD-3, AD-4, AD-7, AD-9, AD-18,
+AD-20, NFR-1, NFR-2, NFR-3. What the service does, by topic, with `now` fixed:
+the send itself (the respondent, a switched respondent, nobody coming, partial
+days, a re-send, the deadline: the last second of the deadline day accepted,
+Oslo midnight refused); consent and allergy data (stored only with «Ja», for the
+respondent and for another member, the `Allergy` and `Consent` fields, `str()`
+and the log); a repeated or conflicting send (the submission id, two sends from
+one revision, a changed total or consent text, the `Submission` model); and the
+FR-74 states with the two models' fields (no total, no status). Every refusal
+writes nothing. The views are in test_rsvp_send_views.py.
 """
 
 import datetime

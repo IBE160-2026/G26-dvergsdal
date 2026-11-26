@@ -1,21 +1,17 @@
-"""«Send svaret» and «Svaret er sendt» over HTTP (Story 2.6a).
+"""«Send svaret» and «Svaret er sendt» over HTTP (Stories 2.6a to 2.6c).
 
-FR-12, FR-41, FR-74, AD-3, AD-7, AD-8, AD-15, UX-DR15, UX-DR24, UX-DR52. The
-view rows of the story's I/O matrix: Sigmund's journey then send (rows, the
-draft cookie deleted, 303 to `sendt/`), a switched respondent, the sent page
-(its `h1`, the sent line in Oslo time, the link to the invitation, never
-cached) and its 302 before any answer, the deadline passing at send, a member
-missing from the draft, a POST without `action=send`, an unfinished step, a
-CSRF failure on the check page, and the busy-state hooks on the check page.
-Story 2.6b (FR-26, FR-28, AD-18): allergies stored only with «Ja», and a
-re-send with consent unanswered warned about and keeping the stored data.
-Story 2.6c (AD-7, AD-9, AD-18, AD-20, NFR-1, UX-DR52): the hidden
-submission id and total, a double send, a late repeat without the draft, a
-send from an older revision, a changed price, a failed database write, a
-changed consent text, bad hidden fields, an unknown `?sending`, `cv` on step
-5 and the hidden fields after a CSRF failure.
-The service is tested in test_send_answer.py; the browser runs are MT-39 to
-MT-41 and MT-45 to MT-49 in docs/manual-test-plan.md.
+FR-12, FR-26, FR-28, FR-41, FR-74, AD-3, AD-7, AD-8, AD-9, AD-15, AD-18, AD-20,
+NFR-1, UX-DR15, UX-DR24, UX-DR52. The views, by topic: the journey and the send
+(rows written, the draft cookie deleted, 303 to `sendt/`, a switched respondent,
+the sent page with its `h1`, the sent line in Oslo time and the link back, never
+cached, and 302 before any answer); refusals (the deadline passing at send, a
+member missing from the draft, a POST without `action=send`, an unfinished step,
+a CSRF failure on the check page); allergies stored only with «Ja» and the
+re-send warning; and a safe repeat (the hidden submission id and total, a double
+send, a late repeat without the draft, an older revision, a changed price, a
+failed write, a changed consent text, bad hidden fields, an unknown `?sending`,
+`cv` on step 5). The service is tested in test_answers_service.py; the browser
+runs are MT-39 to MT-41 and MT-45 to MT-49 in docs/manual-test-plan.md.
 """
 
 import datetime
