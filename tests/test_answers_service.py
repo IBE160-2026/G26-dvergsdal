@@ -20,7 +20,7 @@ from zoneinfo import ZoneInfo
 import pytest
 from django.db.models import F
 
-from wedding.actors import SYSTEM, AdminActor, GuestActor
+from wedding.actors import OPERATOR, SYSTEM, AdminActor, GuestActor
 from wedding.models import (
     Allergy,
     Consent,
@@ -53,6 +53,7 @@ from wedding.services.exceptions import (
     RevisionConflict,
     TotalChanged,
 )
+from wedding.services.households import NewGuest, create_household
 
 SIGMUND = "test-sigmund0000000000"
 ARILD = "test-arild000000000000"
@@ -657,3 +658,24 @@ def test_the_submission_model():
     assert [key for key, _ in Submission.KINDS] == [Submission.ANSWER] == ["answer"]
     submission = Submission(pk=7, key=uuid.uuid4(), kind=Submission.ANSWER, object_id=1)
     assert str(submission) == "Innsending 7"
+
+
+@pytest.mark.django_db
+def test_the_operator_cannot_send_an_answer():
+    """AD-3, AD-10: only a guest of the household or the system sends an answer."""
+    household = create_household(SYSTEM, [NewGuest("Sigmund")])
+    guest = household.guests.get()
+
+    with pytest.raises(NotAllowed):
+        send_answer(
+            OPERATOR,
+            household=household,
+            respondent=guest.pk,
+            answer=Answer(attendance={guest.pk: False}, whole=False),
+            now=datetime.datetime(2027, 1, 1, tzinfo=datetime.UTC),
+            submission=uuid.uuid4(),
+            revision=household.revision,
+            shown_total=0,
+            consent_version=CONSENT_TEXT_VERSION,
+        )
+    assert HouseholdAnswer.objects.count() == 0

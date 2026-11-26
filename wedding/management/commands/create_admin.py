@@ -55,8 +55,12 @@ class Command(BaseCommand):
 
     def ask_for_password(self, username: str) -> str:
         """FR-47: the password typed twice and accepted by `validate_password`."""
-        password = getpass("Passord: ")
-        if getpass("Passord (en gang til): ") != password:
+        try:
+            password = getpass("Passord: ")
+            repeated = getpass("Passord (en gang til): ")
+        except EOFError as error:
+            raise CommandError("Kan ikke spørre om passord uten terminal.") from error
+        if repeated != password:
             raise CommandError("Passordene er ikke like. Ingenting ble lagret.")
         try:
             validate_password(password, User(username=username))

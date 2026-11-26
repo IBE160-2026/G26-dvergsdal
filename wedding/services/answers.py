@@ -19,7 +19,7 @@ from uuid import UUID
 from django.db import transaction
 from django.db.models import F
 
-from wedding.actors import Actor, AdminActor, GuestActor
+from wedding.actors import Actor, GuestActor, SystemActor
 from wedding.models import (
     Allergy,
     Consent,
@@ -150,7 +150,7 @@ def send_answer(
     the unique key instead of writing twice.
     """
     with transaction.atomic():
-        if isinstance(actor, AdminActor):
+        if not isinstance(actor, GuestActor | SystemActor):
             raise NotAllowed()
         if isinstance(actor, GuestActor) and actor.household.pk != household.pk:
             raise NotAllowed()

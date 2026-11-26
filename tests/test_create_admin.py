@@ -81,6 +81,20 @@ def test_a_weak_password_is_refused(monkeypatch, weak):
 
 
 @pytest.mark.django_db
+def test_no_terminal_gives_a_message_not_a_traceback(monkeypatch):
+    """FR-47: getpass raising EOFError becomes a CommandError."""
+
+    def no_terminal(prompt=""):
+        raise EOFError
+
+    monkeypatch.setattr("wedding.management.commands.create_admin.getpass", no_terminal)
+
+    with pytest.raises(CommandError, match="uten terminal"):
+        call_command("create_admin", "rikke", "--role", "couple", stdout=StringIO())
+    assert User.objects.count() == 0
+
+
+@pytest.mark.django_db
 def test_the_password_is_never_an_argument(monkeypatch):
     """FR-47: there is no password option, so it cannot end up in a shell history."""
     with pytest.raises(CommandError):
