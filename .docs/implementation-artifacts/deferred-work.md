@@ -313,3 +313,20 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-9-an-interrupted-answer-is-kept-on-the-phone.md`
   summary: A CSRF failure on the Draft offer's POST shows the step with the CSRF notice instead of the offer again.
   evidence: low. Blind and edge-case review; expired token only, the guest can continue.
+
+## From the Epic 2 retrospective (2026-11-26)
+
+- source_spec: `.docs/implementation-artifacts/epic-2-retro-2026-11-26.md`
+  summary: Story 4.4 (the couple's mount): before the form is mounted a second time, split `wedding/rsvp/views.py` (1,528 lines, 52 functions) into step handlers, send and draft offer, and move the receipt and status views out of `guests/views.py` (600 lines, was 245).
+  evidence: S1 and S2 in the retrospective, measured with `ast` and `wc -l`.
+  status: open.
+
+- source_spec: `.docs/implementation-artifacts/epic-2-retro-2026-11-26.md`
+  summary: A polish story after Epic 2 and before the usability test: Impeccable `critique` and `audit` on the guest pages and the RSVP form (open since Epic 1 action 8), the three px breakpoints at `static/css/site.css:1704, 1727, 1733` converted to em, `min-height: 400px` at line 625 checked, raw px mapped to tokens where DESIGN.md allows. Anything Impeccable suggests that departs from DESIGN.md goes to Rikke first.
+  evidence: S3, V1 and P4 in the retrospective.
+  status: open.
+
+- source_spec: `.docs/implementation-artifacts/epic-2-retro-2026-11-26.md`
+  summary: Tidy-up for the next story that touches them: rename `tests/test_send_answer.py` to `test_answers_service.py` and `tests/test_rsvp_send.py` to `test_rsvp_send_views.py`, and extend the Story 3.1 import test to cover `wedding.rsvp`.
+  evidence: D2 and A1 in the retrospective.
+  status: open.
