@@ -2,7 +2,8 @@
 title: 'Story 3.1: The couple logs in'
 type: 'feature'
 created: '2026-11-26'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '89f0d5ab794b15458b58252111306ea61567f658'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -10,7 +11,15 @@ context:
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md'
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md'
 warnings: [oversized, multiple-goals]
-deferred: []
+deferred:
+- source_spec: .docs/implementation-artifacts/spec-3-1-the-couple-logs-in.md
+  summary: Show the helper's read-only line «Du kan se alt, men ikke endre noe.» (DESIGN.md) under the admin nav for the helper role. Story 3.2 is the first admin page with content a helper cannot change.
+  evidence: Blind Hunter in the 3.1 review; `dashboard/templates/dashboard/admin_base.html` shows nothing role-specific.
+  status: open.
+- source_spec: .docs/implementation-artifacts/spec-3-1-the-couple-logs-in.md
+  summary: Log failed logins on `/admin/logg-inn/` with the username masked, before go-live. The slowed state is Story 6.6, but until then the login has no brute-force protection or failure log (test data only until the site is live).
+  evidence: Blind Hunter in the 3.1 review; the comment in `login.html` points to Story 6.6.
+  status: open.
 ---
 
 <intent-contract>
@@ -113,6 +122,47 @@ deferred: []
 
 ## Review Triage Log
 
+### 2026-11-26 — Review pass
+- verdicts: 37 findings — high 0, medium 5, low 20, false 12, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` Blind: `safe_next` refuses only a literal `..`, not a percent-encoded dot segment — a `next` such as `/admin/%2e%2e/<code>/` could lead to a guest page after login; `safe_next` now unquotes the path before checking and tests cover `%2e%2e`.
+  - `[low]` `[patch]` Blind: `AdminLoginView.get` deletes `admin_seen` for a visitor who is still logged in (back button, bookmark), so a later expiry shows no notice — the marker is now only read and removed for a visitor who is not logged in.
+  - `[low]` `[reject]` Blind: `expired` is state set only in `get()` and read with `getattr` — works, covered by tests; moving it adds churn without a failing case.
+  - `[low]` `[defer]` Blind: the helper's «Du kan se alt, men ikke endre noe.» line is missing — Oversikt has nothing to read-only-mark yet; Story 3.2 (first page with content) gets it (deferred-work.md).
+  - `[false]` `[reject]` Blind: MT-65 to MT-70 have empty cells — run by Claude with Playwright and recorded in the record step.
+  - `[low]` `[reject]` Blind: the password policy lives in the command, not the service — the command is the only caller; the spec (AD-10 note) puts the interactive checks there, and `create_admin_user` stays seed-only.
+  - `[low]` `[reject]` Blind: a username race gives `IntegrityError` instead of `CommandError` — one operator at a server console; the pre-check catches the real case.
+  - `[medium]` `[defer]` Blind: no brute-force protection or failed-login logging on the new login — the slowed state is Story 6.6 (epics.md); failure logging with the username masked added to deferred-work.md with the exposure window (Epics 3–5, test data only until go-live).
+  - `[low]` `[reject]` Blind: `_BARE_CODE` over-matches 22-character identifiers — accepted by the spec (over-masking beats a leaked code); the length test exists (`CODE_LENGTH`).
+  - `[low]` `[patch]` Blind: `pytest.raises(Exception)` is too broad in the invalid-role form test — now `ValidationError`.
+  - `[low]` `[reject]` Blind: tests import `CODE` from `tests.test_log_masking` and repeat the test password — test-helper tidying already in deferred-work.md; no failing case.
+  - `[false]` `[reject]` Blind: no test that `_under_admin` separates `/administrator` — the check is `== "/admin"` or `startswith("/admin/")`, exact by construction; `/admin/feil/` and the guest 404 are tested.
+  - `[low]` `[reject]` Blind: `home.html` shows placeholder text asserted in a test — a placeholder is the spec's Oversikt; Story 3.2 replaces text and test together.
+  - `[low]` `[reject]` Blind: `dashboard.errors._frame` swallows every exception — deliberate fail-safe so an error page never raises; the fallback is tested.
+  - `[false]` `[reject]` Blind: README tree and models docstring wording, migration says Django 6.1.3 — pinned Django is 6.1.3; README lists the files the tree needs; wording only.
+  - `[false]` `[reject]` Blind: spec `review_loop_iteration` still 0 — set in the finalize step.
+  - `[medium]` `[patch]` Edge: `next=/admin/logg-inn/` is accepted as safe — a logged-in visitor gets `ValueError` (500) from `LoginView`; `safe_next` now refuses the login and logout paths.
+  - `[medium]` `[patch]` Edge: `/admin/logg-inn` and `/admin/logg-ut` without a slash fall into the catch-all, so APPEND_SLASH never fires — confirmed (302 to login with `next=/admin/logg-inn`); the two slash-less forms now redirect to the real pages.
+  - `[low]` `[patch]` Edge: `OperatorActor` passes `send_answer` (only `AdminActor` and a wrong-household guest are refused) — `send_answer` now allows only `GuestActor` and `SystemActor`.
+  - `[low]` `[reject]` Edge: a double-encoded link code (`next%3D%2F<code>`) escapes the mask — the login never produces it; the bare-token pass catches 22-character tokens with a digit or capital elsewhere.
+  - `[false]` `[reject]` Edge: a 150+ character username shows Django's English message — checked: the form's error is the Norwegian single login notice.
+  - `[low]` `[patch]` Edge: `getpass` EOF gives a raw traceback in `create_admin` — now a `CommandError` «Kan ikke spørre om passord uten terminal.».
+  - `[low]` `[reject]` Edge: a username differing only by NFKC normalisation gives `IntegrityError` — needs a deliberate lookalike name typed at the operator console.
+  - `[low]` `[patch]` Edge: a HEAD request deletes `admin_seen` — same fix as the logged-in case; only a GET from a visitor who is not logged in reads and removes it.
+  - `[low]` `[reject]` Edge: 405 for POST `/admin/` or GET `/admin/logg-ut/` is Django's bare page — only reachable by hand-made requests; no link or form sends them.
+  - `[false]` `[reject]` Edge (deletion): the empty-password check moved after the username check — a refusal order only; the seed passes a valid password and tests cover both reasons.
+  - `[medium]` `[patch]` Verification gap: nothing pins the hidden `next` field in the login form — removing it would pass every test and a redirected visitor would land on Oversikt; a test now GETs `/admin/logg-inn/?next=/admin/hei/`, asserts the hidden input and POSTs the form's own fields to `/admin/hei/`.
+  - `[low]` `[reject]` Verification gap (other): `HttpResponseBadRequest` is 22 characters and gets masked — the same accepted over-masking as above.
+  - `[false]` `[reject]` Intent: R-A (story acceptance criteria) — implemented and tested at HTTP level; MT-65 to MT-69 run in Edge.
+  - `[false]` `[reject]` Intent: R-B (own path for `create_admin`, seed leaves real accounts alone) — implemented with `OperatorActor`; tests show the seed keeps them.
+  - `[false]` `[reject]` Intent: R-C (error pages, `admin` routing, log mask, import tests routed to 3.1) — the diff implements this broadest reading, as the spec states.
+  - `[false]` `[reject]` Intent: the 20-hour expiry is simulated in tests — session age setting is asserted and the expired-notice flow is covered by the cookie-based tests.
+  - `[false]` `[reject]` Intent: visual and 44px criteria have no automated test — MT-65 to MT-70 measured them in Edge (all targets ≥ 44px at 360 and 180px, also at 20px text).
+  - `[false]` `[reject]` Intent: the frame is proven only on Oversikt and error pages — no other admin page exists yet; Gjester, Betalinger and Innstillinger render as plain text until their stories.
+  - `[low]` `[reject]` Intent: the plan documents were rewritten with the code — dated notes are the process rule (AGENTS.md); the reason is written in each note.
+  - `[low]` `[reject]` Intent: the `admin_seen` cookie is a decision made at plan time — recorded in epics.md and ARCHITECTURE-SPINE with the reason.
+  - `[low]` `[reject]` Intent: only the story's three Given/When/Then blocks are the story body — the spillover items are named in the spec and traced to deferred-work.md.
+
 ## Design Notes
 
 - **Why a new actor.** The epics AC forbids the system actor for real accounts, and AD-3 wants an explicit actor on every service. `OperatorActor` names the real caller (the person at the server console); `require_couple` still refuses it, so it cannot write through admin services.
@@ -138,3 +188,24 @@ mask_link_codes("GET /admin/logg-inn/ HTTP/1.1")    ->  unchanged
 
 **Manual checks (orchestrator, Playwright against Edge, MT-65 onwards):**
 - Login right and wrong, logged-out access, keyboard only, 360 and 180px, 20px text: see the task above for exact URLs and expected values.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** The couple logs in at `/admin/logg-inn/` (Django auth, 20-hour session scoped to `/admin/`, `admin_seen` marker for the «du var borte» notice), lands on a minimal Oversikt in the green admin frame with the Admin nav, and logs out with a POST. `create_admin` makes real accounts through the new `OperatorActor` (`is_test_data=False`), and `User.role` has a database check. `/admin/` is routed above the guest catch-all, one error-handler dispatcher gives `/admin/` paths the couple's own 403/404/500/CSRF pages, the log mask covers percent-encoded, bracketed, colon-prefixed and bare link codes, and architecture tests keep `guests`, `dashboard` and `wedding.rsvp` apart.
+
+**Files changed:**
+- `dashboard/` (new app: access, forms, views, urls, navigation, errors, templates) and `config/error_handlers.py`, `config/urls.py`, `config/settings.py`.
+- `wedding/actors.py`, `wedding/services/users.py`, `wedding/services/answers.py`, `wedding/management/commands/create_admin.py`, migration `0008_user_role_check`.
+- `config/logging_filters.py`, `guests/views.py` (forbidden view), `static/css/site.css`, `base.html`.
+- Tests: `test_admin_login.py`, `test_admin_errors.py`, `test_admin_routing.py`, `test_create_admin.py`, `test_architecture_imports.py`, additions to `test_log_masking.py` and `test_users_service.py`.
+- Docs: README, `docs/manual-test-plan.md` (MT-65 to MT-70), ARCHITECTURE-SPINE, epics.md, DESIGN.md, EXPERIENCE.md, `deferred-work.md`, `sprint-status.yaml`.
+
+**Review:** 9 rows patched (percent-encoded dot segments and login-path `next`, slash-less admin URLs, `admin_seen` for logged-in and HEAD requests, `OperatorActor` in `send_answer`, `getpass` EOF, a test for the hidden `next` field, a narrower exception in a test), 2 deferred, 26 rejected with reasons in the triage log.
+
+**Follow-up review recommendation:** false. No high was found; the five mediums were patched and covered by new tests, and the login flow was re-measured in Edge after the patches.
+
+**Verification:** `uv run pytest` 1453 passed; ruff, ruff format and djlint clean; MT-65 to MT-70 run by Claude with Playwright in Edge (right and wrong login, logged-out access, keyboard only, 360 and 180px at 16 and 20px text, paste, couple's own error pages with `DEBUG=false`).
+
+**Residual risks:** the Norwegian login and error-page wording is [forslag] for Rikke; the real prompt-driven `create_admin` run needs a terminal and is covered by tests with `getpass` patched; `SESSION_COOKIE_SECURE` belongs to go-live hardening; the log mask deliberately over-masks 22-character tokens.
