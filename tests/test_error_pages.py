@@ -25,6 +25,7 @@ from django.test import Client, RequestFactory
 from django.urls import get_resolver
 
 import config.urls
+from config import error_handlers
 from guests import views
 from tests.helpers import IMPERSONAL_FORBIDDEN, page_text, row_counts
 from tests.test_guest_privacy import _assert_private_headers, _head_tags, _preview
@@ -372,15 +373,18 @@ def test_every_error_page_is_private_and_never_writes(seeded, assert_loads_only_
 # Wiring (FR-5, FR-6, AD-15)
 
 
-def test_handlers_and_csrf_failure_view_are_the_guest_views():
-    """FR-5, AD-15: config/urls.py names the three handlers and the settings name
-    the CSRF failure view, so Django never shows its own pages."""
-    assert config.urls.handler400 == "guests.views.bad_request"
-    assert config.urls.handler404 == "guests.views.page_not_found"
-    assert config.urls.handler500 == "guests.views.server_error"
+def test_handlers_and_csrf_failure_view_are_the_dispatchers():
+    """FR-5, AD-15, UX-DR36: config/urls.py names the four handlers and the settings
+    name the CSRF failure view, all in config/error_handlers.py (Story 3.1), so Django
+    never shows its own pages. The 400 is the guests' own, always impersonal."""
+    assert config.urls.handler400 == "config.error_handlers.bad_request"
+    assert config.urls.handler403 == "config.error_handlers.permission_denied"
+    assert config.urls.handler404 == "config.error_handlers.page_not_found"
+    assert config.urls.handler500 == "config.error_handlers.server_error"
     resolver = get_resolver("config.urls")
     assert resolver.resolve_error_handler(400) is views.bad_request
-    assert resolver.resolve_error_handler(404) is views.page_not_found
-    assert resolver.resolve_error_handler(500) is views.server_error
-    assert settings.CSRF_FAILURE_VIEW == "guests.views.csrf_failure"
-    assert _get_failure_view() is views.csrf_failure
+    assert resolver.resolve_error_handler(403) is error_handlers.permission_denied
+    assert resolver.resolve_error_handler(404) is error_handlers.page_not_found
+    assert resolver.resolve_error_handler(500) is error_handlers.server_error
+    assert settings.CSRF_FAILURE_VIEW == "config.error_handlers.csrf_failure"
+    assert _get_failure_view() is error_handlers.csrf_failure

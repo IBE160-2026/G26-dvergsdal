@@ -23,6 +23,7 @@ from django.test import Client
 
 from config.logging_filters import CODE_LENGTH, MaskLinkCodes, mask_link_codes
 from wedding.links import CODE_LENGTH as LINK_CODE_LENGTH
+from wedding.models import User
 
 SEED_FILE = Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "seed.toml"
 SEED = tomllib.loads(SEED_FILE.read_text(encoding="utf-8"))
@@ -265,3 +266,28 @@ def test_with_debug_off_errors_still_reach_a_masked_handler(settings, log_output
     assert "Internal Server Error: /[code]/" in text
     assert "Slow page: /[code]/svar/" in text
     assert "Only with DEBUG" not in text
+
+
+@pytest.mark.django_db
+def test_a_login_redirect_and_the_admin_404_never_write_a_code(settings, log_output):
+    """FR-4, NFR-4, AD-15 (Story 3.1): a link code carried in `?next=` to the login page,
+    percent-encoded or not, and an unknown admin page named after a code, reach the
+    configured handlers masked, while `/admin/…` itself stays readable."""
+    settings.DEBUG = True
+    User.objects.create_user(username="rikke", password="bryllup-test-2028", role="couple")
+    client = Client()
+    client.login(username="rikke", password="bryllup-test-2028")
+
+    assert client.get(f"/admin/logg-inn/?next=/{CODE}/").status_code == 302
+    assert client.get(f"/admin/logg-inn/?next=%2F{CODE}%2F").status_code == 302
+    assert client.get(f"/admin/{CODE}/").status_code == 404
+    assert client.get("/admin/hei/").status_code == 404
+    logging.getLogger("django.server").info(
+        SERVER_LINE, f"GET /admin/logg-inn/?next=%2F{CODE}%2F HTTP/1.1", 200, 0
+    )
+
+    text = log_output.getvalue()
+    assert CODE not in text
+    assert "Not Found: /admin/[code]/" in text
+    assert "Not Found: /admin/hei/" in text
+    assert '"GET /admin/logg-inn/?next=%2F[code]%2F HTTP/1.1" 200 0' in text
