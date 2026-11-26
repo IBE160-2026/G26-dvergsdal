@@ -22,6 +22,7 @@ from dashboard.selectors import (
     households_behind,
     people_behind,
 )
+from tests.helpers import SYNNE_UNTIL_7_2
 from wedding.models import Consent, Guest, Household, HouseholdAnswer, PersonAnswer
 from wedding.rules.allergies import HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED, allergy_state
 from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING, household_names
@@ -47,10 +48,6 @@ EXPECTED = tomllib.loads(
         encoding="utf-8"
     )
 )
-# Story 7.2 loads Synne's withdrawn consent. Until then the seed stores her nut allergy, so the
-# app shows one nut allergy, one more `has_allergies` and one fewer `nothing_stored` than
-# expected.toml. Story 7.2 removes this constant and the three additions below.
-SYNNE_UNTIL_7_2 = 1
 
 
 @pytest.fixture

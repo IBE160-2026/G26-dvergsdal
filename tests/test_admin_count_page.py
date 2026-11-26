@@ -15,9 +15,7 @@ from django.test import Client
 from dashboard.counts import COUNTS, DAY_COMBOS, HOUSEHOLDS, count_for, count_text, payment_statuses
 from dashboard.overview import build_overview
 from dashboard.selectors import guest_facts, household_totals
-from tests.helpers import main_html, page_text
-from tests.test_admin_overview import HELPER_LINE, log_in_as
-from tests.test_overview import SYNNE_UNTIL_7_2
+from tests.helpers import HELPER_LINE, SYNNE_UNTIL_7_2, log_in_as, main_html, page_text
 from wedding.selectors import form_prices
 
 EXPECTED = tomllib.loads(

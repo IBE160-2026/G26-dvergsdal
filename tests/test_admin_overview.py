@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 from django.test import Client
 
-from tests.helpers import main_html, page_text, sections_of
+from tests.helpers import HELPER_LINE, PASSWORD, log_in_as, main_html, page_text, sections_of
 from wedding.models import User
 
 EXPECTED = tomllib.loads(
@@ -20,8 +20,6 @@ EXPECTED = tomllib.loads(
         encoding="utf-8"
     )
 )
-PASSWORD = "bryllup-test-2028"
-HELPER_LINE = "Du kan se alt, men ikke endre noe."
 PANELS = [
     "Svar",
     "Når kommer de?",
@@ -31,12 +29,6 @@ PANELS = [
     "Fjelltur fredag",
     "Betaling (husstander som kommer)",
 ]
-
-
-def log_in_as(username):
-    client = Client()
-    assert client.post("/admin/logg-inn/", {"username": username, "password": PASSWORD}).status_code
-    return client
 
 
 @pytest.fixture
