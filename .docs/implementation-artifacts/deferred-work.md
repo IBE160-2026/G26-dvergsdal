@@ -219,7 +219,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 2.6b reads `CONSENT_TEXT_VERSION` and the draft's `cons`/`conf` when storing allergies; AD-18's «no consent Ja across a revision change» is enforced by the revision check of 2.6c/2.9.
   evidence: decided in the spec.
-  status: storage done in Story 2.6b (wedding/services/answers.py); the «no consent Ja across a revision change» part done in Story 2.6c (wedding/rsvp/views.py clears `cons` and `conf` on a revision conflict).
+  status: storage done in Story 2.6b (wedding/services/answers.py); the «no consent Ja across a revision change» part done in Story 2.6c (wedding/rsvp/views.py clears `cons` and `conf` on a revision conflict). Covered by 2.6c + 2.9 (2026-11-26): Story 2.9 also clears `cons`, `conf` and `cv` when the household changed since the draft started (wedding/rsvp/draft.py `_cleaned`).
 
 - source_spec: `.docs/implementation-artifacts/spec-2-4-allergies-and-consent.md`
   summary: Story 7.1: the privacy page says that the answer in progress, including allergies a guest typed but did not consent to, lives only in the guest's own browser cookie until it is sent or expires (90 days).
@@ -298,3 +298,18 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-8-the-household-s-status-on-the-invitation.md`
   summary: An answered household can still POST a send from an old draft (another tab or phone). GETs of every `/svar/` address redirect to `#status` (Story 2.8), but POSTs rely only on the Story 2.6c revision-conflict handling; Story 4.1 (change the answer) must decide how a re-send from a stale draft is guarded.
   evidence: medium, Blind Hunter, 2.8 review; `guests/views.py` `_rsvp` redirects GET/HEAD only.
+
+## From Story 2.9 (2026-11-26)
+
+- source_spec: `.docs/implementation-artifacts/spec-2-9-an-interrupted-answer-is-kept-on-the-phone.md`
+  summary: Story 4.1: an answered household's draft cookie gets no notice and no offer and is never deleted, also after the deadline (its form GETs go to `#status` first). 4.1 decides what happens to it when the form reopens for changing an answer (EXPERIENCE: offered with the conflict notice).
+  evidence: decided in the spec (Never: answered household); `guests/views.py` `front_page` ignores the cookie when answered, and `_rsvp` redirects before the deadline check.
+- source_spec: `.docs/implementation-artifacts/spec-2-9-an-interrupted-answer-is-kept-on-the-phone.md`
+  summary: Check on a real phone and in Messenger's in-app browser that closing the app drops the session cookie `rsvp_visit`, so the Draft offer appears; if not, the guest lands on the step with all answers filled in.
+  evidence: medium. Blind and intent-alignment review; Edge only simulated a restart by keeping cookies with expires > 0. Check on Rikke's devices (issues.md).
+- source_spec: `.docs/implementation-artifacts/spec-2-9-an-interrupted-answer-is-kept-on-the-phone.md`
+  summary: Story 4.1: tell the guest why «Ja, fortsett» opens step 1 with consent cleared after the household changed.
+  evidence: low. Blind review; rare, needs a new text.
+- source_spec: `.docs/implementation-artifacts/spec-2-9-an-interrupted-answer-is-kept-on-the-phone.md`
+  summary: A CSRF failure on the Draft offer's POST shows the step with the CSRF notice instead of the offer again.
+  evidence: low. Blind and edge-case review; expired token only, the guest can continue.

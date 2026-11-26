@@ -2,14 +2,31 @@
 title: 'Story 2.9: An interrupted answer is kept on the phone'
 type: 'feature'
 created: '2026-11-26'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: '3f7265a5cb3c2e9718fd6ef6816bf15c8d2b60ed'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
   - '{project-root}/.docs/implementation-artifacts/epic-2-context.md'
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/mockups/key-form-steps.html'
 warnings: [oversized]
-deferred: []
+deferred:
+- summary: >-
+    The Draft offer relies on the browser dropping the session cookie `rsvp_visit`; phones and in-app browsers (Messenger) may keep session cookies, so a returning guest may see the step instead of the offer.
+  reason: >-
+    Cannot be checked in Edge; needs a check on Rikke's own phone and Messenger (issues.md) and can be revisited in Story 4.1 or the usability test.
+- summary: >-
+    After a household change, «Ja, fortsett» opens step 1 with consent cleared and no message telling the guest why.
+  reason: >-
+    Rare (the couple edits a household mid-answer); a new text and state belong with Story 4.1's household-change messages.
+- summary: >-
+    A CSRF failure on the offer's POST shows the step page with the CSRF notice instead of the offer again.
+  reason: >-
+    Rare (expired token); the guest gets a clear notice and can continue.
+- summary: >-
+    An answered household's draft cookie gets no notice or offer and is not deleted, also after the deadline.
+  reason: >-
+    Story 4.1 reopens the form for answered households and decides it there; recorded in deferred-work.md.
 ---
 
 <intent-contract>
@@ -98,6 +115,34 @@ deferred: []
 
 ## Review Triage Log
 
+### 2026-11-26 — Review pass
+- verdicts: 24 findings — high 0, medium 2, low 8, false 14, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` The front-page notice for a changed-household draft is not tested (verification-gap) — no test GETs `/<code>/` with a draft naming a deleted member; a regression would silently delete Mona's draft. Test added.
+  - `[low]` `[patch]` `test_a_member_missing_from_step_1_goes_to_step_1` was loosened to `in (302, 303)` (verification-gap, blind, edge) — the test now pins the one status the path returns.
+  - `[low]` `[patch]` `render_total` passes `members[0][0]` as owner while the other readers use `_owner(actor, members)` (verification-gap, blind, edge) — inconsistent fallback respondent; uses the same owner rule now.
+  - `[false]` `[reject]` `ReadResult.changed` is never read (verification-gap) — tests in test_rsvp_draft.py read it; kept as the documented result of the cleaning, used by the tests to tell changed from usable.
+  - `[false]` `[reject]` A cleaned draft is never rewritten on GET (verification-gap) — intended by AD-8 (no write on GET); every reader cleans via `read_draft`.
+  - `[medium]` `[defer]` The offer depends on session cookies being dropped; phones and in-app browsers (Messenger) may keep them (blind, intent-alignment) — real and unverifiable here; recorded in EXPERIENCE/AD-8 by the implementer; a check on Rikke's own phone goes to issues.md, and Story 4.1/usability test can revisit.
+  - `[low]` `[defer]` The guest is not told why «Ja, fortsett» starts at step 1 after a household change (blind) — rare (couple edits household mid-answer); a notice is a new text and state; deferred to Story 4.1 with the other household-change messages.
+  - `[false]` `[reject]` A cleaned draft gets a false revision-conflict message at send (blind) — `Household.revision` rises only in `send_answer` (wedding/services/answers.py:211); adding, removing or moving a guest does not change it.
+  - `[low]` `[defer]` No deferred-work entry for the answered-household draft handed to Story 4.1 (blind) — entry added with source_spec 2.9.
+  - `[false]` `[reject]` The spec records only status, not the decisions (blind) — the spec written in step 2 holds the decisions (visit cookie, first unfinished step, cleaning); the diff only shows frontmatter because the spec was committed before the baseline.
+  - `[false]` `[reject]` The offer page has no nav or link back (blind) — like every form step (rsvp/step.html), per DESIGN.md › form steps; the footer band stays.
+  - `[false]` `[reject]` «på denne telefonen» assumes a phone (blind) — approved text from EXPERIENCE.md and the mockup (UX-DR26).
+  - `[low]` `[patch]` The template comment says «no hidden fields» but `{% csrf_token %}` renders one (blind) — comment corrected.
+  - `[low]` `[defer]` A CSRF failure on the offer POST shows the step page with the CSRF notice instead of the offer (blind, edge) — the guest gets a clear notice and can continue; rare (expired token); deferred.
+  - `[false]` `[reject]` HEAD getting the offer is untested (blind) — Django's test client HEAD goes through the same branch as GET (`request.method in ("GET", "HEAD")`); low value.
+  - `[false]` `[reject]` `?fra` ignored by `_answer_offer` untested (blind) — no code reads it there; nothing to break.
+  - `[false]` `[reject]` POST to a step without `rsvp_visit` untested (blind) — existing step tests post without the cookie and pass.
+  - `[false]` `[reject]` `render_total` with a cleaned draft untested (blind) — covered by the owner fix; the total does not depend on the respondent.
+  - `[low]` `[reject]` The closed page and front page leave `rsvp_visit` (blind) — holds no answer and dies with the browser session; harmless.
+  - `[low]` `[reject]` README status paragraph is long (blind) — pre-existing structure; a README tidy-up belongs to the epic 2 retrospective.
+  - `[false]` `[reject]` New MT rows not run while README says epic 2 is done (blind) — MT-59 to MT-64 run in Edge and recorded.
+  - `[false]` `[reject]` Couple's override mount reaches the offer (edge) — `handle_step` is called only from the guest mount (guests/views.py:306); no couple mount exists yet.
+  - `[false]` `[reject]` «Ja» goes to the first unfinished step, not the last page seen (intent-alignment) — decided in the spec; the draft stores no last page and in the forward flow they are the same; MT-59 confirmed step 3.
+  - `[false]` `[reject]` «Nei» never starts from a sent answer (intent-alignment) — answered households get the status page (2.8) until Story 4.1 reopens the form; recorded in the spec and AD-11.
+
 ## Design Notes
 
 - **Why a session cookie for the visit:** the offer must come "first" on any route, yet the PRG redirect to the next step is also a GET, and AD-8 forbids writing the draft on a GET. A browser-session cookie set on every POST separates "inside a visit" from "came back": a closed in-app browser or a killed Messenger web view loses it, which is exactly the FR-78 case. A reload inside a still-living tab shows the step itself with all answers, which meets the story's goal (nothing lost). Recorded in EXPERIENCE/AD-8.
@@ -114,3 +159,24 @@ deferred: []
 
 **Manual checks (if no CLI):**
 - MT-59 to MT-64 rows exist in `docs/manual-test-plan.md` with empty result cells (the orchestrator runs them with Playwright in Edge).
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** A guest who leaves the RSVP form and comes back in a new browser session gets «Obs: Du har et svar som ikke er sendt ennå.» on the front page and «Vil du fortsette der du slapp?» on any form address, with when the answer was started, «Ja, fortsett» (first unfinished step with every answer filled in) and «Nei, begynn på nytt» (draft deleted, empty step 1). A browser-session cookie `rsvp_visit` (no answers) tells a return from moving between steps, since AD-8 forbids writes on GET. A draft whose household changed is cleaned instead of thrown away: people no longer in the household are dropped, consent is cleared and the form opens at step 1. After the deadline the front page and the closed page delete the draft with no notice.
+
+**Files changed:**
+- `wedding/rsvp/draft.py` — `read_draft` cleans changed households, `rsvp_visit` helpers.
+- `wedding/rsvp/views.py`, `wedding/rsvp/templates/rsvp/draft_offer.html` — the offer and its two answers; running total uses the same owner rule.
+- `guests/views.py`, `guests/templates/guests/front_page.html` — notice, deadline and broken-draft deletion.
+- `tests/test_rsvp_draft_offer.py` (new), `tests/test_rsvp_draft.py`, `tests/test_rsvp_days.py`, `tests/test_rsvp_send.py`.
+- ARCHITECTURE-SPINE (AD-8, AD-11), EXPERIENCE.md, DESIGN.md, README.md, deferred-work.md, docs/manual-test-plan.md (MT-59 to MT-64).
+
+**Review:** 24 findings — 4 patched (front-page notice test after a removed member, exact 302 in the send test, same owner in the running total, template comment), 4 deferred, 16 rejected with reasons in the triage log.
+
+**Follow-up review recommendation:** false. No high finding; the medium patch is a test, and the browser rows were re-run after the fixes.
+
+**Verification:** `uv run pytest` 1338 passed; ruff and djlint clean; MT-59 to MT-64 run by Claude with Playwright 1.56.1 in Edge after the patches, including a simulated browser restart (only cookies with expires > 0 kept), keyboard only, 360 and 180px at 16 and 20px text.
+
+**Residual risks:** whether a real phone or Messenger drops the session cookie when the app is closed is untested; if it does not, the guest lands on the step with all answers filled in rather than the offer (the answer is still kept).
