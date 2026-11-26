@@ -1,0 +1,19 @@
+{% comment %}
+One summary panel (Story 3.2; FR-54, UX-DR40): an `h2` and rows as `dl` pairs of label
+and count text, which wrap so they need no width at 180px. Counts are plain text until
+Story 3.3. `panel.note` is an optional line under the rows.
+{% endcomment %}
+<section class="admin-panel" aria-labelledby="panel-{{ forloop.counter }}">
+    <h2 class="admin-heading" id="panel-{{ forloop.counter }}">{{ panel.title }}</h2>
+    <dl class="overview-rows">
+        {% for row in panel.rows %}
+            <div class="overview-row{% if row.indent %} overview-row--sub{% endif %}">
+                <dt>{{ row.label }}</dt>
+                <dd>
+                    {{ row.text }}
+                </dd>
+            </div>
+        {% endfor %}
+    </dl>
+    {% if panel.note %}<p class="overview-note">{{ panel.note }}</p>{% endif %}
+</section>

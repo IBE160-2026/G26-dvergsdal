@@ -58,7 +58,7 @@ def test_the_login_page_has_labelled_fields_and_no_nav(db):
 
 @pytest.mark.parametrize("role", [User.Role.COUPLE, User.Role.HELPER])
 def test_the_right_details_lead_to_oversikt_with_the_nav(db, role):
-    """FR-46: 302 to `/admin/`, then the page has the nav words and «Logg ut»."""
+    """FR-46: 302 to `/admin/`, then the nav words, «Logg ut» and the Svar panel (Story 3.2)."""
     User.objects.create_user(username="rikke", password=PASSWORD, role=role)
     client = Client()
 
@@ -70,8 +70,7 @@ def test_the_right_details_lead_to_oversikt_with_the_nav(db, role):
     assert page.status_code == 200
     for word in ("Oversikt", "Gjester", "Betalinger", "Innstillinger", "Logg ut"):
         assert word in text
-    assert "Innlogget som rikke." in text
-    assert "Her kommer oversikten over svarene." in text
+    assert "Svart: 0 av 0 husstander" in text
 
 
 def test_next_under_admin_is_followed(couple):

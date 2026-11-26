@@ -18,7 +18,7 @@ from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
 
 from dashboard.access import is_admin
-from dashboard.navigation import nav_items
+from dashboard.navigation import frame
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +31,14 @@ CSRF_FAILURE = "dashboard/errors/csrf_failure.html"
 def _frame(request: HttpRequest) -> dict[str, object]:
     """UX-DR36: the nav and the right way back for a logged-in admin, else `{}`.
 
+    The helper's read-only line is for the working pages only, so an error page leaves it out.
+
     Reading the user touches the session, which can fail with a broken database;
     that is logged once (the handlers mask link codes) and the plain frame is used.
     """
     try:
         if is_admin(request.user):
-            return {"nav_items": nav_items(None), "logged_in": True}
+            return {**frame(request), "read_only": False, "logged_in": True}
     except Exception:
         logger.warning("Admin error page lookup failed for %s", request.path_info, exc_info=True)
     return {}
