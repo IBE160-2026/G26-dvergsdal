@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-16-2026 13:02
-last_updated: 11-27-2026 15:00
+last_updated: 11-27-2026 16:00
 project: AI'll handle it
 project_key: NOKEY
 tracking_system: file-system
@@ -63,13 +63,13 @@ development_status:
   2-9-an-interrupted-answer-is-kept-on-the-phone: done
   epic-2-retrospective: done
 
-  epic-3: in-progress
+  epic-3: done
   3-1-the-couple-logs-in: done
   3-2-answer-progress-and-the-summary: done
   3-3-every-count-opens-the-people-behind-it: done
   3-4-the-overview-of-every-household-and-the-allergy-list: done
   3-5-tests-prove-the-numbers-match-the-expected-results-list: done
-  epic-3-retrospective: optional
+  epic-3-retrospective: done
 
   epic-4: backlog
   4-1-see-or-change-the-answer-before-the-deadline: backlog
@@ -206,8 +206,38 @@ action_items:
     owner: "Claude"
     status: done
     note: "Applied in Story 3.3 (2026-11-26): seven commits of 4 to 294 changed lines
-      each (registry, selectors, overview, count page, links, test plan, docs).
-      Applied in Story 3.5 (2026-11-27): helpers, rules and registry tests, page and
-      guard tests, test plan, expected.toml header, README, documents, each commit
-      about 600 changed lines or fewer; Epic 3 is done."
+      each (registry, selectors, overview, count page, links, test plan, docs). Applied
+      in Story 3.5 (2026-11-27): helpers, rules and registry tests, page and guard
+      tests, test plan, expected.toml header, README, documents, each commit about
+      600 changed lines or fewer; Epic 3 is done."
     ref: ".docs/implementation-artifacts/epic-2-retro-2026-11-26.md"
+  - id: "epic-3-retro-item-13-rikke-decide-whether-the-usability-test"
+    epic: 3
+    action: "Rikke: decide whether the usability test waits for a polish story (Impeccable
+      critique and audit; fix double-colon headings, :target highlight, muted-note
+      contrast); open the admin pages on a real phone and read the [forslag] admin
+      wording"
+    owner: "Rikke decides, Claude builds"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-3-retro-2026-11-27.md"
+  - id: "epic-3-retro-item-14-story-7-2-when-the-seed-loads-synne-s-wi"
+    epic: 3
+    action: "Story 7.2: when the seed loads Synne's withdrawal, delete seeded_with_synne_withdrawal,
+      the seed-alone pin test and SYNNE_UNTIL_7_2"
+    owner: "Claude, Story 7.2"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-3-retro-2026-11-27.md"
+  - id: "epic-3-retro-item-15-stories-5-2-and-5-3-test-payment_status"
+    epic: 3
+    action: "Stories 5.2 and 5.3: test payment_status with real amounts (refunded
+      above received) and add the Betaling panel to the expected-results tests"
+    owner: "Claude, Stories 5.2 and 5.3"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-3-retro-2026-11-27.md"
+  - id: "epic-3-retro-item-16-runner-process-for-epic-4-keep-commits-n"
+    epic: 3
+    action: "Runner process for Epic 4: keep commits near 600 changed lines (two 3.1
+      commits missed it); split wedding/rsvp/views.py first in Story 4.4"
+    owner: "Claude"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-3-retro-2026-11-27.md"
