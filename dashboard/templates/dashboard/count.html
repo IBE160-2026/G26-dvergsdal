@@ -11,7 +11,7 @@ the number of `li` equals it. Names only: allergy details are the list of Story 
     <p class="count-back-line">
         <a class="count-back" href="{% url 'dashboard:home' %}">Tilbake til Oversikt</a>
     </p>
-    <section class="admin-panel" aria-label="Liste">
+    <section class="admin-panel" aria-label="{{ heading }}">
         {% if rows %}
             <ul class="count-list">
                 {% for row in rows %}
@@ -19,7 +19,7 @@ the number of `li` equals it. Names only: allergy details are the list of Story 
                         {% if by_household %}
                             {{ row.names }}
                         {% else %}
-                            <span class="count-list__name">{{ row.name }}</span>
+                            <span class="count-list__name">{{ row.name }}</span><span class="visually-hidden">,</span>
                             <span class="count-list__household">{{ row.household }}</span>
                         {% endif %}
                     </li>
