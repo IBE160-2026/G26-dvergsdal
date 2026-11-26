@@ -914,6 +914,8 @@ So that I can trust the numbers I send to Hardingasete.
 **When** a test opens its drill-down
 **Then** the number of rows equals the count
 
+*Implementation notes (2026-11-26, Story 3.3):* the registry `dashboard/counts.py` names every count once (slug, title, people or households, the `wedding/rules/summary.py` call), and Oversikt and the page read the same id tuple. The route is `/admin/tall/<slug>/` (`tall` is new; a count has no other natural address). A count above 0 is one link whose `aria-label` starts with the row label; a row with two numbers («3 ja, 2 kanskje») has one link per number. The page lists names only (guest and household): allergy details wait for Story 3.4 because allergies are health data (NFR-3, AD-18) and the page is shared with helpers. «Se hva alle har svart» stays plain text until Story 3.4. Commits were ordered route first, then links, so no link was ever dead.
+
 ### Story 3.4: The overview of every household and the allergy list
 
 As Rikke,

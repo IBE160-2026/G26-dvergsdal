@@ -348,7 +348,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-3-2-answer-progress-and-the-summary.md`
   summary: Story 3.3 makes every count above 0 a link to the people behind it (the id tuples from `wedding/rules/summary.py`); Story 3.4 sets the address of «Se hva alle har svart», which is plain text until then.
   evidence: Story 3.2 shows every count and «Se hva alle har svart» as plain text, since the lists page does not exist (no dead link).
-  status: open.
+  status: the 3.3 half is done in Story 3.3 (every count above 0 links to `/admin/tall/<slug>/`); open for Story 3.4: the address of «Se hva alle har svart».
 
 - source_spec: `.docs/implementation-artifacts/spec-3-2-answer-progress-and-the-summary.md`
   summary: `dashboard.access.admin_actor` is no longer used by any view (Oversikt used it only for the username, which Story 3.2 dropped). Remove it or use it in the first admin write (Epic 4 or 5).

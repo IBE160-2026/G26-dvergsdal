@@ -2,7 +2,8 @@
 title: 'Story 3.3: Every count opens the people behind it'
 type: 'feature'
 created: '2026-11-26'
-status: 'ready-for-dev'
+status: 'in-progress'
+baseline_revision: '72f691d4a8ffe7ebaa52e352e2011953acefaa02'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -85,6 +86,8 @@ Each group is one commit of about 600 changed lines or fewer (`epic-2-retro-item
 - Given Oversikt and A3 at 360px and 180px width and 20px text, when used, then every target is at least 44px, nothing scrolls horizontally, and the links are reachable with the keyboard alone.
 
 ## Spec Change Log
+
+- 2026-11-26, implementation: commits 4 and 5 swapped (the route and A3 came before the links on Oversikt, so no link was ever dead). The shared template is `overview/_cells.html` (all cells of one row on one line) instead of a per-cell `_cell.html`, because a per-cell include left a stray space before the comma in «3 ja , 2 kanskje». `persons` and `households` moved to `dashboard/counts.py` with `count_text`; `Row.text` stays as a read-only property over `cells`. `dashboard.counts` also holds `DAY_COMBOS`, `MEALS`, `ALLERGY_NAMES`, `HIKE_NAMES` and `PAYMENTS` (label and slug per count), which `overview.py` imports. Test plan rows are MT-75 to MT-78.
 
 ## Review Triage Log
 

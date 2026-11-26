@@ -66,7 +66,7 @@ development_status:
   epic-3: in-progress
   3-1-the-couple-logs-in: done
   3-2-answer-progress-and-the-summary: done
-  3-3-every-count-opens-the-people-behind-it: backlog
+  3-3-every-count-opens-the-people-behind-it: done
   3-4-the-overview-of-every-household-and-the-allergy-list: backlog
   3-5-tests-prove-the-numbers-match-the-expected-results-list: backlog
   epic-3-retrospective: optional
@@ -205,4 +205,6 @@ action_items:
       keep the triage comment and Spec Change Log"
     owner: "Claude"
     status: open
+    note: "Applied in Story 3.3 (2026-11-26): seven commits of 4 to 294 changed lines
+      each (registry, selectors, overview, count page, links, test plan, docs)."
     ref: ".docs/implementation-artifacts/epic-2-retro-2026-11-26.md"
