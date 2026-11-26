@@ -1,4 +1,4 @@
-"""Helpers and constants shared by several test modules (Story 1.5, 1.6, 1.7, 1.8, 2.1, 2.2).
+"""Helpers and constants shared by several test modules (Story 1.5, 1.6, 1.7, 1.8, 2.1, 2.2, 3.1).
 
 Fixtures live in conftest.py; plain values and functions that tests import live
 here.
@@ -8,6 +8,7 @@ import re
 
 from django.contrib.sessions.models import Session
 
+from wedding.actors import AdminActor
 from wedding.models import Guest, Household, Settings, Submission, User
 
 # NFR-7, UX-DR4: the nine images the front page shows (Story 1.4b plans them,
@@ -40,6 +41,11 @@ IMPERSONAL_FORBIDDEN = (
     "<footer",
     "tel:",
 )
+
+
+def make_admin(role, username="rikke"):
+    """AD-10 (Story 3.1): an `AdminActor` for a new account with `role`, for service tests."""
+    return AdminActor(User.objects.create_user(username=username, role=role))
 
 
 def page_text(html: str) -> str:

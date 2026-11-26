@@ -2,8 +2,9 @@
 
 Every service takes one of these as an explicit `actor`, never the request, and
 records it as the author of the write. A guest actor comes only from the resolver
-in `wedding/links.py`; the system actor is used only by the seed command. This
-module only describes actors and writes nothing.
+in `wedding/links.py`; the system actor is used only by the seed command; the
+operator actor only by the `create_admin` command (Story 3.1). This module only
+describes actors and writes nothing.
 """
 
 from dataclasses import dataclass
@@ -38,5 +39,18 @@ class SystemActor:
 
 SYSTEM = SystemActor()
 
+
+@dataclass(frozen=True)
+class OperatorActor:
+    """The person at the server console running `create_admin` (FR-47, AD-3, AD-10).
+
+    Story 3.1. It names the real caller of the command that makes real accounts,
+    apart from the seed's system actor. `require_couple` refuses it, so it cannot
+    write through any admin service.
+    """
+
+
+OPERATOR = OperatorActor()
+
 # AD-3: the explicit `actor` every service takes.
-Actor = GuestActor | AdminActor | SystemActor
+Actor = GuestActor | AdminActor | SystemActor | OperatorActor

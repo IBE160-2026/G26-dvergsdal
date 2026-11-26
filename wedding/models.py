@@ -3,7 +3,8 @@
 Story 1.1 added the custom `User`, so that it is `AUTH_USER_MODEL` from the very
 first migration (AD-10). Story 1.2 adds households, guests and the single-row
 settings. Story 1.3 marks the households and users the seed command creates as
-test data (FR-72, AD-16). Story 2.6a adds a household's sent answer,
+test data (FR-72, AD-16). Story 3.1 adds a check constraint on `User.role` (AD-10).
+Story 2.6a adds a household's sent answer,
 `HouseholdAnswer` and one `PersonAnswer` per guest (FR-74, AD-4). Story 2.6b
 adds each guest's `Allergy` and the append-only `Consent` events (FR-26, FR-29,
 AD-18). Story 2.6c adds `Submission`, the one-time submission ids already
@@ -38,6 +39,15 @@ class User(AbstractUser):
     role = models.CharField("rolle", max_length=10, choices=Role, default=Role.HELPER)
     # FR-72, AD-16: made by the seed command; only these are removed by the reset.
     is_test_data = models.BooleanField("testdata", default=False)
+
+    class Meta(AbstractUser.Meta):
+        # AD-10 (Story 3.1): the role is always couple or helper, also when a row is
+        # written outside a form, so no account has a blank or unknown role.
+        constraints = (
+            models.CheckConstraint(
+                condition=models.Q(role__in=["couple", "helper"]), name="user_role_valid"
+            ),
+        )
 
 
 class Household(models.Model):

@@ -10,7 +10,8 @@ import datetime
 
 import pytest
 
-from wedding.actors import SYSTEM, AdminActor, GuestActor
+from tests.helpers import make_admin
+from wedding.actors import SYSTEM, GuestActor
 from wedding.models import Settings, User
 from wedding.services.exceptions import InvalidSettings, NotAllowed
 from wedding.services.households import NewGuest, create_household
@@ -36,10 +37,6 @@ def stored_values():
     return SettingsValues(
         **{field.name: getattr(row, field.name) for field in dataclasses.fields(SettingsValues)}
     )
-
-
-def make_admin(role):
-    return AdminActor(User.objects.create_user(username="rikke", role=role))
 
 
 @pytest.mark.django_db
