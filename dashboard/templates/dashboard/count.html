@@ -2,8 +2,9 @@
 {% comment %}
 A3, the people or households behind one count on Oversikt (Story 3.3; FR-55, UX-DR41,
 AD-2). The `h1` carries the count, and the list holds exactly the rows of that count, so
-the number of `li` equals it. Names only: allergy details are the list of Story 3.4
-(FR-58, AD-18). A count of 0 shows the empty text. The texts are [forslag] (EXPERIENCE › A3).
+the number of `li` equals it. Names only: allergy details are on the allergy list alone
+(FR-58, AD-18). A household's names link to its row on Gjester (Story 3.4; FR-57), since the
+household page A6 is Story 6.3. A count of 0 shows the empty text. The texts are [forslag] (EXPERIENCE › A3).
 {% endcomment %}
 {% block title %}{{ heading }} – Administrasjon{% endblock title %}
 {% block admin_content %}
@@ -17,10 +18,11 @@ the number of `li` equals it. Names only: allergy details are the list of Story 
                 {% for row in rows %}
                     <li>
                         {% if by_household %}
-                            {{ row.names }}
+                            <a href="{% url 'dashboard:guests' %}#husstand-{{ row.household_id }}">{{ row.names }}</a>
                         {% else %}
                             <span class="count-list__name">{{ row.name }}</span><span class="visually-hidden">,</span>
-                            <span class="count-list__household">{{ row.household }}</span>
+                            <a class="count-list__household"
+                               href="{% url 'dashboard:guests' %}#husstand-{{ row.household_id }}">{{ row.household }}</a>
                         {% endif %}
                     </li>
                 {% endfor %}

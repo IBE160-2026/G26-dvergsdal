@@ -1,0 +1,33 @@
+{% extends "dashboard/admin_base.html" %}
+{% comment %}
+A5, the allergy list (Story 3.4; FR-58, UX-DR48, AD-18, FR-26). Name, categories and note of
+every coming guest whose allergy data is stored with consent, as the `allergy_list` rule
+returns them, so the list is as long as Oversikt's «Har allergier eller matbehov». This is the
+only page that shows allergy text. The note is autoescaped and keeps its line breaks in CSS
+(`white-space: pre-line`). The texts are [forslag] (EXPERIENCE › A5).
+{% endcomment %}
+{% block title %}Allergilisten – Administrasjon{% endblock title %}
+{% block admin_content %}
+    <h1 class="admin-title">Allergilisten</h1>
+    <p class="guest-summary">{{ allergy_list.summary }}</p>
+    <p class="count-back-line">
+        <a class="count-back" href="{% url 'dashboard:home' %}">Tilbake til Oversikt</a>
+    </p>
+    <section class="admin-panel" aria-label="Allergilisten">
+        {% if allergy_list.rows %}
+            <ul class="allergy-list">
+                {% for row in allergy_list.rows %}
+                    <li>
+                        <span class="allergy-list__name">{{ row.name }}</span>{% if row.categories or row.note %}<span class="visually-hidden">: </span>{% endif %}
+                        {% if row.categories %}
+                            <span class="allergy-list__categories">{{ row.categories|join:", " }}</span>{% if row.categories and row.note %}<span class="visually-hidden">. </span>{% endif %}
+                        {% endif %}
+                        {% if row.note %}<span class="allergy-list__note">{{ row.note }}</span>{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Ingen allergier registrert ennå.</p>
+        {% endif %}
+    </section>
+{% endblock admin_content %}

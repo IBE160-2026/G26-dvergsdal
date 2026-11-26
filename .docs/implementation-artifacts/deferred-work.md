@@ -348,7 +348,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-3-2-answer-progress-and-the-summary.md`
   summary: Story 3.3 makes every count above 0 a link to the people behind it (the id tuples from `wedding/rules/summary.py`); Story 3.4 sets the address of «Se hva alle har svart», which is plain text until then.
   evidence: Story 3.2 shows every count and «Se hva alle har svart» as plain text, since the lists page does not exist (no dead link).
-  status: the 3.3 half is done in Story 3.3 (every count above 0 links to `/admin/tall/<slug>/`); open for Story 3.4: the address of «Se hva alle har svart».
+  status: done in Story 3.3 (every count above 0 links to `/admin/tall/<slug>/`) and Story 3.4 («Se hva alle har svart» links to `/admin/gjester/`, `tests/test_admin_overview.py`).
 
 - source_spec: `.docs/implementation-artifacts/spec-3-2-answer-progress-and-the-summary.md`
   summary: `dashboard.access.admin_actor` is no longer used by any view (Oversikt used it only for the username, which Story 3.2 dropped). Remove it or use it in the first admin write (Epic 4 or 5).
@@ -378,14 +378,29 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-3-3-every-count-opens-the-people-behind-it.md`
   summary: `tests/test_admin_count_page.py` imports `HELPER_LINE`, `log_in_as` and `SYNNE_UNTIL_7_2` from other test modules; move them to `tests/helpers.py`.
   evidence: Blind Hunter in the 3.3 review.
-  status: open.
+  status: done in Story 3.4 (the three now live in `tests/helpers.py`).
 
 - source_spec: `.docs/implementation-artifacts/spec-3-3-every-count-opens-the-people-behind-it.md`
   summary: Household rows on the count page do not link to the household page A6.
-  evidence: Blind Hunter in the 3.3 review; A6 is built in Story 3.4.
-  status: open (Story 3.4).
+  evidence: Blind Hunter in the 3.3 review; A6 is built in Story 6.3, not 3.4.
+  status: re-opened for Story 6.3. Story 3.4 made the household rows on A3 (and every Gjester row, `id="husstand-<id>"`) link to the Gjester row; Story 6.3 must point both at the real household page A6 and drop the anchors if unused.
 
 - source_spec: `.docs/implementation-artifacts/spec-3-3-every-count-opens-the-people-behind-it.md`
   summary: The README status paragraph keeps growing with every story.
   evidence: Blind Hunter in the 3.3 review (also 3.2).
   status: open (next README pass).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-4-the-overview-of-every-household-and-the-allergy-list.md`
+  summary: No `:target` highlight when a household link lands on a Gjester row; «Allergilisten» on Gjester reuses the `count-back` class of the back link.
+  evidence: Blind Hunter and Edge Case Hunter in the 3.4 review.
+  status: open (Impeccable polish story, epic 2 retro item 11).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-4-the-overview-of-every-household-and-the-allergy-list.md`
+  summary: The allergy list has no print view, sort by name or export for Hardingasete.
+  evidence: Blind Hunter in the 3.4 review; the list is in guest id order.
+  status: open (Epic 7 decides how the list reaches the caterer).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-4-the-overview-of-every-household-and-the-allergy-list.md`
+  summary: A household with no guests is missing from Gjester; Story 6.3 must also repoint the `husstand-<id>` links to A6.
+  evidence: Edge Case Hunter and Blind Hunter in the 3.4 review.
+  status: open (Story 6.3).

@@ -7,6 +7,7 @@ here.
 import re
 
 from django.contrib.sessions.models import Session
+from django.test import Client
 
 from wedding.actors import AdminActor
 from wedding.models import Guest, Household, Settings, Submission, User
@@ -41,6 +42,30 @@ IMPERSONAL_FORBIDDEN = (
     "<footer",
     "tel:",
 )
+
+
+PASSWORD = "bryllup-test-2028"
+# UX-DR49: the line a helper sees under the admin nav.
+HELPER_LINE = "Du kan se alt, men ikke endre noe."
+# Story 7.2 loads Synne's withdrawn consent. Until then the seed stores her nut allergy, so the
+# app shows one nut allergy, one more `has_allergies` and one fewer `nothing_stored` than
+# expected.toml. Story 7.2 removes this constant and every addition of it in the tests.
+SYNNE_UNTIL_7_2 = 1
+
+
+def log_in_as(username):
+    """FR-46: a client logged in as the seeded account `username` (`testpar`, `testhjelper`)."""
+    client = Client()
+    assert client.post("/admin/logg-inn/", {"username": username, "password": PASSWORD}).status_code
+    return client
+
+
+def log_in_as_new_couple():
+    """FR-46: a client logged in as a new couple account, for tests with an empty database."""
+    User.objects.create_user(username="rikke", password=PASSWORD, role=User.Role.COUPLE)
+    client = Client()
+    client.login(username="rikke", password=PASSWORD)
+    return client
 
 
 def make_admin(role, username="rikke"):

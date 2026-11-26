@@ -940,6 +940,8 @@ So that I can check any household and send Hardingasete the allergy names and co
 **When** they are used
 **Then** the rows stack with visible labels, targets are at least 44px and there is no horizontal scroll (FR-48)
 
+*Implementation notes (2026-11-27, Story 3.4):* Gjester is `/admin/gjester/` and the allergy list `/admin/allergier/`, both new addresses under `/admin/`. **Deviation:** the household page A6 is Story 6.3, so the household rows on the count pages (A3) link to the household's row on Gjester (`/admin/gjester/#husstand-<id>`), not to A6; a link to a page that does not exist would be dead. Story 6.3 repoints them. The search «Finn en gjest» and «Legg til husstand» of EXPERIENCE A4 wait for Story 6.3 and 4.x, and the tags «Stemmer ikke» and «Endret» for Epic 5 and 7, so Gjester shows only «Ikke svart» and no payment text until Epic 5. The allergy list shows coming guests whose allergy data is stored with consent, taken from the new rule `allergy_list` in `wedding/rules/summary.py`, which is built on `allergy_state_ids`, so its length equals Oversikt's «Har allergier eller matbehov» by construction (AD-18). Until Story 7.2 the seed stores Synne's nut allergy, so the list has one more guest than `expected.toml` (`SYNNE_UNTIL_7_2`). Commits were sized at about 600 changed lines or fewer (`epic-2-retro-item-12`): test helpers moved, the rule, the view models, Gjester, the allergy list, the three links, the manual test plan and the documents.
+
 ### Story 3.5: Tests prove the numbers match the expected-results list
 
 As Rikke,

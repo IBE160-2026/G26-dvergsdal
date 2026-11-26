@@ -11,7 +11,12 @@ categories and states count only with consent «Ja».
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 
-from wedding.rules.allergies import ALLERGY_KEYS, AllergyEntry, allergy_state
+from wedding.rules.allergies import (
+    ALLERGY_KEYS,
+    HAS_ALLERGIES,
+    AllergyEntry,
+    allergy_state,
+)
 from wedding.rules.days import MEAL_KEYS, WHOLE_WEEKEND
 from wedding.rules.households import COMING, household_state, person_state
 
@@ -40,6 +45,16 @@ class GuestFacts:
     hike: str = ""
     allergy: AllergyEntry | None = None
     consent: bool | None = None
+
+
+@dataclass(frozen=True)
+class AllergyListEntry:
+    """FR-58, AD-18: one line of the allergy list: the guest, their categories in
+    `ALLERGY_KEYS` order and their note."""
+
+    guest_id: int
+    categories: tuple[str, ...]
+    note: str
 
 
 def _ids(guests: Iterable[GuestFacts]) -> tuple[int, ...]:
@@ -147,6 +162,27 @@ def allergy_category_ids(facts: Iterable[GuestFacts], category: str) -> tuple[in
         for guest in _coming(facts)
         if guest.consent is True and guest.allergy is not None and category in guest.allergy.cats
     )
+
+
+def allergy_list(facts: Iterable[GuestFacts]) -> tuple[AllergyListEntry, ...]:
+    """FR-58, FR-26, AD-18: the allergy list, by guest id: exactly the guests of
+    `allergy_state_ids(facts, HAS_ALLERGIES)`, so consent «Ja» (not withdrawn) is checked by the
+    same rule as Oversikt and the list is as long as its count. A guest without consent never
+    appears, and neither does their note."""
+    facts = tuple(facts)
+    by_id = {guest.guest_id: guest for guest in facts}
+    entries = []
+    for guest_id in allergy_state_ids(facts, HAS_ALLERGIES):
+        allergy = by_id[guest_id].allergy
+        assert allergy is not None  # HAS_ALLERGIES needs a stored entry
+        entries.append(
+            AllergyListEntry(
+                guest_id,
+                tuple(key for key in ALLERGY_KEYS if key in allergy.cats),
+                allergy.note,
+            )
+        )
+    return tuple(entries)
 
 
 def hike_ids(facts: Iterable[GuestFacts], answer: str) -> tuple[int, ...]:

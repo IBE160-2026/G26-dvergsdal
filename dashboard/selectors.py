@@ -6,6 +6,7 @@ answer content, so a guest who has not answered still counts as «ikke svart».
 `household_totals` gives each household's total from `household_total` and the
 current prices; nothing is added up here or stored. `people_behind` and
 `households_behind` (Story 3.3; FR-55) name the people of a count, names only.
+`guest_names` (Story 3.4; FR-57, FR-58) names every guest and household in one query.
 """
 
 from collections.abc import Iterable, Mapping, Sequence
@@ -109,6 +110,7 @@ class Person:
 
     name: str
     household: str
+    household_id: int
 
 
 @dataclass(frozen=True)
@@ -116,6 +118,32 @@ class HouseholdRow:
     """FR-55: one household on a count page, named by its guests."""
 
     names: str
+    household_id: int
+
+
+@dataclass(frozen=True)
+class GuestNames:
+    """FR-57, FR-58: every guest's name by guest id, and every household as the invitation
+    names it by household id."""
+
+    guests: dict[int, str]
+    households: dict[int, str]
+
+
+def guest_names() -> GuestNames:
+    """FR-57, FR-58, AD-4, NFR-2: the names of every guest and household, in one query, in guest
+    id order (the order `household_names` writes them in)."""
+    guests: dict[int, str] = {}
+    members: dict[int, list[str]] = {}
+    for guest_id, name, household_id in Guest.objects.order_by("id").values_list(
+        "id", "name", "household_id"
+    ):
+        guests[guest_id] = name
+        members.setdefault(household_id, []).append(name)
+    return GuestNames(
+        guests,
+        {household_id: household_names(names) for household_id, names in members.items()},
+    )
 
 
 def _household_names(household_ids: Iterable[int]) -> dict[int, str]:
@@ -130,7 +158,7 @@ def _household_names(household_ids: Iterable[int]) -> dict[int, str]:
 
 def people_behind(ids: Sequence[int]) -> tuple[Person, ...]:
     """FR-55, NFR-2: the guests of a count, in the order of `ids`, names only (never allergies,
-    which wait for Story 3.4); two queries however many guests."""
+    which live only on the allergy list); two queries however many guests."""
     if not ids:
         return ()
     guests = {
@@ -140,7 +168,7 @@ def people_behind(ids: Sequence[int]) -> tuple[Person, ...]:
         )
     }
     households = _household_names({household_id for _, household_id in guests.values()})
-    return tuple(Person(guests[id_][0], households[guests[id_][1]]) for id_ in ids)
+    return tuple(Person(guests[id_][0], households[guests[id_][1]], guests[id_][1]) for id_ in ids)
 
 
 def households_behind(ids: Sequence[int]) -> tuple[HouseholdRow, ...]:
@@ -149,4 +177,4 @@ def households_behind(ids: Sequence[int]) -> tuple[HouseholdRow, ...]:
     if not ids:
         return ()
     names = _household_names(ids)
-    return tuple(HouseholdRow(names[id_]) for id_ in ids)
+    return tuple(HouseholdRow(names[id_], id_) for id_ in ids)

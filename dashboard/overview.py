@@ -1,4 +1,4 @@
-"""Oversikt's view model: the Svar panel and the six summary panels (Story 3.2, 3.3).
+"""Oversikt's view model: the Svar panel and the six summary panels (Story 3.2, 3.3, 3.4).
 
 FR-54, FR-55, FR-73, FR-74, UX-DR39, UX-DR40, UX-DR41, AD-2: `build_overview` turns
 the registry of `dashboard.counts` into Norwegian labels and cells. A cell carries
@@ -51,11 +51,13 @@ class Row:
 
 @dataclass(frozen=True)
 class Panel:
-    """A summary panel: its `h2` and its rows, and an optional note under them."""
+    """A summary panel: its `h2` and its rows, an optional note under them and an optional
+    `link` (text, URL name) to a page of its own (Story 3.4; FR-58)."""
 
     title: str
     rows: tuple[Row, ...]
     note: str = ""
+    link: tuple[str, str] | None = None
 
 
 @dataclass(frozen=True)
@@ -150,7 +152,12 @@ def _allergies(counter: _Counter) -> Panel:
         counter.row("Ingen allergier eller matbehov", "allergi-ingen"),
         counter.row("Ingen allergiopplysninger lagret", "allergi-ingen-lagret"),
     ]
-    return Panel("Allergier (med samtykke)", tuple(rows), note="Én person kan ha flere allergier.")
+    return Panel(
+        "Allergier (med samtykke)",
+        tuple(rows),
+        note="Én person kan ha flere allergier.",
+        link=("Se allergilisten", "dashboard:allergies"),
+    )
 
 
 def _hike(counter: _Counter) -> Panel:

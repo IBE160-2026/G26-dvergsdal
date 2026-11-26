@@ -96,7 +96,8 @@ def test_the_frame_is_on_every_admin_page_for_a_logged_in_admin(db):
         assert 'method="post"' in html
         assert 'class="admin-nav__logout">Logg ut</button>' in html
         assert "Svar</a>" not in html
-        for word in ("Gjester", "Betalinger", "Innstillinger"):
+        assert 'href="/admin/gjester/"' in html
+        for word in ("Betalinger", "Innstillinger"):
             assert f">{word}</a>" not in html
     home = admin.get("/admin/").content.decode()
     assert 'href="/admin/" aria-current="page">Oversikt</a>' in " ".join(home.split())

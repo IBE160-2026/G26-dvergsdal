@@ -18,10 +18,12 @@ from dashboard.counts import count_for, payment_statuses
 from dashboard.overview import build_overview
 from dashboard.selectors import (
     guest_facts,
+    guest_names,
     household_totals,
     households_behind,
     people_behind,
 )
+from tests.helpers import SYNNE_UNTIL_7_2
 from wedding.models import Consent, Guest, Household, HouseholdAnswer, PersonAnswer
 from wedding.rules.allergies import HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED, allergy_state
 from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING, household_names
@@ -47,10 +49,6 @@ EXPECTED = tomllib.loads(
         encoding="utf-8"
     )
 )
-# Story 7.2 loads Synne's withdrawn consent. Until then the seed stores her nut allergy, so the
-# app shows one nut allergy, one more `has_allergies` and one fewer `nothing_stored` than
-# expected.toml. Story 7.2 removes this constant and the three additions below.
-SYNNE_UNTIL_7_2 = 1
 
 
 @pytest.fixture
@@ -305,7 +303,8 @@ def test_people_behind_follow_the_ids_and_name_the_household(seeded_with_answers
     for person, id_ in zip(people, ids, strict=True):
         household = Guest.objects.get(id=id_).household
         assert person.household == household_names([g.name for g in household.guests.all()])
-        assert set(vars(person)) == {"name", "household"}
+        assert person.household_id == household.id
+        assert set(vars(person)) == {"name", "household", "household_id"}
 
 
 def test_households_behind_name_every_guest_of_the_household(seeded_with_answers):
@@ -315,6 +314,22 @@ def test_households_behind_name_every_guest_of_the_household(seeded_with_answers
     assert [row.names for row in rows] == [
         household_names([g.name for g in Household.objects.get(id=i).guests.all()]) for i in ids
     ]
+    assert [row.household_id for row in rows] == list(ids)
+
+
+def test_guest_names_name_every_guest_and_household_in_one_query(
+    seeded_with_answers, django_assert_num_queries
+):
+    """FR-57, FR-58, NFR-2: every guest and household, one query, households as the invitation
+    names them."""
+    with django_assert_num_queries(1):
+        names = guest_names()
+
+    assert names.guests == dict(Guest.objects.order_by("id").values_list("id", "name"))
+    for household in Household.objects.all():
+        assert names.households[household.id] == household_names(
+            [g.name for g in household.guests.order_by("id")]
+        )
 
 
 def test_the_names_load_in_a_fixed_number_of_queries(

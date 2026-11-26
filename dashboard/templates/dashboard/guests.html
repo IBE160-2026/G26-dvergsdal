@@ -1,0 +1,37 @@
+{% extends "dashboard/admin_base.html" %}
+{% comment %}
+A4, Gjester (Story 3.4; FR-48, FR-57, UX-DR42, UX-DR49). The count line comes from the view
+model, never from the template. One row per household, households that have not answered
+first; the tag «Ikke svart» is text plus icon, never colour alone (UX-DR17). Each `li` has the
+id `husstand-<household id>`, which the household links on the count pages point to until the
+household page exists (Story 6.3). No allergy text here: it lives only on the allergy list
+(FR-58). The texts are [forslag] (EXPERIENCE › A4).
+{% endcomment %}
+{% block title %}Gjester – Administrasjon{% endblock title %}
+{% block admin_content %}
+    <h1 class="admin-title">Gjester</h1>
+    <p class="guest-summary">{{ guest_list.summary }}</p>
+    <p class="count-back-line">
+        <a class="count-back" href="{% url 'dashboard:allergies' %}">Allergilisten</a>
+    </p>
+    <section class="admin-panel" aria-label="Husstander">
+        {% if guest_list.rows %}
+            <ul class="guest-list">
+                {% for row in guest_list.rows %}
+                    <li id="husstand-{{ row.household_id }}">
+                        <span class="guest-list__names">{{ row.names }}</span>
+                        {% if not row.answered %}
+                            <span class="status-tag">
+                                {% include "wedding/components/state-icon.html" with variant="warning" class="status-tag__icon" only %}
+                                Ikke svart
+                            </span>
+                        {% endif %}
+                        <span class="guest-list__line">{{ row.line }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Ingen husstander ennå.</p>
+        {% endif %}
+    </section>
+{% endblock admin_content %}
