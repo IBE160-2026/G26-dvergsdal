@@ -2,7 +2,8 @@
 title: 'Story 3.4: The overview of every household and the allergy list'
 type: 'feature'
 created: '2026-11-27'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: 'c1d26cf692fbf8047a3181db56230752fc72b847'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -10,7 +11,23 @@ context:
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md'
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md'
 warnings: [multiple-goals, oversized]
-deferred: []
+deferred:
+- summary: >-
+    No `:target` highlight when a household link lands on a Gjester row, and the «Allergilisten» link on Gjester reuses the `count-back` class of the back link.
+  reason: >-
+    Visual polish; goes to the Impeccable polish story before the usability test (epic 2 retro item 11).
+- summary: >-
+    The allergy list has no print view, sort by name or export for Hardingasete.
+  reason: >-
+    The list shows the right people with consent; how it reaches the caterer is decided in Epic 7.
+- summary: >-
+    A household with no guests is missing from Gjester, and Story 6.3 must repoint the `husstand-<id>` links to the household page A6.
+  reason: >-
+    No flow creates a guest-less household yet; Story 6.3 builds A6 and the add-household flow.
+- summary: >-
+    The README status paragraph keeps growing with every story.
+  reason: >-
+    Already deferred in 3.2 and 3.3; shorten at the next README pass.
 ---
 
 <intent-contract>
@@ -98,6 +115,30 @@ Each group is one commit of about 600 changed lines or fewer (`epic-2-retro-item
 
 ## Review Triage Log
 
+### 2026-11-27 — Review pass
+- verdicts: 20 findings — high 0, medium 2, low 15, false 3, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` The allergy list marks «Gjester» as the open page (`aria-current="page"`) while the user is on `/admin/allergier/` (blind; seen in Edge in MT-82) — the page passes no current nav item, the test asserts none is marked, and MT-82 says so.
+  - `[medium]` `[patch]` Name, categories and note on the allergy list are sibling spans read as one run-on string by a screen reader (blind) — visually hidden separators, as the count page does.
+  - `[low]` `[patch]` `test_admin_guests_page.py` and `test_admin_allergy_page.py` repeat the create-a-couple setup and write the password out although `PASSWORD` is in `tests/helpers.py` (blind) — one shared helper.
+  - `[low]` `[defer]` No `:target` highlight when a household link lands on a Gjester row (blind, edge-case) — polish story with Impeccable (retro item 11).
+  - `[low]` `[defer]` «Allergilisten» on Gjester reuses the `count-back` class of the back link (blind) — own class at the polish pass.
+  - `[low]` `[defer]` The allergy list has no print view, sort by name or export for Hardingasete (blind) — Story 7.x decides how the list reaches the caterer.
+  - `[low]` `[defer]` A household with no guests is missing from Gjester, and Story 6.3 must repoint the `husstand-<id>` links to A6 (blind, edge-case) — recorded for Story 6.3.
+  - `[low]` `[reject]` `answered` is read from the household's first guest (blind, edge-case) — the answer is sent per household, so all guests share the state; `household_totals` uses the same rule.
+  - `[low]` `[reject]` `assert allergy is not None` in `allergy_list` (blind) — type narrowing for a state `HAS_ALLERGIES` already excludes.
+  - `[low]` `[reject]` `guest_facts()` and `guest_names()` are two queries, so an id could vanish in between (edge-case) — same reasoning as 3.3: nothing deletes guests while the couple browses.
+  - `[low]` `[reject]` A listed guest with no categories and no note shows only a name (edge-case) — consent «Ja» is stored with categories; no way to reach the state was found.
+  - `[low]` `[reject]` `.guest-list` and `.allergy-list` use `list-style: none`, so some screen readers drop the list role (blind) — the count pages use the same pattern and MT-83 showed the order; check in the polish audit.
+  - `[low]` `[reject]` A3 link to a household missing from Gjester (edge-case) — both pages read the same facts.
+  - `[low]` `[reject]` Test robustness: `Guest.objects.get(name)`, empty-database tests with no Settings row, coming-name order (edge-case, claim) — the test data has unique names, `form_prices()` has defaults, and the order is guest id in both places.
+  - `[low]` `[reject]` README status paragraph grows again (blind) — already deferred in 3.2 and 3.3.
+  - `[low]` `[reject]` Commit-size claim cannot be confirmed from the diff (edge-case) — checked with `git show --stat`: no feature commit above about 600 lines.
+  - `[low]` `[reject]` «Visible labels» at 360px: Gjester rows have no per-field labels (intent-alignment) — EXPERIENCE A4 defines the row as name, tag and one line; the line carries «Kommer:» and «Totalt».
+  - `[false]` `[reject]` MT-79 to MT-84 unrun, story `done` in sprint-status while the spec is `in-review`, spec uncommitted (blind, intent-alignment) — run by Claude with Playwright after review and recorded; status is set in the finalize step.
+  - `[false]` `[reject]` No session log and deferred-work lacks the follow-ups (blind) — steps 11 and 14 of the runner.
+  - `[false]` `[reject]` Verification gaps (verification-gap) — none reported.
+
 ## Design Notes
 
 - **Why a new rule, not a selector.** The consent check must be the one Oversikt already uses (AD-18), so `allergy_list` wraps `allergy_state_ids`; the list length equals the «Har allergier eller matbehov» count by construction, and a test pins it.
@@ -117,3 +158,22 @@ Each group is one commit of about 600 changed lines or fewer (`epic-2-retro-item
 
 **Manual checks (orchestrator, Playwright against Edge, MT-79 onwards):**
 - Gjester and the allergy list on the seed data, numbers read from the page and `expected.toml`; logged out denied; helper view; keyboard only; 360 and 180px; 20px text: see the MT task above.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** The couple (and a helper, read-only) now have Gjester at `/admin/gjester/` (A4): «7 husstander · 14 gjester» on the test data, one row per household with the not-answered household first and tagged «Ikke svart» (icon plus text), and a line with who comes and the total. The allergy list at `/admin/allergier/` (A5) shows name, categories and note of the guests whose allergy data is stored with consent, from one new rule `allergy_list` built on `allergy_state_ids`, so its length equals Oversikt's count. «Se hva alle har svart» and a new «Se allergilisten» link on Oversikt, the nav «Gjester», and household names on the count pages now have addresses; household links point at the Gjester row (`#husstand-<id>`) because A6 is Story 6.3 (recorded in epics, EXPERIENCE and deferred-work).
+
+**Files changed:**
+- `wedding/rules/summary.py` (`allergy_list`), `dashboard/guest_list.py` (new), `selectors.py`, `views.py`, `urls.py`, `navigation.py`, `overview.py`, templates `guests.html`, `allergies.html`, `count.html`, `overview/_panel.html`, `static/css/site.css`.
+- `tests/helpers.py` (shared helpers), `test_summary_rules.py`, `test_guest_list.py`, `test_admin_guests_page.py`, `test_admin_allergy_page.py`, `test_overview.py`, `test_admin_count_page.py`, `test_admin_overview.py`, `test_admin_routing.py`.
+- `README.md`, `epics.md`, `DESIGN.md`, `EXPERIENCE.md`, `deferred-work.md`, `docs/manual-test-plan.md` (MT-79 to MT-84).
+
+**Review:** 20 findings from four layers: 3 patched (allergy list marked Gjester as the open nav page; name, categories and note read as one string by a screen reader; duplicated test setup with a written-out password), 4 deferred, 13 rejected with reasons.
+
+**Follow-up review recommendation:** false. No high finding; the patches were markup, view-argument and test changes re-verified in Edge.
+
+**Verification:** `uv run pytest` 1610 passed; ruff, ruff format and djlint clean; MT-79 to MT-84 run by Claude with Playwright in Edge: counts equal `expected.toml`, 14 household links each landing on the right row, logged-out redirect, helper view, keyboard-only through four links, 360 and 180 px at 18 and 22.5 px with no overflow and every link at least 44 px.
+
+**Residual risks:** Synne's nut allergy stays on the list until Story 7.2 loads her withdrawal (named offset in the tests); household links will change target when A6 is built (Story 6.3).

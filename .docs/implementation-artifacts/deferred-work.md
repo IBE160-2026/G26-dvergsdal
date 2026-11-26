@@ -389,3 +389,18 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
   summary: The README status paragraph keeps growing with every story.
   evidence: Blind Hunter in the 3.3 review (also 3.2).
   status: open (next README pass).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-4-the-overview-of-every-household-and-the-allergy-list.md`
+  summary: No `:target` highlight when a household link lands on a Gjester row; «Allergilisten» on Gjester reuses the `count-back` class of the back link.
+  evidence: Blind Hunter and Edge Case Hunter in the 3.4 review.
+  status: open (Impeccable polish story, epic 2 retro item 11).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-4-the-overview-of-every-household-and-the-allergy-list.md`
+  summary: The allergy list has no print view, sort by name or export for Hardingasete.
+  evidence: Blind Hunter in the 3.4 review; the list is in guest id order.
+  status: open (Epic 7 decides how the list reaches the caterer).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-4-the-overview-of-every-household-and-the-allergy-list.md`
+  summary: A household with no guests is missing from Gjester; Story 6.3 must also repoint the `husstand-<id>` links to A6.
+  evidence: Edge Case Hunter and Blind Hunter in the 3.4 review.
+  status: open (Story 6.3).
