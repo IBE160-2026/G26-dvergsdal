@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-16-2026 13:02
-last_updated: 2026-11-26
+last_updated: 11-26-2026 18:00
 project: AI'll handle it
 project_key: NOKEY
 tracking_system: file-system
@@ -48,7 +48,7 @@ development_status:
   1-8-error-pages-that-still-show-how-to-reach-the-couple: done
   epic-1-retrospective: done
 
-  epic-2: in-progress
+  epic-2: done
   2-1-start-the-answer-who-is-coming: done
   2-2-which-days-each-person-comes: done
   2-3-overnight-stay-meals-and-the-running-total: done
@@ -61,7 +61,7 @@ development_status:
   2-7-the-receipt-and-how-to-pay: done
   2-8-the-household-s-status-on-the-invitation: done
   2-9-an-interrupted-answer-is-kept-on-the-phone: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
 
   epic-3: backlog
   3-1-the-couple-logs-in: backlog
@@ -146,7 +146,8 @@ action_items:
     epic: 1
     action: "Later-story fixes routed in deferred-work.md: require_safe and Cache-Control
       on guest pages (2.1), seed must not overwrite real Settings plus error-path
-      tests (2.6d), phone without digit (4.5), pin runserver_nostatic; 2.6d part done 2026-11-25"
+      tests (2.6d), phone without digit (4.5), pin runserver_nostatic; 2.6d part done
+      2026-11-25"
     owner: "Claude, named stories"
     status: open
     ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
@@ -173,3 +174,35 @@ action_items:
     owner: "Claude, Rikke reviews"
     status: open
     ref: ".docs/implementation-artifacts/epic-1-retro-2026-11-21.md"
+  - id: "epic-2-retro-item-9-rikke-before-the-usability-test-test-the"
+    epic: 2
+    action: "Rikke: before the usability test, test the draft offer in Messenger on
+      a phone, hear Kopiert and the error summary in NVDA or VoiceOver, run the form
+      on an iPhone, read the [forslag] wording in EXPERIENCE.md and DESIGN.md, and
+      run MT-1 (1.4b)"
+    owner: "Rikke"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-2-retro-2026-11-26.md"
+  - id: "epic-2-retro-item-10-story-4-4-split-wedding-rsvp-views-py-15"
+    epic: 2
+    action: "Story 4.4: split wedding/rsvp/views.py (1528 lines) and move the answer
+      views out of guests/views.py (600 lines) before the couples mount"
+    owner: "Claude, Story 4.4"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-2-retro-2026-11-26.md"
+  - id: "epic-2-retro-item-11-polish-story-before-the-usability-test-i"
+    epic: 2
+    action: "Polish story before the usability test: Impeccable critique and audit
+      on the guest pages, convert the three px breakpoints in site.css to em, map
+      raw px to tokens"
+    owner: "Claude, Rikke reviews"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-2-retro-2026-11-26.md"
+  - id: "epic-2-retro-item-12-runner-process-for-epic-3-split-the-firs"
+    epic: 2
+    action: "Runner process for Epic 3: split the first feature commit of a story
+      (rule, view, template, tests) so no commit exceeds about 600 changed lines;
+      keep the triage comment and Spec Change Log"
+    owner: "Claude"
+    status: open
+    ref: ".docs/implementation-artifacts/epic-2-retro-2026-11-26.md"
