@@ -1979,6 +1979,14 @@ a:active {
   font-style: italic;
 }
 
+/* UX-DR41, FR-57, FR-58 (Story 3.4): a link in a note is a 44px target and stays underlined. */
+.overview-note a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-target-min);
+  font-style: normal;
+}
+
 /* UX-DR41, FR-55 (Story 3.3): a count above 0 is a link to its page. It keeps the global
  * underline (not colour alone), is 44px tall and wraps like the plain text beside it. */
 .overview-row a {
@@ -2017,6 +2025,12 @@ a:active {
 
 .count-list li:first-child {
   border-top: 0;
+}
+
+.count-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--space-target-min);
 }
 
 .count-list__name {

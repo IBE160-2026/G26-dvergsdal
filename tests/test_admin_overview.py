@@ -47,7 +47,7 @@ def test_the_svar_panel_and_the_six_panels_come_in_order(couple_page):
 
 def test_the_svar_panel_has_the_line_a_decorative_bar_and_the_rows(couple_page):
     """FR-48, UX-DR39: «Svart: X av Y husstander» from expected.toml, `aria-hidden` bar,
-    the three rows and «Se hva alle har svart» as plain text."""
+    the three rows and «Se hva alle har svart» as a link to Gjester (Story 3.4)."""
     households = EXPECTED["counts"]["households"]
     people = EXPECTED["counts"]["people"]
     svar = sections_of(main_html(couple_page))[0][1]
@@ -61,7 +61,20 @@ def test_the_svar_panel_has_the_line_a_decorative_bar_and_the_rows(couple_page):
     )
     assert f"Ikke svart ennå {people['not_answered']} personer" in text
     assert "Se hva alle har svart" in text
-    assert "Se hva alle har svart" not in " ".join(re.findall(r"<a\b[^>]*>(.*?)</a>", svar))
+    assert '<a href="/admin/gjester/">Se hva alle har svart</a>' in " ".join(svar.split())
+
+
+def test_the_allergy_panel_links_to_the_allergy_list(couple_page):
+    """FR-58, UX-DR40 (Story 3.4): «Se allergilisten» in the Allergier panel only."""
+    panels = dict(zip(PANELS, sections_of(main_html(couple_page)), strict=True))
+    link = '<a href="/admin/allergier/">Se allergilisten</a>'
+
+    assert link in " ".join(panels["Allergier (med samtykke)"][1].split())
+    assert all(
+        link not in " ".join(body.split())
+        for title, (_, body) in panels.items()
+        if title != "Allergier (med samtykke)"
+    )
 
 
 def count_cells(main):
@@ -74,9 +87,13 @@ def count_cells(main):
 
 def test_counts_above_zero_are_links_and_zero_is_plain_text(couple_page):
     """UX-DR41, FR-55: a number above 0 is one link to its page with an `aria-label` that
-    starts with the row label; a 0 has no `a`; no other link is new in `main`."""
+    starts with the row label; a 0 has no `a`; the only other links are those of Story 3.4."""
     main = main_html(couple_page)
-    links = re.findall(r"<a\b([^>]*)>(.*?)</a>", main, re.DOTALL)
+    links = [
+        (attrs, text)
+        for attrs, text in re.findall(r"<a\b([^>]*)>(.*?)</a>", main, re.DOTALL)
+        if "/admin/tall/" in attrs
+    ]
 
     assert links
     row_labels = {label for _, label in count_cells(main)}

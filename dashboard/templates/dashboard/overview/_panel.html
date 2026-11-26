@@ -1,7 +1,8 @@
 {% comment %}
 One summary panel (Story 3.2; FR-54, UX-DR40): an `h2` and rows as `dl` pairs of label
 and cells, which wrap so they need no width at 180px. A count above 0 is a link to its page
-(Story 3.3; FR-55, UX-DR41), a 0 is plain text. `panel.note` is an optional line under the rows.
+(Story 3.3; FR-55, UX-DR41), a 0 is plain text. `panel.note` is an optional line under the rows,
+`panel.link` an optional link to a page of its own, the allergy list (Story 3.4; FR-58).
 {% endcomment %}
 <section class="admin-panel" aria-labelledby="panel-{{ forloop.counter }}">
     <h2 class="admin-heading" id="panel-{{ forloop.counter }}">{{ panel.title }}</h2>
@@ -16,4 +17,9 @@ and cells, which wrap so they need no width at 180px. A count above 0 is a link 
         {% endfor %}
     </dl>
     {% if panel.note %}<p class="overview-note">{{ panel.note }}</p>{% endif %}
+    {% if panel.link %}
+        <p class="overview-note">
+            <a href="{% url panel.link.1 %}">{{ panel.link.0 }}</a>
+        </p>
+    {% endif %}
 </section>

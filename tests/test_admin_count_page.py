@@ -168,3 +168,44 @@ def test_oversikt_is_the_open_page_in_the_nav(couple):
 
 def test_the_page_answers_only_get(couple):
     assert couple.post("/admin/tall/kommer-personer/").status_code == 405
+
+
+def household_links(html):
+    """Every link to a row on Gjester in the page's list: (href, link text)."""
+    return re.findall(
+        r'<a [^>]*href="(/admin/gjester/#husstand-\d+)"[^>]*>(.*?)</a>', main_html(html), re.DOTALL
+    )
+
+
+def test_each_household_link_lands_on_its_row_on_gjester(couple):
+    """FR-55, FR-57, UX-DR41 (Story 3.4): the names of every household on A3 link to the Gjester
+    row with that household's id and names."""
+    html = page(couple, "kommer-husstander").content.decode()
+    links = household_links(html)
+
+    assert len(links) == EXPECTED["households"]["coming"]
+    for href, text in links:
+        path, anchor = href.split("#")
+        gjester = couple.get(path).content.decode()
+        row = re.search(rf'<li id="{anchor}">(.*?)</li>', gjester, re.DOTALL)
+        assert row, href
+        assert page_text(text) in page_text(row.group(1))
+
+
+def test_a_person_keeps_their_name_as_text_and_the_household_is_the_link(couple):
+    """FR-55, UX-DR41: on a people page the name is text and the household names are the link."""
+    html = page(couple, "kommer-personer").content.decode()
+    links = household_links(html)
+
+    assert len(links) == len(items(html))
+    for item in items(html):
+        name = re.search(r'<span class="count-list__name">(.*?)</span>', item).group(1)
+        assert "<a" not in name
+        assert 'class="count-list__household"' in item
+
+
+def test_a_zero_count_has_no_household_link(couple):
+    """UX-DR41: an empty list has no link to a household."""
+    html = page(couple, "betaling-delbetalt").content.decode()
+
+    assert household_links(html) == []
