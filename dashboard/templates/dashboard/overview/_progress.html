@@ -15,7 +15,7 @@ its address, so there is no dead link.
             <div class="overview-row">
                 <dt>{{ row.label }}</dt>
                 <dd>
-                    {{ row.text }}
+                    {% include "dashboard/overview/_cells.html" %}
                 </dd>
             </div>
         {% endfor %}

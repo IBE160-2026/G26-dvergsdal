@@ -1,0 +1,9 @@
+{% comment %}
+The count cells of one row (Story 3.3; FR-55, UX-DR41), shared by the Svar panel and the
+summary panels. Above 0 a cell is the one link to its page: the visible text is the count and
+the `aria-label` starts with the row label («Kommer: 9 personer»), so a speech-control user
+can say what they see (WCAG 2.5.3). 0 is plain text: a link to an empty list would be dead.
+Everything stands on one line so no stray space comes between a cell and the separator.
+{% endcomment %}
+{% for cell in row.cells %}{% if cell.count %}<a href="{% url 'dashboard:count' cell.slug %}"
+                                                 aria-label="{{ row.label }}: {{ cell.text }}">{{ cell.text }}</a>{% else %}{{ cell.text }}{% endif %}{% if not forloop.last %}{{ row.separator }}{% endif %}{% endfor %}
