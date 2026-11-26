@@ -15,6 +15,7 @@ holds with no offset. The seed alone differs by exactly her nut allergy until St
 """
 
 import inspect
+import re
 import tomllib
 
 import pytest
@@ -26,6 +27,9 @@ from tests.helpers import (
     FIXTURES,
     SYNNE_UNTIL_7_2,
     load_expected,
+    log_in_as,
+    main_html,
+    page_text,
 )
 from wedding.models import Guest
 from wedding.rules import allergies, households, summary
@@ -228,3 +232,122 @@ def test_the_seed_alone_differs_from_expected_only_by_synne_until_7_2(seeded_wit
     }
     assert sum(actual[slug] for slug in UNLISTED_DAYS) == unlisted_expected()
     assert guest_id("synne") in allergy_state_ids(facts, HAS_ALLERGIES)
+
+
+@pytest.fixture
+def couple(seeded_with_synne_withdrawal):
+    """FR-46: the couple's logged-in client, the seed data and Synne's withdrawal loaded."""
+    return log_in_as("testpar")
+
+
+def test_oversikt_shows_every_expected_number(couple):
+    """FR-54, FR-74, UX-DR41: «Svart: X av Y husstander», and each count's number read from the
+    link to its page; a zero has no link at all (it is plain text)."""
+    main = main_html(couple.get("/admin/").content.decode())
+    expected = EXPECTED["counts"]["households"]
+
+    assert f"Svart: {expected['answered']} av {expected['total']} husstander" in page_text(main)
+    for slug in listed_slugs():
+        links = re.findall(rf'<a\b[^>]*href="/admin/tall/{slug}/"[^>]*>(.*?)</a>', main, re.DOTALL)
+        number = expected_for(slug) if slug not in UNLISTED_DAYS else 0
+        if number:
+            assert [page_text(link).split()[0] for link in links] == [str(number)], slug
+        else:
+            assert links == [], slug
+
+
+def test_every_count_page_lists_as_many_people_as_expected(couple):
+    """FR-55, AD-2: `/admin/tall/<slug>/` has one `li` per person or household, as many as the
+    expected number, for every count above 0."""
+    for slug in listed_slugs():
+        number = 0 if slug in UNLISTED_DAYS else expected_for(slug)
+        if number:
+            html = couple.get(f"/admin/tall/{slug}/").content.decode()
+            assert len(re.findall(r"<li>", main_html(html))) == number, slug
+
+
+def test_gjester_shows_the_counts_and_every_total(couple):
+    """FR-33, FR-57: «N husstander · M gjester» and each household's «Totalt» from the list."""
+    html = couple.get("/admin/gjester/").content.decode()
+    main = main_html(html)
+    households_total = EXPECTED["counts"]["households"]["total"]
+    guests_total = sum(EXPECTED["counts"]["people"].values())
+
+    assert f"{households_total} husstander · {guests_total} gjester" in page_text(main)
+    rows = dict(re.findall(r'<li id="husstand-(\d+)">(.*?)</li>', main, re.DOTALL))
+    assert len(rows) == households_total
+    for key, expected in EXPECTED["households"].items():
+        text = page_text(rows[str(household_id(key))]).replace("\N{NO-BREAK SPACE}", " ")
+        state = household_state_of(key)
+        if state == COMING:
+            assert f"Totalt {expected['total']:,} kr".replace(",", " ") in text, key
+        else:
+            assert "Totalt" not in text, key
+
+
+def test_the_allergy_list_names_exactly_the_guests_with_allergies(couple):
+    """FR-58, FR-26, AD-18: one `li` per guest in `has_allergies`, their names, and no name from
+    `nothing_stored` or `no_allergies`."""
+    main = main_html(couple.get("/admin/allergier/").content.decode())
+    shown = re.findall(r'class="allergy-list__name">([^<]*)<', main)
+    named = {
+        state: {Guest.objects.get(id=guest_id(key)).name for key in guests}
+        for state in ALLERGY_STATES
+        if (guests := [k for k, g in EXPECTED["guests"].items() if g.get("allergy_state") == state])
+    }
+
+    assert len(re.findall(r"<li>", main)) == EXPECTED["counts"]["allergy_states"][HAS_ALLERGIES]
+    assert sorted(shown) == sorted(named[HAS_ALLERGIES])
+    assert not set(shown) & (named[NOTHING_STORED] | named[NO_ALLERGIES])
+
+
+def seed_statuses():
+    """Each seed guest's status as seed.toml says it: coming true or false, or no answer."""
+    return {
+        guest["key"]: {True: COMING, False: NOT_COMING, None: NOT_ANSWERED}[guest.get("coming")]
+        for household in SEED["households"]
+        for guest in household["guests"]
+    }
+
+
+def test_expected_toml_names_the_guests_and_households_of_the_seed():
+    """FR-68, FR-69, AD-16: same guest and household keys, and each guest's status agrees with
+    the seed's `coming`. The failing assert names the missing or extra key."""
+    seed_households = {household["key"] for household in SEED["households"]}
+
+    assert set(EXPECTED["guests"]) == set(seed_statuses())
+    assert set(EXPECTED["households"]) == seed_households
+    for key, status in seed_statuses().items():
+        assert EXPECTED["guests"][key]["status"] == status, key
+
+
+def test_expected_toml_adds_up():
+    """FR-54, FR-74, AD-18: the list agrees with itself, so a careless edit shows. The failing
+    assert names the sum."""
+    counts_ = EXPECTED["counts"]
+    people, days, overnight = counts_["people"], counts_["days"], counts_["overnight"]
+    states, houses = counts_["allergy_states"], counts_["households"]
+    coming = people[COMING]
+
+    assert sum(people.values()) == len(seed_statuses()), "people per state"
+    assert coming == sum(states.values()), "coming = the three allergy states"
+    assert days["whole_weekend"] + days["not_whole_weekend"] == coming, "days"
+    assert overnight["beds"] + overnight["not_staying"] == coming, "beds"
+    assert days["sat_sun"] + days["sat"] + days["fri_sat"] == days["not_whole_weekend"], "breakdown"
+    assert houses[COMING] + houses[NOT_COMING] == houses["answered"], "answered households"
+    assert houses["answered"] + houses[NOT_ANSWERED] == houses["total"], "households"
+    assert houses["total"] == len(EXPECTED["households"]), "household entries"
+    assert all(n <= states[HAS_ALLERGIES] for n in counts_["allergy_categories"].values())
+
+
+def test_expected_toml_has_no_section_this_module_leaves_unread():
+    """FR-69, SM-2: a new section or key in expected.toml fails until someone decides whether a
+    test reads it. Left out: the payment counts and report matches (Story 5.3) and the lock
+    (Story 4.3)."""
+    assert set(EXPECTED) == {"counts", "households", "guests"} | LEFT_OUT_TOP
+    assert (
+        set(EXPECTED["counts"])
+        == {section for section, _ in PLACES.values()} | {"households"} | LEFT_OUT_COUNTS
+    )
+    for key, household in EXPECTED["households"].items():
+        assert set(household) - LEFT_OUT_HOUSEHOLD_KEYS == {"total"}, key
