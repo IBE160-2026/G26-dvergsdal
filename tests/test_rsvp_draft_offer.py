@@ -90,6 +90,18 @@ def test_the_front_page_shows_the_notice_above_the_button(client, seeded):
     assert not response.cookies
 
 
+def test_the_notice_survives_a_removed_member(client, seeded):
+    """FR-78, AD-8 (Story 2.9): a draft naming Geir, then Geir deleted: the
+    draft is cleaned, not broken, so the front page shows the notice and does
+    not delete `rsvp_draft`."""
+    geir = _ids(MONA)[1]
+    _with_draft(client, _payload(resp=geir, cons={str(geir): True}, conf=[geir]))
+    Guest.objects.filter(code=GEIR).delete()
+    response = client.get(FRONT)
+    assert NOTICE in response.content.decode()
+    assert COOKIE_NAME not in response.cookies
+
+
 def test_no_draft_no_notice(client, seeded):
     """FR-78: without the cookie, no notice, and step 1 is shown as before."""
     assert NOTICE not in client.get(FRONT).content.decode()

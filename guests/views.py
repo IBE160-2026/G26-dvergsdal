@@ -456,6 +456,7 @@ def rsvp_total(request: HttpRequest, code: str) -> HttpResponse:
         return HttpResponse(status=204)
     return render_total(
         request,
+        actor=actor,
         members=household_members(actor.household),
         slug=request.GET.get("steg", ""),
         prices=form_prices(settings),

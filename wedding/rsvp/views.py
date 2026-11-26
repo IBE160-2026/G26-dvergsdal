@@ -1508,7 +1508,7 @@ def render_after_csrf_failure(
 
 
 def render_total(
-    request: HttpRequest, *, members: Members, slug: str, prices: Prices
+    request: HttpRequest, *, actor: Actor, members: Members, slug: str, prices: Prices
 ) -> HttpResponse:
     """AD-7, FR-33, NFR-2: the running total for `POST <base>/sum/?steg=<slug>`.
 
@@ -1521,7 +1521,7 @@ def render_total(
     «Fortsett» or «Velg». The mount's view checks the code and the deadline.
     """
     step = KEY_BY_SLUG.get(slug)
-    draft = read_draft(request, _member_ids(members), members[0][0]).draft
+    draft = read_draft(request, _member_ids(members), _owner(actor, members)).draft
     if step not in PAID_STEPS or draft is None or "who" not in draft.done:
         return HttpResponse(status=204)
     merged = _with_posted(request, draft, members, step)

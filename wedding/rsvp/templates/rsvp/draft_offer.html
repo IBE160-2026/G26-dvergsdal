@@ -7,7 +7,7 @@ paper sheet on the green page, like a form step, with no nav bar and the
 footer band kept: the question as the `h1`, when the answer was started
 (Oslo time, without the year, as in the mockup) and one POST form with
 «Ja, fortsett» (primary) above «Nei, begynn på nytt» (secondary), full width.
-No script and no hidden fields: the buttons' `action` is the only thing
+No script and no hidden fields besides the CSRF token: the buttons' `action` is the only thing
 posted, and the draft is written only by that POST (AD-8).
 {% endcomment %}
 {% block title %}Vil du fortsette der du slapp? – Invitasjon{% endblock title %}
