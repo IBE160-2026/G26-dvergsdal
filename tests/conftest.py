@@ -7,10 +7,12 @@ docs recommend; it is never used outside the tests.
 `production_urls` rebuilds the URLconf as production sees it (Story 1.4a and 1.4b).
 `assert_loads_only_own_host` checks that a page names no other site (Story 1.4c).
 `local_env` and `seeded` give the examiner's machine and the seeded test data
-(Story 1.5); `seeded_with_answers` keeps the answers the seed sends (Story 2.6d).
+(Story 1.5); `seeded_with_answers` keeps the answers the seed sends (Story 2.6d);
+`seeded_with_synne_withdrawal` adds Synne's withdrawal for the expected-results tests (Story 3.5).
 Plain helpers that tests import are in tests/helpers.py.
 """
 
+import datetime
 import importlib
 import re
 from collections.abc import Callable
@@ -23,7 +25,15 @@ from django.urls import clear_url_caches
 
 import config.urls
 import guests.urls
-from wedding.models import Allergy, Consent, Household, HouseholdAnswer, PersonAnswer, Submission
+from wedding.models import (
+    Allergy,
+    Consent,
+    Guest,
+    Household,
+    HouseholdAnswer,
+    PersonAnswer,
+    Submission,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -42,6 +52,24 @@ def seeded_with_answers(local_env, db):
     """FR-68, AD-16: the fictional test data from seed.toml, loaded through the seed
     command, with the answers, allergies and consents it sends (Story 2.6d)."""
     call_command("seed_testdata", stdout=StringIO())
+
+
+@pytest.fixture
+def seeded_with_synne_withdrawal(seeded_with_answers):
+    """FR-26, FR-30, AD-18: Synne withdraws her consent the day after she gave it, through the
+    same `Consent` model the loader reads, so every number of expected.toml holds with no offset
+    (Story 3.5). The seed does not load the withdrawal until Story 7.2; that story deletes this
+    fixture, `test_the_seed_alone_differs_from_expected_only_by_synne_until_7_2` and
+    `SYNNE_UNTIL_7_2`."""
+    given = Consent.objects.filter(guest__name="Synne", event=Consent.GIVEN).latest("at")
+    Consent.objects.create(
+        guest=Guest.objects.get(name="Synne"),
+        event=Consent.WITHDRAWN,
+        at=given.at + datetime.timedelta(days=1),
+        given_by=given.given_by,
+        given_by_name="Synne",
+        text_version=given.text_version,
+    )
 
 
 @pytest.fixture

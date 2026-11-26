@@ -21,24 +21,14 @@ from dashboard.selectors import (
     households_behind,
     people_behind,
 )
-from tests.helpers import SYNNE_UNTIL_7_2, load_expected
+from tests.helpers import load_expected
 from wedding.models import Consent, Guest, Household, HouseholdAnswer, PersonAnswer
-from wedding.rules.allergies import HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED, allergy_state
-from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING, household_names
+from wedding.rules.allergies import HAS_ALLERGIES, NOTHING_STORED, allergy_state
+from wedding.rules.households import COMING, NOT_ANSWERED, household_names
 from wedding.rules.money import household_total
 from wedding.rules.summary import (
     GuestFacts,
-    allergy_category_ids,
-    allergy_state_ids,
-    beds,
-    days_only,
-    hike_ids,
-    households_by_state,
-    meal_eaters,
-    not_staying,
-    not_whole_weekend,
     people_by_state,
-    whole_weekend,
 )
 from wedding.selectors import form_prices, sent_answer
 
@@ -57,67 +47,6 @@ def rows_of(panel):
 def guest_id(key):
     """The id of the seed guest `key` (the name, lower case in expected.toml)."""
     return next(g.id for g in Guest.objects.all() if g.name.lower() == key)
-
-
-def test_counts_equal_expected_toml(facts):
-    """FR-54, FR-74, AD-2: people and households per state are the lengths of the rule tuples."""
-    expected = EXPECTED["counts"]
-    for state in (COMING, NOT_COMING, NOT_ANSWERED):
-        assert len(people_by_state(facts, state)) == expected["people"][state]
-        assert len(households_by_state(facts, state)) == expected["households"][state]
-    days = expected["days"]
-    assert len(whole_weekend(facts)) == days["whole_weekend"]
-    assert len(not_whole_weekend(facts)) == days["not_whole_weekend"]
-    assert len(days_only(facts, ("sat", "sun"))) == days["sat_sun"]
-    assert len(days_only(facts, ("sat",))) == days["sat"]
-    assert len(days_only(facts, ("fri", "sat"))) == days["fri_sat"]
-    assert len(not_staying(facts)) == expected["overnight"]["not_staying"]
-    assert len(beds(facts)) == expected["overnight"]["beds"]
-    for meal, count in expected["meals"].items():
-        assert len(meal_eaters(facts, meal)) == count, meal
-    for answer, count in expected["hike"].items():
-        assert len(hike_ids(facts, answer)) == count, answer
-
-
-def test_allergies_equal_expected_toml_except_synne_until_7_2(facts):
-    """FR-54, AD-18: categories and states equal the list, with Synne's offset named."""
-    categories = EXPECTED["counts"]["allergy_categories"]
-    for category, count in categories.items():
-        offset = SYNNE_UNTIL_7_2 if category == "nuts" else 0
-        assert len(allergy_category_ids(facts, category)) == count + offset, category
-    states = EXPECTED["counts"]["allergy_states"]
-    assert len(allergy_state_ids(facts, HAS_ALLERGIES)) == states["has_allergies"] + SYNNE_UNTIL_7_2
-    assert len(allergy_state_ids(facts, NO_ALLERGIES)) == states["no_allergies"]
-    assert (
-        len(allergy_state_ids(facts, NOTHING_STORED)) == states["nothing_stored"] - SYNNE_UNTIL_7_2
-    )
-
-
-def test_every_coming_guest_has_exactly_one_allergy_state_as_expected(facts):
-    """AD-18: each coming guest is in one state list, the one expected.toml names (Synne aside)."""
-    for key, expected in EXPECTED["guests"].items():
-        if expected["status"] != "coming" or key == "synne":
-            continue
-        found = [
-            state
-            for state in (HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED)
-            if guest_id(key) in allergy_state_ids(facts, state)
-        ]
-        assert found == [expected["allergy_state"]], key
-    synne = [
-        state
-        for state in (HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED)
-        if guest_id("synne") in allergy_state_ids(facts, state)
-    ]
-    assert len(synne) == 1
-
-
-def test_household_totals_equal_expected_toml(facts):
-    """FR-33, AD-12: each household's total is `household_total` of its sent answer."""
-    totals = household_totals(facts, form_prices())
-    for key, expected in EXPECTED["households"].items():
-        household = Guest.objects.get(id=guest_id(key)).household_id
-        assert totals[household] == expected["total"], key
 
 
 def test_overview_panels_equal_expected_toml(facts):
