@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-16-2026 13:02
-last_updated: 11-27-2026 12:00
+last_updated: 11-27-2026 15:00
 project: AI'll handle it
 project_key: NOKEY
 tracking_system: file-system
@@ -68,7 +68,7 @@ development_status:
   3-2-answer-progress-and-the-summary: done
   3-3-every-count-opens-the-people-behind-it: done
   3-4-the-overview-of-every-household-and-the-allergy-list: done
-  3-5-tests-prove-the-numbers-match-the-expected-results-list: backlog
+  3-5-tests-prove-the-numbers-match-the-expected-results-list: done
   epic-3-retrospective: optional
 
   epic-4: backlog
@@ -204,7 +204,10 @@ action_items:
       (rule, view, template, tests) so no commit exceeds about 600 changed lines;
       keep the triage comment and Spec Change Log"
     owner: "Claude"
-    status: open
+    status: done
     note: "Applied in Story 3.3 (2026-11-26): seven commits of 4 to 294 changed lines
-      each (registry, selectors, overview, count page, links, test plan, docs)."
+      each (registry, selectors, overview, count page, links, test plan, docs).
+      Applied in Story 3.5 (2026-11-27): helpers, rules and registry tests, page and
+      guard tests, test plan, expected.toml header, README, documents, each commit
+      about 600 changed lines or fewer; Epic 3 is done."
     ref: ".docs/implementation-artifacts/epic-2-retro-2026-11-26.md"

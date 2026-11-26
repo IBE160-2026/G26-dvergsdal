@@ -6,20 +6,22 @@ Numbers are read from expected.toml; their values are asserted in test_overview.
 """
 
 import re
-import tomllib
-from pathlib import Path
 
 import pytest
 from django.test import Client
 
-from tests.helpers import HELPER_LINE, PASSWORD, log_in_as, main_html, page_text, sections_of
+from tests.helpers import (
+    HELPER_LINE,
+    PASSWORD,
+    load_expected,
+    log_in_as,
+    main_html,
+    page_text,
+    sections_of,
+)
 from wedding.models import User
 
-EXPECTED = tomllib.loads(
-    (Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "expected.toml").read_text(
-        encoding="utf-8"
-    )
-)
+EXPECTED = load_expected()
 PANELS = [
     "Svar",
     "Når kommer de?",

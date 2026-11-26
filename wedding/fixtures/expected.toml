@@ -4,13 +4,14 @@
 # computed by the app: Claude counted it, a separate agent counted it again
 # without seeing these numbers (the two agreed on every value), and Rikke
 # checked a sample by hand. Tests in later stories load the seed data and assert the
-# app's numbers against this file, passing `now` explicitly:
-#   counts, totals and allergy states -> Story 3.5
+# app's numbers against this file, passing `now` explicitly when a rule takes one:
+#   counts, totals and allergy states -> Story 3.5, done (tests/test_expected_results.py)
 #   payment statuses and report matches -> Story 5.3
 #   Synne's withdrawn consent           -> Story 7.2
 #   the lock cases                      -> Story 4.3
-# Synne's nuts = 0 and nothing_stored = 4 hold only after Story 7.2 loads the
-# withdrawal; until then the seed (Story 2.6d) stores her nut allergy.
+# Synne's nuts = 0 and nothing_stored = 4 hold in the seed itself only after Story 7.2
+# loads the withdrawal; until then the seed (Story 2.6d) stores her nut allergy, and the
+# Story 3.5 tests apply her withdrawal themselves, so they match this file with no offset.
 # Changing this file is a deliberate commit with the reason in the message.
 #
 # Prices from seed.toml: cabin 1500, Friday dinner 340, Saturday breakfast 260,

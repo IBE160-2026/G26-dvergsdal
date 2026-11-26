@@ -27,7 +27,7 @@ from django.urls import get_resolver
 import config.urls
 from config import error_handlers
 from guests import views
-from tests.helpers import IMPERSONAL_FORBIDDEN, page_text, row_counts
+from tests.helpers import IMPERSONAL_FORBIDDEN, page_text, row_counts, tel_rows
 from tests.test_guest_privacy import _assert_private_headers, _head_tags, _preview
 from wedding.models import Household, Settings
 
@@ -79,14 +79,8 @@ def _post(path: str):
     return _client(csrf=True).post(path)
 
 
-def _tel_rows(html: str) -> list[tuple[str, str]]:
-    """The footer band's `tel:` rows as (link, text), as test_front_page.py reads them."""
-    footer = html[html.index("<footer") : html.index("</footer>")]
-    return re.findall(r'<a href="(tel:[^"]*)">([^<]*)</a>', footer)
-
-
 def _front_page_rows() -> list[tuple[str, str]]:
-    rows = _tel_rows(_get(f"/{SIGMUND}/").content.decode())
+    rows = tel_rows(_get(f"/{SIGMUND}/").content.decode())
     assert len(rows) == 2
     return rows
 
@@ -116,7 +110,7 @@ def _assert_reachable(html: str) -> None:
     """FR-6: the back button to the invitation and the same `tel:` rows as the front
     page, no nav bar and no guest's name."""
     assert BACK_LINK.search(html)
-    assert _tel_rows(html) == _front_page_rows()
+    assert tel_rows(html) == _front_page_rows()
     assert "<nav" not in html
     for name in GUEST_NAMES:
         assert not re.search(rf"\b{re.escape(name)}\b", html), name

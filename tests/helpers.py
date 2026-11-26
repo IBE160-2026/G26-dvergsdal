@@ -5,6 +5,8 @@ here.
 """
 
 import re
+import tomllib
+from pathlib import Path
 
 from django.contrib.sessions.models import Session
 from django.test import Client
@@ -44,6 +46,8 @@ IMPERSONAL_FORBIDDEN = (
 )
 
 
+FIXTURES = Path(__file__).resolve().parent.parent / "wedding" / "fixtures"
+
 PASSWORD = "bryllup-test-2028"
 # UX-DR49: the line a helper sees under the admin nav.
 HELPER_LINE = "Du kan se alt, men ikke endre noe."
@@ -51,6 +55,18 @@ HELPER_LINE = "Du kan se alt, men ikke endre noe."
 # app shows one nut allergy, one more `has_allergies` and one fewer `nothing_stored` than
 # expected.toml. Story 7.2 removes this constant and every addition of it in the tests.
 SYNNE_UNTIL_7_2 = 1
+
+
+def load_expected() -> dict:
+    """FR-69, AD-16: the hand-worked expected-results list, `wedding/fixtures/expected.toml`,
+    read in one place for every test that compares the app with it."""
+    return tomllib.loads((FIXTURES / "expected.toml").read_text(encoding="utf-8"))
+
+
+def tel_rows(html: str) -> list[tuple[str, str]]:
+    """FR-6: the footer band's `tel:` rows of a page as (link, text)."""
+    footer = html[html.index("<footer") : html.index("</footer>")]
+    return re.findall(r'<a href="(tel:[^"]*)">([^<]*)</a>', footer)
 
 
 def log_in_as(username):
