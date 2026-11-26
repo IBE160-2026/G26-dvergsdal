@@ -4,15 +4,18 @@
 consent into plain `GuestFacts` for `wedding.rules.summary`, and never filters on
 answer content, so a guest who has not answered still counts as «ikke svart».
 `household_totals` gives each household's total from `household_total` and the
-current prices; nothing is added up here or stored.
+current prices; nothing is added up here or stored. `people_behind` and
+`households_behind` (Story 3.3; FR-55) name the people of a count, names only.
 """
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
 
 from wedding.models import Allergy, Consent, Guest, HouseholdAnswer, PersonAnswer
 from wedding.rules.allergies import ALLERGY_KEYS, AllergyEntry
 from wedding.rules.answer import Answer
 from wedding.rules.days import DAY_KEYS, MEAL_KEYS
+from wedding.rules.households import household_names
 from wedding.rules.money import household_total
 from wedding.rules.summary import GuestFacts
 
@@ -98,3 +101,52 @@ def household_totals(facts: Sequence[GuestFacts], prices: Mapping[str, int]) -> 
         )
         totals[household_id] = household_total(answer, prices)
     return totals
+
+
+@dataclass(frozen=True)
+class Person:
+    """FR-55: one guest on a count page: their name and the household as the invitation names it."""
+
+    name: str
+    household: str
+
+
+@dataclass(frozen=True)
+class HouseholdRow:
+    """FR-55: one household on a count page, named by its guests."""
+
+    names: str
+
+
+def _household_names(household_ids: Iterable[int]) -> dict[int, str]:
+    """AD-4: each household's guests' names, as `household_names` writes them, in one query."""
+    members: dict[int, list[str]] = {}
+    for household_id, name in Guest.objects.filter(household_id__in=household_ids).values_list(
+        "household_id", "name"
+    ):
+        members.setdefault(household_id, []).append(name)
+    return {household_id: household_names(names) for household_id, names in members.items()}
+
+
+def people_behind(ids: Sequence[int]) -> tuple[Person, ...]:
+    """FR-55, NFR-2: the guests of a count, in the order of `ids`, names only (never allergies,
+    which wait for Story 3.4); two queries however many guests."""
+    if not ids:
+        return ()
+    guests = {
+        guest_id: (name, household_id)
+        for guest_id, name, household_id in Guest.objects.filter(id__in=ids).values_list(
+            "id", "name", "household_id"
+        )
+    }
+    households = _household_names({household_id for _, household_id in guests.values()})
+    return tuple(Person(guests[id_][0], households[guests[id_][1]]) for id_ in ids)
+
+
+def households_behind(ids: Sequence[int]) -> tuple[HouseholdRow, ...]:
+    """FR-55, NFR-2: the households of a count, in the order of `ids`, each named by its guests
+    (names only); one query."""
+    if not ids:
+        return ()
+    names = _household_names(ids)
+    return tuple(HouseholdRow(names[id_]) for id_ in ids)

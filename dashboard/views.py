@@ -1,4 +1,6 @@
-"""The admin views: login, logout and Oversikt (Story 3.1; FR-46, NFR-4, AD-10, AD-13).
+"""The admin views: login, logout, Oversikt and the count pages (Story 3.1, 3.3; FR-46, FR-55).
+
+FR-46, FR-55, NFR-4, AD-10, AD-13.
 
 The session cookie is scoped to `/admin/` and lasts 20 hours since the last
 request (config/settings.py). The browser drops the cookie when it expires, so
@@ -18,10 +20,16 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST, require_safe
 
 from dashboard.access import admin_required, safe_next
+from dashboard.counts import HOUSEHOLDS, count_for, count_text, payment_statuses
 from dashboard.forms import AdminLoginForm
 from dashboard.navigation import frame
 from dashboard.overview import build_overview
-from dashboard.selectors import guest_facts, household_totals
+from dashboard.selectors import (
+    guest_facts,
+    household_totals,
+    households_behind,
+    people_behind,
+)
 from wedding.selectors import form_prices
 
 SEEN_COOKIE = "admin_seen"
@@ -109,6 +117,35 @@ def home(request: HttpRequest) -> HttpResponse:
         request,
         "dashboard/home.html",
         {**frame(request, "home"), "overview": overview},
+    )
+
+
+@admin_required
+@require_safe
+def count_page(request: HttpRequest, slug: str) -> HttpResponse:
+    """FR-55, UX-DR41, UX A3 (Story 3.3): the people or households behind one count on Oversikt.
+
+    The rows are exactly the id tuple the registry's rule call returns, so their number is the
+    number in the heading and the one Oversikt shows. Names only: the allergy list is Story 3.4.
+    """
+    try:
+        count = count_for(slug)
+    except KeyError:
+        raise Http404 from None
+    facts = guest_facts()
+    statuses = payment_statuses(facts, household_totals(facts, form_prices()))
+    ids = count.ids(facts, statuses)
+    by_household = count.kind == HOUSEHOLDS
+    return render(
+        request,
+        "dashboard/count.html",
+        {
+            **frame(request, "home"),
+            "heading": f"{count.title}: {count_text(count.kind, len(ids))}",
+            "rows": households_behind(ids) if by_household else people_behind(ids),
+            "by_household": by_household,
+            "empty_text": "Ingen husstander." if by_household else "Ingen personer.",
+        },
     )
 
 

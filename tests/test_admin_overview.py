@@ -69,19 +69,63 @@ def test_the_svar_panel_has_the_line_a_decorative_bar_and_the_rows(couple_page):
     )
     assert f"Ikke svart ennå {people['not_answered']} personer" in text
     assert "Se hva alle har svart" in text
-    assert "<a" not in svar
+    assert "Se hva alle har svart" not in " ".join(re.findall(r"<a\b[^>]*>(.*?)</a>", svar))
 
 
-def test_the_panels_show_numbers_as_plain_text_without_links(couple_page):
-    """UX-DR40: every count is plain text until Story 3.3; a 0 is never a link."""
+def count_cells(main):
+    """Every `dd` of Oversikt's rows: (the `dd` HTML, its row label)."""
+    return [
+        (dd, " ".join(re.sub(r"<[^>]+>", " ", dt).split()))
+        for dt, dd in re.findall(r"<dt>(.*?)</dt>\s*<dd>(.*?)</dd>", main, re.DOTALL)
+    ]
+
+
+def test_counts_above_zero_are_links_and_zero_is_plain_text(couple_page):
+    """UX-DR41, FR-55: a number above 0 is one link to its page with an `aria-label` that
+    starts with the row label; a 0 has no `a`; no other link is new in `main`."""
+    main = main_html(couple_page)
+    links = re.findall(r"<a\b([^>]*)>(.*?)</a>", main, re.DOTALL)
+
+    assert links
+    row_labels = {label for _, label in count_cells(main)}
+    for attrs, text in links:
+        label = re.search(r'aria-label="([^"]*)"', attrs).group(1)
+        assert re.search(r'href="/admin/tall/[a-z0-9-]+/"', attrs)
+        assert label.endswith(f": {page_text(text)}")
+        assert label.split(": ")[0] in row_labels
+        assert not page_text(text).startswith("0")
+    for dd, label in count_cells(main):
+        numbers = re.sub(r"<a\b.*?</a>", "", dd, flags=re.DOTALL)
+        assert not re.search(r"\b[1-9]\d* (person|husstand|ja|kanskje)", page_text(numbers)), label
+        assert not re.search(r"<a\b[^>]*>\s*0", dd), label
+    assert "Kommer: 9 personer" in main
+
+
+def test_a_zero_count_is_plain_text_on_oversikt(couple_page):
+    """UX-DR41: «Delbetalt» is 0 before payments exist; its number is text, not a link."""
+    dd = next(dd for dd, label in count_cells(main_html(couple_page)) if label == "Delbetalt")
+
+    assert page_text(dd) == "0 husstander"
+    assert "<a" not in dd
+
+
+def test_the_hike_row_has_one_link_per_number(couple_page):
+    """FR-17, FR-55: «3 ja, 2 kanskje» is two links with their own addresses."""
+    hike = EXPECTED["counts"]["hike"]
+    dd = next(dd for dd, label in count_cells(main_html(couple_page)) if label == "Vil gå turen")
+
+    assert re.findall(r'href="([^"]*)"', dd) == ["/admin/tall/tur-ja/", "/admin/tall/tur-kanskje/"]
+    assert (
+        " ".join(re.sub(r"<[^>]+>", "", dd).split()) == f"{hike['yes']} ja, {hike['maybe']} kanskje"
+    )
+
+
+def test_the_panels_show_the_rows_and_no_attention_item(couple_page):
     main = main_html(couple_page)
     text = page_text(main)
 
-    assert "<a" not in main
     assert "Senger totalt" in text
     assert "Lunsj lørdag" in text
-    hike = EXPECTED["counts"]["hike"]
-    assert f"{hike['yes']} ja, {hike['maybe']} kanskje" in text
     assert "Stemmer ikke" not in text
 
 
@@ -129,3 +173,22 @@ def test_no_data_shows_zero_without_error(db):
 
     assert "Svart: 0 av 0 husstander" in page_text(page)
     assert 'style="width: 0%"' in page
+
+
+def test_every_rendered_link_opens_a_page_with_the_same_number(seeded_with_answers):
+    """FR-55, AD-2: follow each link on Oversikt; the `h1` number and the `li` count equal the
+    number in the link text."""
+    client = log_in_as("testpar")
+    main = main_html(client.get("/admin/").content.decode())
+    links = re.findall(r'<a\s[^>]*href="(/admin/tall/[^"]+)"[^>]*>(.*?)</a>', main, re.DOTALL)
+
+    assert links
+    for href, text in links:
+        response = client.get(href)
+        html = response.content.decode()
+        number = re.match(r"\d+", page_text(text)).group()
+        h1 = page_text(re.search(r"<h1[^>]*>(.*?)</h1>", html, re.DOTALL).group(1))
+
+        assert response.status_code == 200, href
+        assert re.search(rf": {number}\b", h1), href
+        assert len(re.findall(r"<li>", main_html(html))) == int(number), href

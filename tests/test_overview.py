@@ -14,11 +14,17 @@ import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
+from dashboard.counts import count_for, payment_statuses
 from dashboard.overview import build_overview
-from dashboard.selectors import guest_facts, household_totals
+from dashboard.selectors import (
+    guest_facts,
+    household_totals,
+    households_behind,
+    people_behind,
+)
 from wedding.models import Consent, Guest, Household, HouseholdAnswer, PersonAnswer
 from wedding.rules.allergies import HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED, allergy_state
-from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING
+from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING, household_names
 from wedding.rules.money import household_total
 from wedding.rules.summary import (
     GuestFacts,
@@ -287,3 +293,76 @@ def test_the_bar_is_at_least_one_percent_when_anyone_has_answered(answered, perc
     ]
 
     assert build_overview(facts, {}).progress.percent == percent
+
+
+def test_people_behind_follow_the_ids_and_name_the_household(seeded_with_answers):
+    """FR-55: one entry per id, in the order of the ids, the guest's name and the household
+    as the invitation names it; nothing about allergies."""
+    ids = tuple(reversed(sorted(guest.id for guest in Guest.objects.all())[:4]))
+    people = people_behind(ids)
+
+    assert [person.name for person in people] == [Guest.objects.get(id=i).name for i in ids]
+    for person, id_ in zip(people, ids, strict=True):
+        household = Guest.objects.get(id=id_).household
+        assert person.household == household_names([g.name for g in household.guests.all()])
+        assert set(vars(person)) == {"name", "household"}
+
+
+def test_households_behind_name_every_guest_of_the_household(seeded_with_answers):
+    ids = tuple(Household.objects.order_by("-id").values_list("id", flat=True)[:3])
+    rows = households_behind(ids)
+
+    assert [row.names for row in rows] == [
+        household_names([g.name for g in Household.objects.get(id=i).guests.all()]) for i in ids
+    ]
+
+
+def test_the_names_load_in_a_fixed_number_of_queries(
+    seeded_with_answers, django_assert_num_queries
+):
+    """NFR-2: two queries for people and one for households, however many ids."""
+    guest_ids = tuple(Guest.objects.values_list("id", flat=True))
+    household_ids = tuple(Household.objects.values_list("id", flat=True))
+
+    with django_assert_num_queries(2):
+        people_behind(guest_ids)
+    with django_assert_num_queries(1):
+        households_behind(household_ids)
+
+
+def test_no_ids_give_nothing_and_no_queries(db, django_assert_num_queries):
+    with django_assert_num_queries(0):
+        assert people_behind(()) == ()
+        assert households_behind(()) == ()
+
+
+def test_every_cell_opens_a_registry_count_of_the_same_size(facts):
+    """FR-54, FR-55, AD-2: each cell's slug is a registry entry whose tuple length is the
+    cell's number, and the number is written in the cell's text (Senger totalt: bare tallet)."""
+    totals = household_totals(facts, form_prices())
+    statuses = payment_statuses(facts, totals)
+    overview = build_overview(facts, totals)
+    rows = [*overview.progress.rows, *(row for panel in overview.panels for row in panel.rows)]
+    cells = [cell for row in rows for cell in row.cells]
+
+    assert cells
+    for cell in cells:
+        assert len(count_for(cell.slug).ids(facts, statuses)) == cell.count, cell.slug
+        assert cell.text.split()[0] == str(cell.count), cell.slug
+    assert len({cell.slug for cell in cells}) == len(cells)
+
+
+def test_the_hike_row_keeps_ja_and_kanskje_as_two_counts(facts):
+    """FR-17: «3 ja, 2 kanskje» is two cells with their own slugs, never one added number."""
+    hike = EXPECTED["counts"]["hike"]
+    row = next(
+        row
+        for panel in build_overview(facts, household_totals(facts, form_prices())).panels
+        for row in panel.rows
+        if row.label == "Vil gå turen"
+    )
+
+    assert [(cell.slug, cell.count) for cell in row.cells] == [
+        ("tur-ja", hike["yes"]),
+        ("tur-kanskje", hike["maybe"]),
+    ]

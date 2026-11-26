@@ -15,6 +15,7 @@ app_name = "dashboard"
 
 urlpatterns = [
     path("", views.home, name="home"),
+    path("tall/<slug:slug>/", views.count_page, name="count"),
     path("logg-inn/", views.login_view, name="login"),
     path("logg-ut/", views.logout_view, name="logout"),
     # No slash: the catch-all would otherwise take these before APPEND_SLASH can act.
