@@ -192,6 +192,10 @@ sheet; the nav bar and footer come from guest_page.html.
                      loading="lazy">
                 <p class="rsvp__childfree">Barnefritt bryllup</p>
                 <p class="rsvp__deadline">Svar innen {{ deadline|date:"l j. F Y" }} kl. 23:59</p>
+                {% if draft_waiting %}
+                    {# FR-78, UX-DR26 (Story 2.9): a draft on this phone, not sent yet. #}
+                    {% include "wedding/components/notice.html" with variant="warning" text="Du har et svar som ikke er sendt ennå." only %}
+                {% endif %}
                 <a class="button" href="{% url 'guests:rsvp' code %}">Svar på invitasjonen</a>
             </section>
         {% endif %}

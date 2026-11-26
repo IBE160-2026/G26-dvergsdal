@@ -1,4 +1,4 @@
-"""The RSVP draft cookie (Stories 2.1 to 2.5; AD-8).
+"""The RSVP draft cookie (Stories 2.1 to 2.5, 2.9; AD-8).
 
 FR-78, AD-8: a round trip through `rsvp_draft`, its attributes (path `/<code>/`,
 HttpOnly, SameSite=Lax, Secure only in production, the 90-day backstop), and
@@ -6,7 +6,10 @@ every kind of broken draft: each is deleted with the same path and the form
 starts empty, never with a server error. Format 2 (Story 2.2) added `whole`
 and `days`, format 3 (Story 2.3) `night` and `meals`, format 4 (Story 2.4)
 `alg`, `cons`, `conf` and `long`, format 5 (Story 2.5) `hike`, format 6
-(Story 2.6c, AD-18) `cv`; a format 1 to 5 cookie is broken. The step flow itself is in
+(Story 2.6c, AD-18) `cv`; a format 1 to 5 cookie is broken. Story 2.9
+(FR-78): a draft naming a non-member is cleaned, not broken; tests that read a
+draft back set `rsvp_visit`, as inside a visit (the offer is in
+test_rsvp_draft_offer.py). The step flow itself is in
 test_rsvp_who_is_coming.py.
 """
 
@@ -20,7 +23,7 @@ from django.core import signing
 
 from tests.helpers import checked_radios, ticked_boxes
 from wedding.models import Guest
-from wedding.rsvp.draft import COOKIE_NAME, SALT
+from wedding.rsvp.draft import COOKIE_NAME, SALT, VISIT_COOKIE
 
 SIGMUND = "test-sigmund0000000000"
 ARILD = "test-arild000000000000"
@@ -206,6 +209,7 @@ def test_days_round_trip(client, seeded):
             days={str(sigmund): ["fri", "sat"], str(bestemor): ["sun"]},
         )
     )
+    client.cookies[VISIT_COOKIE] = "1"
     response = client.get(f"/{SIGMUND}/svar/dager/")
     assert response.status_code == 200
     assert COOKIE_NAME not in response.cookies
@@ -246,19 +250,17 @@ BROKEN = {
     "rev a string": lambda: _signed(_payload(rev="0")),
     "negative rev": lambda: _signed(_payload(rev=-1)),
     "resp a string": lambda: _signed(_payload(resp=str(_ids(SIGMUND)[0]))),
-    "foreign resp": lambda: _signed(_payload(resp=_ids(ARILD)[0])),
     "att a list": lambda: _signed(_payload(att=[True])),
     "att value a string": lambda: _signed(_payload(att={str(_ids(SIGMUND)[0]): "yes"})),
-    "foreign att key": lambda: _signed(_payload(att={str(_ids(ARILD)[0]): True})),
     "att key not a number": lambda: _signed(_payload(att={"²": True})),
+    "att key zero": lambda: _signed(_payload(att={"0": True})),
+    "resp zero": lambda: _signed(_payload(resp=0)),
+    "conf a negative id": lambda: _signed(_payload(conf=[-1])),
     "unknown done key": lambda: _signed(_payload(done=["who", "send"])),
     "done a string": lambda: _signed(_payload(done="who")),
     "whole a string": lambda: _signed(_payload(whole="no")),
     "whole a number": lambda: _signed(_payload(whole=0)),
     "days a list": lambda: _signed(_payload(whole=False, days=[["fri"]])),
-    "days for a non-member": lambda: _signed(
-        _payload(whole=False, days={str(_ids(ARILD)[0]): ["fri"]})
-    ),
     "days key not a number": lambda: _signed(_payload(whole=False, days={"x": ["fri"]})),
     "a bad day key": lambda: _signed(
         _payload(whole=False, days={str(_ids(SIGMUND)[0]): ["fri", "mon"]})
@@ -272,19 +274,12 @@ BROKEN = {
     "missing night": lambda: _signed({k: v for k, v in _payload().items() if k != "night"}),
     "night a list": lambda: _signed(_payload(night=[True])),
     "night not a bool": lambda: _signed(_payload(night={str(_ids(SIGMUND)[0]): "yes"})),
-    "night for a non-member": lambda: _signed(_payload(night={str(_ids(ARILD)[0]): True})),
     "meals an unknown key": lambda: _signed(_payload(meals={str(_ids(SIGMUND)[0]): ["lunch"]})),
     "meals an empty list": lambda: _signed(_payload(meals={str(_ids(SIGMUND)[0]): []})),
     "a meal twice": lambda: _signed(
         _payload(meals={str(_ids(SIGMUND)[0]): ["friday_dinner", "friday_dinner"]})
     ),
-    "meals for a non-member": lambda: _signed(
-        _payload(meals={str(_ids(ARILD)[0]): ["friday_dinner"]})
-    ),
     "missing alg": lambda: _signed({k: v for k, v in _payload().items() if k != "alg"}),
-    "alg for a non-member": lambda: _signed(
-        _payload(alg={str(_ids(ARILD)[0]): {"c": [], "n": True, "t": ""}})
-    ),
     "alg an unknown category": lambda: _signed(
         _payload(alg={str(_ids(SIGMUND)[0]): {"c": ["fish"], "n": False, "t": ""}})
     ),
@@ -301,17 +296,50 @@ BROKEN = {
         _payload(alg={str(_ids(SIGMUND)[0]): {"c": [], "n": False}})
     ),
     "cons not a bool": lambda: _signed(_payload(cons={str(_ids(SIGMUND)[0]): "maybe"})),
-    "cons for a non-member": lambda: _signed(_payload(cons={str(_ids(ARILD)[0]): True})),
     "conf not a list": lambda: _signed(_payload(conf={str(_ids(SIGMUND)[0]): True})),
-    "conf a non-member": lambda: _signed(_payload(conf=[_ids(ARILD)[0]])),
     "conf an id twice": lambda: _signed(_payload(conf=[_ids(SIGMUND)[0]] * 2)),
     "long a string id": lambda: _signed(_payload(long=[str(_ids(SIGMUND)[0])])),
     "missing hike": lambda: _signed({k: v for k, v in _payload().items() if k != "hike"}),
     "hike a list": lambda: _signed(_payload(hike=["yes"])),
     "hike an unknown answer": lambda: _signed(_payload(hike={str(_ids(SIGMUND)[0]): "perhaps"})),
     "hike not a string": lambda: _signed(_payload(hike={str(_ids(SIGMUND)[0]): True})),
+}
+
+
+CHANGED = {
+    "foreign resp": lambda: _signed(_payload(resp=_ids(ARILD)[0])),
+    "foreign att key": lambda: _signed(_payload(att={str(_ids(ARILD)[0]): True})),
+    "days for a non-member": lambda: _signed(
+        _payload(whole=False, days={str(_ids(ARILD)[0]): ["fri"]})
+    ),
+    "night for a non-member": lambda: _signed(_payload(night={str(_ids(ARILD)[0]): True})),
+    "meals for a non-member": lambda: _signed(
+        _payload(meals={str(_ids(ARILD)[0]): ["friday_dinner"]})
+    ),
+    "alg for a non-member": lambda: _signed(
+        _payload(alg={str(_ids(ARILD)[0]): {"c": [], "n": True, "t": ""}})
+    ),
+    "cons for a non-member": lambda: _signed(_payload(cons={str(_ids(ARILD)[0]): True})),
+    "conf a non-member": lambda: _signed(_payload(conf=[_ids(ARILD)[0]])),
     "hike for a non-member": lambda: _signed(_payload(hike={str(_ids(ARILD)[0]): "yes"})),
 }
+
+
+@pytest.mark.parametrize("make", CHANGED.values(), ids=CHANGED.keys())
+def test_a_changed_household_is_cleaned_not_broken(client, seeded, make):
+    """FR-78, AD-8, AD-18 (Story 2.9): a draft naming a guest who is not a member
+    is not broken: within a visit step 1 answers 200 with «Jeg er Sigmund», the
+    cookie is neither deleted nor rewritten on a GET, and a later step goes back
+    to step 1, since no step stays done."""
+    client.cookies[COOKIE_NAME] = make()
+    client.cookies[VISIT_COOKIE] = "1"
+    response = client.get(STEP_1)
+    assert response.status_code == 200
+    assert "<strong>Sigmund</strong>" in response.content.decode()
+    assert COOKIE_NAME not in response.cookies
+    response = client.get(f"/{SIGMUND}/svar/dager/")
+    assert response.status_code == 302
+    assert response["Location"] == STEP_1
 
 
 @pytest.mark.parametrize("make", BROKEN.values(), ids=BROKEN.keys())
@@ -353,6 +381,7 @@ def test_a_valid_draft_is_read_back(client, seeded):
     """AD-8: a draft with a valid signature checks what it holds and is not rewritten
     on a GET."""
     client.cookies[COOKIE_NAME] = _signed(_payload())
+    client.cookies[VISIT_COOKIE] = "1"
     response = client.get(STEP_1)
     sigmund, bestemor = _ids(SIGMUND)
     assert COOKIE_NAME not in response.cookies
@@ -381,6 +410,7 @@ def test_a_start_time_within_a_minute_ahead_is_accepted(client, seeded):
     """AD-8: a minute of clock skew is allowed for `started`."""
     started = (datetime.now(UTC) + timedelta(seconds=30)).isoformat()
     client.cookies[COOKIE_NAME] = _signed(_payload(started=started))
+    client.cookies[VISIT_COOKIE] = "1"
     response = client.get(STEP_1)
     assert COOKIE_NAME not in response.cookies
 

@@ -45,11 +45,21 @@ Every draft write runs `normalise_answer` (FR-75), so a person who stops
 coming loses their days, stay, meals and allergy answers, steps 2, 3 and 5
 stay done only while their answers are complete, and a change in who is there on which days
 reopens the steps after step 2.
+
+Story 2.9 (FR-78, AD-8, UX-DR26): a guest who comes back in a new browser
+session (no `rsvp_visit` cookie) with a usable draft gets the Draft offer
+«Vil du fortsette der du slapp?» on any form address instead of the step.
+«Ja, fortsett» (`action=resume`) goes to the first unfinished step, or the
+check page; «Nei, begynn på nytt» (`action=restart`) deletes the draft and
+goes to step 1. Both, and every POST to a step, set `rsvp_visit`, which
+holds no answer. A draft whose household changed is cleaned by `read_draft`
+and opens at step 1.
 """
 
 import logging
 import uuid
 from dataclasses import replace
+from datetime import datetime
 
 from django.db import DatabaseError, IntegrityError
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -57,7 +67,14 @@ from django.shortcuts import render
 from django.utils import dateformat, timezone
 
 from wedding.actors import Actor, GuestActor
-from wedding.rsvp.draft import Draft, delete_draft, read_draft, write_draft
+from wedding.rsvp.draft import (
+    Draft,
+    delete_draft,
+    has_visit,
+    mark_visit,
+    read_draft,
+    write_draft,
+)
 from wedding.rsvp.forms import (
     ATTENDANCE_CHOICES,
     NO,
@@ -120,6 +137,10 @@ from wedding.services.exceptions import (
 )
 
 STEP_TEMPLATE = "rsvp/step.html"
+OFFER_TEMPLATE = "rsvp/draft_offer.html"
+# FR-78, UX-DR26 (Story 2.9): the Draft offer's two answers.
+RESUME = "resume"
+RESTART = "restart"
 CHECK_TEMPLATE = "rsvp/check.html"
 TOTAL_TEMPLATE = "rsvp/includes/total.html"
 SWITCH = "switch"
@@ -1297,7 +1318,14 @@ def handle_step(
     database is written only by «Send svaret» on the check page, through
     `send_answer` (Story 2.6a).
     """
-    draft, broken = read_draft(request, _member_ids(members))
+    draft, broken, _ = read_draft(request, _member_ids(members), _owner(actor, members))
+    if request.method == "POST" and request.POST.get("action") in (RESUME, RESTART):
+        response = _answer_offer(request, mount=mount, members=members, draft=draft)
+        if broken:
+            delete_draft(response, mount)
+        return response
+    if draft is not None and request.method in ("GET", "HEAD") and not has_visit(request):
+        return _render_offer(request, draft=draft, page_context=page_context)
     before = _present(draft, members)
     arguments = {"mount": mount, "members": members, "draft": draft, "page_context": page_context}
     if step == "who":
@@ -1311,6 +1339,56 @@ def handle_step(
         write_draft(response, new, mount)
     elif broken:
         delete_draft(response, mount)
+    if request.method == "POST":
+        mark_visit(response, mount)
+    return response
+
+
+def _start_line(draft: Draft) -> str:
+    """FR-78, UX-DR26 (Story 2.9): when the draft was started, in Oslo time, without the year."""
+    local = timezone.localtime(datetime.fromisoformat(draft.started))
+    return (
+        f"Du begynte på svaret {dateformat.format(local, 'l j. F')} kl. "
+        f"{dateformat.format(local, 'H:i')}. "
+        "Det du har fylt ut, er tatt vare på på denne telefonen."
+    )
+
+
+def _render_offer(
+    request: HttpRequest, *, draft: Draft, page_context: dict[str, object]
+) -> HttpResponse:
+    """FR-78, AD-8, UX-DR26 (Story 2.9): the Draft offer, in place of the requested step.
+
+    Shown on a GET or HEAD of any form address when a usable draft exists and
+    the guest has no `rsvp_visit` cookie (a new browser session). Writes
+    nothing: the draft is written only on a POST (AD-8).
+    """
+    context = page_context | {"start_line": _start_line(draft)}
+    return render(request, OFFER_TEMPLATE, context)
+
+
+def _answer_offer(
+    request: HttpRequest, *, mount: FormMount, members: Members, draft: Draft | None
+) -> HttpResponse:
+    """FR-78, AD-8, UX-DR26 (Story 2.9): «Ja, fortsett» or «Nei, begynn på nytt».
+
+    «Ja» (`action=resume`) writes the (cleaned) draft and goes (303) to the
+    first unfinished applicable step, the check page when all are done; a
+    changed household has no step done, so that is step 1. «Nei»
+    (`action=restart`) deletes the draft and goes to step 1, which starts
+    empty. Without a usable draft both go to step 1. Both set `rsvp_visit`,
+    so the offer does not come back in this visit. `?fra` is ignored.
+    """
+    if draft is None:
+        response = _see_other(mount.base_path)
+    elif request.POST.get("action") == RESUME:
+        draft = _settled(draft, members)
+        response = _see_other(mount.url(first_unfinished(_steps(draft, members), draft.done, None)))
+        write_draft(response, draft, mount)
+    else:
+        response = _see_other(mount.base_path)
+        delete_draft(response, mount)
+    mark_visit(response, mount)
     return response
 
 
@@ -1339,7 +1417,7 @@ def render_after_csrf_failure(
     None when the step is not one the guest could have posted from (the
     caller then shows the generic page).
     """
-    draft, broken = read_draft(request, _member_ids(members))
+    draft, broken, _ = read_draft(request, _member_ids(members), _owner(actor, members))
     posted = posted_respondent(request.POST, _member_ids(members))
     steps = _steps(draft, members)
     fields = None
@@ -1430,7 +1508,7 @@ def render_after_csrf_failure(
 
 
 def render_total(
-    request: HttpRequest, *, members: Members, slug: str, prices: Prices
+    request: HttpRequest, *, actor: Actor, members: Members, slug: str, prices: Prices
 ) -> HttpResponse:
     """AD-7, FR-33, NFR-2: the running total for `POST <base>/sum/?steg=<slug>`.
 
@@ -1443,7 +1521,7 @@ def render_total(
     «Fortsett» or «Velg». The mount's view checks the code and the deadline.
     """
     step = KEY_BY_SLUG.get(slug)
-    draft, _ = read_draft(request, _member_ids(members))
+    draft = read_draft(request, _member_ids(members), _owner(actor, members)).draft
     if step not in PAID_STEPS or draft is None or "who" not in draft.done:
         return HttpResponse(status=204)
     merged = _with_posted(request, draft, members, step)

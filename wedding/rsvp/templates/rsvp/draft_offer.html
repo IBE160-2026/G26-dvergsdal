@@ -1,0 +1,30 @@
+{% extends "wedding/base.html" %}
+{% comment %}
+The Draft offer (Story 2.9; FR-78, AD-8, UX-DR26; DESIGN.md › Draft offer,
+approved in mockups/key-form-steps.html). Shown in place of any form step when
+a guest comes back in a new browser session with a draft on this phone. One
+paper sheet on the green page, like a form step, with no nav bar and the
+footer band kept: the question as the `h1`, when the answer was started
+(Oslo time, without the year, as in the mockup) and one POST form with
+«Ja, fortsett» (primary) above «Nei, begynn på nytt» (secondary), full width.
+No script and no hidden fields besides the CSRF token: the buttons' `action` is the only thing
+posted, and the draft is written only by that POST (AD-8).
+{% endcomment %}
+{% block title %}Vil du fortsette der du slapp? – Invitasjon{% endblock title %}
+{% block content %}
+    <main class="column form-page">
+        <form class="paper-sheet form-sheet" method="post" novalidate>
+            {% csrf_token %}
+            <h1>Vil du fortsette der du slapp?</h1>
+            <p>{{ start_line }}</p>
+            <div class="form-actions">
+                <button class="button" type="submit" name="action" value="resume">Ja, fortsett</button>
+                <button class="button button--secondary"
+                        type="submit"
+                        name="action"
+                        value="restart">Nei, begynn på nytt</button>
+            </div>
+        </form>
+    </main>
+    {% include "wedding/components/footer-band.html" %}
+{% endblock content %}
