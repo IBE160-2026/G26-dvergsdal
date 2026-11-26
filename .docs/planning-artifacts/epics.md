@@ -965,6 +965,8 @@ So that I, the examiner and the couple can trust that the numbers are right.
 **When** Ingrid reads the test section
 **Then** it says what the expected-results tests check and where the hand-worked list is
 
+*Implementation notes (2026-11-27, Story 3.5):* all checks live in `tests/test_expected_results.py` (rules, the count registry and the rendered pages, plus guard tests for `expected.toml` itself); the four older checks moved there from `test_overview.py`. **Deviation:** the story said the tests load the seed and compare, but the seed stores Synne's nut allergy until Story 7.2, so the fixture `seeded_with_synne_withdrawal` creates her `Consent.WITHDRAWN` event through the real model and every number then holds with no offset; Story 7.2 owns the seed change and deletes the fixture, the one test `test_the_seed_alone_differs_from_expected_only_by_synne_until_7_2` and `SYNNE_UNTIL_7_2`. **Deviation:** no test passes `now`, because no rule behind the counts takes one; a signature test (`test_no_rule_behind_the_counts_takes_now`) fails the day one does. Commits were about 600 changed lines or fewer (`epic-2-retro-item-12`): helpers, rules and registry tests, page tests, test plan, `expected.toml` header (comment only, no value changed), README, documents.
+
 ## Epic 4: Guests change their answer until the deadline locks it
 
 Arild changes his household's answer before the deadline and sees who answered last; Marie never overwrites his answer without seeing it first. After the deadline guests can only see their answer, while the couple can still fill in or change any household's answer with the same form. The couple changes the deadline, prices and contact details in Settings, with a clear confirmation.
