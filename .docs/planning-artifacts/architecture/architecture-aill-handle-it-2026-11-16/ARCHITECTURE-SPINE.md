@@ -164,6 +164,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   - **Writes:** every admin write service calls one `require_couple(actor)` check. Helper pages render read-only, but the service is the protection.
   - **Sessions:** the admin session cookie is scoped to `/admin/`.
   - **Accounts:** admin accounts are created only by a management command (FR-47).
+  - *(Added 2026-11-26 in Story 3.1: real accounts are made by `create_admin` through `create_admin_account` with its own `OperatorActor` (`wedding/actors.py`), the person at the server console; the seed keeps `create_admin_user` with the system actor, so an account's actor says which of the two made it. The epics acceptance criterion forbids the system actor for real accounts, and AD-3 wants an explicit actor on every service. `require_couple` still refuses the operator, so it cannot write through any admin service. `User.role` has a database check constraint (`couple` or `helper`, migration `0008_user_role_check`), so no row, however written, has a blank or unknown role.)*
 
 ### AD-11: One deadline function, and a fixed list of what it locks
 
@@ -190,6 +191,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   - **Expiry:** `SESSION_COOKIE_AGE` is 20 hours and `SESSION_SAVE_EVERY_REQUEST` is on, so every request renews the session.
   - **No warning:** there is no expiry warning and no restore of unsaved input.
   - **Logging out:** every admin page has a "Logg ut" button.
+  - *(Added 2026-11-26 in Story 3.1: the browser drops the session cookie when it expires, so after 20 hours without use the server cannot tell «logged out by time» from «never logged in». Login therefore also sets a small `admin_seen` cookie (30 days, path `/admin/`, HttpOnly, no data); a login page opened without a session but with it says «Du ble logget ut fordi du var borte en stund.» once and deletes it, and «Logg ut» deletes it too, so a deliberate logout shows no such text. The session cookie path is `/admin/` (`SESSION_COOKIE_PATH`), so a guest request never carries it and creates no session row.)*
 
 ### AD-14: Runs with zero configuration and guards production
 
@@ -298,14 +300,14 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   manage.py
   .env.example
   .github/workflows/          # tests, Ruff and djLint on every push
-  config/                     # settings, root urls, wsgi, middleware, logging filter
+  config/                     # settings, root urls, wsgi, middleware, logging filter, error handlers
   wedding/
     models.py                 # all models (the data owner), incl. the custom User
     rules/                    # pure functions (AD-2)
     services/                 # the only writers (AD-3)
     rsvp/                     # the one RSVP form: steps, forms, templates, draft (AD-7, AD-8)
     selectors.py              # read queries for views
-    actors.py                 # guest, admin and system actors that services take (AD-3)
+    actors.py                 # guest, admin, system and operator actors that services take (AD-3)
     links.py                  # the one code -> guest actor resolver (AD-6)
     management/commands/      # seed test data, create admin users
     fixtures/                 # seed data + expected results, TOML (AD-16)
@@ -324,6 +326,8 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 *(Changed 2026-11-20 in Story 1.4b: `tools/` added. `tools/prepare_images.py` makes the images in `static/img/` from Rikke's files, so a replaced image is one command away and the result can be checked against the size budget (NFR-7). It runs with `uvx --with pillow==13.0.0`, so Pillow never becomes a dependency of the app, and it does not belong in `static/`, which is served to visitors.)*
 
 *(Changed 2026-11-21 in Story 2.1: the RSVP form's templates live in `wedding/rsvp/templates/rsvp/`. `wedding/rsvp/` is a package, not an app, so the folder is listed in `TEMPLATES["DIRS"]` in `config/settings.py`. The guest mount's views, the closed page after the deadline and the CSRF handler stay in `guests/`.)*
+
+*(Changed 2026-11-26 in Story 3.1: `config/error_handlers.py` added. Django allows one handler per status for the whole site, and `guests` and `dashboard` must not import each other, so neither can own the branching between the guest pages and the couple's own. The module imports both: a path that is `/admin` or starts with `/admin/` gets `dashboard/errors.py`, every other path keeps `guests/views.py`; a 400 is always the impersonal guest page, and a `PermissionDenied` outside `/admin/` gets a new impersonal 403. `tests/test_architecture_imports.py` keeps the rules: `dashboard` and `guests` never import each other, and `wedding/rsvp/` imports neither; `guests` may import `wedding/rsvp/`, which it mounts.)*
 
 Core entities. Names and relationships only; the code owns the fields. `Settings` is a single row with prices, deadline, contacts and payment details.
 

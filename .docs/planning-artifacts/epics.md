@@ -844,8 +844,9 @@ So that only we can see the guests' answers.
 **Then** it creates an admin user with that role and asks for the password; there is no self-registration (FR-47, AD-10)
 **And** an existing username or a role other than `couple` or `helper` is refused with a message, the `role` field has no blank value, and a user without a valid role gets no admin access
 **And** the command creates real accounts with `is_test_data=False` through its own path, never the system actor: `create_admin_user` is for the seed command only and marks every account it makes as test data (AD-16), and a test shows that `seed_testdata` leaves accounts made by `create_admin` alone
+**And** that path is `create_admin_account` with its own `OperatorActor` (the person at the server console, AD-3), which `require_couple` refuses, so it cannot write through any admin service; both account services share one validator (added 2026-11-26 in Story 3.1: AD-3 wants an explicit actor on every service, and the system actor is the seed's)
 
-**Given** the login page under `/admin/`
+**Given** the login page at `/admin/logg-inn/` (logout is `POST /admin/logg-ut/`; added 2026-11-26 in Story 3.1)
 **When** Rikke logs in with the right username and password
 **Then** she reaches the admin home; with wrong details she sees a plain error in Norwegian; paste and password managers work (UX-DR36)
 **And** passwords are stored with Django's default password hashing (NFR-4)
@@ -859,6 +860,7 @@ So that only we can see the guests' answers.
 **Given** a logged-in admin
 **When** 20 hours pass without a request
 **Then** the session expires, every request renews it, the session cookie is scoped to `/admin/`, and the login page says «Du ble logget ut fordi du var borte en stund.» (AD-13, UX-DR36)
+**And** because the browser drops the session cookie when it expires, login also sets a small data-free marker cookie `admin_seen` (path `/admin/`) that lets the login page say this once; «Logg ut» deletes it, so a deliberate logout shows no such text (added 2026-11-26 in Story 3.1: without the marker the server cannot tell an expired session from a visitor who never logged in)
 
 ### Story 3.2: Answer progress and the summary
 
