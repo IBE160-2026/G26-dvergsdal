@@ -11,8 +11,8 @@ from pathlib import Path
 import pytest
 from django.test import Client
 
-from tests.helpers import HELPER_LINE, log_in_as, main_html, page_text
-from wedding.models import Guest, Household, User
+from tests.helpers import HELPER_LINE, log_in_as, log_in_as_new_couple, main_html, page_text
+from wedding.models import Guest, Household
 from wedding.rules.households import household_names
 
 EXPECTED = tomllib.loads(
@@ -98,13 +98,6 @@ def test_no_households_say_so(db):
     assert "0 husstander · 0 gjester" in page_text(html)
     assert "Ingen husstander ennå." in html
     assert rows_of(html) == []
-
-
-def log_in_as_new_couple():
-    User.objects.create_user(username="rikke", password="bryllup-test-2028", role=User.Role.COUPLE)
-    client = Client()
-    client.login(username="rikke", password="bryllup-test-2028")
-    return client
 
 
 def test_logged_out_goes_to_login_with_next(db):

@@ -12,8 +12,15 @@ from pathlib import Path
 import pytest
 from django.test import Client
 
-from tests.helpers import HELPER_LINE, SYNNE_UNTIL_7_2, log_in_as, main_html, page_text
-from wedding.models import Allergy, Consent, Guest, User
+from tests.helpers import (
+    HELPER_LINE,
+    SYNNE_UNTIL_7_2,
+    log_in_as,
+    log_in_as_new_couple,
+    main_html,
+    page_text,
+)
+from wedding.models import Allergy, Consent, Guest
 
 ROOT = Path(__file__).resolve().parent.parent / "wedding" / "fixtures"
 EXPECTED = tomllib.loads((ROOT / "expected.toml").read_text(encoding="utf-8"))
@@ -64,8 +71,8 @@ def test_eva_and_bestemor_show_categories_and_note(page):
     """FR-58, UX-DR48: name, category labels in form order and the note."""
     rows = items(page)
 
-    assert "Eva Skalldyr, Annet Tåler ikke koriander." in rows
-    assert "bestemor Gluten" in rows
+    assert "Eva : Skalldyr, Annet . Tåler ikke koriander." in rows
+    assert "bestemor : Gluten" in rows
 
 
 def test_nothing_about_a_guest_without_consent_is_on_the_page(page):
@@ -129,10 +136,10 @@ def test_nobody_with_consent_says_so(seeded_with_answers):
     assert items(html) == []
 
 
-def test_it_links_back_and_marks_gjester_as_open(page):
-    """UX A5: «Tilbake til Oversikt» and the nav keeps Gjester open."""
+def test_it_links_back_and_marks_no_nav_link_as_open(page):
+    """UX A5: «Tilbake til Oversikt»; the list is a sub-page, so no nav link is current."""
     assert '<a class="count-back" href="/admin/">Tilbake til Oversikt</a>' in page
-    assert 'href="/admin/gjester/" aria-current="page">Gjester</a>' in " ".join(page.split())
+    assert "aria-current" not in page
 
 
 def test_logged_out_goes_to_login_with_next(db):
@@ -159,10 +166,6 @@ def test_only_get_and_head_are_allowed(seeded_with_answers):
 
 def test_an_empty_database_has_an_empty_list(db):
     """UX-DR48: no guests at all is the empty state, not an error."""
-    User.objects.create_user(username="rikke", password="x", role=User.Role.COUPLE)
-    client = Client()
-    client.login(username="rikke", password="x")
-
-    html = client.get(URL).content.decode()
+    html = log_in_as_new_couple().get(URL).content.decode()
 
     assert "Ingen allergier registrert ennå." in html

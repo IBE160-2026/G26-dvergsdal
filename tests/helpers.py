@@ -60,6 +60,14 @@ def log_in_as(username):
     return client
 
 
+def log_in_as_new_couple():
+    """FR-46: a client logged in as a new couple account, for tests with an empty database."""
+    User.objects.create_user(username="rikke", password=PASSWORD, role=User.Role.COUPLE)
+    client = Client()
+    client.login(username="rikke", password=PASSWORD)
+    return client
+
+
 def make_admin(role, username="rikke"):
     """AD-10 (Story 3.1): an `AdminActor` for a new account with `role`, for service tests."""
     return AdminActor(User.objects.create_user(username=username, role=role))

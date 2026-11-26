@@ -181,7 +181,7 @@ def allergies_page(request: HttpRequest) -> HttpResponse:
     return render(
         request,
         "dashboard/allergies.html",
-        {**frame(request, "guests"), "allergy_list": allergy_list},
+        {**frame(request), "allergy_list": allergy_list},
     )
 
 

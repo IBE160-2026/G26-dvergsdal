@@ -18,9 +18,9 @@ only page that shows allergy text. The note is autoescaped and keeps its line br
             <ul class="allergy-list">
                 {% for row in allergy_list.rows %}
                     <li>
-                        <span class="allergy-list__name">{{ row.name }}</span>
+                        <span class="allergy-list__name">{{ row.name }}</span>{% if row.categories or row.note %}<span class="visually-hidden">: </span>{% endif %}
                         {% if row.categories %}
-                            <span class="allergy-list__categories">{{ row.categories|join:", " }}</span>
+                            <span class="allergy-list__categories">{{ row.categories|join:", " }}</span>{% if row.categories and row.note %}<span class="visually-hidden">. </span>{% endif %}
                         {% endif %}
                         {% if row.note %}<span class="allergy-list__note">{{ row.note }}</span>{% endif %}
                     </li>
