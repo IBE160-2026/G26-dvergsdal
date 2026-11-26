@@ -1,4 +1,6 @@
-"""The admin views: login, logout, Oversikt and the count pages (Story 3.1, 3.3; FR-46, FR-55, NFR-4, AD-10, AD-13).
+"""The admin views: login, logout, Oversikt and the count pages (Story 3.1, 3.3; FR-46, FR-55).
+
+FR-46, FR-55, NFR-4, AD-10, AD-13.
 
 The session cookie is scoped to `/admin/` and lasts 20 hours since the last
 request (config/settings.py). The browser drops the cookie when it expires, so
