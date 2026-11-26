@@ -8,9 +8,11 @@ from wedding.rules.allergies import HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED,
 from wedding.rules.days import DAY_KEYS
 from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING
 from wedding.rules.summary import (
+    AllergyListEntry,
     GuestFacts,
     all_households,
     allergy_category_ids,
+    allergy_list,
     allergy_state_ids,
     answered_households,
     beds,
@@ -110,6 +112,45 @@ def test_allergy_states_and_categories_need_consent():
     assert allergy_state_ids(facts, NOTHING_STORED) == (3, 4)
     assert allergy_category_ids(facts, "gluten") == (1,)
     assert allergy_category_ids(facts, "nuts") == ()
+
+
+def test_allergy_list_has_the_guests_with_consent_their_categories_and_note():
+    """FR-58, AD-18: consent «Ja» lists the guest; categories come in ALLERGY_KEYS order."""
+    facts = [
+        guest(1, allergy=AllergyEntry(cats=("other", "gluten"), note="Ingen sopp"), consent=True),
+        guest(2, allergy=AllergyEntry(note="Bare notat"), consent=True),
+    ]
+    assert allergy_list(facts) == (
+        AllergyListEntry(1, ("gluten", "other"), "Ingen sopp"),
+        AllergyListEntry(2, (), "Bare notat"),
+    )
+
+
+def test_allergy_list_leaves_out_everyone_without_consent_or_allergies():
+    """FR-26, FR-58, AD-18: consent refused, none or withdrawn, «Ingen» only and not coming
+    are never listed, though the entry is stored."""
+    stored = AllergyEntry(cats=("nuts",), note="Hemmelig")
+    facts = [
+        guest(1, allergy=stored, consent=False),
+        guest(2, allergy=stored, consent=None),
+        guest(3, allergy=AllergyEntry(none=True), consent=True),
+        guest(4, coming=False, allergy=stored, consent=True),
+        guest(5, answered=False, coming=None, allergy=stored, consent=True),
+    ]
+    assert allergy_list(facts) == ()
+    assert allergy_list([]) == ()
+
+
+def test_allergy_list_is_as_long_as_the_has_allergies_count():
+    """FR-54, FR-58, AD-18: the list and the count come from the same rule."""
+    facts = [
+        guest(1, allergy=AllergyEntry(cats=("gluten",)), consent=True),
+        guest(2, allergy=AllergyEntry(cats=("nuts",)), consent=None),
+        guest(3, allergy=AllergyEntry(note="x"), consent=True),
+    ]
+    assert tuple(entry.guest_id for entry in allergy_list(facts)) == allergy_state_ids(
+        facts, HAS_ALLERGIES
+    )
 
 
 def test_hike_counts_each_answer_and_nei_is_not_coming():
