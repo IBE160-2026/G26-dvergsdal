@@ -14,6 +14,7 @@ import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
+from dashboard.counts import count_for, payment_statuses
 from dashboard.overview import build_overview
 from dashboard.selectors import (
     guest_facts,
@@ -333,3 +334,35 @@ def test_no_ids_give_nothing_and_no_queries(db, django_assert_num_queries):
     with django_assert_num_queries(0):
         assert people_behind(()) == ()
         assert households_behind(()) == ()
+
+
+def test_every_cell_opens_a_registry_count_of_the_same_size(facts):
+    """FR-54, FR-55, AD-2: each cell's slug is a registry entry whose tuple length is the
+    cell's number, and the number is written in the cell's text (Senger totalt: bare tallet)."""
+    totals = household_totals(facts, form_prices())
+    statuses = payment_statuses(facts, totals)
+    overview = build_overview(facts, totals)
+    rows = [*overview.progress.rows, *(row for panel in overview.panels for row in panel.rows)]
+    cells = [cell for row in rows for cell in row.cells]
+
+    assert cells
+    for cell in cells:
+        assert len(count_for(cell.slug).ids(facts, statuses)) == cell.count, cell.slug
+        assert cell.text.split()[0] == str(cell.count), cell.slug
+    assert len({cell.slug for cell in cells}) == len(cells)
+
+
+def test_the_hike_row_keeps_ja_and_kanskje_as_two_counts(facts):
+    """FR-17: «3 ja, 2 kanskje» is two cells with their own slugs, never one added number."""
+    hike = EXPECTED["counts"]["hike"]
+    row = next(
+        row
+        for panel in build_overview(facts, household_totals(facts, form_prices())).panels
+        for row in panel.rows
+        if row.label == "Vil gå turen"
+    )
+
+    assert [(cell.slug, cell.count) for cell in row.cells] == [
+        ("tur-ja", hike["yes"]),
+        ("tur-kanskje", hike["maybe"]),
+    ]
