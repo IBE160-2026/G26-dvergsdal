@@ -133,7 +133,7 @@ Kjør dem med:
 uv run pytest tests/test_expected_results.py
 ```
 
-En endring i listen er alltid en egen commit med begrunnelsen i meldingen, aldri en endring for å få en test til å gå grønn: viser en test en forskjell, er appen feil til en tellingen for hånd viser noe annet. Testdataene lagrer Synnes nøtteallergi til story 7.2 laster inn at hun trakk samtykket; testene legger inn tilbaketrekkingen selv, så alle tall stemmer uten avvik, og én egen test viser hva testdataene alene gir.
+En endring i listen er alltid en egen commit med begrunnelsen i meldingen, aldri en endring for å få en test til å gå grønn: viser en test en forskjell, er appen feil, med mindre tellingen for hånd viser noe annet. Testdataene lagrer Synnes nøtteallergi til story 7.2 laster inn at hun trakk samtykket; testene legger inn tilbaketrekkingen selv, så alle tall stemmer uten avvik, og én egen test viser hva testdataene alene gir.
 
 Sjekker som ikke kan automatiseres, for eksempel hvordan sidene ser ut på en smal mobilskjerm, står i [docs/manual-test-plan.md](docs/manual-test-plan.md).
 

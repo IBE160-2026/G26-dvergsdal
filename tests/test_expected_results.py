@@ -209,7 +209,8 @@ def test_no_rule_behind_the_counts_takes_now():
                     f"{module.__name__}.{name}"
                 )
     for name, function in inspect.getmembers(counts, inspect.isfunction):
-        assert "now" not in inspect.signature(function).parameters, f"counts.{name}"
+        if function.__module__ == counts.__name__:
+            assert "now" not in inspect.signature(function).parameters, f"counts.{name}"
 
 
 def test_the_seed_alone_differs_from_expected_only_by_synne_until_7_2(seeded_with_answers):
@@ -247,6 +248,9 @@ def test_oversikt_shows_every_expected_number(couple):
     expected = EXPECTED["counts"]["households"]
 
     assert f"Svart: {expected['answered']} av {expected['total']} husstander" in page_text(main)
+    assert unlisted_expected() == 0, (
+        "name the unlisted day combinations in expected.toml and check them per slug"
+    )
     for slug in listed_slugs():
         links = re.findall(rf'<a\b[^>]*href="/admin/tall/{slug}/"[^>]*>(.*?)</a>', main, re.DOTALL)
         number = expected_for(slug) if slug not in UNLISTED_DAYS else 0
@@ -259,11 +263,14 @@ def test_oversikt_shows_every_expected_number(couple):
 def test_every_count_page_lists_as_many_people_as_expected(couple):
     """FR-55, AD-2: `/admin/tall/<slug>/` has one `li` per person or household, as many as the
     expected number, for every count above 0."""
+    assert unlisted_expected() == 0, (
+        "name the unlisted day combinations in expected.toml and check them per slug"
+    )
     for slug in listed_slugs():
         number = 0 if slug in UNLISTED_DAYS else expected_for(slug)
         if number:
             html = couple.get(f"/admin/tall/{slug}/").content.decode()
-            assert len(re.findall(r"<li>", main_html(html))) == number, slug
+            assert len(re.findall(r"<li\b", main_html(html))) == number, slug
 
 
 def test_gjester_shows_the_counts_and_every_total(couple):
@@ -296,9 +303,9 @@ def test_the_allergy_list_names_exactly_the_guests_with_allergies(couple):
         if (guests := [k for k, g in EXPECTED["guests"].items() if g.get("allergy_state") == state])
     }
 
-    assert len(re.findall(r"<li>", main)) == EXPECTED["counts"]["allergy_states"][HAS_ALLERGIES]
-    assert sorted(shown) == sorted(named[HAS_ALLERGIES])
-    assert not set(shown) & (named[NOTHING_STORED] | named[NO_ALLERGIES])
+    assert len(re.findall(r"<li\b", main)) == EXPECTED["counts"]["allergy_states"][HAS_ALLERGIES]
+    assert sorted(shown) == sorted(named.get(HAS_ALLERGIES, set()))
+    assert not set(shown) & (named.get(NOTHING_STORED, set()) | named.get(NO_ALLERGIES, set()))
 
 
 def seed_statuses():
