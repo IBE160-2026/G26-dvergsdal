@@ -7,6 +7,7 @@ for anyone else), so `/admin/program/` never falls through to a guest page.
 """
 
 from django.urls import path
+from django.views.generic import RedirectView
 
 from dashboard import views
 
@@ -16,5 +17,14 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("logg-inn/", views.login_view, name="login"),
     path("logg-ut/", views.logout_view, name="logout"),
+    # No slash: the catch-all would otherwise take these before APPEND_SLASH can act.
+    path(
+        "logg-inn",
+        RedirectView.as_view(pattern_name="dashboard:login", query_string=True, permanent=True),
+    ),
+    path(
+        "logg-ut",
+        RedirectView.as_view(pattern_name="dashboard:logout", query_string=True, permanent=True),
+    ),
     path("<path:rest>", views.unknown, name="unknown"),
 ]

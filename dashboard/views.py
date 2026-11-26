@@ -40,8 +40,12 @@ class AdminLoginView(LoginView):
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """AD-13: an unauthenticated visitor with the marker cookie sees the expired notice once."""
-        seen = SEEN_COOKIE in request.COOKIES
-        self.expired = seen and not request.user.is_authenticated
+        seen = (
+            request.method == "GET"
+            and SEEN_COOKIE in request.COOKIES
+            and not request.user.is_authenticated
+        )
+        self.expired = seen
         response = super().get(request, *args, **kwargs)
         if seen:
             response.delete_cookie(SEEN_COOKIE, path=settings.SESSION_COOKIE_PATH)

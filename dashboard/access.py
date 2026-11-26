@@ -9,7 +9,7 @@ way a view makes an `AdminActor`.
 
 from collections.abc import Callable
 from functools import wraps
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpRequest, HttpResponse
@@ -20,6 +20,7 @@ from wedding.actors import AdminActor
 from wedding.models import User
 
 ADMIN_PREFIX = "/admin/"
+LOGIN_PATHS = {"/admin/logg-inn", "/admin/logg-ut"}
 
 
 def is_admin(user) -> bool:
@@ -56,6 +57,9 @@ def safe_next(request: HttpRequest, target: str) -> str:
     parts = urlsplit(target)
     if parts.scheme or parts.netloc or not parts.path.startswith(ADMIN_PREFIX):
         return ""
-    if ".." in parts.path.split("/"):
+    path = unquote(parts.path)
+    if {".", ".."} & set(path.split("/")):
         return ""
+    if path.rstrip("/") in LOGIN_PATHS:
+        return ""  # a login that leads back to the login or logout page would loop
     return target

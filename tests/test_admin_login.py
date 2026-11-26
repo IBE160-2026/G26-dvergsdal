@@ -7,10 +7,12 @@ used for one test only; the others use the fast hasher from conftest.py.
 """
 
 import datetime
+import re
 from urllib.parse import quote
 
 import pytest
 from django.contrib.sessions.models import Session
+from django.core.exceptions import ValidationError
 from django.test import Client
 from django.utils import timezone
 
@@ -88,6 +90,11 @@ def test_next_under_admin_is_followed(couple):
         "/svar/",
         "/Abcdefghijklmnopqrstuv/",
         "/admin/../Abcdefghijklmnopqrstuv/",
+        "/admin/%2e%2e/Abcdefghijklmnopqrstuv/",
+        "/admin/%2E/",
+        "/admin/logg-inn/",
+        "/admin/logg-inn",
+        "/admin/logg-ut/",
         "javascript:alert(1)",
         "admin/",
     ],
@@ -146,7 +153,7 @@ def test_an_invalid_role_is_refused_by_the_form():
     """AD-10: an account whose role is neither couple nor helper is refused with the
     same text. The database constraint stops such a row, so the form is called directly."""
     form = AdminLoginForm(data={"username": "x", "password": "y"})
-    with pytest.raises(Exception, match=LOGIN_FAILED):
+    with pytest.raises(ValidationError, match=LOGIN_FAILED):
         form.confirm_login_allowed(User(username="x", role="admin"))
 
 
@@ -293,3 +300,46 @@ def test_guest_requests_still_create_no_session(seeded):
         assert not response.cookies, path
 
     assert row_counts() == before
+
+
+def test_a_logged_in_visitor_sent_to_the_login_itself_goes_to_oversikt(couple):
+    """NFR-4: `next` pointing at the login page is dropped, so no ValueError (500)."""
+    client = Client()
+    log_in(client)
+
+    response = client.get(f"{LOGIN}?next=/admin/logg-inn/")
+
+    assert (response.status_code, response["Location"]) == (302, "/admin/")
+
+
+def test_the_hidden_next_field_carries_the_page_through_the_login(couple):
+    """FR-46: the login page holds `next`, and posting its own fields leads there."""
+    client = Client()
+    html = client.get(f"{LOGIN}?next=/admin/hei/").content.decode()
+
+    assert '<input type="hidden" name="next" value="/admin/hei/">' in html
+    fields = dict(re.findall(r'<input type="hidden" name="(\w+)" value="([^"]*)">', html))
+    response = client.post(LOGIN, {**fields, "username": "rikke", "password": PASSWORD})
+
+    assert response["Location"] == "/admin/hei/"
+
+
+@pytest.mark.parametrize("page", ["logg-inn", "logg-ut"])
+def test_login_and_logout_without_a_slash_redirect_with_the_query(db, page):
+    """FR-46: `/admin/logg-inn` is not swallowed by the catch-all."""
+    response = Client().get(f"/admin/{page}?next=/admin/hei/")
+
+    assert response.status_code == 301
+    assert response["Location"] == f"/admin/{page}/?next=/admin/hei/"
+
+
+def test_the_marker_survives_a_logged_in_visit_and_a_head_request(couple):
+    """AD-13: only a GET by a visitor who is not logged in reads and clears `admin_seen`."""
+    client = Client()
+    log_in(client)
+    assert "admin_seen" not in client.get(LOGIN).cookies
+
+    other = Client()
+    other.cookies["admin_seen"] = "1"
+    assert "admin_seen" not in other.head(LOGIN).cookies
+    assert EXPIRED in page_text(other.get(LOGIN).content.decode())
