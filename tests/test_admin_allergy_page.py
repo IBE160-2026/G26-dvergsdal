@@ -7,14 +7,15 @@ number; consent is checked against the seed file, never with names written here.
 import datetime
 import re
 import tomllib
-from pathlib import Path
 
 import pytest
 from django.test import Client
 
 from tests.helpers import (
+    FIXTURES,
     HELPER_LINE,
     SYNNE_UNTIL_7_2,
+    load_expected,
     log_in_as,
     log_in_as_new_couple,
     main_html,
@@ -22,9 +23,8 @@ from tests.helpers import (
 )
 from wedding.models import Allergy, Consent, Guest
 
-ROOT = Path(__file__).resolve().parent.parent / "wedding" / "fixtures"
-EXPECTED = tomllib.loads((ROOT / "expected.toml").read_text(encoding="utf-8"))
-SEED = tomllib.loads((ROOT / "seed.toml").read_text(encoding="utf-8"))
+EXPECTED = load_expected()
+SEED = tomllib.loads((FIXTURES / "seed.toml").read_text(encoding="utf-8"))
 URL = "/admin/allergier/"
 LABELS = {
     "gluten": "Gluten",

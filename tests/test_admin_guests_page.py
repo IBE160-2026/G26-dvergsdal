@@ -5,21 +5,22 @@ lines are tested on small facts in test_guest_list.py.
 """
 
 import re
-import tomllib
-from pathlib import Path
 
 import pytest
 from django.test import Client
 
-from tests.helpers import HELPER_LINE, log_in_as, log_in_as_new_couple, main_html, page_text
+from tests.helpers import (
+    HELPER_LINE,
+    load_expected,
+    log_in_as,
+    log_in_as_new_couple,
+    main_html,
+    page_text,
+)
 from wedding.models import Guest, Household
 from wedding.rules.households import household_names
 
-EXPECTED = tomllib.loads(
-    (Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "expected.toml").read_text(
-        encoding="utf-8"
-    )
-)
+EXPECTED = load_expected()
 URL = "/admin/gjester/"
 
 

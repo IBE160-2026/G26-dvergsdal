@@ -21,7 +21,7 @@ from django.contrib.sessions.models import Session
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
-from tests.helpers import FRONT_PAGE, page_text, row_counts
+from tests.helpers import FRONT_PAGE, page_text, row_counts, tel_rows
 from wedding.links import new_code
 from wedding.models import Guest, Household, Settings
 from wedding.rules.households import household_names
@@ -117,8 +117,7 @@ def test_footer_shows_both_phones_as_tel_links(client, seeded):
     html = _page(client, SIGMUND)
     footer = html[html.index("<footer") : html.index("</footer>")]
     assert "Spørsmål? Send oss en melding:" in footer
-    rows = re.findall(r'<a href="(tel:[^"]*)">([^<]*)</a>', footer)
-    assert rows == [
+    assert tel_rows(html) == [
         ("tel:+4700000101", "Rikke +47 000 00 101"),
         ("tel:+4700000102", "Valdemar +47 000 00 102"),
     ]

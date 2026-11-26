@@ -7,8 +7,6 @@ here. Hike, meals and totals need no `now`; no rule here takes one.
 """
 
 import datetime
-import tomllib
-from pathlib import Path
 
 import pytest
 from django.db import connection
@@ -23,7 +21,7 @@ from dashboard.selectors import (
     households_behind,
     people_behind,
 )
-from tests.helpers import SYNNE_UNTIL_7_2
+from tests.helpers import SYNNE_UNTIL_7_2, load_expected
 from wedding.models import Consent, Guest, Household, HouseholdAnswer, PersonAnswer
 from wedding.rules.allergies import HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED, allergy_state
 from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING, household_names
@@ -44,11 +42,7 @@ from wedding.rules.summary import (
 )
 from wedding.selectors import form_prices, sent_answer
 
-EXPECTED = tomllib.loads(
-    (Path(__file__).resolve().parent.parent / "wedding" / "fixtures" / "expected.toml").read_text(
-        encoding="utf-8"
-    )
-)
+EXPECTED = load_expected()
 
 
 @pytest.fixture
