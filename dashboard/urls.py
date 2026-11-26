@@ -1,4 +1,4 @@
-"""URLs under `/admin/` (Story 3.1; FR-46, AD-10, AD-13, UX-DR34).
+"""URLs under `/admin/` (Story 3.1, 3.4; FR-46, FR-57, FR-58, AD-10, AD-13, UX-DR34).
 
 `config/urls.py` includes this above the guests' `<str:code>/`, so `/admin/…`
 is never read as a link code. The last pattern catches every other admin path
@@ -16,6 +16,7 @@ app_name = "dashboard"
 urlpatterns = [
     path("", views.home, name="home"),
     path("tall/<slug:slug>/", views.count_page, name="count"),
+    path("gjester/", views.guests_page, name="guests"),
     path("logg-inn/", views.login_view, name="login"),
     path("logg-ut/", views.logout_view, name="logout"),
     # No slash: the catch-all would otherwise take these before APPEND_SLASH can act.

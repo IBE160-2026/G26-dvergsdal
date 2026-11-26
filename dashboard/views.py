@@ -1,6 +1,6 @@
-"""The admin views: login, logout, Oversikt and the count pages (Story 3.1, 3.3; FR-46, FR-55).
+"""The admin views: login, logout, Oversikt, the count pages, Gjester and the allergy list.
 
-FR-46, FR-55, NFR-4, AD-10, AD-13.
+Story 3.1, 3.3, 3.4; FR-46, FR-55, FR-57, FR-58, NFR-4, AD-10, AD-13.
 
 The session cookie is scoped to `/admin/` and lasts 20 hours since the last
 request (config/settings.py). The browser drops the cookie when it expires, so
@@ -22,10 +22,12 @@ from django.views.decorators.http import require_POST, require_safe
 from dashboard.access import admin_required, safe_next
 from dashboard.counts import HOUSEHOLDS, count_for, count_text, payment_statuses
 from dashboard.forms import AdminLoginForm
+from dashboard.guest_list import build_guest_list
 from dashboard.navigation import frame
 from dashboard.overview import build_overview
 from dashboard.selectors import (
     guest_facts,
+    guest_names,
     household_totals,
     households_behind,
     people_behind,
@@ -126,7 +128,8 @@ def count_page(request: HttpRequest, slug: str) -> HttpResponse:
     """FR-55, UX-DR41, UX A3 (Story 3.3): the people or households behind one count on Oversikt.
 
     The rows are exactly the id tuple the registry's rule call returns, so their number is the
-    number in the heading and the one Oversikt shows. Names only: the allergy list is Story 3.4.
+    number in the heading and the one Oversikt shows. Names only: allergy details live only on
+    the allergy list (FR-58).
     """
     try:
         count = count_for(slug)
@@ -146,6 +149,23 @@ def count_page(request: HttpRequest, slug: str) -> HttpResponse:
             "by_household": by_household,
             "empty_text": "Ingen husstander." if by_household else "Ingen personer.",
         },
+    )
+
+
+@admin_required
+@require_safe
+def guests_page(request: HttpRequest) -> HttpResponse:
+    """FR-48, FR-57, UX-DR42, UX A4 (Story 3.4): Gjester, one row per household, unanswered first.
+
+    Each row carries the anchor `husstand-<id>` that the household links on the count pages
+    point to (the household page A6 is Story 6.3). The couple and a helper see the same page.
+    """
+    facts = guest_facts()
+    guest_list = build_guest_list(facts, guest_names(), household_totals(facts, form_prices()))
+    return render(
+        request,
+        "dashboard/guests.html",
+        {**frame(request, "guests"), "guest_list": guest_list},
     )
 
 

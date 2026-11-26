@@ -1,8 +1,8 @@
 """The admin nav: Oversikt, Gjester, Betalinger, Innstillinger (UX-DR34, FR-46).
 
 An item without a `url_name` is shown as plain text until the story that builds
-its page adds one, so the frame shows the final nav without a dead link: Gjester
-comes in Story 3.4, Betalinger in Story 5.3 and Innstillinger in Story 4.5.
+its page adds one, so the frame shows the final nav without a dead link: Gjester is
+built (Story 3.4), Betalinger comes in Story 5.3 and Innstillinger in Story 4.5.
 «Logg ut» is a POST button in the template, not an item here.
 """
 
@@ -25,7 +25,7 @@ class NavItem:
 
 NAV_ITEMS = (
     NavItem("home", "Oversikt", "dashboard:home"),
-    NavItem("guests", "Gjester"),
+    NavItem("guests", "Gjester", "dashboard:guests"),
     NavItem("payments", "Betalinger"),
     NavItem("settings", "Innstillinger"),
 )
