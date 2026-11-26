@@ -2,7 +2,7 @@
 title: 'Story 3.3: Every count opens the people behind it'
 type: 'feature'
 created: '2026-11-26'
-status: 'in-progress'
+status: 'done'
 baseline_revision: '72f691d4a8ffe7ebaa52e352e2011953acefaa02'
 review_loop_iteration: 0
 followup_review_recommended: false
@@ -11,7 +11,23 @@ context:
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/DESIGN.md'
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md'
 warnings: [oversized]
-deferred: []
+deferred:
+- summary: >-
+    Count-page headings read «Betaling: Delbetalt: 0 husstander» and «Fjelltur: vil gå: 3 personer» (double colon); the heading wording is `[forslag]`.
+  reason: >-
+    Wording polish; goes to the Impeccable polish story before the usability test (epic 2 retro item 11).
+- summary: >-
+    `tests/test_admin_count_page.py` imports `HELPER_LINE`, `log_in_as` and `SYNNE_UNTIL_7_2` from other test modules.
+  reason: >-
+    Move the shared helpers to `tests/helpers.py` at the next test-structure pass; it works and is tested.
+- summary: >-
+    Household rows on the count page do not link to the household page A6.
+  reason: >-
+    A6 is built in Story 3.4; the rows get their link there.
+- summary: >-
+    The README status paragraph keeps growing with every story.
+  reason: >-
+    Already deferred in 3.2; shorten at the next README pass.
 ---
 
 <intent-contract>
@@ -91,6 +107,32 @@ Each group is one commit of about 600 changed lines or fewer (`epic-2-retro-item
 
 ## Review Triage Log
 
+### 2026-11-26 — Review pass
+- verdicts: 22 findings — high 0, medium 3, low 15, false 4, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` The count-page test accepts `on_oversikt == []` for every slug, so a count dropped from Oversikt passes (edge-case, verification-gap, blind, intent-alignment) — the assertion becomes `== [len(ids)]` except for the day sub-rows and «Andre kombinasjoner», where empty is allowed only when `ids` is empty.
+  - `[medium]` `[patch]` Rendered Oversikt links are not followed in any automated test: the `aria-label` is not tied to the row label and an `href` could open the wrong list (verification-gap, intent-alignment) — the link test asserts the label starts with the row label, and a client loop follows every rendered link and compares the `h1` number and the `li` count with the link text.
+  - `[medium]` `[patch]` Name and household are two sibling spans, read as one string by a screen reader, and the section label «Liste» is vague (blind) — a visually hidden separator between them and the section label becomes the heading text.
+  - `[low]` `[patch]` DESIGN.md has two items numbered 3, and EXPERIENCE/README still say the counts are plain text next to the new text (blind) — renumber, and rewrite the stale sentences.
+  - `[low]` `[defer]` Headings read «Betaling: Delbetalt: 0 husstander» and «Fjelltur: vil gå: 3 personer» (blind, edge-case) — awkward double colon, wording is `[forslag]`; polish story with Impeccable (retro item 11).
+  - `[low]` `[defer]` Count-test helpers are imported across test modules (blind) — move to `tests/helpers.py` at the next test-structure pass.
+  - `[low]` `[defer]` Household rows on the count page do not link to the household page A6 (blind) — A6 is Story 3.4.
+  - `[low]` `[defer]` README status paragraph keeps growing (blind) — shortened at the next README pass (already deferred in 3.2).
+  - `[low]` `[reject]` `people_behind`/`households_behind` raise `KeyError` if an id vanishes between two queries (edge-case, blind) — ids come from the same tables moments earlier and nothing deletes guests while the couple browses; a guard adds a branch for a state not shown to occur.
+  - `[low]` `[reject]` `_Counter.number` re-runs each rule two or three times per request (edge-case, blind) — about 50 rules over a few dozen guests, measured as fast; a cache adds state.
+  - `[low]` `[reject]` Day sub-row filter and `Cell` built by hand in `_overnight` duplicate counting logic (edge-case, blind) — the filter is the spec's «rows show only above 0» rule, and the cell text override is a documented parameter.
+  - `[low]` `[reject]` `Row.text` may be dead code (blind) — it is read by `tests/test_overview.py` and documents the reader's text of a row.
+  - `[low]` `[reject]` «Senger totalt: N personer» unit differs from the bare number on Oversikt (edge-case) — beds are one per person by the rule; the label is the spec's.
+  - `[low]` `[reject]` `_cells.html` is one long line; `items()` uses a regex over `main`; `aria-label` escaping not pinned (blind, verification-gap, edge-case) — Django autoescapes, the page has one list, djlint passes.
+  - `[low]` `[reject]` Allergy count pages show who has which allergy to a helper (blind) — the lists come from the rules that already honour consent (Synne until 7.2 is a known deferral); the category sits in the heading as on Oversikt; no notes shown; the consent-checked list is Story 3.4.
+  - `[false]` `[reject]` Payment slugs drop households missing from `household_totals` (edge-case) — `household_totals` is built over all households in `facts`; the payment counts add up in the seeded test.
+  - `[false]` `[reject]` MT-75 to MT-78 unrun and story marked done in sprint-status (blind) — run by Claude with Playwright after review and recorded; status is set in the finalize step.
+  - `[false]` `[reject]` Review triage log empty and no session log (blind) — this triage and the log are steps 8 and 14 of the runner.
+  - `[false]` `[reject]` Spec says `_cell.html` but `_cells.html` was built (edge-case, claim) — recorded in the Spec Change Log by the implementer.
+  - `[low]` `[reject]` Template and overview «never count or filter» claim is overstated (edge-case, claim) — the filter is the kept sub-row rule; the claim is the spec's wording, not code.
+  - `[low]` `[reject]` Intent-alignment: AC3 test starts at the registry, not at Oversikt links (intent-alignment) — covered by the second patch above (links are followed).
+  - `[low]` `[reject]` Registry holds more slugs than Oversikt links (intent-alignment) — deliberate: sub-rows hidden at 0 keep an address; covered by the first patch.
+
 ## Design Notes
 
 - **Why a registry.** Each count is defined once, so the number on Oversikt, the link, the A3 heading and the A3 rows come from one tuple (AD-2); adding a count is one entry, and the parametrized test covers it automatically.
@@ -109,3 +151,22 @@ Each group is one commit of about 600 changed lines or fewer (`epic-2-retro-item
 
 **Manual checks (orchestrator, Playwright against Edge, MT-75 onwards):**
 - Each count link on Oversikt (numbers read from the page and `expected.toml`) opens a list whose item count equals it; zero counts are not links; logged out denied; keyboard only; 360 and 180px; 20px text: see the MT task above.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** Every count above 0 on Oversikt (`/admin/`) is now a link to `/admin/tall/<slug>/` (A3), which lists exactly the people or households behind it; a count of 0 stays plain text, and the hike row «3 ja, 2 kanskje» has one link per number. A new registry `dashboard/counts.py` (slug, title, kind, rule call) is the single source for Oversikt, the links and A3, so rows equal the count by construction. A3 shows names only (no allergy details; the consent-checked list is Story 3.4), works for the couple and the helper, redirects when logged out and gives the couple's own 404 for an unknown slug. «Se hva alle har svart» stays plain text until 3.4.
+
+**Files changed:**
+- `dashboard/counts.py` (new), `selectors.py` (`people_behind`, `households_behind`), `overview.py` (cells from the registry), `views.py`, `urls.py`, templates `count.html` and `overview/_cells.html`, `static/css/site.css`.
+- `tests/test_counts.py`, `test_admin_count_page.py`, `test_overview.py`, `test_admin_overview.py`.
+- `README.md`, `epics.md`, `DESIGN.md`, `EXPERIENCE.md`, `deferred-work.md`, `docs/manual-test-plan.md` (MT-75 to MT-78).
+
+**Review:** 22 findings from four layers: 4 patched (count test accepted a count missing from Oversikt; rendered links were never followed; screen reader read name and household as one string; stale DESIGN/EXPERIENCE/README text), 4 deferred, 14 rejected with reasons.
+
+**Follow-up review recommendation:** false. No high finding; the patches were test and markup changes re-verified in Edge.
+
+**Verification:** `uv run pytest` 1573 passed; ruff, ruff format and djlint clean; MT-75 to MT-78 run by Claude with Playwright in Edge: 30 links each opening a list with `li` count equal to the `h1` number and the link text, 6 zero counts as plain text, logged-out redirect, helper view, 404, keyboard-only, 360 and 180 px at 18 and 22.5 px with no overflow and all targets at least 44 px.
+
+**Residual risks:** Synne's allergy counts differ from `expected.toml` until Story 7.2 (named offset in the tests); Alt+Left is not delivered as a browser shortcut by Playwright, so back navigation was measured with `goBack()`.

@@ -369,3 +369,23 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
   summary: `frame()` and the error handler's override of `read_only` is awkward, and the muted italic «Se hva alle har svart» note has unchecked contrast.
   evidence: Blind Hunter in the 3.2 review.
   status: open. Tidy when Story 6.1 builds the admin nav; contrast in the Impeccable polish story.
+
+- source_spec: `.docs/implementation-artifacts/spec-3-3-every-count-opens-the-people-behind-it.md`
+  summary: Count-page headings read «Betaling: Delbetalt: 0 husstander» and «Fjelltur: vil gå: 3 personer» (double colon); the wording is `[forslag]`.
+  evidence: Blind Hunter and Edge Case Hunter in the 3.3 review; seen in MT-76.
+  status: open (Impeccable polish story, epic 2 retro item 11).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-3-every-count-opens-the-people-behind-it.md`
+  summary: `tests/test_admin_count_page.py` imports `HELPER_LINE`, `log_in_as` and `SYNNE_UNTIL_7_2` from other test modules; move them to `tests/helpers.py`.
+  evidence: Blind Hunter in the 3.3 review.
+  status: open.
+
+- source_spec: `.docs/implementation-artifacts/spec-3-3-every-count-opens-the-people-behind-it.md`
+  summary: Household rows on the count page do not link to the household page A6.
+  evidence: Blind Hunter in the 3.3 review; A6 is built in Story 3.4.
+  status: open (Story 3.4).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-3-every-count-opens-the-people-behind-it.md`
+  summary: The README status paragraph keeps growing with every story.
+  evidence: Blind Hunter in the 3.3 review (also 3.2).
+  status: open (next README pass).
