@@ -15,10 +15,15 @@ from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
 from dashboard.overview import build_overview
-from dashboard.selectors import guest_facts, household_totals
+from dashboard.selectors import (
+    guest_facts,
+    household_totals,
+    households_behind,
+    people_behind,
+)
 from wedding.models import Consent, Guest, Household, HouseholdAnswer, PersonAnswer
 from wedding.rules.allergies import HAS_ALLERGIES, NO_ALLERGIES, NOTHING_STORED, allergy_state
-from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING
+from wedding.rules.households import COMING, NOT_ANSWERED, NOT_COMING, household_names
 from wedding.rules.money import household_total
 from wedding.rules.summary import (
     GuestFacts,
@@ -287,3 +292,44 @@ def test_the_bar_is_at_least_one_percent_when_anyone_has_answered(answered, perc
     ]
 
     assert build_overview(facts, {}).progress.percent == percent
+
+
+def test_people_behind_follow_the_ids_and_name_the_household(seeded_with_answers):
+    """FR-55: one entry per id, in the order of the ids, the guest's name and the household
+    as the invitation names it; nothing about allergies."""
+    ids = tuple(reversed(sorted(guest.id for guest in Guest.objects.all())[:4]))
+    people = people_behind(ids)
+
+    assert [person.name for person in people] == [Guest.objects.get(id=i).name for i in ids]
+    for person, id_ in zip(people, ids, strict=True):
+        household = Guest.objects.get(id=id_).household
+        assert person.household == household_names([g.name for g in household.guests.all()])
+        assert set(vars(person)) == {"name", "household"}
+
+
+def test_households_behind_name_every_guest_of_the_household(seeded_with_answers):
+    ids = tuple(Household.objects.order_by("-id").values_list("id", flat=True)[:3])
+    rows = households_behind(ids)
+
+    assert [row.names for row in rows] == [
+        household_names([g.name for g in Household.objects.get(id=i).guests.all()]) for i in ids
+    ]
+
+
+def test_the_names_load_in_a_fixed_number_of_queries(
+    seeded_with_answers, django_assert_num_queries
+):
+    """NFR-2: two queries for people and one for households, however many ids."""
+    guest_ids = tuple(Guest.objects.values_list("id", flat=True))
+    household_ids = tuple(Household.objects.values_list("id", flat=True))
+
+    with django_assert_num_queries(2):
+        people_behind(guest_ids)
+    with django_assert_num_queries(1):
+        households_behind(household_ids)
+
+
+def test_no_ids_give_nothing_and_no_queries(db, django_assert_num_queries):
+    with django_assert_num_queries(0):
+        assert people_behind(()) == ()
+        assert households_behind(()) == ()
