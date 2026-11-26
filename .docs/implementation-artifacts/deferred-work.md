@@ -334,3 +334,13 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
   summary: Tidy-up for the next story that touches them: rename `tests/test_send_answer.py` to `test_answers_service.py` and `tests/test_rsvp_send.py` to `test_rsvp_send_views.py`, and extend the Story 3.1 import test to cover `wedding.rsvp`.
   evidence: D2 and A1 in the retrospective.
   status: done in Story 3.1 (renamed `tests/test_answers_service.py` and `tests/test_rsvp_send_views.py`, docstrings rewritten by topic; the import test covers `wedding.rsvp`).
+
+- source_spec: `.docs/implementation-artifacts/spec-3-1-the-couple-logs-in.md`
+  summary: Show the helper's read-only line «Du kan se alt, men ikke endre noe.» (DESIGN.md) under the admin nav for the helper role. Story 3.2 is the first admin page with content a helper cannot change.
+  evidence: Blind Hunter in the 3.1 review; `dashboard/templates/dashboard/admin_base.html` shows nothing role-specific.
+  status: open.
+
+- source_spec: `.docs/implementation-artifacts/spec-3-1-the-couple-logs-in.md`
+  summary: Log failed logins on `/admin/logg-inn/` with the username masked, before go-live. The slowed state is Story 6.6, but until then the login has no brute-force protection or failure log (test data only until the site is live).
+  evidence: Blind Hunter in the 3.1 review; the comment in `login.html` points to Story 6.6.
+  status: open.
