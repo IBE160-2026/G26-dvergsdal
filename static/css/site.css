@@ -925,6 +925,20 @@ a:active {
   margin: 0;
 }
 
+/* Story 4.1 (FR-37, FR-41, UX-DR10): the change window under the total, then
+ * the primary «Se eller endre svar» (the .rsvp .button rule gives 16px above
+ * each button), and the draft notice under the sheet's flowers. The text
+ * wraps inside the sheet at any width. */
+
+.status-block__window {
+  margin: var(--space-3) 0 0;
+}
+
+.status-block .notice {
+  margin: 0 0 var(--space-3);
+  text-align: left;
+}
+
 /* ---------- RSVP form (Story 2.1; FR-13, FR-14, FR-22, UX-DR16, UX-DR18, UX-DR19; DESIGN.md › Form step) ----------
  * One paper sheet per step on the green page (mockups/key-form-steps.html):
  * the question, the progress line «Steg n av m: …» in body text, the
