@@ -25,6 +25,7 @@ MARIE = "test-marie000000000000"
 FRONT = f"/{MONA}/"
 STEP_1 = f"/{MONA}/svar/"
 NOTICE = "Du har et svar som ikke er sendt ennå."
+CHANGES = "Du har endringer som ikke er sendt ennå."
 OFFER = "Vil du fortsette der du slapp?"
 ALL_STEPS = ["who", "days", "overnight", "meals", "allergies", "hike"]
 
@@ -267,7 +268,7 @@ def test_a_removed_member_is_dropped_and_yes_goes_to_step_1(client, seeded):
     assert response.status_code == 303
     assert response["Location"] == STEP_1
     written = _written(response)
-    assert str(geir) not in signing.dumps(written)
+    assert all(str(geir) not in written[key] for key in ("att", "night", "alg", "cons", "hike"))
     assert written["resp"] == mona
     assert written["cons"] == {}
     assert written["conf"] == []
@@ -316,17 +317,46 @@ def test_after_the_deadline_the_form_is_closed_and_deletes_the_draft(client, see
 # An answered household
 
 
-def test_an_answered_household_gets_no_notice_and_keeps_the_cookie(client, seeded_with_answers):
-    """FR-24, Story 4.1: Marie's household has answered: the status block, no
-    notice, the cookie untouched, and a form GET still goes to `#status`."""
+def test_an_answered_household_with_a_draft_gets_its_own_notice_and_offer(
+    client, seeded_with_answers
+):
+    """FR-78, FR-37, UX-DR26 (Story 4.1, matrix «Draft of answered household»):
+    Marie's household has answered; a usable draft gives the status block the
+    notice «Du har endringer som ikke er sendt ennå.» (not the unanswered
+    one), the cookie is kept, and a form GET in a new visit shows the Draft
+    offer, not the seeded form."""
     _with_draft(client, _payload(MARIE))
     client.cookies[COOKIE_NAME]["path"] = f"/{MARIE}/"
     response = client.get(f"/{MARIE}/")
-    assert NOTICE not in response.content.decode()
+    text = page_text(response.content.decode())
+    assert f"Obs: {CHANGES}" in text
+    assert NOTICE not in text
     assert COOKIE_NAME not in response.cookies
     response = client.get(f"/{MARIE}/svar/")
-    assert response.status_code == 302
-    assert response["Location"] == f"/{MARIE}/#status"
+    assert response.status_code == 200
+    assert OFFER in response.content.decode()
+
+
+def test_the_answered_front_page_deletes_a_draft_after_the_deadline(client, seeded_with_answers):
+    """FR-78, AD-11 (Story 4.1, matrix «After the deadline»): the front page of
+    an answered household deletes the draft cookie and shows no notice."""
+    _with_draft(client, _payload(MARIE))
+    client.cookies[COOKIE_NAME]["path"] = f"/{MARIE}/"
+    _past_deadline()
+    response = client.get(f"/{MARIE}/")
+    assert CHANGES not in page_text(response.content.decode())
+    assert response.cookies[COOKIE_NAME]["max-age"] == 0
+
+
+def test_a_changed_household_offer_says_to_look_over_the_answer_again(client, seeded):
+    """FR-78, AD-18 (Story 4.1, Story 2.9 deferred): when the household changed
+    since the draft started, the Draft offer also says so."""
+    other = Guest.objects.exclude(household=Guest.objects.get(code=MONA).household).first()
+    _with_draft(client, _payload(att={str(other.pk): True}, resp=other.pk))
+    response = client.get(STEP_1)
+    assert "Husstanden er endret siden du begynte." in page_text(response.content.decode())
+    _with_draft(client)
+    assert "Husstanden er endret" not in page_text(client.get(STEP_1).content.decode())
 
 
 # AD-8: no session

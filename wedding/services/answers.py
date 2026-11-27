@@ -10,7 +10,9 @@ answered «Ja» or «Nei». Story 2.6c makes a send that repeats or comes too
 late safe: a submission id already written returns the earlier answer, and a
 draft from an older revision, a consent answer to an older consent text or a
 total that differs from the one the check page showed is refused, writing
-nothing and recording no `Submission`.
+nothing and recording no `Submission`. Story 4.1 (FR-39, AD-19): a send that
+changes an already sent answer's content also sets the household's `changed_at`
+through `mark_changed`.
 """
 
 from datetime import datetime
@@ -40,10 +42,12 @@ from wedding.rules.allergies import (
     has_allergy_info,
 )
 from wedding.rules.answer import Answer, normalise_answer, present_days
+from wedding.rules.changes import answer_changed
 from wedding.rules.days import MEAL_KEYS
 from wedding.rules.deadline import is_past_deadline
 from wedding.rules.money import household_total
-from wedding.selectors import form_prices
+from wedding.selectors import form_prices, household_answer, sent_answer
+from wedding.services.changes import mark_changed
 from wedding.services.consent import CONSENT_TEXT_VERSION
 from wedding.services.exceptions import (
     ConsentTextChanged,
@@ -175,6 +179,9 @@ def send_answer(
             raise DeadlinePassed()
         answer = normalise_answer(answer)
         present = present_days(answer)
+        changed = household_answer(household) is not None and answer_changed(
+            sent_answer(household), answer
+        )
         for guest_id in present:
             if allergy_problems(
                 answer.allergies.get(guest_id, EMPTY),
@@ -209,6 +216,8 @@ def send_answer(
             defaults={"sent_by": sender, "sent_by_name": sender.name, "sent_at": now},
         )
         Household.objects.filter(pk=household.pk).update(revision=F("revision") + 1)
+        if changed:
+            mark_changed(household, now)
         Submission.objects.create(
             key=submission, kind=Submission.ANSWER, object_id=sent.pk, created_at=now
         )

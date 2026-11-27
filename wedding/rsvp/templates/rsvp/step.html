@@ -28,6 +28,8 @@ and swaps in the fragment; without JavaScript the next page shows the total.
 - The first button in the form is a hidden copy of «Fortsett», so Enter in a
   radio or checkbox submits as «Fortsett» and not as «Velg» inside «Bytt»,
   which comes earlier in the form. It is not focusable and carries no answer.
+- Story 4.1 (FR-38, UX-DR28): for an answered household the info notice
+  «Sist endret av …» (`last_changed`) stands above the `h1`.
 - No hidden fields (AD-1, AD-8), and no script except rsvp-total.js on the
   paid steps and rsvp-allergies.js on step 5 (UX-DR21), which only enhance.
 {% endcomment %}
@@ -55,6 +57,7 @@ and swaps in the fragment; without JavaScript the next page shows the total.
             {% if has_fields %}
                 <button type="submit" hidden>Fortsett</button>
             {% endif %}
+            {% include "rsvp/includes/last-changed.html" %}
             <h1 id="sporsmal">{{ heading }}</h1>
             <p class="form-progress">{{ progress }}</p>
             {% include "rsvp/includes/respondent.html" %}

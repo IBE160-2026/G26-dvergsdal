@@ -136,16 +136,28 @@ def test_the_nav_on_an_info_page_follows_the_answer(client, seeded_with_answers,
 
 
 @pytest.mark.parametrize(
-    ("method", "path"), [("get", "svar/"), ("get", "svar/se-over/"), ("head", "svar/")]
+    ("method", "path"), [("get", "svar/"), ("get", "svar/dager/"), ("head", "svar/")]
 )
-def test_an_answered_household_opening_the_form_goes_to_the_status(
+def test_an_answered_household_opening_the_form_before_the_deadline_gets_it(
     client, seeded_with_answers, method, path
 ):
-    """FR-24, UX-DR10 (matrix «Answered opens form»): every form address, GET
-    or HEAD, sends an answered household (302) to the status block."""
+    """FR-37, FR-41 (Story 4.1, replaces Story 2.8's redirect): before the
+    deadline every form address, GET or HEAD, opens the form (200)."""
     response = getattr(client, method)(f"/{MARIE}/{path}")
-    assert response.status_code == 302
-    assert response["Location"] == f"/{MARIE}/#status"
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize(
+    ("method", "path"), [("get", "svar/"), ("get", "svar/se-over/"), ("head", "svar/dager/")]
+)
+def test_an_answered_household_opening_the_form_after_the_deadline_goes_to_the_status(
+    client, seeded_with_answers, method, path
+):
+    """FR-24, FR-41, UX-DR10 (matrix «After the deadline»): every form address,
+    GET or HEAD, sends an answered household (302) to the status block."""
+    _past_deadline()
+    response = getattr(client, method)(f"/{MARIE}/{path}")
+    assert (response.status_code, response["Location"]) == (302, f"/{MARIE}/#status")
 
 
 def test_after_the_deadline_an_answered_household_keeps_its_status(client, seeded_with_answers):
@@ -172,11 +184,14 @@ def test_after_the_deadline_an_unanswered_household_gets_the_closed_page(
 
 
 def test_a_post_by_an_answered_household_is_not_redirected(client, seeded_with_answers):
-    """FR-38 (matrix «POST by answered household»): a POST keeps the handling of
-    Story 2.6c, so it is never sent to `#status`: with no draft the check page
-    sends it (302) to step 1, as before Story 2.8."""
-    response = client.post(f"/{MARIE}/svar/se-over/", {})
-    assert (response.status_code, response["Location"]) == (302, f"/{MARIE}/svar/")
+    """FR-38 (matrix «POST by answered household»): a POST is never sent to
+    `#status`. Story 4.1: a POST that is not a send works on the seeded draft
+    (303 back to the check page); a send without a cookie draft goes (303) to
+    step 1."""
+    response = client.post(f"/{SYNNE}/svar/se-over/", {})
+    assert (response.status_code, response["Location"]) == (303, f"/{SYNNE}/svar/se-over/")
+    response = client.post(f"/{MARIE}/svar/se-over/", {"action": "send"})
+    assert (response.status_code, response["Location"]) == (303, f"/{MARIE}/svar/")
 
 
 def test_the_check_page_after_a_refused_send_is_shown(client, seeded_with_answers):
@@ -188,13 +203,6 @@ def test_the_check_page_after_a_refused_send_is_shown(client, seeded_with_answer
     step_1 = {f"attendance_{guest.id}": "no" for guest in household.guests.all()}
     assert client.post(f"/{MARIE}/svar/", step_1)["Location"] == f"/{MARIE}/svar/se-over/"
     assert client.get(f"/{MARIE}/svar/se-over/?sending=endret").status_code == 200
-
-
-def test_another_step_with_sending_goes_to_the_status(client, seeded_with_answers):
-    """FR-24, UX-DR10: `?sending=` opens only the check page; any other step
-    still goes to `#status`."""
-    response = client.get(f"/{MARIE}/svar/dager/?sending=endret")
-    assert (response.status_code, response["Location"]) == (302, f"/{MARIE}/#status")
 
 
 def test_the_check_page_with_sending_after_the_deadline_goes_to_the_status(
@@ -227,3 +235,44 @@ def test_the_answered_front_page_only_reads(client, seeded_with_answers):
     assert row_counts() == before
     assert not response.cookies
     assert Session.objects.count() == 0
+
+
+def test_the_status_block_before_the_deadline_offers_the_change(client, seeded_with_answers):
+    """FR-37, FR-41, UX-DR10 (Story 4.1, matrix «Status block, open window»):
+    after the total, the window line with the deadline date, the primary
+    «Se eller endre svar» to the form, then «Slik betaler du»."""
+    block = _status_block(_front(client, MARIE))
+    text = page_text(block)
+    deadline = Settings.objects.get(pk=1).rsvp_deadline
+    assert f"Dere kan endre svaret fram til {date(deadline, 'l j. F Y')} kl. 23:59." in text
+    change = block.index("Se eller endre svar")
+    assert block.index("Totalt for husstanden") < block.index("status-block__window") < change
+    assert change < block.index("Slik betaler du")
+    assert f'href="/{MARIE}/svar/"' in block
+    assert 'class="button" href' in block
+
+
+def test_a_single_guest_is_told_du_kan_endre(client, seeded_with_answers):
+    """UX-DR51, FR-41 (matrix «One-person household»): «Du kan endre svaret …»,
+    the button, and no «Slik betaler du» at 0 kr."""
+    block = _status_block(_front(client, SYNNE))
+    assert "Du kan endre svaret fram til" in page_text(block)
+    assert "Se eller endre svar" in block
+    assert "Slik betaler du" not in block
+
+
+def test_after_the_deadline_the_block_has_no_window_or_button(client, seeded_with_answers):
+    """FR-41 (matrix «After the deadline»): neither line nor button."""
+    _past_deadline()
+    block = _status_block(_front(client, MARIE))
+    assert "kan endre svaret" not in block
+    assert "Se eller endre svar" not in block
+
+
+def test_a_non_check_step_with_sending_opens_the_form_before_the_deadline(
+    client, seeded_with_answers
+):
+    """FR-37, FR-41 (Story 4.1): `?sending=<reason>` on a step other than the
+    check page is no longer redirected; before the deadline it opens the form."""
+    response = client.get(f"/{MARIE}/svar/dager/?sending=endret")
+    assert response.status_code == 200
