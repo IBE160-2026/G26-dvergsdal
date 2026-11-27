@@ -154,6 +154,8 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
   - **Sending:** the send service compares the draft's revision with the current one and writes in the same IMMEDIATE transaction.
   - **If the revision changed:** nothing is written. The guest sees the other answer (who, when and what differs) and must send again. *(Changed 2026-11-24 in Story 2.6c: `send_answer` takes the draft's `revision`, re-reads `Household.revision` in its IMMEDIATE transaction and refuses a mismatch with `RevisionConflict` (carrying the current revision). The view moves the draft to that revision without its consent answers and confirmations and redirects (303) to `se-over/?sending=endret`, whose focused notice says who sent and when (Oslo time) and that consent must be given again; the next send is a new send. «What differs» is not shown yet: it belongs with changing a sent answer in Story 4.1 (deferred-work «From Story 2.6c»).)*
 
+*(Added 2026-11-27 in Story 4.1, AD-8 and AD-9: before the deadline an answered household's form opens on a **seeded draft**, built in memory per request from the stored answer (`seeded_draft` in `wedding/rsvp/change.py`) and never written by a GET; the cookie appears only on «Fortsett» or «Velg». Confirmations are never stored, so the seed carries none, and a stored consent «Ja» is seeded only for the current consent-text version. «Send svaret» needs a real cookie draft: a send without one writes nothing and goes (303) to step 1, so an old tab cannot re-send the stored answer.)*
+
 ### AD-10: Roles are enforced on the server, in services
 
 - **Binds:** FR-46, FR-47, FR-63, FR-64, NFR-4
@@ -173,7 +175,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Rule:**
   - **Time:** `USE_TZ = True`, `TIME_ZONE = "Europe/Oslo"`. Times are stored in UTC and shown in Oslo time.
   - **Deadline:** the deadline is stored as a date. One function in `rules/`, given `now`, decides whether a moment is after 23:59:59 Oslo time on that date. Tests cover both sides of it and a winter/summer time boundary. *(Added 2026-11-21 in Story 2.1: the function is `is_past_deadline(deadline, now)` in `wedding/rules/deadline.py`. It is True from 00:00:00 Europe/Oslo the day after, and refuses a naive `now`. Every step address under `/<code>/svar/` checks it first (an unknown slug stays 404), also when a POST fails the CSRF check, and after the deadline shows a closed page that writes nothing.)* *(2026-11-26, Story 2.9: after the deadline the front page shows no draft notice and the front page and the closed page delete the draft cookie `rsvp_draft`; an answered household's draft is left for Story 4.1.)*
-  - **What it locks:** only guest sends that change answer content. Consent withdrawal, "I have paid" reports and every couple service are never locked.
+  - **What it locks:** only guest sends that change answer content. Consent withdrawal, "I have paid" reports and every couple service are never locked. *(Added 2026-11-27 in Story 4.1: after the deadline the front page of an answered household deletes its draft cookie, and its form addresses go (302) to the status block; before it, a usable draft shows «Du har endringer som ikke er sendt ennå.» in the status block.)*
 
 ### AD-12: Money is whole kroner as integers
 
@@ -251,7 +253,7 @@ Arrows show who may depend on whom. `guests` and `dashboard` never import each o
 - **Binds:** FR-39, FR-56, FR-61
 - **Prevents:** two stores for "Changed", and an item marked as seen that stays hidden after a new change.
 - **Rule:**
-  - **Changed:** `Household.changed_at` is set by one helper. Only these services call it: a guest or the couple changing a sent answer, and consent withdrawal.
+  - **Changed:** `Household.changed_at` is set by one helper. Only these services call it: a guest or the couple changing a sent answer, and consent withdrawal. *(Added 2026-11-27 in Story 4.1: `Household.changed_at` (migration `0009`) is written only by `mark_changed(household, now)` in `wedding/services/changes.py`, which `send_answer` calls inside its transaction, and only when a `HouseholdAnswer` already existed and the pure rule `answer_changed(stored, new)` (`wedding/rules/changes.py`) finds the normalised content different: who comes, days, cabin, meals, hike, and consent or allergy entry per present guest. A first answer, an identical re-send and the seed never set it. The marker holds a time only, no changer name (`changed_by` is not added): the form's notice «Sist endret av …» names the last send (`HouseholdAnswer.sent_by_name` and `sent_at`) instead, because «who answered last» is the sender.)*
   - **Attention items:** each item has a kind, a subject (guest or household) and an event time, all computed by rules.
   - **Handled marks:** a mark stores kind, subject and `handled_at`. The item shows again when its event time is later than `handled_at`.
 

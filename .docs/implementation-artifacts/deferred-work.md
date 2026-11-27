@@ -267,7 +267,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 ## From Story 2.6c (2026-11-24)
 
 - source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
-  summary: Story 4.1: on a revision conflict, show the guest «what differs» between their draft and the answer sent meanwhile (AD-9); 2.6c shows only who sent it and when.
+  summary: Story 4.2 (retargeted from 4.1 on 2026-11-27): on a revision conflict, show the guest «what differs» between their draft and the answer sent meanwhile (AD-9); 2.6c shows only who sent it and when.
   evidence: decided in the spec; it belongs with changing a sent answer.
 
 - source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
@@ -278,6 +278,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
   summary: Stories 4.x: the conflict notice names the last sender and time; once a revision can be bumped by something other than a send (guest moves, overrides, withdrawals), it must not name a send as the cause.
   evidence: Edge Case Hunter; today only sends bump the revision.
+  status: still open (2026-11-27): after Story 4.1 only sends bump the revision; decide at the first non-send bump (Story 4.4 or Epic 7).
 
 - source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
   summary: Story 4.4: the couple's mount gets the generic conflict notice (`_changed_text` for non-guest actors); give it a fitting text and a test.
@@ -303,18 +304,21 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-8-the-household-s-status-on-the-invitation.md`
   summary: An answered household can still POST a send from an old draft (another tab or phone). GETs of every `/svar/` address redirect to `#status` (Story 2.8), but POSTs rely only on the Story 2.6c revision-conflict handling; Story 4.1 (change the answer) must decide how a re-send from a stale draft is guarded.
   evidence: medium, Blind Hunter, 2.8 review; `guests/views.py` `_rsvp` redirects GET/HEAD only.
+  status: done in Story 4.1 (2026-11-27): a send needs a real cookie draft; without one `handle_step` writes nothing and sends the guest (303) to step 1; a stale cookie draft is still refused by the 2.6c revision check.
 
 ## From Story 2.9 (2026-11-26)
 
 - source_spec: `.docs/implementation-artifacts/spec-2-9-an-interrupted-answer-is-kept-on-the-phone.md`
   summary: Story 4.1: an answered household's draft cookie gets no notice and no offer and is never deleted, also after the deadline (its form GETs go to `#status` first). 4.1 decides what happens to it when the form reopens for changing an answer (EXPERIENCE: offered with the conflict notice).
   evidence: decided in the spec (Never: answered household); `guests/views.py` `front_page` ignores the cookie when answered, and `_rsvp` redirects before the deadline check.
+  status: done in Story 4.1 (2026-11-27): before the deadline the status block warns «Du har endringer som ikke er sendt ennå.» and the form offers the draft; after the deadline the front page deletes the cookie.
 - source_spec: `.docs/implementation-artifacts/spec-2-9-an-interrupted-answer-is-kept-on-the-phone.md`
   summary: Check on a real phone and in Messenger's in-app browser that closing the app drops the session cookie `rsvp_visit`, so the Draft offer appears; if not, the guest lands on the step with all answers filled in.
   evidence: medium. Blind and intent-alignment review; Edge only simulated a restart by keeping cookies with expires > 0. Check on Rikke's devices (issues.md).
 - source_spec: `.docs/implementation-artifacts/spec-2-9-an-interrupted-answer-is-kept-on-the-phone.md`
   summary: Story 4.1: tell the guest why «Ja, fortsett» opens step 1 with consent cleared after the household changed.
   evidence: low. Blind review; rare, needs a new text.
+  status: done in Story 4.1 (2026-11-27): the Draft offer adds «Husstanden er endret siden du begynte. Du må se over svaret på nytt fra steg 1, og samtykke til å lagre allergier må gis på nytt.»
 - source_spec: `.docs/implementation-artifacts/spec-2-9-an-interrupted-answer-is-kept-on-the-phone.md`
   summary: A CSRF failure on the Draft offer's POST shows the step with the CSRF notice instead of the offer again.
   evidence: low. Blind and edge-case review; expired token only, the guest can continue.
