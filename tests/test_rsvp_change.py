@@ -83,3 +83,29 @@ def test_the_notice_names_the_last_sender_in_oslo_time(seeded_with_answers):
     sent.sent_at = datetime.datetime(2026, 11, 3, 17, 40, tzinfo=datetime.UTC)
     sent.sent_by_name = "Arild"
     assert last_changed_text(sent) == "Sist endret av Arild, 3. november kl. 18:40"
+
+
+def _consent_events(guest, *events):
+    """Replace `guest`'s consent events with (event, hours after the first, text_version) rows."""
+    Consent.objects.filter(guest=guest).delete()
+    first = timezone.now() - datetime.timedelta(days=2)
+    for event, hours, version in events:
+        Consent.objects.create(
+            guest=guest,
+            event=event,
+            at=first + datetime.timedelta(hours=hours),
+            given_by=guest,
+            given_by_name=guest.name,
+            text_version=version,
+        )
+
+
+def test_only_the_latest_consent_event_decides_the_seed(seeded_with_answers):
+    """FR-37, AD-18: the seed follows the same latest event `sent_answer` reports:
+    an old «Ja» then a newer current-version «Nei» seeds «Nei»; a current «Ja»
+    then a newer «Nei» of an old text version seeds nothing."""
+    arild = Guest.objects.get(code=ARILD)
+    _consent_events(arild, (Consent.GIVEN, 0, "gammel"), (Consent.REFUSED, 1, CONSENT_TEXT_VERSION))
+    assert _seed()[2].cons[arild.pk] is False
+    _consent_events(arild, (Consent.GIVEN, 0, CONSENT_TEXT_VERSION), (Consent.REFUSED, 1, "gammel"))
+    assert arild.pk not in _seed()[2].cons

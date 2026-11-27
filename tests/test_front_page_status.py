@@ -267,3 +267,12 @@ def test_after_the_deadline_the_block_has_no_window_or_button(client, seeded_wit
     block = _status_block(_front(client, MARIE))
     assert "kan endre svaret" not in block
     assert "Se eller endre svar" not in block
+
+
+def test_a_non_check_step_with_sending_opens_the_form_before_the_deadline(
+    client, seeded_with_answers
+):
+    """FR-37, FR-41 (Story 4.1): `?sending=<reason>` on a step other than the
+    check page is no longer redirected; before the deadline it opens the form."""
+    response = client.get(f"/{MARIE}/svar/dager/?sending=endret")
+    assert response.status_code == 200
