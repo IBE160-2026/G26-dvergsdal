@@ -67,6 +67,7 @@ from django.shortcuts import render
 from django.utils import dateformat, timezone
 
 from wedding.actors import Actor, GuestActor
+from wedding.rsvp.change import seeded_draft
 from wedding.rsvp.draft import (
     Draft,
     delete_draft,
@@ -1229,7 +1230,8 @@ def _later_step(
             delete_draft(response, mount)
             return response, None
     if draft is None or "who" not in draft.done:
-        return HttpResponseRedirect(mount.url("who")), None
+        # AD-8, Story 4.1: a send with no draft goes to step 1 as a 303, writing nothing.
+        return (_see_other if sending else HttpResponseRedirect)(mount.url("who")), None
     if sending and any(guest_id not in draft.att for guest_id, _ in members):
         # FR-13, AD-9: a member added after step 1 has no «Kommer»; ask it first.
         return _see_other(mount.url("who")), None
@@ -1306,6 +1308,7 @@ def handle_step(
     step: str,
     prices: Prices,
     page_context: dict[str, object],
+    answered: bool = False,
 ) -> HttpResponse:
     """AD-7, AD-8, FR-75: GET or POST one step (a key of `STEPS`, or `CHECK`) of the form.
 
@@ -1317,15 +1320,26 @@ def handle_step(
     settings. A broken draft is deleted and the form starts empty. The
     database is written only by «Send svaret» on the check page, through
     `send_answer` (Story 2.6a).
+
+    Story 4.1 (FR-37, AD-8): an `answered` household without a cookie draft
+    works on `seeded_draft` (in memory, never offered or written by a GET); a
+    send needs a real cookie draft.
     """
-    draft, broken, _ = read_draft(request, _member_ids(members), _owner(actor, members))
+    draft, broken, changed = read_draft(request, _member_ids(members), _owner(actor, members))
     if request.method == "POST" and request.POST.get("action") in (RESUME, RESTART):
         response = _answer_offer(request, mount=mount, members=members, draft=draft)
         if broken:
             delete_draft(response, mount)
         return response
     if draft is not None and request.method in ("GET", "HEAD") and not has_visit(request):
-        return _render_offer(request, draft=draft, page_context=page_context)
+        return _render_offer(
+            request, draft=draft, page_context=page_context | {"household_changed": changed}
+        )
+    sending = request.method == "POST" and request.POST.get("action") == "send"
+    if draft is None and answered and not (sending and step == CHECK):
+        draft = _settled(
+            seeded_draft(actor.household, members, _owner(actor, members), timezone.now()), members
+        )
     before = _present(draft, members)
     arguments = {"mount": mount, "members": members, "draft": draft, "page_context": page_context}
     if step == "who":

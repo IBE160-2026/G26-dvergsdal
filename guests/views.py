@@ -12,8 +12,10 @@ total under `/<code>/svar/sum/` (Story 2.3, FR-33) and its sent page under
 `/<code>/svar/sendt/` (Story 2.6a, FR-74), which Story 2.7 makes the receipt
 (FR-23, FR-34), with the payment page under `/<code>/svar/betal/` (FR-71).
 Once a household has answered, the front page shows its status block instead
-of the RSVP sheet and every form address leads there (Story 2.8, FR-24,
-FR-34, UX-DR10).
+of the RSVP sheet (Story 2.8, FR-24, FR-34, UX-DR10). Story 4.1 (FR-37,
+FR-38, FR-41): before the deadline the block offers «Se eller endre svar» and
+every form address opens the form with the sent answer filled in; after the
+deadline every form address leads to the status block.
 
 Every guest view only reads (FR-3): one resolver lookup, then selectors. None
 of them touches the session, the messages framework or `request.user`, and
@@ -48,15 +50,11 @@ from django.views.decorators.http import require_http_methods, require_POST, req
 from wedding.actors import GuestActor
 from wedding.links import resolve_code
 from wedding.models import HouseholdAnswer, Settings
+from wedding.rsvp.change import last_changed_text
 from wedding.rsvp.draft import COOKIE_NAME, delete_draft, read_draft
-from wedding.rsvp.steps import CHECK, KEY_BY_SLUG, FormMount
+from wedding.rsvp.steps import KEY_BY_SLUG, FormMount
 from wedding.rsvp.summary import receipt_parts
-from wedding.rsvp.views import (
-    SENDING_QUERY,
-    handle_step,
-    render_after_csrf_failure,
-    render_total,
-)
+from wedding.rsvp.views import handle_step, render_after_csrf_failure, render_total
 from wedding.rules.answer import Answer, normalise_answer, present_days
 from wedding.rules.deadline import is_past_deadline
 from wedding.rules.form_steps import form_steps
@@ -171,12 +169,14 @@ def front_page(request: HttpRequest, code: str) -> HttpResponse:
     when something is owed, «Slik betaler du» (`_sent_money`, AD-12). Only
     GET and HEAD, never cached (AD-15).
 
-    Story 2.9 (FR-78, AD-8, AD-11, UX-DR26): an unanswered household with a
-    draft cookie before the deadline gets the warning notice «Du har et svar
-    som ikke er sendt ennå.» on the RSVP sheet, for a usable draft; that
-    costs one more SELECT (`household_members`), only when the cookie is
-    there. A broken draft, or any draft after the deadline, is deleted
-    instead. An answered household's cookie is left alone (Story 4.1).
+    Story 2.9 (FR-78, AD-8, AD-11, UX-DR26): a household with a draft cookie
+    before the deadline gets the warning notice on the RSVP sheet («Du har et
+    svar som ikke er sendt ennå.») or, once answered, in the status block
+    («Du har endringer som ikke er sendt ennå.», Story 4.1); that costs one
+    more SELECT (`household_members`), only when the cookie is there. A
+    broken draft, or any draft after the deadline, is deleted instead.
+    Story 4.1 (FR-37, FR-41, UX-DR10): before the deadline the status block
+    also gets the change window and «Se eller endre svar» (`can_change`).
     """
     actor = resolve_code(code)
     if actor is None:
@@ -184,17 +184,18 @@ def front_page(request: HttpRequest, code: str) -> HttpResponse:
     names = household_guest_names(actor.household)
     settings = site_settings()
     answer = household_answer(actor.household)
+    past_deadline = is_past_deadline(settings.rsvp_deadline, timezone.now())
     context = _guest_context(actor, settings, answered=answer is not None) | {
         "household_names": household_names(names),
         "speaks_to_one": speaks_to_one(len(names)),
+        "can_change": not past_deadline,
     }
     if answer is not None:
         context |= {"answer": answer, **_sent_money(sent_answer(actor.household), settings)}
-        return render(request, "guests/front_page.html", context)
     if COOKIE_NAME not in request.COOKIES:
         return render(request, "guests/front_page.html", context)
     mount = _guest_mount(actor.guest.code)
-    if is_past_deadline(settings.rsvp_deadline, timezone.now()):
+    if past_deadline:
         response = render(request, "guests/front_page.html", context)
         delete_draft(response, mount)
         return response
@@ -275,12 +276,12 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
     step slug (`step` None) gives «Vi finner ikke denne siden». After the
     deadline, GET and POST alike show the closed page and write nothing; so
     does a send `send_answer` refuses with `DeadlinePassed` (FR-41, Story 2.6a).
-    A GET or HEAD by a household that has answered goes (302) to the front
-    page's status block, before the deadline check, so it holds after the
-    deadline too (Story 2.8, FR-24, UX-DR10). POSTs are untouched, and so,
-    before the deadline only, is the check page a refused send comes back to
-    (`se-over/?sending=…`), so the double-tap and conflict handling of Story
-    2.6c keep working; every other step with `?sending=` still redirects.
+    After the deadline a GET or HEAD by a household that has answered goes
+    (302) to the front page's status block, before the closed page (Story 2.8,
+    FR-24, UX-DR10; Story 4.3 builds the locked view); POSTs are untouched.
+    Before the deadline every address opens the form for it with the sent
+    answer filled in (Story 4.1, FR-37, FR-38): `answered` goes to
+    `handle_step` and the info notice «Sist endret av …» to the page context.
     The closed page deletes the draft cookie (AD-11, Story 2.9).
     """
     actor = resolve_code(code)
@@ -289,20 +290,16 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
     if step is None:
         raise Http404
     settings = site_settings()
-    context = _guest_context(actor, settings)
-    if (
-        request.method in ("GET", "HEAD")
-        and context["answered"]
-        and not (
-            step == CHECK
-            and SENDING_QUERY in request.GET
-            and not is_past_deadline(settings.rsvp_deadline, timezone.now())
-        )
-    ):
+    answer = household_answer(actor.household)
+    context = _guest_context(actor, settings, answered=answer is not None)
+    past_deadline = is_past_deadline(settings.rsvp_deadline, timezone.now())
+    if past_deadline and answer is not None and request.method in ("GET", "HEAD"):
         return HttpResponseRedirect(reverse("guests:front_page", args=[code]) + "#status")
     mount = _guest_mount(actor.guest.code)
-    if is_past_deadline(settings.rsvp_deadline, timezone.now()):
+    if past_deadline:
         return _closed(request, context, mount)
+    if answer is not None:
+        context["last_changed"] = last_changed_text(answer)
     try:
         return handle_step(
             request,
@@ -312,6 +309,7 @@ def _rsvp(request: HttpRequest, code: str, step: str | None) -> HttpResponse:
             step=step,
             prices=form_prices(settings),
             page_context=context,
+            answered=answer is not None,
         )
     except DeadlinePassed:
         return _closed(request, context, mount)

@@ -1,0 +1,10 @@
+{% comment %}
+The info notice at the top of the form of an answered household (Story 4.1; FR-38,
+UX-DR28): «Sist endret av <name>, <j. F> kl. <H:i>», from `last_changed`
+(`last_changed_text`), which names the last send. Nothing without it, so the
+form of a household that has not answered, the Draft offer and the page after a
+failed CSRF check show none. Present at load, so not a live region.
+{% endcomment %}
+{% if last_changed %}
+    {% include "wedding/components/notice.html" with variant="info" text=last_changed only %}
+{% endif %}

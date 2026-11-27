@@ -20,7 +20,9 @@ failed send comes back with `?sending=<reason>` and its focused error notice
 (`sending_notice`) at the top. The only script is rsvp-send.js (UX-DR15,
 UX-DR52), which shows «Sender …», stops a second tap, sends with fetch and,
 when the connection breaks, resets the button and shows the hidden
-`[data-send-failed]` notice; without it the form still sends.
+`[data-send-failed]` notice; without it the form still sends. Story 4.1
+(FR-38, UX-DR28): for an answered household the info notice «Sist endret av
+…» stands above the `h1`, under «Obs».
 {% endcomment %}
 {% block title %}Se over svaret før du sender – Invitasjon{% endblock title %}
 {% block head %}
@@ -47,6 +49,7 @@ when the connection breaks, resets the button and shows the hidden
                 {% include "wedding/components/notice.html" with variant="error" text="Skjemaet ble ikke sendt. Det skjer når siden har stått åpen lenge, eller når nettleseren ikke tar imot informasjonskapsler. Det du fylte ut, står her fortsatt. Prøv igjen." focus=True only %}
             {% endif %}
             {% include "wedding/components/notice.html" with variant="warning" text="Svaret er ikke sendt ennå." only %}
+            {% include "rsvp/includes/last-changed.html" %}
             <h1>Se over svaret før du sender</h1>
             <ul class="check-list">
                 {% for part in parts %}

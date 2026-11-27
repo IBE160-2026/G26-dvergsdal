@@ -190,14 +190,14 @@ def test_a_member_missing_from_step_1_goes_to_step_1(client, seeded):
     page; a guest then moved into the household is not in the draft's
     attendance, so the household changed (Story 2.9, FR-78): no step stays
     done, so the check page's gate sends «Send svaret» back to step 1
-    (302) before any send, and nothing is written."""
+    (303, Story 4.1) before any send, and nothing is written."""
     sigmund, bestemor = _ids(SIGMUND)
     client.post(_url(SIGMUND), {f"attendance_{sigmund}": "no", f"attendance_{bestemor}": "no"})
     assert client.get(_url(SIGMUND, "se-over")).status_code == 200
     newcomer = create_household(SYSTEM, [NewGuest("Ny gjest")]).guests.get()
     Guest.objects.filter(pk=newcomer.pk).update(household=Guest.objects.get(code=SIGMUND).household)
     response = _send(client)
-    assert response.status_code == 302
+    assert response.status_code == 303
     assert response["Location"] == _url(SIGMUND)
     assert HouseholdAnswer.objects.count() == 0
     assert PersonAnswer.objects.count() == 0
@@ -285,9 +285,8 @@ def test_allergies_are_stored_only_with_consent(client, seeded):
     """FR-26, FR-28, FR-29, AD-18 (Story 2.6b, epics AC): Sigmund gluten «Ja»
     and bestemor nuts «Nei» store only Sigmund's data and two consent events;
     a re-send from a fresh draft that changes Sigmund's data with consent
-    unanswered keeps his stored data. Since Story 2.8 the answered household's
-    GET of the check page goes to the status block, so the warning is not
-    shown there; the POST still sends."""
+    unanswered keeps his stored data. Story 4.1: the answered household's
+    check page opens, and the POST sends."""
     sigmund, bestemor = _ids(SIGMUND)
     _sigmund_with_allergies(
         client,
@@ -306,7 +305,7 @@ def test_allergies_are_stored_only_with_consent(client, seeded):
     assert list(events) == [(sigmund, Consent.GIVEN), (bestemor, Consent.REFUSED)]
 
     _sigmund_with_allergies(client, {f"allergies_{sigmund}": ["gluten", "lactose"]})
-    assert client.get(_url(SIGMUND, "se-over"))["Location"] == f"/{SIGMUND}/#status"
+    assert client.get(_url(SIGMUND, "se-over")).status_code == 200
     assert _send(client).status_code == 303
     allergy = Allergy.objects.get()
     assert (allergy.guest_id, allergy.gluten, allergy.lactose) == (sigmund, True, False)
@@ -522,3 +521,121 @@ def test_another_households_id_goes_back_to_the_check_page(client, seeded):
     assert response["Location"] == _url(SIGMUND, "se-over")
     assert HouseholdAnswer.objects.count() == 1
     assert Submission.objects.count() == 1
+
+
+# Changing a sent answer (Story 4.1; FR-37, FR-38, FR-39, AD-8, AD-20)
+
+SYNNE = "test-synne000000000000"
+MARIE = "test-marie000000000000"
+
+
+def _household(code: str):
+    return Guest.objects.get(code=code).household
+
+
+def _prefilled(html: str) -> dict[str, list[str]]:
+    """What the page shows ticked, as a POST would send it (checked radios and boxes)."""
+    posted: dict[str, list[str]] = {}
+    for tag in re.findall(r"<input\b[^>]*>", html):
+        if re.search(r"\schecked\b", tag):
+            attributes = tag_attrs(tag)
+            posted.setdefault(attributes["name"], []).append(attributes["value"])
+    return posted
+
+
+def _walk_to_check(client, code: str, changes: dict[str, dict] | None = None):
+    """«Fortsett» on every step the household's form shows, from step 1 to the check page,
+    with `changes` (keyed by step slug, «» for step 1) replacing what is prefilled."""
+    changes = changes or {}
+    url = _url(code)
+    for _ in range(10):
+        html = client.get(url).content.decode()
+        if url.endswith("/se-over/"):
+            return html
+        slug = url.rstrip("/").rsplit("/", 1)[-1] if url != _url(code) else ""
+        posted = _prefilled(html) | changes.get(slug, {}) | {"action": "continue"}
+        url = client.post(url, posted)["Location"]
+    raise AssertionError("never reached the check page")
+
+
+def test_the_form_opens_with_the_sent_answer_and_no_cookie(client, seeded_with_answers):
+    """FR-37, FR-38, AD-8 (matrix «Open the form»): Arild's step 1 is filled in
+    from the stored answer, the info notice names the sender, there is no Draft
+    offer and the GET sets no cookie."""
+    response = client.get(_url(ARILD))
+    html = response.content.decode()
+    arild, marie, filippa, leone = _ids(ARILD)
+    assert response.status_code == 200
+    assert COOKIE_NAME not in response.cookies
+    assert "Vil du fortsette der du slapp?" not in html
+    assert re.search(r"Sist endret av Arild, \d{1,2}\. \w+ kl\. \d\d:\d\d", page_text(html))
+    assert html.index("notice--info") < html.index("<h1")
+    assert _prefilled(html) == {
+        "respondent": [str(arild)],
+        f"attendance_{arild}": ["yes"],
+        f"attendance_{marie}": ["yes"],
+        f"attendance_{filippa}": ["yes"],
+        f"attendance_{leone}": ["no"],
+    }
+
+
+def test_a_changed_answer_is_sent_and_marks_the_household(client, seeded_with_answers):
+    """FR-37, FR-39, AD-12, AD-20 (matrix «Change and send», «Double tap»):
+    Filippa's cabin «Ja» to «Nei» gives 4 980 kr on the check page, the receipt
+    and the front page; `changed_at` is set, the revision rose once, and the
+    same form posted twice shows the receipt, never the conflict notice."""
+    filippa = _ids(ARILD)[2]
+    revision = _household(ARILD).revision
+    html = _walk_to_check(client, ARILD, {"overnatting": {f"overnight_{filippa}": ["no"]}})
+    assert "Totalt for husstanden: 4 980 kr" in page_text(html).replace("\xa0", " ")
+    assert "Sist endret av Arild" in page_text(html)
+    data = _hidden_in(html) | {"action": "send"}
+    first = client.post(_url(ARILD, "se-over"), data)
+    assert (first.status_code, first["Location"]) == (303, _url(ARILD, "sendt"))
+    household = _household(ARILD)
+    assert household.revision == revision + 1
+    assert household.changed_at is not None
+    again = client.post(_url(ARILD, "se-over"), data)
+    assert (again.status_code, again["Location"]) == (303, _url(ARILD, "sendt"))
+    assert _household(ARILD).revision == revision + 1
+    assert Submission.objects.filter(key=data["innsending"]).count() == 1
+    for page in (_url(ARILD, "sendt"), f"/{ARILD}/"):
+        assert "4 980 kr" in page_text(client.get(page).content.decode()).replace("\xa0", " ")
+
+
+def test_an_unchanged_answer_re_sent_keeps_changed_at_empty(client, seeded_with_answers):
+    """FR-39, AD-19 (matrix «Identical re-send»): Synne's «Fortsett» on every
+    step shown and a send moves the revision and the time, not `changed_at`."""
+    revision = _household(SYNNE).revision
+    sent_at = HouseholdAnswer.objects.get(household=_household(SYNNE)).sent_at
+    html = _walk_to_check(client, SYNNE)
+    assert (
+        client.post(_url(SYNNE, "se-over"), _hidden_in(html) | {"action": "send"}).status_code
+        == 303
+    )
+    household = _household(SYNNE)
+    assert household.revision == revision + 1
+    assert household.changed_at is None
+    assert HouseholdAnswer.objects.get(household=household).sent_at > sent_at
+
+
+def test_another_respondent_confirms_the_consent_again(client, seeded_with_answers):
+    """FR-37, FR-27, AD-18 (matrix «Opener is not the consenter»): Marie's seed
+    keeps Arild's «Ja» but no confirmation, so the check page sends her to
+    step 5, which asks for it."""
+    response = client.get(_url(MARIE, "se-over"))
+    assert (response.status_code, response["Location"]) == (302, _url(MARIE, "allergier"))
+    page = page_text(client.get(_url(MARIE, "allergier")).content.decode())
+    assert "Jeg bekrefter at Arild vet om dette" in page
+
+
+def test_a_send_without_a_cookie_draft_writes_nothing(client, seeded_with_answers):
+    """FR-37, AD-8 (matrix «Send without cookie»): an old tab cannot re-send the
+    stored answer; a seeded send is refused with 303 to step 1."""
+    before = row_counts() | {"revision": _household(ARILD).revision}
+    response = client.post(
+        _url(ARILD, "se-over"), {"action": "send", "innsending": uuid.uuid4(), "sum": "6480"}
+    )
+    assert (response.status_code, response["Location"]) == (303, _url(ARILD))
+    assert before == row_counts() | {"revision": _household(ARILD).revision}
+    assert COOKIE_NAME not in response.cookies

@@ -193,6 +193,17 @@ def sent_answer(household: Household) -> Answer:
     )
 
 
+def consent_versions(household: Household) -> dict[int, str]:
+    """FR-37, AD-18 (Story 4.1): the text version of each guest's latest consent event.
+
+    One SELECT over the household's guests' `Consent` events, in the order
+    `sent_answer` reads them, so the version belongs to the event whose answer
+    `sent_answer` reports. A guest with no event is left out.
+    """
+    events = Consent.objects.filter(guest__household=household).order_by("at", "pk")
+    return {event.guest_id: event.text_version for event in events}
+
+
 def submitted(household: Household, key: UUID) -> bool:
     """AD-20, NFR-1 (Story 2.6c): whether `key` was written as `household`'s answer.
 

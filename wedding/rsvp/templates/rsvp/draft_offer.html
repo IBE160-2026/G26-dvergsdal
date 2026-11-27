@@ -6,7 +6,9 @@ a guest comes back in a new browser session with a draft on this phone. One
 paper sheet on the green page, like a form step, with no nav bar and the
 footer band kept: the question as the `h1`, when the answer was started
 (Oslo time, without the year, as in the mockup) and one POST form with
-«Ja, fortsett» (primary) above «Nei, begynn på nytt» (secondary), full width.
+«Ja, fortsett» (primary) above «Nei, begynn på nytt» (secondary), full width. Story 4.1: when the household
+changed since the draft started (`household_changed`) a paragraph says the
+answer must be looked over again from step 1.
 No script and no hidden fields besides the CSRF token: the buttons' `action` is the only thing
 posted, and the draft is written only by that POST (AD-8).
 {% endcomment %}
@@ -17,6 +19,11 @@ posted, and the draft is written only by that POST (AD-8).
             {% csrf_token %}
             <h1>Vil du fortsette der du slapp?</h1>
             <p>{{ start_line }}</p>
+            {% if household_changed %}
+                <p>
+                    Husstanden er endret siden du begynte. Du må se over svaret på nytt fra steg 1, og samtykke til å lagre allergier må gis på nytt.
+                </p>
+            {% endif %}
             <div class="form-actions">
                 <button class="button" type="submit" name="action" value="resume">Ja, fortsett</button>
                 <button class="button button--secondary"
