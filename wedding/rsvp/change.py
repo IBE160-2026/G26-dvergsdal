@@ -60,9 +60,9 @@ def seeded_draft(household: Household, members: Members, respondent: int, now: d
 
 
 def posted_revision(post: Mapping[str, str]) -> int | None:
-    """FR-38, AD-9: the revision a form was opened at (hidden `revisjon`), or None unless whole."""
+    """FR-38, AD-9: the revision a form was opened at (`revisjon`), or None unless 1 to 9 digits."""
     value = post.get(REVISION_FIELD, "")
-    return int(value) if value.isascii() and value.isdigit() else None
+    return int(value) if value.isascii() and value.isdigit() and len(value) <= 9 else None
 
 
 def opened_at(draft: Draft, posted: int | None, current: int) -> Draft:

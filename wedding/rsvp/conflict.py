@@ -73,11 +73,11 @@ _WORDS = {
 
 
 def _line(difference: diff.Difference, name: str, sender: str) -> str:
-    """FR-38: «<name>: du har <mine>, <sender> har sendt <sent>»; allergies name the topic only."""
+    """FR-38: «<name>: du svarte <mine>, <sender> sendte <sent>»; allergies name the topic only."""
     if difference.topic == diff.ALLERGIES:
         return f"{name}: du og {sender} har ulike opplysninger om allergier og matbehov"
     words = _WORDS[difference.topic]
-    return f"{name}: du har {words(difference.mine)}, {sender} har sendt {words(difference.sent)}"
+    return f"{name}: du svarte {words(difference.mine)}, {sender} sendte {words(difference.sent)}"
 
 
 def conflict_notice(actor: Actor, mine: Answer, members: Sequence[tuple[int, str]]) -> Notice:
@@ -103,5 +103,5 @@ def conflict_notice(actor: Actor, mine: Answer, members: Sequence[tuple[int, str
     if not found:
         return Notice(f"{text} {SAME}", after=CLOSING, variant="warning")
     names = dict(members)
-    items = [_line(d, names.get(d.guest_id, ""), stored.sent_by_name) for d in found]
+    items = [_line(d, names.get(d.guest_id, "en gjest"), stored.sent_by_name) for d in found]
     return Notice(text, items, CLOSING, "warning")

@@ -33,7 +33,7 @@ from wedding.rsvp.draft import COOKIE_NAME, SALT
 pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("local_env")]
 
 OSLO = ZoneInfo("Europe/Oslo")
-GOLDEN = "Filippa: du har hytte hele helgen, Arild har sendt overnatter ikke"
+GOLDEN = "Filippa: du svarte hytte hele helgen, Arild sendte overnatter ikke"
 
 
 def _confirmations() -> dict[str, dict]:
@@ -190,3 +190,20 @@ def test_the_notice_component_lists_items_and_stays_silent(client):
     assert "Slutt" in html
     plain = render_to_string("wedding/components/notice.html", {"variant": "info", "text": "x"})
     assert "notice__list" not in plain
+
+
+def test_an_invalid_first_step_keeps_the_opened_revision(client, seeded_with_answers):
+    """FR-38, AD-8, AD-9: a stale cookie-less form posted with no «Kommer» choice is written
+    (as any «Fortsett») at the opened revision and goes to `?feil=1`, whose page reads that
+    cookie draft; the corrected post still ends in the conflict refusal at send."""
+    n = _household(ARILD).revision
+    opened = client.get(_url(MARIE)).content.decode()
+    _arild_sends_no_cabin_for_filippa()
+    invalid = client.post(_url(MARIE), {"revisjon": str(n), "action": "continue"})
+    assert (invalid.status_code, invalid["Location"]) == (303, _url(MARIE) + "?feil=1")
+    assert (_cookie(invalid)["rev"], _cookie(invalid)["cons"]) == (n, {})
+    assert client.get(invalid["Location"]).status_code == 200
+    client.post(_url(MARIE), _prefilled(opened) | {"action": "continue"})
+    html = _walk_to_check(client, MARIE, _confirmations())
+    response = client.post(_url(MARIE, "se-over"), _hidden_in(html) | {"action": "send"})
+    assert response["Location"] == _url(MARIE, "se-over") + "?sending=endret"

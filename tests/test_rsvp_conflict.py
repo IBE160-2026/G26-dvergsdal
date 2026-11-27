@@ -46,7 +46,7 @@ def test_the_notice_names_who_sent_when_and_what_differs(seeded_with_answers):
     assert notice.variant == "warning"
     assert notice.text.startswith(f"{NOT_SENT}Arild sendte et svar for husstanden ")
     assert notice.text.endswith(f"kl. {local:%H:%M} etter at du begynte.")
-    assert notice.items == ["Filippa: du har overnatter ikke, Arild har sendt hytte hele helgen"]
+    assert notice.items == ["Filippa: du svarte overnatter ikke, Arild sendte hytte hele helgen"]
     assert notice.after == CLOSING
     assert "Samtykke til å lagre allergier må gis på nytt." in notice.after
 
@@ -67,13 +67,13 @@ def test_each_topic_is_worded_as_the_check_page_words_it(seeded_with_answers):
         allergies=mine.allergies | {ids["Arild"]: AllergyEntry(("gluten",), False, "hemmelig")},
     )
     items = conflict_notice(actor, mine, members).items
-    assert "Marie: du har lørdag 27. mai og søndag 28. mai, Arild har sendt hele helgen" in items
-    assert "Filippa: du har kommer ikke, Arild har sendt kommer" in items
+    assert "Marie: du svarte lørdag 27. mai og søndag 28. mai, Arild sendte hele helgen" in items
+    assert "Filippa: du svarte kommer ikke, Arild sendte kommer" in items
     assert (
-        "Arild: du har middag fredag og frokost søndag, "
-        "Arild har sendt middag fredag, frokost lørdag og frokost søndag"
+        "Arild: du svarte middag fredag og frokost søndag, "
+        "Arild sendte middag fredag, frokost lørdag og frokost søndag"
     ) in items
-    assert "Arild: du har kanskje, Arild har sendt ja" in items
+    assert "Arild: du svarte kanskje, Arild sendte ja" in items
     assert "Arild: du og Arild har ulike opplysninger om allergier og matbehov" in items
     assert "hemmelig" not in " ".join(items)
 
@@ -134,9 +134,30 @@ def test_a_taken_revision_clears_consent_confirmations_and_version():
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [("3", 3), ("0", 0), ("", None), ("abc", None), ("-1", None), ("1.5", None), ("٣", None)],
+    [
+        ("3", 3),
+        ("0", 0),
+        ("", None),
+        ("abc", None),
+        ("-1", None),
+        ("1.5", None),
+        ("٣", None),
+        ("1" * 5000, None),
+        ("1" * 10, None),
+        ("1" * 9, 111111111),
+    ],
 )
 def test_posted_revision_reads_only_whole_numbers(value, expected):
     """FR-38 (matrix «Forged or missing field»): only whole ASCII numbers are taken."""
     assert posted_revision({"revisjon": value}) == expected
     assert posted_revision({}) is None
+
+
+def test_a_guest_who_is_not_a_member_is_called_en_gjest(seeded_with_answers):
+    """FR-38: a difference for a guest id the household no longer lists never starts with «: »."""
+    actor, members = _arild()
+    mine = sent_answer(actor.household)
+    mine = replace(mine, night=mine.night | {_ids()["Filippa"]: False})
+    others = [member for member in members if member[1] != "Filippa"]
+    notice = conflict_notice(actor, mine, others)
+    assert notice.items == ["en gjest: du svarte overnatter ikke, Arild sendte hytte hele helgen"]
