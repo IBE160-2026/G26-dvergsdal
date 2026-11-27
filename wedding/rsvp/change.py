@@ -4,8 +4,12 @@
 household's form opens with, from the stored answer; it is never written to
 the cookie by a GET (AD-8), only by «Fortsett» or «Velg» as any draft is.
 `last_changed_text` is the form's top notice: who sent the answer last.
+Story 4.2 (FR-38, AD-9): a seeded form carries the revision it was opened at
+in a hidden `revisjon`; `opened_at` starts a cookie-less first POST at it.
 """
 
+from collections.abc import Mapping
+from dataclasses import replace
 from datetime import datetime
 
 from django.utils import dateformat, timezone
@@ -17,6 +21,8 @@ from wedding.selectors import consent_versions, sent_answer
 from wedding.services.consent import CONSENT_TEXT_VERSION
 
 Members = list[tuple[int, str]]
+# FR-38, AD-9 (Story 4.2): the hidden field that carries the revision a form was opened at.
+REVISION_FIELD = "revisjon"
 
 
 def seeded_draft(household: Household, members: Members, respondent: int, now: datetime) -> Draft:
@@ -51,6 +57,27 @@ def seeded_draft(household: Household, members: Members, respondent: int, now: d
     draft.hike = dict(stored.hike)
     draft.cv = CONSENT_TEXT_VERSION if consent else None
     return draft
+
+
+def posted_revision(post: Mapping[str, str]) -> int | None:
+    """FR-38, AD-9: the revision a form was opened at (hidden `revisjon`), or None unless whole."""
+    value = post.get(REVISION_FIELD, "")
+    return int(value) if value.isascii() and value.isdigit() else None
+
+
+def opened_at(draft: Draft, posted: int | None, current: int) -> Draft:
+    """FR-38, AD-9, AD-18 (Story 4.2): a seeded `draft` moved back to its form's revision.
+
+    `posted` is the form's `revisjon`. When it is a whole number below the
+    household's `current` revision, the household's answer changed after the
+    form was opened: the draft starts at `posted`, so the send is refused
+    (Story 2.6c), and its consent answers and text version are cleared (no
+    «Ja» across a revision change). A missing, forged or higher value
+    changes nothing.
+    """
+    if posted is None or not 0 <= posted < current:
+        return draft
+    return replace(draft, rev=posted, cons={}, conf=[], cv=None)
 
 
 def last_changed_text(answer: HouseholdAnswer) -> str:

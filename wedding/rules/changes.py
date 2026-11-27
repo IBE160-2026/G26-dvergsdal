@@ -9,7 +9,7 @@ from wedding.rules.allergies import EMPTY, AllergyEntry
 from wedding.rules.answer import Answer, normalise_answer, present_days
 
 
-def _allergy_key(entry: AllergyEntry) -> tuple[frozenset[str], bool, str]:
+def allergy_key(entry: AllergyEntry) -> tuple[frozenset[str], bool, str]:
     """FR-39: an allergy entry as comparable values (the category order never counts)."""
     return frozenset(entry.cats), entry.none, entry.note
 
@@ -26,9 +26,9 @@ def _consent_differs(stored: Answer, new: Answer, guest_id: int) -> bool:
     if given is None:
         return False
     if given:
-        return stored.consent.get(guest_id) is not True or _allergy_key(
+        return stored.consent.get(guest_id) is not True or allergy_key(
             stored.allergies.get(guest_id, EMPTY)
-        ) != _allergy_key(new.allergies.get(guest_id, EMPTY))
+        ) != allergy_key(new.allergies.get(guest_id, EMPTY))
     return stored.consent.get(guest_id) is not False or guest_id in stored.allergies
 
 

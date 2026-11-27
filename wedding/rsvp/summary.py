@@ -54,7 +54,7 @@ def _who_lines(answer: Answer, members, _present, _respondent) -> list[dict]:
     ]
 
 
-def _day_names(days: frozenset[str]) -> str:
+def day_names(days: frozenset[str]) -> str:
     """FR-14: «lørdag 27. mai og søndag 28. mai», in `DAY_KEYS` order."""
     return join_words(
         [f"{DAYS[day].name.lower()} {DAYS[day].date}" for day in DAY_KEYS if day in days]
@@ -67,7 +67,7 @@ def _days_lines(answer: Answer, members, present, _respondent) -> list[dict]:
         _line(
             f"{name}: hele helgen"
             if present[guest_id] == WHOLE_WEEKEND
-            else f"{name}: {_day_names(present[guest_id])}"
+            else f"{name}: {day_names(present[guest_id])}"
         )
         for guest_id, name in members
         if guest_id in present
