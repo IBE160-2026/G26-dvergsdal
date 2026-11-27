@@ -56,10 +56,13 @@ class Household(models.Model):
     No name is stored: «for Sigmund og bestemor» is derived from the guests' names
     by `wedding.rules.households.household_names` (Story 1.5). `revision` starts
     at 0 and goes up on every change to the household's answer or members, so
-    two senders never overwrite silently (AD-9).
+    two senders never overwrite silently (AD-9). `changed_at` is the couple's
+    «Changed» marker (FR-39, AD-19, Story 4.1): when a sent answer's content
+    last really changed, set only by `wedding.services.changes.mark_changed`.
     """
 
     revision = models.PositiveIntegerField("revisjon", default=0)
+    changed_at = models.DateTimeField("endret", null=True, blank=True)
     # FR-72, AD-16: made by the seed command; only these are removed by the reset.
     is_test_data = models.BooleanField("testdata", default=False)
 

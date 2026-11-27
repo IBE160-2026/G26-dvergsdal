@@ -9,4 +9,6 @@ of the ORM write methods it lists (`save`, `delete`, `create`, `update` and thei
 bulk and get-or-create forms).
 
 `answers.py` (Story 2.6a) holds `send_answer`, the guest form's one write.
+`changes.py` (Story 4.1) holds `mark_changed`, the only writer of
+`Household.changed_at`, called from the services that change a sent answer.
 """

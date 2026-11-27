@@ -679,3 +679,75 @@ def test_the_operator_cannot_send_an_answer():
             consent_version=CONSENT_TEXT_VERSION,
         )
     assert HouseholdAnswer.objects.count() == 0
+
+
+# `Household.changed_at` (Story 4.1; FR-39, AD-19)
+
+
+def _changed_at(code: str = SIGMUND):
+    return Household.objects.values_list("changed_at", flat=True).get(guests__code=code)
+
+
+def test_a_first_answer_does_not_set_changed_at(deadline):
+    """FR-39, AD-19 (matrix «First answer»): the household's first answer is not a change."""
+    sigmund, _ = _ids(SIGMUND)
+    _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer())
+    assert _changed_at() is None
+
+
+def test_a_changed_re_send_sets_changed_at(deadline):
+    """FR-39, AD-19: a re-send whose content differs sets `changed_at` to `now`."""
+    sigmund, bestemor = _ids(SIGMUND)
+    earlier = LAST_SECOND - datetime.timedelta(hours=1)
+    _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), now=earlier)
+    _send(_actor(SIGMUND), SIGMUND, bestemor, Answer({sigmund: True, bestemor: False}, True))
+    assert _changed_at() == LAST_SECOND
+
+
+def test_an_identical_re_send_does_not_set_changed_at(deadline):
+    """FR-39, AD-19 (matrix «Identical re-send»): revision, sender and time move,
+    `changed_at` stays empty."""
+    sigmund, bestemor = _ids(SIGMUND)
+    earlier = LAST_SECOND - datetime.timedelta(hours=1)
+    _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), now=earlier)
+    _send(_actor(SIGMUND), SIGMUND, bestemor, _sigmund_answer())
+    assert _changed_at() is None
+    assert Household.objects.get(guests__code=SIGMUND).revision == 2
+    assert HouseholdAnswer.objects.get().sent_by_id == bestemor
+
+
+def test_a_double_tap_of_a_change_raises_the_revision_and_sets_once(deadline):
+    """FR-39, AD-19, AD-20 (matrix «Double tap»): the same submission id twice
+    for a change writes once; the second call returns the earlier answer."""
+    sigmund, bestemor = _ids(SIGMUND)
+    earlier = LAST_SECOND - datetime.timedelta(hours=1)
+    _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), now=earlier)
+    change = Answer({sigmund: True, bestemor: False}, True)
+    key = uuid.uuid4()
+    first = _send(_actor(SIGMUND), SIGMUND, sigmund, change, submission=key)
+    Household.objects.filter(guests__code=SIGMUND).update(changed_at=None)
+    again = _send(_actor(SIGMUND), SIGMUND, sigmund, change, submission=key, revision=1)
+    assert again.pk == first.pk
+    assert Household.objects.get(guests__code=SIGMUND).revision == 2
+    assert _changed_at() is None  # the repeat wrote nothing, so it did not set it again
+    assert Submission.objects.count() == 2
+
+
+def test_a_refused_send_does_not_set_changed_at(deadline):
+    """FR-39, AD-3: a refused change (deadline, old revision) leaves `changed_at` alone."""
+    sigmund, bestemor = _ids(SIGMUND)
+    _send(_actor(SIGMUND), SIGMUND, sigmund, _sigmund_answer(), now=LAST_SECOND)
+    change = Answer({sigmund: True, bestemor: False}, True)
+    with pytest.raises(DeadlinePassed):
+        _send(_actor(SIGMUND), SIGMUND, sigmund, change, now=CLOSED)
+    with pytest.raises(RevisionConflict):
+        _send(_actor(SIGMUND), SIGMUND, sigmund, change, revision=0)
+    with pytest.raises(NotAllowed):
+        _send(
+            _actor(ARILD),
+            SIGMUND,
+            sigmund,
+            change,
+            household=Guest.objects.get(code=SIGMUND).household,
+        )
+    assert _changed_at() is None
