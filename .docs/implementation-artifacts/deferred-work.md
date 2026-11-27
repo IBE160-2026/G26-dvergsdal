@@ -5,7 +5,7 @@ Findings from build reviews that belong to a later story. Each entry names the s
 - source_spec: `.docs/implementation-artifacts/spec-1-4a-the-invitation-s-colours-type-buttons-and-notices.md`
   summary: A notice inserted after page load with `live=True` arrives with its text already inside the new `role="status"`/`role="alert"` element, which some screen readers do not announce; the story that first inserts notices with JavaScript should keep an empty live region in the page at load and put only the text into it.
   evidence: maybe-false, would be medium. Nothing inserts notices with JavaScript yet (all of 1.4a is server-rendered and JS-free), so it cannot be observed now. It is settled by testing the first in-page insertion (for example «Kopiert» in Story 2.7 or the conflict notice in Story 4.2) with NVDA and VoiceOver.
-  status (2026-11-26, Story 2.7): code side done: «Slik betaler du» has one empty `role="status"` span per row in the server HTML, and rsvp-copy.js only sets its text («Kopiert»); MT-52 checks the proxy (empty at load, only the clicked one filled) with Playwright. Still open for Rikke: hear it announced with NVDA or VoiceOver.
+  status (2026-11-26, Story 2.7): code side done: «Slik betaler du» has one empty `role="status"` span per row in the server HTML, and rsvp-copy.js only sets its text («Kopiert»); MT-52 checks the proxy (empty at load, only the clicked one filled) with Playwright. Still open for Rikke: hear it announced with NVDA or VoiceOver. Story 4.2 (2026-11-27): the conflict notice is not an in-page insertion (it is server-rendered with focus on load, `autofocus`, no `role`; a test pins both), so it does not need this check; only «Kopiert» remains.
 
 - source_spec: `.docs/implementation-artifacts/spec-1-4b-paper-rikke-s-images-and-the-private-invitation-page.md`
   summary: A wrong link with more than one path segment (for example `/hei/x/`) shows Django's own 404 page (with the URL list when DEBUG is on) instead of G1; Story 1.8 should set `handler404` to a G1-style page.
@@ -269,6 +269,7 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
   summary: Story 4.2 (retargeted from 4.1 on 2026-11-27): on a revision conflict, show the guest «what differs» between their draft and the answer sent meanwhile (AD-9); 2.6c shows only who sent it and when.
   evidence: decided in the spec; it belongs with changing a sent answer.
+  status: done in Story 4.2 (2026-11-27): `answer_differences` (wedding/rules/differences.py) and `conflict_notice` (wedding/rsvp/conflict.py); the notice is a warning with one line per difference.
 
 - source_spec: `.docs/implementation-artifacts/spec-2-6c-a-send-that-fails-or-repeats-is-safe.md`
   summary: Story 2.6d: `seed_testdata` does not remove `Submission` rows, so they keep pointing at answers the seed deleted.
@@ -425,4 +426,15 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
 - source_spec: `.docs/implementation-artifacts/spec-4-1-see-or-change-the-answer-before-the-deadline.md`
   summary: Story 4.2: a form opened before another member's send, then continued with no cookie draft, is seeded at the newer revision, so its first step overwrites the other member's change with no conflict notice (AD-9).
   evidence: medium, Blind Hunter, 4.1 review; `seeded_draft` takes `household.revision` at the first POST. The stale revision has to travel with the opened form for the 2.6c check to fire.
-  status: open (Story 4.2).
+  status: done in Story 4.2 (2026-11-27): the seeded form carries a hidden `revisjon`; `opened_at` (wedding/rsvp/change.py) starts a cookie-less first POST at it, so the 2.6c check fires at send.
+
+## From Story 4.2 (2026-11-27)
+
+- source_spec: `.docs/implementation-artifacts/spec-4-2-no-answer-is-overwritten-without-anyone-seeing-it.md`
+  summary: A step form rendered from a cookie draft carries no `revisjon`; if the cookie is lost before the next POST the form is seeded at the newest revision and another member's newer answer can be overwritten without a notice.
+  evidence: low, Edge Case Hunter, 4.2 review; narrower than the 4.1 hole. Render `revisjon` = `draft.rev` on every step if it shows up in the usability test.
+  status: open.
+
+## Plan note (2026-11-27)
+
+- A polish story is planned after epic 4/5, before the usability test (Rikke, 2026-11-27: «ja»): Impeccable `critique` and `audit` on the guest and admin pages, the double-colon headings, the `:target` highlight, muted-note contrast, and the px breakpoints in site.css.
