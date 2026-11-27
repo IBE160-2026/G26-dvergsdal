@@ -12,18 +12,29 @@ live:    only for a notice added after the page has loaded. It then becomes a
 focus:   only for a notice the page opens with focus on, such as the RSVP
          form's error after a failed CSRF check (Story 2.1, UX-DR52): it gets
          tabindex="-1" and autofocus, so no script is needed.
+items:   optional list of lines shown under the text (Story 4.2, FR-38: what
+         differs in a conflict notice), as a `<ul class="notice__list">`;
+after:   optional paragraph under the list. Neither makes the notice live.
 Error and warning text get the prefix «Feil:» / «Obs:», and each variant has
 its own icon shape, so the state never depends on colour alone. The notice
 never hides itself.
 {% endcomment %}
 <div class="notice notice--{% if variant == 'success' or variant == 'warning' or variant == 'error' %}{{ variant }}{% else %}info{% endif %}" {% if live %}role="{% if variant == 'error' %}alert{% else %}status{% endif %}"{% endif %} {% if focus %}tabindex="-1" autofocus{% endif %}>
     {% include "wedding/components/state-icon.html" with variant=variant class="notice__icon" only %}
-    <p class="notice__text">
-        {% if variant == "error" %}
-            Feil:
-        {% elif variant == "warning" %}
-            Obs:
+    <div class="notice__body">
+        <p class="notice__text">
+            {% if variant == "error" %}
+                Feil:
+            {% elif variant == "warning" %}
+                Obs:
+            {% endif %}
+            {{ text }}
+        </p>
+        {% if items %}
+            <ul class="notice__list">
+                {% for item in items %}<li>{{ item }}</li>{% endfor %}
+            </ul>
         {% endif %}
-        {{ text }}
-    </p>
+        {% if after %}<p class="notice__text">{{ after }}</p>{% endif %}
+    </div>
 </div>

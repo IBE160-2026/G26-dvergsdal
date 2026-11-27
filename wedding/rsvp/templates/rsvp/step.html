@@ -30,7 +30,12 @@ and swaps in the fragment; without JavaScript the next page shows the total.
   which comes earlier in the form. It is not focusable and carries no answer.
 - Story 4.1 (FR-38, UX-DR28): for an answered household the info notice
   «Sist endret av …» (`last_changed`) stands above the `h1`.
-- No hidden fields (AD-1, AD-8), and no script except rsvp-total.js on the
+- Story 4.2 (FR-38, AD-9; deviation from AD-8's «no hidden fields», dated
+  in ARCHITECTURE-SPINE.md): a form seeded from the stored answer (`opened_revision`)
+  carries the revision it was opened at in a hidden `revisjon`, so a first
+  POST with no cookie draft starts at that revision and a send after another
+  member's send is refused. It is the only hidden field; it holds no answer.
+- No script except rsvp-total.js on the
   paid steps and rsvp-allergies.js on step 5 (UX-DR21), which only enhance.
 {% endcomment %}
 {% block title %}{% if errors %}Feil: {% endif %}{{ progress }} – Invitasjon{% endblock title %}
@@ -48,6 +53,9 @@ and swaps in the fragment; without JavaScript the next page shows the total.
               novalidate
               {% if total is not None %}data-total-url="{{ total_url }}"{% endif %}>
             {% csrf_token %}
+            {% if opened_revision is not None %}
+                <input type="hidden" name="revisjon" value="{{ opened_revision }}">
+            {% endif %}
             {% if csrf_failed %}
                 {% include "wedding/components/notice.html" with variant="error" text="Skjemaet ble ikke sendt. Det skjer når siden har stått åpen lenge, eller når nettleseren ikke tar imot informasjonskapsler. Det du fylte ut, står her fortsatt. Prøv igjen." focus=True only %}
             {% endif %}
