@@ -67,7 +67,8 @@ from django.shortcuts import render
 from django.utils import dateformat, timezone
 
 from wedding.actors import Actor, GuestActor
-from wedding.rsvp.change import seeded_draft
+from wedding.rsvp.change import opened_at, posted_revision, seeded_draft
+from wedding.rsvp.conflict import NOT_SENT, Notice, conflict_notice
 from wedding.rsvp.draft import (
     Draft,
     delete_draft,
@@ -127,7 +128,7 @@ from wedding.rules.form_steps import (
     step_position,
 )
 from wedding.rules.money import CABIN, household_total
-from wedding.selectors import household_answer, submitted
+from wedding.selectors import submitted
 from wedding.services.answers import send_answer
 from wedding.services.consent import CONSENT_TEXT_VERSION
 from wedding.services.exceptions import (
@@ -167,7 +168,6 @@ SEND_FAILED = "feilet"
 SEND_CHANGED = "endret"
 SEND_TOTAL = "sum"
 SEND_CONSENT = "samtykke"
-NOT_SENT = "Svaret ble ikke sendt, fordi "
 TRY_AGAIN = " Ingenting er tapt: alt du fylte ut, står her fortsatt. Prøv igjen med «Send svaret»."
 
 logger = logging.getLogger(__name__)
@@ -662,42 +662,30 @@ def _phones(contacts: list[dict[str, str]]) -> str:
     return f" Går det fortsatt ikke, ring {' eller '.join(calls)}."
 
 
-def _changed_text(actor: Actor) -> str:
-    """AD-9 (Story 2.6c): why a send was refused after the household's answer
-    changed: who sent it and when (Oslo time, as on the sent page)."""
-    sent = household_answer(actor.household) if isinstance(actor, GuestActor) else None
-    if sent is None:
-        reason = "svaret for husstanden er endret etter at du begynte."
-    else:
-        local = timezone.localtime(sent.sent_at)
-        reason = (
-            f"{sent.sent_by_name} sendte et svar for husstanden "
-            f"{dateformat.format(local, 'l j. F Y')} kl. {dateformat.format(local, 'H:i')} "
-            "etter at du begynte."
-        )
-    return (
-        NOT_SENT
-        + reason
-        + " Se over svaret og send det på nytt. Samtykke til å lagre allergier må gis på nytt."
-    )
+def _sending_notice(
+    request: HttpRequest, actor: Actor, contacts: list, mine: Answer, members: Members
+) -> Notice:
+    """UX-DR52, AD-7, AD-9, AD-18, FR-38 (Stories 2.6c, 4.2): the notice for `?sending=<reason>`.
 
-
-def _sending_notice(request: HttpRequest, actor: Actor, contacts: list) -> str:
-    """UX-DR52, AD-7, AD-9, AD-18 (Story 2.6c): the notice for `?sending=<reason>`,
-    or "" for no or an unknown reason."""
+    Empty for no or an unknown reason; `SEND_CHANGED` also lists what differs (`conflict_notice`).
+    """
     reason = request.GET.get(SENDING_QUERY)
     if reason == SEND_FAILED:
-        return NOT_SENT + "noe gikk galt da det skulle lagres." + TRY_AGAIN + _phones(contacts)
+        return Notice(
+            NOT_SENT + "noe gikk galt da det skulle lagres." + TRY_AGAIN + _phones(contacts)
+        )
     if reason == SEND_CHANGED:
-        return _changed_text(actor)
+        return conflict_notice(actor, mine, members)
     if reason == SEND_TOTAL:
-        return NOT_SENT + "summen har endret seg. Se over den nye summen og send svaret på nytt."
+        return Notice(
+            NOT_SENT + "summen har endret seg. Se over den nye summen og send svaret på nytt."
+        )
     if reason == SEND_CONSENT:
-        return (
+        return Notice(
             NOT_SENT + "teksten om lagring av allergier er endret etter at du svarte. Les den nye "
             "teksten under «Allergier og matbehov» og svar på nytt før du sender."
         )
-    return ""
+    return Notice("")
 
 
 def _submission(request: HttpRequest) -> uuid.UUID | None:
@@ -806,9 +794,10 @@ def _render_check(
     script shows when the connection breaks.
     """
     contacts = page_context.get("contacts") or []
+    mine = _answer(draft, members)
     context = page_context | {
         "parts": check_parts(
-            _answer(draft, members),
+            mine,
             members=members,
             respondent=draft.resp,
             steps=steps,
@@ -818,7 +807,7 @@ def _render_check(
         "back_url": mount.url(steps[-1]),
         "csrf_failed": csrf_failed,
         "submission": uuid.uuid4(),
-        "sending_notice": _sending_notice(request, actor, contacts),
+        "sending_notice": _sending_notice(request, actor, contacts, mine, members),
         "send_failed_text": NOT_SENT + "forbindelsen ble brutt." + TRY_AGAIN + _phones(contacts),
     }
     return render(request, CHECK_TEMPLATE, context, status=status)
@@ -1337,9 +1326,9 @@ def handle_step(
         )
     sending = request.method == "POST" and request.POST.get("action") == "send"
     if draft is None and answered and not (sending and step == CHECK):
-        draft = _settled(
-            seeded_draft(actor.household, members, _owner(actor, members), timezone.now()), members
-        )
+        seed = seeded_draft(actor.household, members, _owner(actor, members), timezone.now())
+        draft = _settled(opened_at(seed, posted_revision(request.POST), seed.rev), members)
+        page_context = page_context | {"opened_revision": draft.rev}
     before = _present(draft, members)
     arguments = {"mount": mount, "members": members, "draft": draft, "page_context": page_context}
     if step == "who":
@@ -1434,6 +1423,9 @@ def render_after_csrf_failure(
     draft, broken, _ = read_draft(request, _member_ids(members), _owner(actor, members))
     posted = posted_respondent(request.POST, _member_ids(members))
     steps = _steps(draft, members)
+    if draft is None and (opened := posted_revision(request.POST)) is not None:
+        # FR-38: a seeded form keeps the revision it was opened at when it is shown again.
+        page_context = page_context | {"opened_revision": opened}
     fields = None
     total = None
     if step == "who":

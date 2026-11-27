@@ -16,8 +16,9 @@ prices, AD-12), and «Send svaret» above «Tilbake». Each «Endre» link carri
 focused error notice opens the sheet, above «Obs». Story 2.6c (AD-7, AD-20):
 two hidden fields, neither an answer: `innsending`, a fresh one-time
 submission id per render, and `sum`, the total this page showed. A refused or
-failed send comes back with `?sending=<reason>` and its focused error notice
-(`sending_notice`) at the top. The only script is rsvp-send.js (UX-DR15,
+failed send comes back with `?sending=<reason>` and its focused notice
+(`sending_notice`) at the top: an error, or, for a changed answer, a warning with
+what differs (Story 4.2, FR-38). The only script is rsvp-send.js (UX-DR15,
 UX-DR52), which shows «Sender …», stops a second tap, sends with fetch and,
 when the connection breaks, resets the button and shows the hidden
 `[data-send-failed]` notice; without it the form still sends. Story 4.1
@@ -37,9 +38,9 @@ when the connection breaks, resets the button and shows the hidden
             {% csrf_token %}
             <input type="hidden" name="innsending" value="{{ submission }}">
             <input type="hidden" name="sum" value="{{ total|stringformat:"d" }}">
-            {% if sending_notice and not csrf_failed %}
+            {% if sending_notice.text and not csrf_failed %}
                 <div data-send-notice>
-                    {% include "wedding/components/notice.html" with variant="error" text=sending_notice focus=True only %}
+                    {% include "wedding/components/notice.html" with variant=sending_notice.variant text=sending_notice.text items=sending_notice.items after=sending_notice.after focus=True only %}
                 </div>
             {% endif %}
             <div data-send-failed hidden tabindex="-1">

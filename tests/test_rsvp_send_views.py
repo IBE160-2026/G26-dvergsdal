@@ -349,8 +349,8 @@ def test_a_double_send_writes_once(client, seeded):
 def test_a_send_from_an_older_revision(client, seeded):
     """AD-9, AD-18 (Story 2.6c, matrix «Two tabs / devices», epics AC): a draft
     at revision 0 after another send is refused: 303 `?sending=endret`, the
-    draft moved to revision 1 without consent answers, the notice names
-    Sigmund and the time; the next send is a new send. The check page is open
+    draft moved to revision 1 without consent answers, the warning (Story
+    4.2) names Sigmund and the time; the next send is a new send. The check page is open
     before the other send (since Story 2.8 a later GET goes to the status
     block), and the next send uses the hidden fields of the refused send's
     check page."""
@@ -371,9 +371,9 @@ def test_a_send_from_an_older_revision(client, seeded):
     assert Submission.objects.count() == 1
     html = client.get(response["Location"]).content.decode()
     sent = HouseholdAnswer.objects.get().sent_at.astimezone(OSLO)
-    notice = re.search(r'notice--error"\s+tabindex="-1" autofocus>(.*?)</div>', html, re.S)
+    notice = re.search(r'notice--warning"\s+tabindex="-1" autofocus>(.*?)</div>', html, re.S)
     text = page_text(notice.group(1))
-    assert "Feil: Svaret ble ikke sendt, fordi Sigmund sendte et svar" in text
+    assert "Obs: Svaret ble ikke sendt, fordi Sigmund sendte et svar" in text
     assert f"kl. {sent:%H:%M} etter at du begynte." in text
     assert "Samtykke til å lagre allergier må gis på nytt." in text
     assert "Allergiopplysningene om Sigmund blir ikke lagret" in page_text(html)
