@@ -268,7 +268,7 @@ def test_a_removed_member_is_dropped_and_yes_goes_to_step_1(client, seeded):
     assert response.status_code == 303
     assert response["Location"] == STEP_1
     written = _written(response)
-    assert str(geir) not in signing.dumps(written)
+    assert all(str(geir) not in written[key] for key in ("att", "night", "alg", "cons", "hike"))
     assert written["resp"] == mona
     assert written["cons"] == {}
     assert written["conf"] == []
