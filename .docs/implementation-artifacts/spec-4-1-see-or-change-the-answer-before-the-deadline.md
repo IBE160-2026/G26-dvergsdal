@@ -2,7 +2,8 @@
 title: 'Story 4.1: See or change the answer before the deadline'
 type: 'feature'
 created: '2026-11-27'
-status: 'ready-for-dev'
+status: 'done'
+baseline_revision: 'cb2a584ae4ef6868560738556b8d2d1a34e12f61'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -10,7 +11,11 @@ context:
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/EXPERIENCE.md'
   - '{project-root}/.docs/planning-artifacts/ux-designs/ux-aill-handle-it-2026-11-10/mockups/answered-1.html'
 warnings: ['oversized']
-deferred: []
+deferred:
+- summary: >-
+    Story 4.2: a form opened before another member's send, then continued with no cookie draft, is seeded at the newer revision, so its first step overwrites the other member's change with no conflict notice (AD-9).
+  reason: >-
+    This is the subject of Story 4.2 («No answer is overwritten without anyone seeing it»); the stale revision has to travel with the opened form (for example a hidden field) for the check to fire.
 ---
 
 <intent-contract>
@@ -77,19 +82,19 @@ deferred: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `wedding/models.py`, `wedding/migrations/0009_household_changed_at.py` -- add `Household.changed_at` -- FR-39, AD-19.
-- [ ] `wedding/rules/changes.py`, `tests/test_change_rules.py` (new) -- `answer_changed`; unit-test every difference kind (attendance, days, cabin, meal, hike, allergy entry, consent flip, kept consent = no change, identical = False) -- FR-39, AD-19.
-- [ ] `wedding/services/changes.py`, `wedding/services/answers.py`, `tests/test_answers_service.py` -- `mark_changed` and its call; tests: first answer does not set, changed re-send sets, identical re-send does not, double tap (same id) raises revision once and sets once, refused sends do not set, cross-household still `NotAllowed` -- FR-39, AD-19, AD-20.
-- [ ] `wedding/selectors.py` -- consent text versions per guest -- FR-37, AD-18.
-- [ ] `wedding/rsvp/change.py`, `tests/test_rsvp_change.py` (new) -- `seeded_draft`, `last_changed_text`; tests: Arild's seed equals the stored answer through `_answer`; consent of another `text_version` dropped; no `conf`; a member without `PersonAnswer` gives empty `done` -- FR-37, FR-38, AD-8, AD-18.
-- [ ] `wedding/rsvp/views.py` (≤ 15 added lines) -- `answered`, seeded draft, no offer for seed, no seed for `send` POST, offer `household_changed` -- FR-37, AD-8, UX-DR26.
-- [ ] `guests/views.py` -- `_rsvp`, `front_page`, docstrings -- FR-37, FR-41, FR-78, UX-DR10.
+- [x] `wedding/models.py`, `wedding/migrations/0009_household_changed_at.py` -- add `Household.changed_at` -- FR-39, AD-19.
+- [x] `wedding/rules/changes.py`, `tests/test_change_rules.py` (new) -- `answer_changed`; unit-test every difference kind (attendance, days, cabin, meal, hike, allergy entry, consent flip, kept consent = no change, identical = False) -- FR-39, AD-19.
+- [x] `wedding/services/changes.py`, `wedding/services/answers.py`, `tests/test_answers_service.py` -- `mark_changed` and its call; tests: first answer does not set, changed re-send sets, identical re-send does not, double tap (same id) raises revision once and sets once, refused sends do not set, cross-household still `NotAllowed` -- FR-39, AD-19, AD-20.
+- [x] `wedding/selectors.py` -- consent text versions per guest -- FR-37, AD-18.
+- [x] `wedding/rsvp/change.py`, `tests/test_rsvp_change.py` (new) -- `seeded_draft`, `last_changed_text`; tests: Arild's seed equals the stored answer through `_answer`; consent of another `text_version` dropped; no `conf`; a member without `PersonAnswer` gives empty `done` -- FR-37, FR-38, AD-8, AD-18.
+- [x] `wedding/rsvp/views.py` (≤ 15 added lines) -- `answered`, seeded draft, no offer for seed, no seed for `send` POST, offer `household_changed` -- FR-37, AD-8, UX-DR26.
+- [x] `guests/views.py` -- `_rsvp`, `front_page`, docstrings -- FR-37, FR-41, FR-78, UX-DR10.
 - [ ] templates and `static/css/site.css` -- status block, info notice include, offer paragraph -- FR-37, FR-38, UX-DR10, UX-DR28.
-- [ ] `tests/test_front_page_status.py`, `tests/test_rsvp_draft_offer.py`, `tests/test_rsvp_send_views.py` -- every matrix row at view level (real POST flow through the steps with `client`, final send, receipt and status block show 4 980 kr, the info notice text, no `Set-Cookie` on the seeded GET, no offer, send without cookie, after the deadline, answered draft notice); update older tests broken by the removed redirect -- FR-37, FR-38, FR-41.
+- [x] `tests/test_front_page_status.py`, `tests/test_rsvp_draft_offer.py`, `tests/test_rsvp_send_views.py` -- every matrix row at view level (real POST flow through the steps with `client`, final send, receipt and status block show 4 980 kr, the info notice text, no `Set-Cookie` on the seeded GET, no offer, send without cookie, after the deadline, answered draft notice); update older tests broken by the removed redirect -- FR-37, FR-38, FR-41.
 - [ ] planning docs per Code Map -- dated 2026-11-27; reasons: the notice names the last sender; `conf` not carried; send needs a cookie draft; `changed_at` only, no changer name.
-- [ ] `.docs/implementation-artifacts/deferred-work.md` -- mark done: 2.8 stale POST, 2.9 answered-household draft cookie, 2.9 «Ja, fortsett» text; retarget «what differs» (2.6c) to Story 4.2; keep «conflict notice must not name a send as cause» open for the first non-send revision bump (4.4, Epic 7), noting that after 4.1 only sends bump it.
-- [ ] `docs/manual-test-plan.md` -- add MT-91 to MT-96 (Norwegian, result cells empty), see Verification -- FR-37, FR-38, UX-DR10.
-- [ ] `README.md`, `sprint-status.yaml` (4-1 and epic-4 in-progress), `.logs/rikke/issues.md` -- sync -- criterion 6.
+- [x] `.docs/implementation-artifacts/deferred-work.md` -- mark done: 2.8 stale POST, 2.9 answered-household draft cookie, 2.9 «Ja, fortsett» text; retarget «what differs» (2.6c) to Story 4.2; keep «conflict notice must not name a send as cause» open for the first non-send revision bump (4.4, Epic 7), noting that after 4.1 only sends bump it.
+- [x] `docs/manual-test-plan.md` -- add MT-91 to MT-96 (Norwegian, result cells empty), see Verification -- FR-37, FR-38, UX-DR10.
+- [x] `README.md`, `sprint-status.yaml` (4-1 and epic-4 in-progress), `.logs/rikke/issues.md` -- sync -- criterion 6.
 
 **Acceptance Criteria:**
 - Given Arild's household has answered and the deadline is ahead, when Marie or Arild opens their link, then the status block shows «Dere kan endre svaret fram til <weekday date> kl. 23:59.», the primary button «Se eller endre svar» to `/<code>/svar/` and, when owed, «Slik betaler du».
@@ -103,6 +108,30 @@ deferred: []
 ## Spec Change Log
 
 ## Review Triage Log
+
+### 2026-11-27 — Review pass
+- verdicts: 20 findings — high 0, medium 2, low 14, false 4, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` Consent text version of the seeded consent is tested only with one event per guest (verification-gap) — a test with two events of different versions pins that the latest event decides.
+  - `[low]` `[patch]` `?sending=` on a non-check step before the deadline is no longer pinned after the 2.8 test was deleted (verification-gap, edge-case) — a test asserts the form (200).
+  - `[low]` `[patch]` MT-91 expects a running sum right after ticking «Nei», but the sum is server-rendered (orchestrator, Playwright) — the row now says the sum shows after «Fortsett» and on the check page; measured 4 980 kr there.
+  - `[medium]` `[defer]` A first POST without a cookie seeds at the newer revision, so a form opened before another member's send overwrites that step without a conflict notice (blind) — real, but it is the subject of Story 4.2 («No answer is overwritten without anyone seeing it»); entered in deferred-work.md for 4.2.
+  - `[false]` `[reject]` A send POST to a non-check step is seeded instead of refused (edge-case) — `_later_step` treats `sending` only on the check page; a send action to another step is an ordinary step POST and writes nothing.
+  - `[false]` `[reject]` A broken draft cookie lingers on the seeded path (edge-case) — `handle_step` deletes a broken cookie on the step response (`elif broken`, views.py line 1354).
+  - `[false]` `[reject]` views.py grew more than 15 lines (edge-case, claim) — net growth is 14 lines (17 added, 3 removed).
+  - `[false]` `[reject]` «kl. 23:59» is hard-coded in the template (blind) — the same text is already in the Svar innen line and the closed page; the deadline moment is one rule and the template shows the same constant as before.
+  - `[low]` `[reject]` «Svaret er ikke sendt ennå.» above «Sist endret av …» contradicts (blind) — the warning is about the new changes, which really are not sent; Playwright shows both read correctly on the check page.
+  - `[low]` `[reject]` An identical re-send moves `sent_at`, so the notice claims a change (blind) — the notice names the last send by design (Design Notes, ARCHITECTURE-SPINE note); `changed_at` is the couple's marker.
+  - `[low]` `[reject]` `changed` is computed before the revision and idempotency checks, two extra SELECTs on refused sends (edge-case) — negligible, and moving it would split the transaction logic.
+  - `[low]` `[reject]` A first consent «Nei» with nothing stored sets `changed_at` (edge-case) — the stored consent record does change, so it is a change.
+  - `[low]` `[reject]` Seed keeps allergy entries without consent when the text version is old (edge-case) — step 5 then shows consent unanswered and the send is refused until it is answered.
+  - `[low]` `[reject]` Empty sent_by_name or a non-Norwegian locale in `last_changed_text` (edge-case) — `sent_by_name` is always the sender's name and the site is Norwegian only.
+  - `[low]` `[reject]` The `(_see_other if sending else HttpResponseRedirect)` inline choice reads poorly (blind) — one line with a comment; no behaviour defect.
+  - `[low]` `[reject]` Test helpers duplicated, MARIE redefined, README paragraph long (blind) — cosmetic; README follows the existing section layout.
+  - `[low]` `[reject]` Process traces missing: session log, deferred entries (blind) — written in the finalize and log steps.
+  - `[low]` `[reject]` Migration header date is 2026-11-26 (blind) — generated comment only.
+  - `[low]` `[reject]` The `:`boundary at 23:59:59 on the front page has no test (blind) — the deadline rule has its own boundary tests (AD-11).
+  - `[low]` `[reject]` Intent alignment: the diff implements the guest-facing flow; «Sist endret av» names the last sender (intent-alignment) — documented decision, not a divergence to fix.
 
 ## Design Notes
 
@@ -126,3 +155,22 @@ deferred: []
 - MT-94 Utkast i et besvart svar: on Arild's form press «Fortsett» on step 1, close the context and open a new one with the saved cookies minus `rsvp_visit`: `/svar/` shows «Vil du fortsette der du slapp?», and the front page shows «Du har endringer som ikke er sendt ennå.».
 - MT-95 Bare tastatur: from Arild's front page Tab to «Se eller endre svar», Enter, then Tab and Enter through all steps to «Send svaret»; focused controls have `outline-style` `solid`.
 - MT-96 Oppsett: Arild's front page and step 1 at 360 × 640 and 180 × 320, with and without 20px default text (CDP `Page.setFontSizes` `{ fontSizes: { standard: 20 } }`): `scrollWidth` ≤ `innerWidth`, «Se eller endre svar» ≥ 44px high, the window line and the info notice wrap inside the sheet.
+
+## Auto Run Result
+
+Status: done
+
+**Summary:** A household that has answered can now see and change the answer before the deadline (FR-37, FR-38, FR-39, FR-41, AD-19, UX-DR10, UX-DR28). The status block shows «Dere kan endre svaret fram til … kl. 23:59.» and «Se eller endre svar»; `/<code>/svar/` opens the form filled in from the stored answer (an in-memory `seeded_draft`, no cookie until «Fortsett») with the notice «Sist endret av <name>, <date> kl. <time>»; `send_answer` sets `Household.changed_at` through `mark_changed` only when `answer_changed` finds different content. A send needs a real cookie draft (closes the Story 2.8 stale-POST item), and the answered household's draft cookie gets a front-page notice and is deleted after the deadline.
+
+**Files changed:**
+- `wedding/models.py`, `wedding/migrations/0009_household_changed_at.py`, `wedding/rules/changes.py`, `wedding/services/changes.py`, `wedding/services/answers.py`, `wedding/selectors.py`, `wedding/rsvp/change.py` (new), `wedding/rsvp/views.py` (+14 net), `guests/views.py`, templates, `static/css/site.css`.
+- Tests: `test_change_rules.py`, `test_rsvp_change.py` (new), `test_answers_service.py`, `test_front_page_status.py`, `test_rsvp_draft_offer.py`, `test_rsvp_send_views.py`.
+- ARCHITECTURE-SPINE, DESIGN, EXPERIENCE, README, `deferred-work.md`, `issues.md`, `sprint-status.yaml`, `docs/manual-test-plan.md` (MT-91 to MT-96).
+
+**Review:** 20 findings from four layers: 3 patched (a test for the latest consent event deciding the seed, a test for `?sending=` on a non-check step, the MT-91 wording), 1 deferred to Story 4.2, 16 rejected with reasons.
+
+**Follow-up review recommendation:** false. No high finding; the one real concurrency gap is Story 4.2's subject.
+
+**Verification:** `uv run pytest` 1662 passed; ruff, ruff format and djlint clean. MT-91 to MT-96 run by Claude with Playwright in Edge: change flow gives 4 980 kr on the check page, receipt and front page, `changed_at` set; send without cookie draft 303; after the deadline no line or button and `/svar/` goes to `#status`; keyboard-only through all steps; 360 and 180 px at 16 and 20 px with no overflow, button 52 to 88 px high.
+
+**Residual risks:** The first-step overwrite race (deferred to 4.2). The notice names the last sender, so an identical re-send moves it (by design, documented). Draft cookie behaviour on real phones is the open item from 2.9.

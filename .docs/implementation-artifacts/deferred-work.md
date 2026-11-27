@@ -419,3 +419,10 @@ Rikke's choices from [svar-pa-apne-punkter](../../.logs/rikke/965-2026-11-21-13-
   summary: Story 7.2: when the seed loads Synne's withdrawal, check that the state it stores equals the fixture's `Consent.WITHDRAWN` row (and whether `Allergy` rows are deleted), then delete `seeded_with_synne_withdrawal`, the seed-alone pin test and `SYNNE_UNTIL_7_2`.
   evidence: Blind Hunter in the 3.5 review; the fixture inserts the event directly because no withdrawal flow exists before 7.2.
   status: open (Story 7.2).
+
+## From Story 4.1 (2026-11-27)
+
+- source_spec: `.docs/implementation-artifacts/spec-4-1-see-or-change-the-answer-before-the-deadline.md`
+  summary: Story 4.2: a form opened before another member's send, then continued with no cookie draft, is seeded at the newer revision, so its first step overwrites the other member's change with no conflict notice (AD-9).
+  evidence: medium, Blind Hunter, 4.1 review; `seeded_draft` takes `household.revision` at the first POST. The stale revision has to travel with the opened form for the 2.6c check to fire.
+  status: open (Story 4.2).

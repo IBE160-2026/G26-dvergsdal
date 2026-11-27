@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 11-16-2026 13:02
-last_updated: 11-27-2026 16:00
+last_updated: 11-27-2026 17:00
 project: AI'll handle it
 project_key: NOKEY
 tracking_system: file-system
@@ -71,8 +71,8 @@ development_status:
   3-5-tests-prove-the-numbers-match-the-expected-results-list: done
   epic-3-retrospective: done
 
-  epic-4: backlog
-  4-1-see-or-change-the-answer-before-the-deadline: backlog
+  epic-4: in-progress
+  4-1-see-or-change-the-answer-before-the-deadline: done
   4-2-no-answer-is-overwritten-without-anyone-seeing-it: backlog
   4-3-the-answer-locks-at-the-deadline: backlog
   4-4-the-couple-fills-in-or-changes-any-household-s-answer: backlog
